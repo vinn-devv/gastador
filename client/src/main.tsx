@@ -13,9 +13,9 @@ registerServiceWorker();
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
+    {/* A document-start overlay, independent from router navigation. */}
+    <LaunchIntro />
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      {/* The intro lives at the app root: it runs once on launch, never on route changes. */}
-      <LaunchIntro />
       <ToastProvider>
         <DataProvider>
           <BillingProvider>

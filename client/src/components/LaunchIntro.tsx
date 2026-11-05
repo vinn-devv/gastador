@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 const DotLottiePlayer: any = "dotlottie-wc";
 const LOTTIE_SOURCE =
@@ -12,18 +13,18 @@ export function LaunchIntro() {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    // Give the icon choreography time to complete. This component is mounted
-    // once from main.tsx, outside the route tree, so page navigation won't replay it.
+    // Play once per document launch. This component is rendered outside
+    // BrowserRouter, so route changes never restart the intro.
     const timer = window.setTimeout(
       () => setClosing(true),
-      reducedMotion ? 2200 : 4600,
+      reducedMotion ? 2800 : 6200,
     );
     return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (!closing) return;
-    const timer = window.setTimeout(() => setMounted(false), 520);
+    const timer = window.setTimeout(() => setMounted(false), 560);
     return () => window.clearTimeout(timer);
   }, [closing]);
 
@@ -31,11 +32,14 @@ export function LaunchIntro() {
 
   const dismiss = () => setClosing(true);
 
-  return (
+  // Portal to body so the launch layer is never trapped by the app shell,
+  // route transitions, or #root stacking context.
+  return createPortal(
     <div
       className={`launch-intro${closing ? " launch-intro--exit" : ""}`}
       role="status"
       aria-label="Opening Gastador"
+      aria-live="polite"
     >
       <div className="launch-intro__glow" aria-hidden="true" />
       <div className="launch-intro__ambient launch-intro__ambient--one" aria-hidden="true" />
@@ -88,6 +92,7 @@ export function LaunchIntro() {
       >
         Skip
       </button>
-    </div>
+    </div>,
+    document.body,
   );
 }
