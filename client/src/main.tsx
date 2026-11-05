@@ -14,11 +14,12 @@ registerServiceWorker();
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL}>
+      {/* The intro lives at the app root: it runs once on launch, never on route changes. */}
+      <LaunchIntro />
       <ToastProvider>
         <DataProvider>
           <BillingProvider>
             <App />
-            <LaunchIntro />
           </BillingProvider>
         </DataProvider>
       </ToastProvider>
