@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Logo } from "./Logo";
 
 export function LaunchIntro() {
   const [mounted, setMounted] = useState(true);
@@ -33,17 +34,7 @@ export function LaunchIntro() {
     >
       <div className="launch-intro__glow" aria-hidden="true" />
       <div className="launch-intro__content">
-        <div className="launch-intro__mark" aria-hidden="true">
-          <span className="launch-intro__corner launch-intro__corner--tl" />
-          <span className="launch-intro__corner launch-intro__corner--tr" />
-          <span className="launch-intro__corner launch-intro__corner--bl" />
-          <span className="launch-intro__corner launch-intro__corner--br" />
-          <img src="/gastador-mark.svg" alt="" draggable={false} />
-        </div>
-        <div className="launch-intro__wordmark" aria-hidden="true">
-          <span>Gastador</span>
-        </div>
-        <p className="launch-intro__tagline">Snap it. Track it. Stretch it.</p>
+        <Logo className="launch-intro__logo" />
       </div>
       <button
         type="button"
