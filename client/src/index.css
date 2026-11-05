@@ -654,17 +654,3 @@ nav[aria-label="Main"] a[aria-current="page"] { color:rgb(var(--primary)); }
 nav[aria-label="Main"] a[aria-current="page"] span:first-child { transition:transform .2s ease; }
 nav[aria-label="Main"] a[aria-current="page"] span:first-child { transform:translateY(-1px); }
 .btn, .iconbtn { transition-timing-function:cubic-bezier(.2,.8,.2,1); }
-
-
-/* Restore the supplied Gastador lockup in the splash screen. */
-.launch-intro__logo {
-  width: min(84vw, 420px);
-  max-width: 420px;
-  opacity: 0;
-  transform: translateY(8px) scale(0.985);
-  animation: intro-wordmark-in 650ms cubic-bezier(0.22, 1, 0.36, 1) 180ms both;
-}
-.launch-intro__logo .brand-lockup__image {
-  width: 100%;
-  height: auto;
-}
