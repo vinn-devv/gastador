@@ -1,0 +1,17 @@
+node_modules/
+**/node_modules/
+client/dist/
+server/.env
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+coverage/
+
+client/public/tesseract/
+client/dev-dist/
+*.tsbuildinfo
+
+# Local editor / assistant configuration
+.continue/
