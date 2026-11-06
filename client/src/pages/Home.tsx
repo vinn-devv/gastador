@@ -1,15 +1,12 @@
 import {
   ArrowUpRight,
   CalendarClock,
-  ChartNoAxesColumn,
   ChevronRight,
   History,
   Info,
-  PiggyBank,
   Plus,
   ScanLine,
   Settings2,
-  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import { useMemo } from "react";
