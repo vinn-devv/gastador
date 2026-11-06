@@ -34,7 +34,7 @@ export function LaunchIntro() {
 
   return createPortal(
     <div
-      className={\`launch-intro\${closing ? " launch-intro--exit" : ""}\`}
+      className={"launch-intro" + (closing ? " launch-intro--exit" : "")}
       role="status"
       aria-label="Opening Gastador"
       aria-live="polite"
@@ -42,7 +42,7 @@ export function LaunchIntro() {
       <div className="launch-intro__content">
         <div className="launch-intro__animation" aria-hidden="true">
           <DotLottiePlayer
-            src={\`\${import.meta.env.BASE_URL}gastador-intro.json\`}
+            src={import.meta.env.BASE_URL + "gastador-intro.json"}
             autoplay
             speed={1}
             mode="forward"
