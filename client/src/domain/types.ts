@@ -117,7 +117,7 @@ export function defaultSettings(now = new Date()): AppSettings {
   return {
     displayName: '',
     currency: 'PHP',
-    theme: 'system',
+    theme: 'dark',
     budgetMethod: 'daily_pace',
     onboardingCompleted: false,
     alerts: { ...DEFAULT_ALERTS },

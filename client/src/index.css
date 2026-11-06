@@ -1351,3 +1351,252 @@ body::before {
   .dash-balance__shine{animation:none!important}
   .dash-balance__track span,.dash-guide__ring-value,.dash-category-track span{transition:none!important}
 }
+
+
+/* --------------------------------------------------------------------------
+   Gastador / Blue-hour fintech system
+   Dark, luminous surfaces adapted from the supplied three-screen reference.
+   -------------------------------------------------------------------------- */
+.dark {
+  --bg: 5 11 20;
+  --surface: 11 23 38;
+  --sunken: 16 34 56;
+  --line: 34 55 79;
+  --ink: 245 248 255;
+  --muted: 147 164 184;
+  --primary: 57 139 255;
+  --on-primary: 255 255 255;
+  --primary-soft: 17 43 76;
+  --navy: 7 24 46;
+  --balance-end: 11 23 38;
+  --mint: 57 139 255;
+  --teal: 99 167 255;
+  --teal-soft: 17 43 76;
+  --warn: 99 167 255;
+  --warn-soft: 17 43 76;
+  --bad: 241 109 121;
+  --bad-soft: 59 27 39;
+  color-scheme: dark;
+}
+
+.dark body {
+  background:
+    radial-gradient(ellipse 58rem 38rem at 8% 0%, rgb(35 104 190 / .13), transparent 72%),
+    radial-gradient(ellipse 44rem 34rem at 100% 18%, rgb(42 112 205 / .11), transparent 72%),
+    linear-gradient(145deg, #050b14 0%, #071321 52%, #050b14 100%);
+  color: rgb(var(--ink));
+}
+.dark body::before {
+  opacity: .52;
+  filter: blur(58px);
+  background:
+    radial-gradient(38rem 30rem at 12% 8%, rgb(57 139 255 / .2), transparent 72%),
+    radial-gradient(34rem 28rem at 88% 24%, rgb(99 167 255 / .14), transparent 72%),
+    radial-gradient(32rem 26rem at 56% 100%, rgb(24 81 150 / .12), transparent 72%);
+}
+.dark .card,
+.dark .dash-guide,
+.dark .dash-panel,
+.dark .dash-empty {
+  border-color: rgb(116 157 207 / .16);
+  background: linear-gradient(145deg, rgb(13 29 48 / .96), rgb(8 20 34 / .96));
+  box-shadow: 0 16px 42px rgb(0 0 0 / .2), inset 0 1px 0 rgb(255 255 255 / .035);
+}
+.dark .input,
+.dark select.input,
+.dark textarea.input {
+  border-color: rgb(116 157 207 / .2);
+  background: linear-gradient(145deg, #0d1d30, #091727);
+  color: #f5f8ff;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .025);
+}
+.dark .input:focus {
+  border-color: rgb(99 167 255 / .75);
+  box-shadow: 0 0 0 3px rgb(57 139 255 / .14), 0 0 22px rgb(57 139 255 / .08);
+}
+.dark .chip {
+  border-color: rgb(116 157 207 / .13);
+  background: #0c1b2d;
+  color: #b9c8da;
+}
+.dark .chip[aria-pressed="true"],
+.dark .chip[aria-checked="true"] {
+  border-color: rgb(99 167 255 / .4);
+  background: linear-gradient(135deg, #398bff, #2469c9);
+  color: #fff;
+  box-shadow: 0 5px 18px rgb(34 111 220 / .24);
+}
+.dark .btn-primary,
+.dark .btn-mint {
+  background: linear-gradient(110deg, #398bff, #63a7ff);
+  color: #fff;
+  box-shadow: 0 8px 24px rgb(35 111 220 / .22), inset 0 1px 0 rgb(255 255 255 / .22);
+}
+.dark .btn-secondary {
+  border-color: rgb(116 157 207 / .2);
+  background: #0c1b2d;
+  color: #e7effa;
+}
+.dark .btn-soft {
+  background: rgb(57 139 255 / .14);
+  color: #91c5ff;
+}
+.dark nav[aria-label="Main"] {
+  border-color: rgb(116 157 207 / .16);
+  background: rgb(7 17 30 / .9);
+  box-shadow: 0 -10px 34px rgb(0 0 0 / .18);
+  backdrop-filter: blur(22px);
+}
+.dark nav[aria-label="Main"] a[aria-current="page"] {
+  color: #91c5ff;
+}
+.dark .dash-header__brand {
+  filter: drop-shadow(0 0 18px rgb(57 139 255 / .16));
+}
+.dark .dash-balance {
+  border-color: rgb(146 194 255 / .22);
+  background:
+    radial-gradient(ellipse 62% 76% at 92% 4%, rgb(104 177 255 / .48), transparent 69%),
+    radial-gradient(ellipse 55% 70% at 0% 100%, rgb(34 104 198 / .36), transparent 76%),
+    radial-gradient(ellipse 36% 40% at 55% 45%, rgb(57 139 255 / .12), transparent 78%),
+    linear-gradient(132deg, #07182e 0%, #0b2a50 46%, #123d70 100%);
+  box-shadow: 0 22px 58px rgb(0 0 0 / .34), 0 0 44px rgb(43 126 228 / .14), inset 0 1px 0 rgb(255 255 255 / .18);
+}
+.dark .dash-balance__status-dot {
+  background: #91c5ff;
+  box-shadow: 0 0 0 4px rgb(99 167 255 / .15), 0 0 16px rgb(99 167 255 / .4);
+}
+.dark .dash-balance__status.is-over .dash-balance__status-dot {
+  background: #f16d79;
+  box-shadow: 0 0 0 4px rgb(241 109 121 / .15);
+}
+.dark .dash-balance__track {
+  background: rgb(255 255 255 / .15);
+}
+.dark .dash-balance__track span {
+  background: linear-gradient(90deg, #398bff, #b5d8ff);
+  box-shadow: 0 0 18px rgb(99 167 255 / .45);
+}
+.dark .dash-guide__ring-track { stroke: rgb(255 255 255 / .1); }
+.dark .dash-guide__ring-value {
+  stroke: #63a7ff;
+  filter: drop-shadow(0 0 5px rgb(99 167 255 / .45));
+}
+.dark .dash-category-track { background: rgb(255 255 255 / .08); }
+.dark .dash-category-track span {
+  background: linear-gradient(90deg, #398bff, #91c5ff);
+  box-shadow: 0 0 12px rgb(57 139 255 / .22);
+}
+.dark .dash-panel,
+.dark .dash-guide {
+  border-radius: 20px;
+  box-shadow: 0 16px 42px rgb(0 0 0 / .2), inset 0 1px 0 rgb(255 255 255 / .035);
+}
+.dark .dash-action:hover {
+  border-color: rgb(99 167 255 / .22);
+  background: rgb(57 139 255 / .07);
+}
+.dark .dash-action__icon,
+.dark .dash-guide__icon,
+.dark .dash-goal__icon {
+  background: rgb(57 139 255 / .13);
+  color: #91c5ff;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .06);
+}
+.dark .dash-note {
+  border-color: rgb(99 167 255 / .16);
+  background: linear-gradient(125deg, rgb(57 139 255 / .12), rgb(9 23 39 / .88));
+}
+.dark .dash-note__symbol {
+  background: rgb(57 139 255 / .17);
+  color: #91c5ff;
+}
+.dark .dash-alerts li,
+.dark .dash-alerts li.is-warn {
+  border-color: rgb(99 167 255 / .18);
+  background: rgb(57 139 255 / .08);
+}
+.dark .dash-alerts li svg,
+.dark .dash-alerts li.is-warn svg { color: #91c5ff; }
+.dark .launch-intro {
+  background:
+    radial-gradient(ellipse 48% 44% at 50% 40%, rgb(38 103 184 / .32), transparent 78%),
+    linear-gradient(145deg, #050b14 0%, #0a1b30 52%, #050b14 100%);
+  color: #f5f8ff;
+}
+.dark .launch-intro__glow {
+  background:
+    radial-gradient(ellipse 30% 28% at 50% 42%, rgb(57 139 255 / .26), transparent 78%),
+    radial-gradient(ellipse 52% 45% at 50% 55%, rgb(24 64 119 / .24), transparent 80%);
+}
+.dark .launch-intro__corner {
+  border-color: #63a7ff;
+  filter: drop-shadow(0 0 8px rgb(99 167 255 / .35));
+}
+.dark .launch-intro__halo--inner { border-color: rgb(99 167 255 / .24); }
+.dark .launch-intro__coin {
+  border-color: rgb(145 197 255 / .55);
+  background: linear-gradient(145deg, #91c5ff, #398bff);
+  box-shadow: 0 7px 18px rgb(57 139 255 / .25);
+  color: #07182e;
+}
+.dark .launch-intro__scan-line {
+  background: linear-gradient(90deg, transparent, #fff, #91c5ff, transparent);
+  box-shadow: 0 0 14px 3px rgb(99 167 255 / .55);
+}
+.dark .launch-intro__wordmark { color: #f5f8ff; }
+.dark .launch-intro__tagline { color: #93a4b8; }
+.dark .launch-intro__skip {
+  border-color: rgb(145 197 255 / .2);
+  background: rgb(11 23 38 / .78);
+  color: #b9c8da;
+}
+.dark dialog.sheet {
+  border: 1px solid rgb(116 157 207 / .18);
+  background: #0b1726;
+  color: #f5f8ff;
+  box-shadow: 0 -12px 44px rgb(0 0 0 / .42);
+}
+.dark dialog.sheet::backdrop { background: rgb(1 7 14 / .72); }
+.dark .action-bar {
+  border-color: rgb(116 157 207 / .16);
+  background: rgb(5 11 20 / .92);
+  backdrop-filter: blur(18px);
+}
+.dark .divider,
+.dark .dashboard-list,
+.dark .dashboard-list > li + li { border-color: rgb(116 157 207 / .16); }
+.dark .onboarding-welcome {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgb(57 139 255 / .2), transparent 74%),
+    linear-gradient(145deg, #050b14, #0b1d31 62%, #050b14);
+}
+.dark .onboarding-wallet {
+  border-color: rgb(99 167 255 / .22);
+  background: linear-gradient(145deg, rgb(57 139 255 / .15), rgb(255 255 255 / .025));
+  box-shadow: 0 18px 48px rgb(0 0 0 / .22), inset 0 1px 0 rgb(255 255 255 / .06);
+}
+.dark .onboarding-start {
+  background: linear-gradient(110deg, #398bff, #63a7ff);
+  color: #fff;
+  box-shadow: 0 8px 24px rgb(35 111 220 / .25);
+}
+.dark .onboarding-restore {
+  border-color: rgb(145 197 255 / .24);
+  color: #c6d8ee;
+}
+.dark .tag { border: 1px solid rgb(116 157 207 / .14); }
+.dark .text-teal,
+.dark .text-mint { color: #91c5ff !important; }
+.dark .bg-tealsoft,
+.dark .bg-mintsoft { background: rgb(57 139 255 / .12) !important; }
+.dark .text-warn { color: #91c5ff !important; }
+.dark .bg-warnsoft { background: rgb(57 139 255 / .12) !important; }
+.dark .border-line { border-color: rgb(116 157 207 / .16); }
+
+@media (max-width: 760px) {
+  .dark .dash-balance { box-shadow: 0 18px 42px rgb(0 0 0 / .3), 0 0 32px rgb(43 126 228 / .13), inset 0 1px 0 rgb(255 255 255 / .16); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dark body::before { animation: none; }
+}

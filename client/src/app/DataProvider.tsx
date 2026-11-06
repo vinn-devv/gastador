@@ -100,7 +100,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       document.documentElement.classList.toggle("dark", dark);
       document
         .querySelector('meta[name="theme-color"]')
-        ?.setAttribute("content", dark ? "#09141F" : "#F7F9FC");
+        ?.setAttribute("content", dark ? "#050B14" : "#F7F9FC");
     };
     apply();
     media.addEventListener("change", apply);
