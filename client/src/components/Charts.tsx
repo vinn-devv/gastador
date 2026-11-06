@@ -77,7 +77,7 @@ export function ColumnChart({ data, title }: { data: Datum[]; title: string }) {
 }
 
 export function DonutChart({ data, title }: { data: Datum[]; title: string }) {
-  const palette = ["#123B5D", "#55A9E8", "#8ECDF5", "#8293A3", "#B9DCEE"];
+  const palette = ["#398BFF", "#63A7FF", "#91C5FF", "#B9D9FF", "#2A5D98"];
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const radius = 42;
   const circumference = 2 * Math.PI * radius;

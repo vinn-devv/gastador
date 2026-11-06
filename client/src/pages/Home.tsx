@@ -1,6 +1,9 @@
 import {
+  ArrowUpRight,
   CalendarClock,
+  ChartNoAxesColumn,
   ChevronRight,
+  Clock3,
   History,
   Info,
   PiggyBank,
@@ -15,131 +18,156 @@ import { Link } from "react-router-dom";
 import { useData } from "../app/DataProvider";
 import { CategoryIcon } from "../components/CategoryIcon";
 import { LogoMark } from "../components/Logo";
-import { CycleStrip } from "../components/CycleStrip";
 import { TransactionRow } from "../components/TransactionRow";
-import {
-  Banner,
-  ProgressBar,
-  ScreenSkeleton,
-} from "../components/ui/Bits";
+import { Banner, ScreenSkeleton } from "../components/ui/Bits";
 import { Page } from "../components/ui/PageHeader";
 import { computeAlerts } from "../domain/alerts";
 import { transactionsInCycle } from "../domain/allowance";
-import {
-  formatDate,
-  formatRange,
-  manilaHour,
-  manilaHourMinute,
-} from "../domain/dates";
+import { diffDays, formatDate, formatRange, manilaHour, manilaHourMinute } from "../domain/dates";
 import { byCategory } from "../domain/insights";
 import { formatMoney, ratioPercent } from "../domain/money";
 import { goalProgress } from "../domain/savings";
 
 function greeting(): string {
-  const h = manilaHour();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  const hour = manilaHour();
+  return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 }
 
-function QuickAction({
-  to,
-  icon: Icon,
-  title,
-  detail,
-}: {
-  to: string;
-  icon: LucideIcon;
-  title: string;
-  detail: string;
-}) {
+function QuickAction({ to, icon: Icon, label }: { to: string; icon: LucideIcon; label: string }) {
   return (
-    <Link to={to} className="dash-action">
-      <span className="dash-action__icon">
-        <Icon size={19} strokeWidth={1.8} aria-hidden />
-      </span>
-      <span className="dash-action__copy">
-        <strong>{title}</strong>
-        <small>{detail}</small>
-      </span>
-      <ChevronRight size={16} className="dash-action__chevron" aria-hidden />
+    <Link to={to} className="wallet-action">
+      <span className="wallet-action__bubble"><Icon size={21} strokeWidth={1.75} aria-hidden /></span>
+      <span>{label}</span>
     </Link>
+  );
+}
+
+function SpendingChart({
+  transactions,
+  cycle,
+  today,
+}: {
+  transactions: { date: string; amountCentavos: number }[];
+  cycle: { startDate: string; endDate: string };
+  today: string;
+}) {
+  const span = Math.max(1, Math.min(diffDays(cycle.startDate, today) + 1, diffDays(cycle.startDate, cycle.endDate) + 1));
+  const buckets = Array.from({ length: 12 }, () => 0);
+  transactions.forEach((tx) => {
+    const day = diffDays(cycle.startDate, tx.date);
+    if (day < 0 || day >= span) return;
+    const index = Math.min(11, Math.floor((day / span) * 12));
+    buckets[index] += tx.amountCentavos;
+  });
+
+  if (!buckets.some((value) => value > 0)) {
+    return (
+      <div className="wallet-chart-empty">
+        <span className="wallet-chart-empty__symbol"><ChartNoAxesColumn size={19} /></span>
+        <p>Your spending line will appear here.</p>
+        <small>Record an expense to see your activity through the cycle.</small>
+      </div>
+    );
+  }
+
+  const max = Math.max(...buckets, 1);
+  const points = buckets.map((value, index) => ({
+    x: 30 + index * 55,
+    y: 150 - (value / max) * 98,
+  }));
+  const line = points.map((point, index) => (index === 0 ? "M " : "L ") + point.x + " " + point.y).join(" ");
+  const last = points[points.length - 1];
+  const area = line + " L " + last.x + " 168 L 30 168 Z";
+
+  return (
+    <figure className="wallet-chart">
+      <svg viewBox="0 0 660 190" role="img" aria-label="Daily recorded spending through the current allowance cycle">
+        <defs>
+          <linearGradient id="wallet-chart-fill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#398BFF" stopOpacity=".34" />
+            <stop offset="100%" stopColor="#398BFF" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="wallet-chart-line" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="#398BFF" />
+            <stop offset="100%" stopColor="#A4D1FF" />
+          </linearGradient>
+        </defs>
+        {[52, 96, 140, 168].map((y) => (
+          <line key={y} x1="24" x2="646" y1={y} y2={y} className="wallet-chart__grid" />
+        ))}
+        <path d={area} fill="url(#wallet-chart-fill)" />
+        <path d={line} fill="none" stroke="url(#wallet-chart-line)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="wallet-chart__path" />
+        <circle cx={last.x} cy={last.y} r="8" fill="#398BFF" opacity=".18" />
+        <circle cx={last.x} cy={last.y} r="4" fill="#B8DCFF" stroke="#398BFF" strokeWidth="2" />
+      </svg>
+      <figcaption>
+        <span>{formatDate(cycle.startDate, false)}</span>
+        <span>Daily spending</span>
+        <span>{formatDate(today, false)}</span>
+      </figcaption>
+    </figure>
   );
 }
 
 export default function Home() {
   const { world, error, today, current, summary, categoryById } = useData();
-
   const alerts = useMemo(
-    () =>
-      world && current && summary
-        ? computeAlerts({
-            cycle: current.cycle,
-            summary,
-            prefs: world.settings.alerts,
-            limits: world.limits,
-            categories: world.categories,
-            transactions: world.transactions,
-            today,
-            nowHourMinute: manilaHourMinute(),
-          })
-        : [],
+    () => world && current && summary ? computeAlerts({
+      cycle: current.cycle,
+      summary,
+      prefs: world.settings.alerts,
+      limits: world.limits,
+      categories: world.categories,
+      transactions: world.transactions,
+      today,
+      nowHourMinute: manilaHourMinute(),
+    }) : [],
     [world, current, summary, today],
   );
 
-  if (error)
-    return (
-      <Page>
-        <Banner tone="bad" title="Could not open your data">
-          {error.message}
-        </Banner>
-      </Page>
-    );
+  if (error) {
+    return <Page><Banner tone="bad" title="Could not open your data">{error.message}</Banner></Page>;
+  }
   if (!world) return <ScreenSkeleton />;
 
-  const name = world.settings.displayName.split(" ")[0];
-  const header = (
-    <header className="dash-header safe-top">
-      <div className="dash-header__identity">
-        <span className="dash-header__overline">GASTADOR / OVERVIEW</span>
-        <h1>{greeting()}{name ? ", " + name : ""}</h1>
-        <p>{formatDate(today)} <span aria-hidden="true">·</span> Your money, in focus.</p>
-      </div>
-      <div className="dash-header__brand">
-        <LogoMark size={42} />
-      </div>
-    </header>
-  );
+  const firstName = world.settings.displayName.trim().split(/\s+/)[0];
+  const recent = world.transactions.slice(0, 5);
 
   if (!current || !summary) {
     return (
-      <>
-        {header}
-        <Page className="dash-page">
-          <div className="dash-empty">
-            <div className="dash-empty__icon"><Wallet size={25} /></div>
-            <div>
-              <span className="dash-section-kicker">LET'S GET STARTED</span>
-              <h2>Give your allowance a plan.</h2>
-              <p>Set your allowance cycle and Gastador will help you understand what is available, what is safe to spend, and how your money is moving.</p>
-              <Link to="/settings/allowance/new" className="btn btn-primary">Set up allowance <ChevronRight size={17} /></Link>
-            </div>
+      <Page className="wallet-dashboard">
+        <header className="wallet-header">
+          <div>
+            <span className="wallet-overline">GASTADOR / YOUR MONEY</span>
+            <h1>{greeting()}{firstName ? ", " + firstName : ""}</h1>
+            <p>{formatDate(today)} · Keep your next peso in view.</p>
           </div>
-        </Page>
-      </>
+          <LogoMark size={42} />
+        </header>
+        <section className="wallet-empty-state">
+          <div className="wallet-empty-state__icon"><Wallet size={25} /></div>
+          <span className="wallet-overline">START WITH AN ALLOWANCE</span>
+          <h2>Your money deserves a clearer view.</h2>
+          <p>Add your allowance cycle to see what is available, record expenses, and follow your spending over time.</p>
+          <Link to="/settings/allowance/new" className="btn btn-primary">Set up allowance <ChevronRight size={17} /></Link>
+        </section>
+      </Page>
     );
   }
 
-  const { cycle } = current;
+  const cycle = current.cycle;
   const inCycle = transactionsInCycle(cycle, world.transactions);
-  const recent = world.transactions.slice(0, 5);
   const categories = byCategory(inCycle).slice(0, 4);
-  const goals = world.goals.map((g) =>
-    goalProgress(g, world.contributions, today),
-  );
-  const over = summary.remainingCentavos < 0;
-  const percentUsed = Math.min(100, Math.max(0, summary.percentUsed));
-  const ringCircumference = 2 * Math.PI * 42;
-  const ringOffset = ringCircumference * (1 - percentUsed / 100);
-
+  const goals = world.goals.map((goal) => goalProgress(goal, world.contributions, today));
+  const isOver = summary.remainingCentavos < 0;
+  const usedPercent = Math.max(0, Math.min(100, summary.percentUsed));
+  const cycleLabel = cycle.name.startsWith("Allowance from")
+    ? formatRange(cycle.startDate, cycle.endDate)
+    : cycle.name;
+  const balanceLabel = isOver
+    ? "Over the allowance by"
+    : summary.status === "ended" ? "Left at the end" : "Available balance";
+  const balanceValue = formatMoney(Math.abs(summary.remainingCentavos));
   const paceText = {
     not_started: "Starts in " + summary.daysUntilStart + " day" + (summary.daysUntilStart === 1 ? "" : "s"),
     on_track: "You're on pace with your plan",
@@ -148,236 +176,128 @@ export default function Home() {
     ended: "This cycle has ended",
   }[summary.pace];
 
-  const cycleLabel = cycle.name.startsWith("Allowance from")
-    ? formatRange(cycle.startDate, cycle.endDate)
-    : cycle.name;
-
   return (
-    <>
-      {header}
-      <Page className="dash-page">
-        {summary.status === "ended" && (
-          <Banner
-            tone="info"
-            icon={CalendarClock}
-            title={"Your cycle ended on " + formatDate(cycle.endDate)}
-            action={
-              <Link to="/settings/allowance/new" className="btn btn-primary btn-sm">
-                Start next cycle
-              </Link>
-            }
-          >
-            Add your next allowance to see what is left and a daily amount again.
-          </Banner>
-        )}
+    <Page className="wallet-dashboard">
+      <header className="wallet-header">
+        <div className="wallet-header__copy">
+          <span className="wallet-overline">YOUR MONEY / AT A GLANCE</span>
+          <h1>{greeting()}{firstName ? ", " + firstName : ""}</h1>
+          <p>{formatDate(today)} <span aria-hidden="true">·</span> A little more clarity, every day.</p>
+        </div>
+        <div className="wallet-header__avatar" aria-label="Gastador account"><LogoMark size={34} /></div>
+      </header>
 
-        <section className="dash-top-grid" aria-label="Allowance overview">
-          <div className="dash-balance">
-            <div className="dash-balance__shine" aria-hidden="true" />
-            <div className="dash-balance__top">
+      {summary.status === "ended" && (
+        <Banner
+          tone="info"
+          icon={CalendarClock}
+          title={"Your cycle ended on " + formatDate(cycle.endDate)}
+          action={<Link to="/settings/allowance/new" className="btn btn-primary btn-sm">Start next cycle</Link>}
+        >
+          Add your next allowance cycle to continue tracking your spending.
+        </Banner>
+      )}
+
+      <div className="wallet-dashboard__grid">
+        <div className="wallet-dashboard__primary">
+          <section className="wallet-balance-card" aria-label="Available allowance balance">
+            <div className="wallet-balance-card__art" aria-hidden="true">
+              <span className="wallet-balance-card__orbit wallet-balance-card__orbit--one" />
+              <span className="wallet-balance-card__orbit wallet-balance-card__orbit--two" />
+              <span className="wallet-balance-card__light" />
+            </div>
+            <div className="wallet-balance-card__top">
               <div>
-                <span className="dash-eyebrow">YOUR ALLOWANCE</span>
-                <span className="dash-balance__period">{cycleLabel}</span>
+                <span className="wallet-balance-card__eyebrow">AVAILABLE TO SPEND</span>
+                <span className="wallet-balance-card__period">{cycleLabel}</span>
               </div>
-              <span className="dash-balance__symbol" aria-hidden="true">₱</span>
+              <span className="wallet-balance-card__mark">₱</span>
             </div>
-
-            <div className="dash-balance__main">
-              <span className="dash-balance__label">
-                {over ? "Over the allowance by" : summary.status === "ended" ? "Left at the end" : "Available to spend"}
-              </span>
-              <strong className="dash-balance__amount num" data-testid="remaining">
-                {formatMoney(Math.abs(summary.remainingCentavos))}
-              </strong>
-              <span className={"dash-balance__status" + (over ? " is-over" : "")}>
-                <span className="dash-balance__status-dot" />
-                {paceText}
-              </span>
+            <div className="wallet-balance-card__value">
+              <span>{balanceLabel}</span>
+              <strong className="num" data-testid="remaining">{balanceValue}</strong>
+              <small className={isOver ? "is-over" : ""}><i />{paceText}</small>
             </div>
-
-            <div className="dash-balance__progress">
-              <div className="dash-balance__progress-label">
-                <span>Allowance used</span>
-                <strong className="num">{Math.round(summary.percentUsed)}%</strong>
-              </div>
-              <div className="dash-balance__track" role="progressbar" aria-label="Allowance used" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(percentUsed)}>
-                <span style={{ width: String(percentUsed) + "%" }} />
-              </div>
+            <div className="wallet-balance-card__footer">
+              <div><span>Allowance</span><strong className="num">{formatMoney(summary.spendableCentavos)}</strong></div>
+              <div><span>Spent</span><strong className="num">{formatMoney(summary.spentCentavos)}</strong></div>
+              <div><span>Days left</span><strong className="num">{summary.status === "ended" ? "0" : summary.daysRemaining}</strong></div>
             </div>
-
-            <div className="dash-balance__stats">
-              <div>
-                <span>Budget</span>
-                <strong className="num">{formatMoney(summary.spendableCentavos)}</strong>
-              </div>
-              <div>
-                <span>Spent</span>
-                <strong className="num">{formatMoney(summary.spentCentavos)}</strong>
-              </div>
-              <div>
-                <span>Remaining</span>
-                <strong className="num">{formatMoney(Math.max(0, summary.remainingCentavos))}</strong>
-              </div>
-            </div>
-          </div>
-
-          <aside className="dash-guide">
-            <div className="dash-card-heading">
-              <div>
-                <span className="dash-section-kicker">YOUR DAILY GUIDE</span>
-                <h2>Spend with confidence.</h2>
-              </div>
-              <span className="dash-guide__icon"><Wallet size={18} /></span>
-            </div>
-            <div className="dash-guide__center">
-              <div className="dash-guide__ring">
-                <svg viewBox="0 0 100 100" role="img" aria-label={Math.round(percentUsed) + " percent of allowance used"}>
-                  <circle cx="50" cy="50" r="42" className="dash-guide__ring-track" />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="42"
-                    className="dash-guide__ring-value"
-                    strokeDasharray={ringCircumference}
-                    strokeDashoffset={ringOffset}
-                  />
-                </svg>
-                <div>
-                  <strong className="num">{Math.round(summary.percentUsed)}%</strong>
-                  <span>used</span>
-                </div>
-              </div>
-              <div className="dash-guide__daily">
-                <span>Safe to spend per day</span>
-                <strong className="num" data-testid="daily-limit">
-                  {summary.dailySafeLimitCentavos === null
-                    ? "Not applicable"
-                    : formatMoney(summary.dailySafeLimitCentavos)}
-                </strong>
-                <small>{summary.status === "upcoming" ? "Your cycle hasn't started yet" : "A daily pace based on what's left"}</small>
-              </div>
-            </div>
-            <div className="dash-guide__footer">
-              <div>
-                <span>{summary.status === "upcoming" ? "Cycle length" : "Days left"}</span>
-                <strong className="num">{summary.status === "ended" ? "0" : summary.daysRemaining}</strong>
-              </div>
-              <Link to="/settings/allowance" aria-label="Manage allowance">
-                Manage allowance <ChevronRight size={15} />
-              </Link>
-            </div>
-          </aside>
-        </section>
-
-        <section className="dash-actions" aria-label="Quick actions">
-          <div className="dash-actions__label">
-            <span className="dash-section-kicker">QUICK ACCESS</span>
-            <h2>Make a move</h2>
-          </div>
-          <div className="dash-actions__items">
-            <QuickAction to="/snap" icon={ScanLine} title="Scan receipt" detail="Capture a purchase" />
-            <QuickAction to="/activity/new" icon={Plus} title="Add expense" detail="Log it manually" />
-            <QuickAction to="/activity" icon={History} title="All activity" detail="See your spending" />
-            <QuickAction to="/settings/allowance" icon={Settings2} title="Allowance" detail="Adjust your cycle" />
-          </div>
-        </section>
-
-        {alerts.length > 0 && (
-          <ul className="dash-alerts" aria-label="Spending notes">
-            {alerts.map((a) => (
-              <li key={a.id} className={a.tone === "warn" ? "is-warn" : ""}>
-                <Info size={17} aria-hidden />
-                <span>{a.text}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <div className="dash-insights-grid">
-          <section className="dash-panel dash-spending" aria-label="Daily spending">
-            <div className="dash-card-heading">
-              <div>
-                <span className="dash-section-kicker">SPENDING RHYTHM</span>
-                <h2>See how your money moves.</h2>
-                <p>Your daily spending through this allowance cycle.</p>
-              </div>
-              <span className="dash-panel__badge">This cycle</span>
-            </div>
-            <CycleStrip
-              cycle={cycle}
-              txs={inCycle}
-              today={today}
-              plannedDaily={summary.plannedDailyCentavos}
-              onDark={false}
-            />
-            <div className="dash-spending__legend">
-              <span><i className="is-primary" /> Within daily plan</span>
-              <span><i className="is-warn" /> Above daily plan</span>
-              <span><i className="is-line" /> Planned pace</span>
-            </div>
-            <div className="dash-spending__foot">
-              <span>Allowance {formatMoney(cycle.allowanceCentavos)}</span>
-              {cycle.carryoverCentavos > 0 && <span>{formatMoney(cycle.carryoverCentavos)} carried over</span>}
-              {cycle.plannedSavingsCentavos > 0 && <span>{formatMoney(cycle.plannedSavingsCentavos)} set aside</span>}
+            <div className="wallet-balance-card__progress" aria-label={Math.round(usedPercent) + " percent of allowance used"}>
+              <span style={{ width: usedPercent + "%" }} />
             </div>
           </section>
 
-          <section className="dash-panel dash-categories">
-            <div className="dash-card-heading">
-              <div>
-                <span className="dash-section-kicker">WHERE IT GOES</span>
-                <h2>Spending by category.</h2>
-              </div>
-              <Link to="/insights" className="dash-text-link">Insights <ChevronRight size={15} /></Link>
+          <section className="wallet-quick-access" aria-label="Quick actions">
+            <div className="wallet-section-heading">
+              <div><span className="wallet-overline">QUICK ACCESS</span><h2>Make it happen.</h2></div>
             </div>
-            {categories.length === 0 ? (
-              <div className="dash-muted-empty">Your category breakdown will appear after you record an expense.</div>
-            ) : (
-              <ul className="dash-category-list">
-                {categories.map((c) => {
-                  const categoryName = categoryById.get(c.key)?.name ?? "Unknown";
-                  const share = ratioPercent(c.total, summary.spentCentavos);
-                  return (
-                    <li key={c.key}>
-                      <div className="dash-category-row">
-                        <CategoryIcon name={categoryName} size={20} />
-                        <span className="dash-category-row__name">{categoryName}</span>
-                        <strong className="num">{formatMoney(c.total)}</strong>
-                      </div>
-                      <div className="dash-category-track">
-                        <span style={{ width: String(Math.min(100, Math.max(0, share))) + "%" }} />
-                      </div>
-                      <small>{Math.round(share)}% of recorded spending</small>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+            <div className="wallet-quick-access__items">
+              <QuickAction to="/snap" icon={ScanLine} label="Scan receipt" />
+              <QuickAction to="/activity/new" icon={Plus} label="Add expense" />
+              <QuickAction to="/activity" icon={History} label="Activity" />
+              <QuickAction to="/settings/allowance" icon={Settings2} label="Allowance" />
+            </div>
+          </section>
+
+          <section className="wallet-card-visual" aria-label="Current allowance cycle">
+            <div className="wallet-card-visual__top">
+              <div className="wallet-card-visual__brand"><LogoMark size={28} /><span>GASTADOR</span></div>
+              <span className="wallet-card-visual__type">ALLOWANCE CARD</span>
+            </div>
+            <div className="wallet-card-visual__middle">
+              <span>CURRENT CYCLE</span>
+              <strong>{cycle.name}</strong>
+              <small>{formatRange(cycle.startDate, cycle.endDate)}</small>
+            </div>
+            <div className="wallet-card-visual__bottom">
+              <div><span>Cycle allowance</span><strong className="num">{formatMoney(cycle.allowanceCentavos)}</strong></div>
+              <div className="wallet-card-visual__chip"><Clock3 size={15} /><span>{summary.status === "ended" ? "Ended" : summary.daysRemaining + " days left"}</span></div>
+            </div>
+            <span className="wallet-card-visual__glint" aria-hidden="true" />
           </section>
         </div>
 
-        <div className="dash-lower-grid">
-          <section className="dash-panel dash-activity">
-            <div className="dash-card-heading">
+        <div className="wallet-dashboard__secondary">
+          <section className="wallet-panel wallet-analytics">
+            <div className="wallet-section-heading">
               <div>
-                <span className="dash-section-kicker">THE LATEST</span>
-                <h2>Recent activity.</h2>
-                <p>Your latest recorded expenses.</p>
+                <span className="wallet-overline">SPENDING ACTIVITY</span>
+                <h2>Your money in motion.</h2>
+                <p>How your recorded expenses move through this cycle.</p>
               </div>
-              <Link to="/activity" className="dash-text-link">View all <ChevronRight size={15} /></Link>
+              <span className="wallet-panel__icon"><ChartNoAxesColumn size={19} /></span>
+            </div>
+            <div className="wallet-analytics__stats">
+              <div><span>Safe per day</span><strong className="num" data-testid="daily-limit">{summary.dailySafeLimitCentavos === null ? "—" : formatMoney(summary.dailySafeLimitCentavos)}</strong></div>
+              <div><span>Allowance used</span><strong className="num">{Math.round(summary.percentUsed)}%</strong></div>
+            </div>
+            <SpendingChart transactions={inCycle} cycle={cycle} today={today} />
+            <div className="wallet-analytics__bottom">
+              <span>Budget {formatMoney(summary.spendableCentavos)}</span>
+              <span>Remaining {formatMoney(Math.max(0, summary.remainingCentavos))}</span>
+            </div>
+          </section>
+
+          <section className="wallet-panel wallet-transactions">
+            <div className="wallet-section-heading">
+              <div><span className="wallet-overline">THE LATEST</span><h2>Transactions.</h2></div>
+              <Link to="/activity" className="wallet-view-all">See all <ArrowUpRight size={15} /></Link>
             </div>
             {recent.length === 0 ? (
-              <div className="dash-muted-empty">
-                Nothing recorded yet. Add an expense or scan a GCash, Maya, or paper receipt.
-                <Link to="/activity/new">Add your first expense <ChevronRight size={15} /></Link>
+              <div className="wallet-transactions__empty">
+                <span><Wallet size={19} /></span>
+                <p>No transactions yet.</p>
+                <small>Your latest purchases will appear here.</small>
+                <Link to="/activity/new">Add your first expense <ChevronRight size={14} /></Link>
               </div>
             ) : (
-              <ul className="dash-transaction-list">
-                {recent.map((t) => (
-                  <li key={t.id}>
+              <ul className="wallet-transactions__list">
+                {recent.map((transaction) => (
+                  <li key={transaction.id}>
                     <TransactionRow
-                      tx={t}
-                      categoryName={categoryById.get(t.categoryId)?.name ?? "Unknown"}
+                      tx={transaction}
+                      categoryName={categoryById.get(transaction.categoryId)?.name ?? "Unknown"}
                       showDate
                     />
                   </li>
@@ -385,39 +305,63 @@ export default function Home() {
               </ul>
             )}
           </section>
-
-          <aside className="dash-side-stack">
-            {goals.length > 0 && (
-              <section className="dash-panel dash-goal">
-                <div className="dash-card-heading">
-                  <div>
-                    <span className="dash-section-kicker">SAVING TOWARD</span>
-                    <h2>{goals[0].goal.name}</h2>
-                  </div>
-                  <span className="dash-goal__icon"><PiggyBank size={19} /></span>
-                </div>
-                <div className="dash-goal__amounts">
-                  <strong className="num">{formatMoney(goals[0].savedCentavos)}</strong>
-                  <span>of {formatMoney(goals[0].goal.targetCentavos)}</span>
-                </div>
-                <ProgressBar percent={goals[0].percent} label="Savings goal progress" />
-                <div className="dash-goal__foot">
-                  <span>{Math.round(goals[0].percent)}% reached</span>
-                  <Link to="/settings/savings">View goal <ChevronRight size={14} /></Link>
-                </div>
-              </section>
-            )}
-
-            <section className="dash-note">
-              <div className="dash-note__symbol">₱</div>
-              <div>
-                <span className="dash-section-kicker">A SMALL REMINDER</span>
-                <p>Every expense tells a story. Keep track, stay intentional, and make your allowance stretch.</p>
-              </div>
-            </section>
-          </aside>
         </div>
-      </Page>
-    </>
+      </div>
+
+      <div className="wallet-lower-grid">
+        {categories.length > 0 && (
+          <section className="wallet-panel wallet-categories">
+            <div className="wallet-section-heading">
+              <div><span className="wallet-overline">SPENDING BREAKDOWN</span><h2>Where it goes.</h2></div>
+              <Link to="/insights" className="wallet-view-all">Insights <ArrowUpRight size={15} /></Link>
+            </div>
+            <ul className="wallet-category-list">
+              {categories.map((category) => {
+                const categoryName = categoryById.get(category.key)?.name ?? "Unknown";
+                const share = ratioPercent(category.total, summary.spentCentavos);
+                return (
+                  <li key={category.key}>
+                    <div className="wallet-category-list__row">
+                      <CategoryIcon name={categoryName} size={19} />
+                      <span>{categoryName}</span>
+                      <strong className="num">{formatMoney(category.total)}</strong>
+                    </div>
+                    <div className="wallet-category-list__track">
+                      <span style={{ width: Math.max(0, Math.min(100, share)) + "%" }} />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+        {goals.length > 0 && (
+          <section className="wallet-panel wallet-savings">
+            <div className="wallet-section-heading">
+              <div><span className="wallet-overline">SAVING TOWARD</span><h2>{goals[0].goal.name}.</h2></div>
+              <span className="wallet-panel__icon"><PiggyBank size={19} /></span>
+            </div>
+            <div className="wallet-savings__value">
+              <strong className="num">{formatMoney(goals[0].savedCentavos)}</strong>
+              <span>of {formatMoney(goals[0].goal.targetCentavos)}</span>
+            </div>
+            <div className="wallet-savings__track"><span style={{ width: Math.max(0, Math.min(100, goals[0].percent)) + "%" }} /></div>
+            <div className="wallet-savings__foot">
+              <span>{Math.round(goals[0].percent)}% reached</span>
+              <Link to="/settings/savings">View goal <ChevronRight size={14} /></Link>
+            </div>
+          </section>
+        )}
+        {alerts.length > 0 && (
+          <section className="wallet-panel wallet-notes" aria-label="Spending notes">
+            <div className="wallet-section-heading">
+              <div><span className="wallet-overline">A QUICK NOTE</span><h2>Stay in the loop.</h2></div>
+              <Info size={18} className="wallet-notes__icon" />
+            </div>
+            <ul>{alerts.slice(0, 3).map((alert) => <li key={alert.id}>{alert.text}</li>)}</ul>
+          </section>
+        )}
+      </div>
+    </Page>
   );
 }
