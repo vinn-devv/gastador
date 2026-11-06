@@ -139,7 +139,6 @@ export default function Home() {
   const percentUsed = Math.min(100, Math.max(0, summary.percentUsed));
   const ringCircumference = 2 * Math.PI * 42;
   const ringOffset = ringCircumference * (1 - percentUsed / 100);
-  const barTone = over ? "bad" : summary.percentUsed >= 90 ? "warn" : "mint";
 
   const paceText = {
     not_started: "Starts in " + summary.daysUntilStart + " day" + (summary.daysUntilStart === 1 ? "" : "s"),
