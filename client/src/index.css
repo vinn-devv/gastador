@@ -3274,3 +3274,109 @@ html.dark, html.dark body, .dark body { background: #070e19; }
   .launch-intro__content { padding-inline: 8px; }
   .launch-intro__animation { width: 92vw; }
 }
+
+
+/* Stable launch intro: use the real local Gastador logo, not a remote Lottie image. */
+.launch-intro {
+  background: #081321;
+  color: #f2f7ff;
+}
+.launch-intro__content {
+  display: flex;
+  width: min(100%, 460px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 24px 18px;
+  text-align: center;
+}
+.launch-intro__icon-stage {
+  display: grid;
+  width: min(58vw, 236px);
+  aspect-ratio: 1;
+  place-items: center;
+  margin: 0 auto;
+}
+.launch-intro__icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transform: translateY(-32px) scale(.78);
+  animation: gastador-logo-bounce 1.42s cubic-bezier(.2,.82,.25,1) .08s both;
+  filter: drop-shadow(0 12px 26px rgb(0 0 0 / .23));
+}
+.launch-intro__copy {
+  margin-top: 14px;
+  opacity: 0;
+  transform: translateY(9px);
+  animation: gastador-wordmark-reveal 620ms cubic-bezier(.2,.75,.25,1) 1.55s both;
+}
+.launch-intro__wordmark {
+  margin: 0;
+  color: #f2f7ff;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: clamp(34px, 8vw, 44px);
+  font-weight: 750;
+  letter-spacing: -.055em;
+  line-height: 1.05;
+}
+.launch-intro__tagline {
+  margin: 9px 0 0;
+  color: #9cb1cc;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  opacity: 0;
+  animation: gastador-tagline-reveal 480ms ease-out 1.92s both;
+}
+.launch-intro__skip {
+  position: absolute;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 3;
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid rgb(151 180 217 / .2);
+  border-radius: 999px;
+  background: rgb(15 31 50 / .85);
+  color: #afc2dc;
+  font-size: 13px;
+  font-weight: 600;
+}
+.launch-intro__skip:hover {
+  background: #172e49;
+  color: #f2f7ff;
+}
+@keyframes gastador-logo-bounce {
+  0% { opacity: 0; transform: translateY(-32px) scale(.78); }
+  43% { opacity: 1; transform: translateY(0) scale(1.08); }
+  60% { transform: translateY(-14px) scale(.98); }
+  76% { transform: translateY(0) scale(1.025); }
+  90% { transform: translateY(-4px) scale(.995); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes gastador-wordmark-reveal {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes gastador-tagline-reveal {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 420px) {
+  .launch-intro__icon-stage { width: min(62vw, 210px); }
+  .launch-intro__content { padding-inline: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .launch-intro__icon,
+  .launch-intro__copy,
+  .launch-intro__tagline {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}

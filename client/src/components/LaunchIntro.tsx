@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
-const DotLottiePlayer: any = "dotlottie-wc";
-const ANIMATION_END_MS = 5100;
-const INTRO_DURATION_MS = 6700;
+const INTRO_DURATION_MS = 6500;
 const EXIT_DURATION_MS = 450;
 
 export function LaunchIntro() {
@@ -11,14 +9,7 @@ export function LaunchIntro() {
   const [closing, setClosing] = useState(false);
 
   useEffect(() => {
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const timer = window.setTimeout(
-      () => setClosing(true),
-      reducedMotion ? ANIMATION_END_MS + 850 : INTRO_DURATION_MS,
-    );
-
+    const timer = window.setTimeout(() => setClosing(true), INTRO_DURATION_MS);
     return () => window.clearTimeout(timer);
   }, []);
 
@@ -40,14 +31,12 @@ export function LaunchIntro() {
       aria-live="polite"
     >
       <div className="launch-intro__content">
-        <div className="launch-intro__animation" aria-hidden="true">
-          <DotLottiePlayer
-            src={import.meta.env.BASE_URL + "gastador-intro.json"}
-            autoplay
-            speed={1}
-            mode="forward"
-            loop={false}
-            className="launch-intro__player"
+        <div className="launch-intro__icon-stage" aria-hidden="true">
+          <img
+            className="launch-intro__icon"
+            src={import.meta.env.BASE_URL + "gastador-intro-mark.svg"}
+            alt=""
+            draggable={false}
           />
         </div>
 
