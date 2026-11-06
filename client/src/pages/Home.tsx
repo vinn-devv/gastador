@@ -6,7 +6,7 @@ import { LogoMark } from "../components/Logo";
 import { Banner, ScreenSkeleton } from "../components/ui/Bits";
 import { Page } from "../components/ui/PageHeader";
 import { transactionsInCycle } from "../domain/allowance";
-import { diffDays, formatDate, formatRange, manilaHour } from "../domain/dates";
+import { diffDays, manilaHour } from "../domain/dates";
 import { byCategory } from "../domain/insights";
 import { formatMoney, ratioPercent } from "../domain/money";
 
@@ -64,11 +64,6 @@ function SpendingLine({
         <circle cx={last.x} cy={last.y} r="11" className="home-activity__pulse" />
         <circle cx={last.x} cy={last.y} r="4" className="home-activity__point" />
       </svg>
-      <figcaption>
-        <span>{formatDate(cycle.startDate, false)}</span>
-        <span>Daily spending</span>
-        <span>{formatDate(today, false)}</span>
-      </figcaption>
     </figure>
   );
 }
@@ -102,13 +97,13 @@ export default function Home() {
   const cycle = current.cycle;
   const inCycle = transactionsInCycle(cycle, world.transactions);
   const categories = byCategory(inCycle).slice(0, 3);
-  const percentUsed = Math.max(0, Math.min(100, summary.percentUsed));
-  const circumference = 2 * Math.PI * 108;
-  const offset = circumference * (1 - percentUsed / 100);
   const remaining = summary.remainingCentavos;
-  const cycleLabel = cycle.name.startsWith("Allowance from")
-    ? formatRange(cycle.startDate, cycle.endDate)
-    : cycle.name;
+  const allowanceTotal = Math.max(0, summary.spendableCentavos);
+  const remainingForRing = Math.min(allowanceTotal, Math.max(0, remaining));
+  const remainingRatio = allowanceTotal > 0 ? remainingForRing / allowanceTotal : 0;
+  const remainingPercent = Math.round(remainingRatio * 100);
+  const circumference = 2 * Math.PI * 108;
+  const offset = circumference * (1 - remainingRatio);
   const paceText = remaining < 0
     ? "You've gone over this allowance"
     : summary.pace === "on_track"
@@ -144,7 +139,7 @@ export default function Home() {
           <span className="home-balance__ambient-orb home-balance__ambient-orb--two" />
         </div>
         <div className="home-balance__ring-wrap">
-          <svg className="home-balance__ring" viewBox="0 0 240 240" role="img" aria-label={Math.round(percentUsed) + " percent of allowance used"}>
+          <svg className="home-balance__ring" viewBox="0 0 240 240" role="img" aria-label={remainingPercent + " percent of allowance remaining"}>
             <defs>
               <linearGradient id="home-balance-ring-gradient" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#398BFF" />
@@ -176,11 +171,6 @@ export default function Home() {
         <div className="home-balance__status">
           <span className={remaining < 0 ? "is-over" : ""} />
           {paceText}
-        </div>
-        <div className="home-balance__cycle">
-          <span>{cycleLabel}</span>
-          <span className="home-balance__separator" />
-          <span>{summary.status === "ended" ? "Cycle complete" : summary.daysRemaining + " days left"}</span>
         </div>
       </section>
 

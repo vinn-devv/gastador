@@ -2933,3 +2933,22 @@ html.dark, html.dark body, .dark body { background: #070e19; }
 /* The Home header now carries just the greeting and brand mark. */
 .home-calm__header { margin-bottom: .8rem; }
 .home-calm__header h1 { margin-top: 0; }
+
+
+/* Allowance balance ring: the illuminated arc represents money remaining. */
+.home-balance__ring-progress {
+  fill: none;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 900ms cubic-bezier(.18,.72,.22,1);
+}
+.home-balance__ring-track {
+  fill: none;
+  stroke: rgb(132 170 214 / .13);
+  stroke-width: 7;
+}
+.home-balance__ring-wrap {
+  filter: drop-shadow(0 0 24px rgb(57 139 255 / .16));
+}
+.home-balance__cycle { display: none !important; }
