@@ -3245,3 +3245,32 @@ html.dark, html.dark body, .dark body { background: #070e19; }
     transform: none;
   }
 }
+
+
+/* Intro crop: transparent square canvas, with the older Gastador mark enlarged. */
+.launch-intro__content {
+  width: min(100%, 680px);
+  padding: 18px 12px;
+  gap: 0;
+}
+.launch-intro__animation {
+  width: min(88vw, 580px);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+}
+.launch-intro__player {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+}
+.launch-intro__copy {
+  margin-top: 6px;
+}
+@media (max-width: 420px) {
+  .launch-intro__content { padding-inline: 8px; }
+  .launch-intro__animation { width: 92vw; }
+}
