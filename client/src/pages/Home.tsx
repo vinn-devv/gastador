@@ -19,11 +19,10 @@ import { CycleStrip } from "../components/CycleStrip";
 import { TransactionRow } from "../components/TransactionRow";
 import {
   Banner,
-  EmptyState,
   ProgressBar,
   ScreenSkeleton,
 } from "../components/ui/Bits";
-import { Page, Section } from "../components/ui/PageHeader";
+import { Page } from "../components/ui/PageHeader";
 import { computeAlerts } from "../domain/alerts";
 import { transactionsInCycle } from "../domain/allowance";
 import {
