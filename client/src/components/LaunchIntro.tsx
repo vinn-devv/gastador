@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
-const INTRO_DURATION_MS = 6400;
+const DotLottiePlayer: any = "dotlottie-wc";
+const ANIMATION_END_MS = 5100;
+const INTRO_DURATION_MS = 6700;
 const EXIT_DURATION_MS = 450;
 
 export function LaunchIntro() {
@@ -14,7 +16,7 @@ export function LaunchIntro() {
     ).matches;
     const timer = window.setTimeout(
       () => setClosing(true),
-      reducedMotion ? 5400 : INTRO_DURATION_MS,
+      reducedMotion ? ANIMATION_END_MS + 850 : INTRO_DURATION_MS,
     );
 
     return () => window.clearTimeout(timer);
@@ -32,24 +34,21 @@ export function LaunchIntro() {
 
   return createPortal(
     <div
-      className={`launch-intro${closing ? " launch-intro--exit" : ""}`}
+      className={\`launch-intro\${closing ? " launch-intro--exit" : ""}\`}
       role="status"
       aria-label="Opening Gastador"
       aria-live="polite"
     >
       <div className="launch-intro__content">
-        <div className="launch-intro__stage" aria-hidden="true">
-          <div className="launch-intro__mark">
-            <span className="launch-intro__corner launch-intro__corner--tl" />
-            <span className="launch-intro__corner launch-intro__corner--tr" />
-            <span className="launch-intro__corner launch-intro__corner--bl" />
-            <span className="launch-intro__corner launch-intro__corner--br" />
-            <img
-              src={`${import.meta.env.BASE_URL}gastador-mark.svg`}
-              alt=""
-              draggable={false}
-            />
-          </div>
+        <div className="launch-intro__animation" aria-hidden="true">
+          <DotLottiePlayer
+            src={\`\${import.meta.env.BASE_URL}gastador-intro.json\`}
+            autoplay
+            speed={1}
+            mode="forward"
+            loop={false}
+            className="launch-intro__player"
+          />
         </div>
 
         <div className="launch-intro__copy" aria-hidden="true">
