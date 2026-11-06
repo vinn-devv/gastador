@@ -166,7 +166,6 @@ export default function Home() {
             <strong className="num" data-testid="remaining">{formatMoney(Math.abs(remaining))}</strong>
             <small>{remaining < 0 ? "amount over" : "to spend"}</small>
           </div>
-          <span className="home-balance__orbit-dot" aria-hidden="true" />
         </div>
         <div className="home-balance__status">
           <span className={remaining < 0 ? "is-over" : ""} />
