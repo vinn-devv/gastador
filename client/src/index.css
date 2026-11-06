@@ -1600,3 +1600,189 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .dark body::before { animation: none; }
 }
+
+/* --------------------------------------------------------------------------
+   Gastador / Blue Current — app-wide MotionSites-inspired atmosphere.
+   One continuous, restrained animated backdrop behind every route.
+   CSS-only ambient motion keeps it lightweight and available offline.
+   -------------------------------------------------------------------------- */
+
+html,
+body {
+  min-height: 100%;
+  background: #f5f9ff;
+}
+body::before {
+  content: none !important;
+}
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  isolation: isolate;
+  background: transparent;
+}
+
+.app-atmosphere {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 0%, #fafdff 0%, #f4f8ff 54%, #edf4ff 100%);
+  contain: strict;
+}
+.app-atmosphere__wash {
+  position: absolute;
+  inset: -24%;
+  background:
+    radial-gradient(ellipse 54% 44% at 14% 16%, rgb(74 150 255 / .18), transparent 72%),
+    radial-gradient(ellipse 46% 42% at 88% 26%, rgb(100 175 255 / .16), transparent 74%),
+    radial-gradient(ellipse 48% 40% at 60% 94%, rgb(55 128 234 / .13), transparent 76%),
+    radial-gradient(ellipse 38% 38% at var(--ambient-pointer-x, 52%) var(--ambient-pointer-y, 38%), rgb(76 154 255 / .11), transparent 74%);
+  filter: blur(24px);
+  opacity: .88;
+  transform: translate3d(0,0,0) scale(1.04);
+  animation: gastador-blue-current 32s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.app-atmosphere__orb {
+  position: absolute;
+  width: clamp(320px, 48vw, 760px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(42px);
+  opacity: .14;
+  transform: translate3d(0,0,0);
+  will-change: transform;
+}
+.app-atmosphere__orb--one {
+  top: -22%;
+  left: -19%;
+  background: radial-gradient(circle at 56% 48%, rgb(47 133 255 / .85), rgb(47 133 255 / .16) 42%, transparent 72%);
+  animation: gastador-orbit-one 39s ease-in-out infinite alternate;
+}
+.app-atmosphere__orb--two {
+  right: -25%;
+  bottom: -34%;
+  width: clamp(360px, 56vw, 860px);
+  background: radial-gradient(circle at 45% 46%, rgb(80 173 255 / .76), rgb(45 117 220 / .13) 45%, transparent 72%);
+  animation: gastador-orbit-two 46s ease-in-out infinite alternate;
+}
+.app-atmosphere__ribbon {
+  position: absolute;
+  inset: -38% -20%;
+  background:
+    linear-gradient(116deg,
+      transparent 28%,
+      rgb(87 157 248 / .025) 39%,
+      rgb(87 157 248 / .09) 47%,
+      rgb(165 210 255 / .035) 52%,
+      transparent 63%);
+  filter: blur(28px);
+  opacity: .6;
+  transform: translate3d(-8%,0,0) rotate(-8deg);
+  animation: gastador-ribbon-pass 54s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.app-atmosphere__texture {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgb(111 157 211 / .24) .65px, transparent .8px);
+  background-size: 22px 22px;
+  opacity: .12;
+  mask-image: linear-gradient(180deg, #000 0%, rgb(0 0 0 / .65) 42%, transparent 100%);
+}
+
+.dark body,
+html.dark body {
+  background: #050b14;
+  color: #f5f8ff;
+}
+.dark .app-atmosphere,
+html.dark .app-atmosphere {
+  background:
+    radial-gradient(ellipse at 50% 0%, #0a1a2e 0%, #050b14 54%, #040912 100%);
+}
+.dark .app-atmosphere__wash,
+html.dark .app-atmosphere__wash {
+  background:
+    radial-gradient(ellipse 54% 44% at 14% 16%, rgb(40 119 227 / .27), transparent 72%),
+    radial-gradient(ellipse 46% 42% at 88% 26%, rgb(57 139 255 / .23), transparent 74%),
+    radial-gradient(ellipse 48% 40% at 60% 94%, rgb(20 83 164 / .23), transparent 76%),
+    radial-gradient(ellipse 38% 38% at var(--ambient-pointer-x, 52%) var(--ambient-pointer-y, 38%), rgb(62 145 255 / .15), transparent 74%);
+  opacity: 1;
+}
+.dark .app-atmosphere__orb,
+html.dark .app-atmosphere__orb {
+  opacity: .24;
+}
+.dark .app-atmosphere__ribbon,
+html.dark .app-atmosphere__ribbon {
+  opacity: .78;
+  background:
+    linear-gradient(116deg,
+      transparent 28%,
+      rgb(30 102 207 / .025) 39%,
+      rgb(57 139 255 / .13) 47%,
+      rgb(145 197 255 / .055) 52%,
+      transparent 63%);
+}
+.dark .app-atmosphere__texture,
+html.dark .app-atmosphere__texture {
+  background-image: radial-gradient(rgb(133 174 225 / .25) .65px, transparent .8px);
+  opacity: .10;
+}
+
+/* Keep large surfaces legible while letting the living backdrop show through
+   at page edges and between content groups. */
+.dark .dash-guide,
+.dark .dash-panel,
+.dark .card {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.dark .page-container {
+  background: transparent;
+}
+.dark nav[aria-label="Main"] {
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+}
+
+@keyframes gastador-blue-current {
+  0% { transform: translate3d(-2.5%, -1.5%, 0) scale(1.02) rotate(-1.5deg); }
+  48% { transform: translate3d(2.2%, 1.2%, 0) scale(1.09) rotate(1deg); }
+  100% { transform: translate3d(-.5%, 2.4%, 0) scale(1.04) rotate(2deg); }
+}
+@keyframes gastador-orbit-one {
+  from { transform: translate3d(0, 0, 0) scale(.92); }
+  to { transform: translate3d(10vw, 8vh, 0) scale(1.12); }
+}
+@keyframes gastador-orbit-two {
+  from { transform: translate3d(0, 0, 0) scale(1.02); }
+  to { transform: translate3d(-11vw, -8vh, 0) scale(.9); }
+}
+@keyframes gastador-ribbon-pass {
+  from { transform: translate3d(-5%, -1%, 0) rotate(-8deg); }
+  to { transform: translate3d(8%, 3%, 0) rotate(-4deg); }
+}
+
+@media (max-width: 700px) {
+  .app-atmosphere__orb { filter: blur(54px); opacity: .11; }
+  .dark .app-atmosphere__orb,
+  html.dark .app-atmosphere__orb { opacity: .18; }
+  .app-atmosphere__ribbon { opacity: .28; }
+  .dark .app-atmosphere__ribbon,
+  html.dark .app-atmosphere__ribbon { opacity: .48; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-atmosphere__wash,
+  .app-atmosphere__orb,
+  .app-atmosphere__ribbon {
+    animation: none !important;
+    will-change: auto;
+  }
+}
