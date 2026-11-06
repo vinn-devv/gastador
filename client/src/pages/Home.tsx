@@ -1,118 +1,68 @@
-import {
-  ArrowUpRight,
-  CalendarClock,
-  ChevronRight,
-  History,
-  Info,
-  Plus,
-  ScanLine,
-  Settings2,
-  type LucideIcon,
-} from "lucide-react";
-import { useMemo } from "react";
+import { ArrowUpRight, CalendarClock, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useData } from "../app/DataProvider";
 import { CategoryIcon } from "../components/CategoryIcon";
 import { LogoMark } from "../components/Logo";
-import { TransactionRow } from "../components/TransactionRow";
 import { Banner, ScreenSkeleton } from "../components/ui/Bits";
 import { Page } from "../components/ui/PageHeader";
-import { computeAlerts } from "../domain/alerts";
 import { transactionsInCycle } from "../domain/allowance";
-import { diffDays, formatDate, formatRange, manilaHour, manilaHourMinute } from "../domain/dates";
+import { diffDays, formatDate, formatRange, manilaHour } from "../domain/dates";
 import { byCategory } from "../domain/insights";
 import { formatMoney, ratioPercent } from "../domain/money";
-import { goalProgress } from "../domain/savings";
 
 function greeting(): string {
   const hour = manilaHour();
   return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 }
 
-function QuickAction({ to, icon: Icon, label }: { to: string; icon: LucideIcon; label: string }) {
-  return (
-    <Link to={to} className="canvas-action">
-      <span className="canvas-action__icon"><Icon size={20} strokeWidth={1.65} aria-hidden /></span>
-      <span>{label}</span>
-      <ArrowUpRight size={13} className="canvas-action__arrow" aria-hidden />
-    </Link>
-  );
-}
-
-function smoothPath(points: { x: number; y: number }[]) {
-  if (points.length < 2) return "";
-  let path = "M " + points[0].x + " " + points[0].y;
-  for (let index = 0; index < points.length - 1; index += 1) {
-    const current = points[index];
-    const next = points[index + 1];
-    const midX = (current.x + next.x) / 2;
-    const midY = (current.y + next.y) / 2;
-    path += " Q " + current.x + " " + current.y + " " + midX + " " + midY;
-  }
-  const last = points[points.length - 1];
-  path += " T " + last.x + " " + last.y;
-  return path;
-}
-
-function SpendingWave({
-  transactions,
-  cycle,
-  today,
+function SpendingLine({
+  transactions, cycle, today,
 }: {
   transactions: { date: string; amountCentavos: number }[];
   cycle: { startDate: string; endDate: string };
   today: string;
 }) {
-  const elapsed = Math.max(1, Math.min(diffDays(cycle.startDate, today) + 1, diffDays(cycle.startDate, cycle.endDate) + 1));
-  const buckets = Array.from({ length: 12 }, () => 0);
-
+  const elapsed = Math.max(1, Math.min(
+    diffDays(cycle.startDate, today) + 1,
+    diffDays(cycle.startDate, cycle.endDate) + 1,
+  ));
+  const values = Array.from({ length: 12 }, () => 0);
   transactions.forEach((transaction) => {
     const day = diffDays(cycle.startDate, transaction.date);
     if (day < 0 || day >= elapsed) return;
-    const index = Math.min(11, Math.floor((day / elapsed) * 12));
-    buckets[index] += transaction.amountCentavos;
+    values[Math.min(11, Math.floor((day / elapsed) * 12))] += transaction.amountCentavos;
   });
+  if (!values.some(Boolean)) return null;
 
-  if (!buckets.some((value) => value > 0)) {
-    return (
-      <div className="canvas-wave-empty">
-        <div className="canvas-wave-empty__line" aria-hidden="true" />
-        <p>Your spending rhythm will take shape here.</p>
-        <small>Each expense you record adds another point to the picture.</small>
-      </div>
-    );
+  const max = Math.max(...values, 1);
+  const points = values.map((value, index) => ({ x: 12 + index * 55, y: 106 - (value / max) * 74 }));
+  let line = "M " + points[0].x + " " + points[0].y;
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const a = points[i], b = points[i + 1];
+    line += " Q " + a.x + " " + a.y + " " + ((a.x + b.x) / 2) + " " + ((a.y + b.y) / 2);
   }
-
-  const max = Math.max(...buckets, 1);
-  const points = buckets.map((value, index) => ({
-    x: 18 + index * 55,
-    y: 132 - (value / max) * 92,
-  }));
-  const line = smoothPath(points);
-  const area = line + " L " + points[points.length - 1].x + " 152 L 18 152 Z";
+  line += " T " + points[points.length - 1].x + " " + points[points.length - 1].y;
   const last = points[points.length - 1];
 
   return (
-    <figure className="canvas-wave">
-      <svg viewBox="0 0 635 166" role="img" aria-label="Recorded daily spending in the current allowance cycle">
+    <figure className="home-activity__chart">
+      <svg viewBox="0 0 620 132" role="img" aria-label="Daily spending during this allowance cycle">
         <defs>
-          <linearGradient id="canvas-wave-fill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#65AEFF" stopOpacity=".25" />
-            <stop offset="100%" stopColor="#398BFF" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="canvas-wave-stroke" x1="0" x2="1" y1="0" y2="0">
+          <linearGradient id="home-line-gradient" x1="0" x2="1" y1="0" y2="0">
             <stop offset="0%" stopColor="#398BFF" />
-            <stop offset="50%" stopColor="#70B7FF" />
+            <stop offset="55%" stopColor="#69B2FF" />
             <stop offset="100%" stopColor="#C3E2FF" />
           </linearGradient>
+          <linearGradient id="home-area-gradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#398BFF" stopOpacity=".18" />
+            <stop offset="100%" stopColor="#398BFF" stopOpacity="0" />
+          </linearGradient>
         </defs>
-        {[34, 74, 114, 152].map((y) => (
-          <line key={y} x1="12" x2="623" y1={y} y2={y} className="canvas-wave__guide" />
-        ))}
-        <path d={area} fill="url(#canvas-wave-fill)" className="canvas-wave__area" />
-        <path d={line} fill="none" stroke="url(#canvas-wave-stroke)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" pathLength="1" className="canvas-wave__stroke" />
-        <circle cx={last.x} cy={last.y} r="12" className="canvas-wave__pulse" />
-        <circle cx={last.x} cy={last.y} r="4" className="canvas-wave__point" />
+        {[28, 66, 104].map((y) => <line key={y} x1="8" x2="612" y1={y} y2={y} className="home-activity__guide" />)}
+        <path d={line + " L " + last.x + " 120 L 12 120 Z"} fill="url(#home-area-gradient)" />
+        <path d={line} fill="none" stroke="url(#home-line-gradient)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" pathLength="1" className="home-activity__stroke" />
+        <circle cx={last.x} cy={last.y} r="11" className="home-activity__pulse" />
+        <circle cx={last.x} cy={last.y} r="4" className="home-activity__point" />
       </svg>
       <figcaption>
         <span>{formatDate(cycle.startDate, false)}</span>
@@ -125,45 +75,27 @@ function SpendingWave({
 
 export default function Home() {
   const { world, error, today, current, summary, categoryById } = useData();
-  const alerts = useMemo(
-    () => world && current && summary ? computeAlerts({
-      cycle: current.cycle,
-      summary,
-      prefs: world.settings.alerts,
-      limits: world.limits,
-      categories: world.categories,
-      transactions: world.transactions,
-      today,
-      nowHourMinute: manilaHourMinute(),
-    }) : [],
-    [world, current, summary, today],
-  );
-
-  if (error) {
-    return <Page><Banner tone="bad" title="Could not open your data">{error.message}</Banner></Page>;
-  }
+  if (error) return <Page><Banner tone="bad" title="Could not open your data">{error.message}</Banner></Page>;
   if (!world) return <ScreenSkeleton />;
 
   const firstName = world.settings.displayName.trim().split(/\s+/)[0];
-  const recent = world.transactions.slice(0, 5);
-
   if (!current || !summary) {
     return (
-      <Page className="money-canvas">
-        <header className="canvas-header">
+      <Page className="home-calm">
+        <header className="home-calm__header">
           <div>
-            <span className="canvas-kicker">GASTADOR / YOUR MONEY</span>
+            <span className="home-calm__eyebrow">GASTADOR / YOUR MONEY</span>
             <h1>{greeting()}{firstName ? ", " + firstName : ""}</h1>
-            <p>{formatDate(today)} · A clearer view starts here.</p>
+            <p>{formatDate(today)}</p>
           </div>
-          <LogoMark size={42} />
+          <LogoMark size={40} />
         </header>
-        <section className="canvas-no-cycle">
-          <span className="canvas-kicker">FIRST, SET YOUR DIRECTION</span>
+        <section className="home-setup">
+          <span className="home-calm__eyebrow">A CLEAR START</span>
           <h2>Give every peso<br />somewhere to go.</h2>
-          <p>Set an allowance cycle and Gastador will help you follow what comes in, what goes out, and what remains.</p>
-          <Link to="/settings/allowance/new" className="canvas-primary-link">Set up your allowance <ArrowUpRight size={18} /></Link>
-          <div className="canvas-no-cycle__orbit" aria-hidden="true" />
+          <p>Set your allowance once. Then Gastador can help you see what is available and how your spending changes.</p>
+          <Link to="/settings/allowance/new" className="home-setup__link">Set up your allowance <ArrowUpRight size={17} /></Link>
+          <span className="home-setup__halo" aria-hidden="true" />
         </section>
       </Page>
     );
@@ -171,234 +103,141 @@ export default function Home() {
 
   const cycle = current.cycle;
   const inCycle = transactionsInCycle(cycle, world.transactions);
-  const categories = byCategory(inCycle).slice(0, 4);
-  const goals = world.goals.map((goal) => goalProgress(goal, world.contributions, today));
-  const isOver = summary.remainingCentavos < 0;
-  const usedPercent = Math.max(0, Math.min(100, summary.percentUsed));
+  const categories = byCategory(inCycle).slice(0, 3);
+  const percentUsed = Math.max(0, Math.min(100, summary.percentUsed));
+  const circumference = 2 * Math.PI * 108;
+  const offset = circumference * (1 - percentUsed / 100);
+  const remaining = summary.remainingCentavos;
   const cycleLabel = cycle.name.startsWith("Allowance from")
     ? formatRange(cycle.startDate, cycle.endDate)
     : cycle.name;
-  const balanceLabel = isOver
-    ? "OVER THE ALLOWANCE BY"
-    : summary.status === "ended" ? "LEFT AT THE END" : "AVAILABLE TO SPEND";
-  const balanceValue = formatMoney(Math.abs(summary.remainingCentavos));
-  const paceText = {
-    not_started: "Starts in " + summary.daysUntilStart + " day" + (summary.daysUntilStart === 1 ? "" : "s"),
-    on_track: "You're on pace with your plan",
-    above_pace: "Spending is above your planned daily pace",
-    over_budget: "Over the allowance by " + formatMoney(-summary.remainingCentavos),
-    ended: "This cycle has ended",
-  }[summary.pace];
+  const paceText = remaining < 0
+    ? "You've gone over this allowance"
+    : summary.pace === "on_track"
+      ? "You're on track"
+      : summary.pace === "above_pace"
+        ? "Spending is above your daily pace"
+        : summary.pace === "not_started"
+          ? "Your allowance cycle hasn't started"
+          : summary.pace === "ended"
+            ? "This cycle has ended"
+            : "Keep an eye on your spending";
 
   return (
-    <Page className="money-canvas">
-      <header className="canvas-header">
-        <div className="canvas-header__copy">
-          <span className="canvas-kicker">GASTADOR / YOUR MONEY, IN MOTION</span>
+    <Page className="home-calm">
+      <header className="home-calm__header">
+        <div>
+          <span className="home-calm__eyebrow">GASTADOR / OVERVIEW</span>
           <h1>{greeting()}{firstName ? ", " + firstName : ""}</h1>
-          <p>{formatDate(today)} <span aria-hidden="true">·</span> {cycleLabel}</p>
+          <p>{formatDate(today)} <span>·</span> {cycleLabel}</p>
         </div>
-        <div className="canvas-header__mark" aria-label="Gastador">
-          <LogoMark size={34} />
-        </div>
+        <div className="home-calm__brand" aria-label="Gastador"><LogoMark size={35} /></div>
       </header>
 
       {summary.status === "ended" && (
-        <div className="canvas-cycle-alert">
-          <CalendarClock size={16} />
-          <span>Your cycle ended on {formatDate(cycle.endDate)}.</span>
-          <Link to="/settings/allowance/new">Start another <ArrowUpRight size={14} /></Link>
+        <div className="home-calm__cycle-note">
+          <CalendarClock size={15} />
+          <span>Your allowance cycle has ended.</span>
+          <Link to="/settings/allowance/new">Set a new cycle <ChevronRight size={14} /></Link>
         </div>
       )}
 
-      <section className="canvas-hero" aria-label="Available allowance balance">
-        <div className="canvas-hero__motion" aria-hidden="true">
-          <span className="canvas-hero__ribbon canvas-hero__ribbon--a" />
-          <span className="canvas-hero__ribbon canvas-hero__ribbon--b" />
-          <span className="canvas-hero__orb canvas-hero__orb--a" />
-          <span className="canvas-hero__orb canvas-hero__orb--b" />
-          <span className="canvas-hero__orbit canvas-hero__orbit--a" />
-          <span className="canvas-hero__orbit canvas-hero__orbit--b" />
-          <span className="canvas-hero__spark canvas-hero__spark--a" />
-          <span className="canvas-hero__spark canvas-hero__spark--b" />
-          <span className="canvas-hero__spark canvas-hero__spark--c" />
+      <section className="home-balance" aria-label="Available allowance balance">
+        <div className="home-balance__ambient" aria-hidden="true">
+          <span className="home-balance__ambient-orb home-balance__ambient-orb--one" />
+          <span className="home-balance__ambient-orb home-balance__ambient-orb--two" />
         </div>
-
-        <div className="canvas-hero__content">
-          <span className="canvas-kicker">{balanceLabel}</span>
-          <strong className={"canvas-hero__amount num" + (isOver ? " is-over" : "")} data-testid="remaining">
-            {balanceValue}
-          </strong>
-          <div className="canvas-hero__status">
-            <span className="canvas-hero__status-dot" />
-            <span>{paceText}</span>
+        <div className="home-balance__ring-wrap">
+          <svg className="home-balance__ring" viewBox="0 0 240 240" role="img" aria-label={Math.round(percentUsed) + " percent of allowance used"}>
+            <defs>
+              <linearGradient id="home-balance-ring-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#398BFF" />
+                <stop offset="55%" stopColor="#77BBFF" />
+                <stop offset="100%" stopColor="#D1E9FF" />
+              </linearGradient>
+              <filter id="home-balance-ring-glow" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+            <circle className="home-balance__ring-track" cx="120" cy="120" r="108" />
+            <circle
+              className="home-balance__ring-progress"
+              cx="120" cy="120" r="108"
+              stroke="url(#home-balance-ring-gradient)"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+              filter="url(#home-balance-ring-glow)"
+            />
+          </svg>
+          <div className="home-balance__center">
+            <span>{remaining < 0 ? "OVER ALLOWANCE" : "AVAILABLE BALANCE"}</span>
+            <strong className="num" data-testid="remaining">{formatMoney(Math.abs(remaining))}</strong>
+            <small>{remaining < 0 ? "amount over" : "to spend"}</small>
           </div>
-          <div className="canvas-hero__cycle">
-            <span>{cycleLabel}</span>
-            <span className="canvas-hero__cycle-dot" />
-            <span>{summary.status === "ended" ? "Cycle complete" : summary.daysRemaining + " days left"}</span>
-          </div>
+          <span className="home-balance__orbit-dot" aria-hidden="true" />
         </div>
-
-        <div className="canvas-hero__metrics">
-          <div>
-            <span>Allowance</span>
-            <strong className="num">{formatMoney(summary.spendableCentavos)}</strong>
-          </div>
-          <div>
-            <span>Spent</span>
-            <strong className="num">{formatMoney(summary.spentCentavos)}</strong>
-          </div>
-          <div>
-            <span>Safe per day</span>
-            <strong className="num" data-testid="daily-limit">
-              {summary.dailySafeLimitCentavos === null ? "—" : formatMoney(summary.dailySafeLimitCentavos)}
-            </strong>
-          </div>
+        <div className="home-balance__status">
+          <span className={remaining < 0 ? "is-over" : ""} />
+          {paceText}
         </div>
-
-        <div className="canvas-hero__progress" role="progressbar" aria-label="Allowance used" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(usedPercent)}>
-          <span style={{ width: usedPercent + "%" }} />
-        </div>
-        <div className="canvas-hero__progress-label">
-          <span>Allowance used</span>
-          <strong>{Math.round(summary.percentUsed)}%</strong>
+        <div className="home-balance__cycle">
+          <span>{cycleLabel}</span>
+          <span className="home-balance__separator" />
+          <span>{summary.status === "ended" ? "Cycle complete" : summary.daysRemaining + " days left"}</span>
         </div>
       </section>
 
-      <section className="canvas-actions" aria-label="Quick actions">
-        <div className="canvas-section-title">
-          <span className="canvas-kicker">MOVE WITH INTENTION</span>
-          <h2>What would you like to do?</h2>
-        </div>
-        <div className="canvas-actions__row">
-          <QuickAction to="/snap" icon={ScanLine} label="Scan receipt" />
-          <QuickAction to="/activity/new" icon={Plus} label="Add expense" />
-          <QuickAction to="/activity" icon={History} label="Activity" />
-          <QuickAction to="/settings/allowance" icon={Settings2} label="Allowance" />
+      <section className="home-summary" aria-label="Allowance summary">
+        <div><span>Allowance</span><strong className="num">{formatMoney(summary.spendableCentavos)}</strong></div>
+        <div><span>Spent</span><strong className="num">{formatMoney(summary.spentCentavos)}</strong></div>
+        <div>
+          <span>Safe per day</span>
+          <strong className="num" data-testid="daily-limit">{summary.dailySafeLimitCentavos === null ? "—" : formatMoney(summary.dailySafeLimitCentavos)}</strong>
         </div>
       </section>
 
-      {alerts.length > 0 && (
-        <div className="canvas-alert-stream" aria-label="Spending notes">
-          <Info size={15} />
-          <div className="canvas-alert-stream__track">
-            <span>{alerts.map((alert) => alert.text).join("  ·  ")}</span>
-          </div>
+      <section className="home-activity" aria-label="Activity overview">
+        <div className="home-section-heading">
+          <div><span className="home-calm__eyebrow">YOUR MONEY, IN MOTION</span><h2>Activity Overview</h2></div>
+          <Link to="/insights">This cycle <ArrowUpRight size={14} /></Link>
         </div>
-      )}
-
-      <section className="canvas-insights" aria-label="Spending activity">
-        <div className="canvas-section-title canvas-section-title--row">
-          <div>
-            <span className="canvas-kicker">THE SPENDING RHYTHM</span>
-            <h2>Watch your money move.</h2>
-            <p>A live picture of what you've recorded this cycle.</p>
-          </div>
-          <Link to="/insights" className="canvas-text-link">Explore insights <ArrowUpRight size={15} /></Link>
-        </div>
-        <div className="canvas-insights__highlights">
-          <div>
-            <span>Spent so far</span>
-            <strong className="num">{formatMoney(summary.spentCentavos)}</strong>
-          </div>
-          <div>
-            <span>Remaining</span>
-            <strong className="num">{formatMoney(Math.max(0, summary.remainingCentavos))}</strong>
-          </div>
-          <div>
-            <span>Allowance used</span>
-            <strong className="num">{Math.round(summary.percentUsed)}%</strong>
-          </div>
-        </div>
-        <SpendingWave transactions={inCycle} cycle={cycle} today={today} />
-      </section>
-
-      <section className="canvas-ledger">
-        <div className="canvas-section-title canvas-section-title--row">
-          <div>
-            <span className="canvas-kicker">RECENT ACTIVITY</span>
-            <h2>Every peso has a story.</h2>
-          </div>
-          <Link to="/activity" className="canvas-text-link">All activity <ArrowUpRight size={15} /></Link>
-        </div>
-        {recent.length === 0 ? (
-          <div className="canvas-ledger__empty">
-            <p>Nothing recorded yet.</p>
-            <span>Your first expense will appear here.</span>
-            <Link to="/activity/new">Record an expense <ArrowUpRight size={15} /></Link>
-          </div>
+        {inCycle.length > 0 ? (
+          <SpendingLine transactions={inCycle} cycle={cycle} today={today} />
         ) : (
-          <ul className="canvas-ledger__list">
-            {recent.map((transaction, index) => (
-              <li key={transaction.id} style={{ "--row-index": index } as React.CSSProperties}>
-                <TransactionRow
-                  tx={transaction}
-                  categoryName={categoryById.get(transaction.categoryId)?.name ?? "Unknown"}
-                  showDate
-                />
-              </li>
-            ))}
-          </ul>
+          <div className="home-activity__empty">
+            <p>No activity yet.</p>
+            <span>Your spending trend will appear here after your first expense.</span>
+            <Link to="/activity/new">Add your first expense <ArrowUpRight size={14} /></Link>
+          </div>
         )}
       </section>
 
-      <div className="canvas-bottom">
-        {categories.length > 0 && (
-          <section className="canvas-categories">
-            <div className="canvas-section-title">
-              <span className="canvas-kicker">WHERE IT GOES</span>
-              <h2>Your spending, by category.</h2>
-            </div>
-            <ul className="canvas-category-list">
-              {categories.map((category) => {
-                const categoryName = categoryById.get(category.key)?.name ?? "Unknown";
-                const share = ratioPercent(category.total, summary.spentCentavos);
-                return (
-                  <li key={category.key}>
-                    <div className="canvas-category-list__heading">
-                      <span className="canvas-category-list__name"><CategoryIcon name={categoryName} size={17} />{categoryName}</span>
-                      <strong className="num">{formatMoney(category.total)}</strong>
-                    </div>
-                    <div className="canvas-category-list__track">
-                      <span style={{ width: Math.max(0, Math.min(100, share)) + "%" }} />
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        )}
-
-        {goals.length > 0 && (
-          <section className="canvas-savings">
-            <div className="canvas-section-title">
-              <span className="canvas-kicker">A LITTLE FURTHER</span>
-              <h2>{goals[0].goal.name}</h2>
-            </div>
-            <div className="canvas-savings__headline">
-              <strong className="num">{formatMoney(goals[0].savedCentavos)}</strong>
-              <span>of {formatMoney(goals[0].goal.targetCentavos)}</span>
-            </div>
-            <div className="canvas-savings__track">
-              <span style={{ width: Math.max(0, Math.min(100, goals[0].percent)) + "%" }} />
-            </div>
-            <div className="canvas-savings__footer">
-              <span>{Math.round(goals[0].percent)}% of the way there</span>
-              <Link to="/settings/savings">View goal <ChevronRight size={14} /></Link>
-            </div>
-          </section>
-        )}
-
-        {categories.length === 0 && goals.length === 0 && (
-          <section className="canvas-savings canvas-savings--empty">
-            <span className="canvas-kicker">YOUR NEXT CHAPTER</span>
-            <h2>Make space for a goal.</h2>
-            <p>Set a savings goal and watch your progress grow.</p>
-            <Link to="/settings/savings">Create a goal <ArrowUpRight size={15} /></Link>
-          </section>
-        )}
-      </div>
+      {categories.length > 0 && (
+        <section className="home-categories" aria-label="Top spending categories">
+          <div className="home-section-heading">
+            <div><span className="home-calm__eyebrow">SPENDING BREAKDOWN</span><h2>Categories</h2></div>
+            <Link to="/insights">See all <ArrowUpRight size={14} /></Link>
+          </div>
+          <ul className="home-categories__list">
+            {categories.map((category) => {
+              const name = categoryById.get(category.key)?.name ?? "Unknown";
+              const share = ratioPercent(category.total, summary.spentCentavos);
+              return (
+                <li key={category.key}>
+                  <div className="home-categories__row">
+                    <span className="home-categories__icon"><CategoryIcon name={name} size={17} /></span>
+                    <span className="home-categories__name">{name}</span>
+                    <strong className="num">{formatMoney(category.total)}</strong>
+                    <small>{Math.round(share)}%</small>
+                  </div>
+                  <div className="home-categories__track"><span style={{ width: Math.max(0, Math.min(100, share)) + "%" }} /></div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
     </Page>
   );
 }
