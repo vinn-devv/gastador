@@ -2939,7 +2939,6 @@ html.dark, html.dark body, .dark body { background: #070e19; }
   fill: none;
   stroke-width: 7;
   stroke-linecap: round;
-  stroke-dashoffset: 0;
   transition: stroke-dashoffset 900ms cubic-bezier(.18,.72,.22,1);
 }
 .home-balance__ring-track {

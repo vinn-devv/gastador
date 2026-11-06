@@ -104,18 +104,6 @@ export default function Home() {
   const remainingPercent = Math.round(remainingRatio * 100);
   const circumference = 2 * Math.PI * 108;
   const offset = circumference * (1 - remainingRatio);
-  const paceText = remaining < 0
-    ? "You've gone over this allowance"
-    : summary.pace === "on_track"
-      ? "You're on track"
-      : summary.pace === "above_pace"
-        ? "Spending is above your daily pace"
-        : summary.pace === "not_started"
-          ? "Your allowance cycle hasn't started"
-          : summary.pace === "ended"
-            ? "This cycle has ended"
-            : "Keep an eye on your spending";
-
   return (
     <Page className="home-calm">
       <header className="home-calm__header">
@@ -166,10 +154,6 @@ export default function Home() {
             <strong className="num" data-testid="remaining">{formatMoney(Math.abs(remaining))}</strong>
             <small>{remaining < 0 ? "amount over" : "to spend"}</small>
           </div>
-        </div>
-        <div className="home-balance__status">
-          <span className={remaining < 0 ? "is-over" : ""} />
-          {paceText}
         </div>
       </section>
 
