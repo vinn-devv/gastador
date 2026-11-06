@@ -84,9 +84,7 @@ export default function Home() {
       <Page className="home-calm">
         <header className="home-calm__header">
           <div>
-            <span className="home-calm__eyebrow">GASTADOR / YOUR MONEY</span>
             <h1>{greeting()}{firstName ? ", " + firstName : ""}</h1>
-            <p>{formatDate(today)}</p>
           </div>
           <LogoMark size={40} />
         </header>
@@ -127,9 +125,7 @@ export default function Home() {
     <Page className="home-calm">
       <header className="home-calm__header">
         <div>
-          <span className="home-calm__eyebrow">GASTADOR / OVERVIEW</span>
           <h1>{greeting()}{firstName ? ", " + firstName : ""}</h1>
-          <p>{formatDate(today)} <span>·</span> {cycleLabel}</p>
         </div>
         <div className="home-calm__brand" aria-label="Gastador"><LogoMark size={35} /></div>
       </header>
