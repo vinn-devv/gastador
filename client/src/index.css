@@ -3621,3 +3621,44 @@ html.dark, html.dark body, .dark body { background: #070e19; }
   transform: none !important;
   transform-origin: center center;
 }
+
+
+/* Active React intro sizing — overrides legacy Lottie-only sizing rules. */
+.launch-intro__stage {
+  width: min(88vw, 320px);
+  height: min(88vw, 320px);
+}
+.launch-intro__mark {
+  width: clamp(190px, 55vw, 220px);
+}
+.launch-intro__wordmark {
+  font-size: clamp(38px, 9vw, 50px);
+}
+@media (max-width: 480px) {
+  .launch-intro__stage {
+    width: min(88vw, 320px);
+    height: min(88vw, 320px);
+  }
+  .launch-intro__mark {
+    width: min(62vw, 220px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .launch-intro__mark,
+  .launch-intro__mark img,
+  .launch-intro__corner,
+  .launch-intro__halo,
+  .launch-intro__scan-line,
+  .launch-intro__glow,
+  .launch-intro__ambient,
+  .launch-intro__wordmark,
+  .launch-intro__tagline {
+    animation: none !important;
+    transition: none !important;
+  }
+  .launch-intro__wordmark,
+  .launch-intro__tagline {
+    opacity: 1;
+    transform: none;
+  }
+}
