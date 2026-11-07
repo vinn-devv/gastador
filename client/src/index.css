@@ -3505,3 +3505,23 @@ html.dark, html.dark body, .dark body { background: #070e19; }
     transition: none !important;
   }
 }
+
+
+/* Enlarge the original cropped intro artwork without changing its keyframes. */
+.launch-intro__animation {
+  width: min(100vw, 1024px);
+  aspect-ratio: 5 / 4;
+}
+.launch-intro__player {
+  transform: scale(1.2);
+  transform-origin: center center;
+}
+@media (max-width: 480px) {
+  .launch-intro__animation {
+    width: 100vw;
+    aspect-ratio: 5 / 4;
+  }
+  .launch-intro__player {
+    transform: scale(1.16);
+  }
+}
