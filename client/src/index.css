@@ -4988,3 +4988,531 @@ input[type="radio"] {
 @media (prefers-reduced-motion: reduce) {
   .insights-column-bar { transition:none !important; will-change:auto; }
 }
+
+
+/* ==========================================================================
+   GASTADOR — MIBU-inspired minimalist visual system
+   Direction: warm paper, ink typography, hairline dividers, restrained blue.
+   Replaces the previous glass/gradient/Uiverse-heavy treatment without
+   changing page structure, interactions, calculations, or stored data.
+   Reference: Girish, MIBU — Minimal Budget Expense Tracker & Finance App.
+   https://dribbble.com/shots/23882234-Mibu-Budget-Expense-Tracker-Finance-App-Design
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+  --bg: 247 247 244;
+  --surface: 255 255 253;
+  --sunken: 241 242 239;
+  --line: 226 228 224;
+  --ink: 30 34 37;
+  --muted: 128 133 135;
+  --primary: 46 104 143;
+  --on-primary: 255 255 255;
+  --primary-soft: 231 239 243;
+  --mint: 46 104 143;
+  --teal: 46 104 143;
+  --teal-soft: 231 239 243;
+  --uv-blue: #2e688f;
+  --uv-blue-deep: #244f6b;
+  --uv-blue-light: #e7eff3;
+  --uv-card-edge: #e2e4e0;
+  --uv-card-glow: transparent;
+}
+.dark {
+  color-scheme: dark;
+  --bg: 19 21 22;
+  --surface: 27 30 31;
+  --sunken: 35 38 39;
+  --line: 54 58 59;
+  --ink: 239 240 236;
+  --muted: 151 157 157;
+  --primary: 132 178 202;
+  --on-primary: 17 25 29;
+  --primary-soft: 39 54 61;
+  --mint: 132 178 202;
+  --teal: 132 178 202;
+  --teal-soft: 39 54 61;
+  --uv-blue: #84b2ca;
+  --uv-blue-deep: #345d70;
+  --uv-blue-light: #27363d;
+  --uv-card-edge: #363a3b;
+}
+
+/* Quiet canvas and typography. */
+html, body, #root, .app-shell, .app-shell__body, .app-main,
+.page-heading, .page-container, .home-calm {
+  background: #f7f7f4 !important;
+  background-image: none !important;
+}
+body {
+  color: #252a2c;
+  font-family: Inter, "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: -.012em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.app-atmosphere, .app-atmosphere__wash, .app-atmosphere__orb,
+.app-atmosphere__ribbon, .app-atmosphere__texture { display:none !important; }
+.route-enter { animation: mibu-page-in 240ms ease both; }
+@keyframes mibu-page-in {
+  from { opacity:0; transform:translateY(4px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* Desktop header and mobile brand. */
+.app-topbar {
+  background:rgb(247 247 244 / .94) !important;
+  border-bottom:1px solid #e5e6e2 !important;
+  box-shadow:none !important;
+  backdrop-filter:blur(14px);
+}
+.app-topbar__inner { max-width:1180px; min-height:66px; }
+.app-topbar__link {
+  border-radius:9px !important;
+  color:#858b8d !important;
+  font-size:13px;
+  font-weight:550;
+}
+.app-topbar__link:hover { background:#eeefeb !important; color:#282d30 !important; }
+.app-topbar__link.is-active {
+  color:#2e688f !important;
+  background:#eaf0f2 !important;
+  box-shadow:none !important;
+}
+.app-topbar__privacy { color:#898e8e !important; font-size:11px; }
+.app-topbar__privacy-icon { color:#62869a !important; }
+.app-mobile-brandbar {
+  width:min(100% - 2.5rem,460px);
+  height:36px;
+  margin:12px auto 2px;
+}
+.app-mobile-brandbar__word {
+  color:#252a2c !important;
+  font-size:13px;
+  font-weight:750;
+  letter-spacing:-.045em;
+}
+.app-mobile-brandbar__word span { color:#6b8798 !important; font-weight:550; }
+.app-mobile-brandbar__avatar {
+  width:30px; height:30px;
+  background:#e9eeed !important;
+  color:#4d6978 !important;
+  border:1px solid #dfe5e3;
+}
+
+/* Page titles: compact, editorial, no oversized hero typography. */
+.page-heading {
+  position:relative;
+  top:auto;
+  border:0 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+}
+.page-heading__inner {
+  width:min(100% - 2.5rem,460px);
+  min-height:62px;
+  padding:8px 0 10px;
+}
+.page-heading__copy h1 {
+  color:#252a2c !important;
+  font-size:25px !important;
+  line-height:1.15;
+  font-weight:720 !important;
+  letter-spacing:-.055em !important;
+}
+.page-heading__copy p {
+  color:#858b8d !important;
+  font-size:12px !important;
+  line-height:1.45;
+}
+.page-heading__back { color:#5f7f91 !important; }
+.page-container {
+  width:min(100%,460px);
+  padding:8px 20px 104px;
+}
+
+/* Remove artificial gradients, glow, thick shadows and excessive rounding. */
+.card, .page-container .card, section.card,
+.home-summary, .home-recent__list, .finance-transaction,
+.settings-row, .page-container ul.divide-y {
+  border:1px solid #e4e6e2 !important;
+  border-radius:13px !important;
+  background:#fff !important;
+  background-image:none !important;
+  box-shadow:none !important;
+}
+.card::before, .home-summary::before, .home-balance--reference::before { display:none !important; }
+.card:hover, .finance-transaction:hover, .settings-row:hover {
+  border-color:#d4dadd !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+.home-balance--reference {
+  min-height:150px;
+  padding:19px 19px 16px;
+  border:0 !important;
+  border-radius:16px !important;
+  background:#252a2c !important;
+  color:#fff !important;
+  box-shadow:none !important;
+}
+.home-balance__status-dot { background:#8cb9a7 !important; box-shadow:none !important; }
+.home-balance__trend {
+  border:1px solid rgb(255 255 255 / .2) !important;
+  border-radius:999px !important;
+  background:rgb(255 255 255 / .08) !important;
+  color:#e4e9e8 !important;
+}
+.home-balance__amount { font-size:35px !important; font-weight:680 !important; letter-spacing:-.06em !important; }
+.home-balance__bottomline { color:#c1c7c5 !important; font-size:11px; }
+.home-balance__progress { height:3px !important; border-radius:3px; background:rgb(255 255 255 / .17) !important; }
+.home-balance__progress span { background:#9ab9c6 !important; border-radius:3px; }
+
+/* Home: quiet spacing, simple icon buttons, typography-first hierarchy. */
+.home-calm { width:min(100%,460px); padding:8px 20px 104px; }
+.home-calm__header { margin:5px 0 18px !important; }
+.home-calm__header h1 {
+  color:#252a2c !important;
+  font-size:21px !important;
+  font-weight:720 !important;
+  letter-spacing:-.05em !important;
+}
+.home-calm__brand { opacity:.88; }
+.home-quick-actions {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin:16px 0 20px !important;
+}
+.home-quick-action {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+.home-quick-action > span {
+  width:43px !important; height:43px !important;
+  border:1px solid #e1e5e2 !important;
+  border-radius:13px !important;
+  background:#fff !important;
+  color:#526e7e !important;
+  box-shadow:none !important;
+}
+.home-quick-action > span::after { display:none !important; }
+.home-quick-action:hover > span {
+  background:#eef2f1 !important;
+  box-shadow:none !important;
+  transform:translateY(-1px);
+}
+.home-quick-action small {
+  color:#646c6d !important;
+  font-size:10px !important;
+  font-weight:560 !important;
+  letter-spacing:-.01em;
+}
+.home-summary {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  padding:13px 0 !important;
+  border:1px solid #e4e6e2 !important;
+  background:#fff !important;
+  border-radius:13px !important;
+}
+.home-summary > div { padding:0 12px; }
+.home-summary > div + div { border-left:1px solid #eceeeb; }
+.home-summary span {
+  color:#929898 !important;
+  font-size:10px !important;
+  font-weight:500;
+}
+.home-summary strong {
+  display:block;
+  margin-top:5px;
+  color:#30383b !important;
+  font-size:12px !important;
+  font-weight:650;
+}
+.home-section-heading { margin:22px 0 10px !important; align-items:center; }
+.home-section-heading h2 {
+  color:#2b3032 !important;
+  font-size:15px !important;
+  font-weight:680 !important;
+  letter-spacing:-.035em;
+}
+.home-calm__eyebrow {
+  color:#929999 !important;
+  font-size:9px !important;
+  font-weight:650;
+  letter-spacing:.11em;
+}
+.home-section-heading > a {
+  color:#587b8d !important;
+  font-size:11px;
+  font-weight:600;
+}
+.home-recent__list { overflow:hidden; }
+.finance-transaction {
+  min-height:61px;
+  padding:9px 11px !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.home-recent__list > li + li { border-top:1px solid #eff0ed; }
+.finance-transaction__icon {
+  width:35px !important; height:35px !important;
+  border:0 !important;
+  border-radius:11px !important;
+  background:#f0f2ef !important;
+  color:#617a86 !important;
+  box-shadow:none !important;
+}
+.finance-transaction__title strong { color:#303638 !important; font-size:12px !important; font-weight:620 !important; }
+.finance-transaction__copy small { color:#929898 !important; font-size:10px !important; }
+.finance-transaction__amount { color:#303638 !important; font-size:12px !important; font-weight:650 !important; }
+.home-activity, .home-categories {
+  margin-top:20px !important;
+  padding-top:15px !important;
+  border-color:#e5e7e3 !important;
+}
+.home-activity__guide { stroke:#e8ebe7 !important; }
+.home-activity__stroke { stroke:#658da1 !important; }
+.home-activity__point { fill:#658da1 !important; }
+.home-activity__pulse { fill:rgb(101 141 161 / .14) !important; }
+.home-categories__track { background:#ecefeb !important; }
+.home-categories__track > span { background:#7595a4 !important; }
+
+/* Activity, Insights and Settings share the same low-noise component language. */
+.page-container .chip, .chip {
+  min-height:32px !important;
+  padding:0 12px !important;
+  border:1px solid #e1e5e1 !important;
+  border-radius:999px !important;
+  background:#fff !important;
+  color:#737b7c !important;
+  box-shadow:none !important;
+  font-size:11px !important;
+  font-weight:560 !important;
+  transform:none !important;
+}
+.chip:hover { border-color:#cbd5d8 !important; background:#f5f7f5 !important; }
+.chip[aria-pressed="true"], .chip[aria-checked="true"] {
+  border-color:#30383b !important;
+  background:#30383b !important;
+  color:#fff !important;
+  box-shadow:none !important;
+}
+.btn, button.btn, a.btn {
+  min-height:42px;
+  border-radius:11px !important;
+  box-shadow:none !important;
+  font-size:12px;
+  font-weight:650;
+  letter-spacing:-.01em;
+  transform:none !important;
+}
+.btn::before { display:none !important; }
+.btn-primary, .btn-mint {
+  border:1px solid #293337 !important;
+  background:#293337 !important;
+  color:#fff !important;
+}
+.btn-primary:hover, .btn-mint:hover { background:#3b4a50 !important; }
+.btn-secondary, .btn-soft {
+  border:1px solid #e0e4e1 !important;
+  background:#fff !important;
+  color:#42545c !important;
+}
+.btn-secondary:hover, .btn-soft:hover { background:#f2f4f1 !important; }
+.btn-ghost { background:transparent !important; color:#657b85 !important; }
+.btn-danger { border-color:#eadbda !important; background:#fff !important; color:#a45e5a !important; }
+.iconbtn {
+  border:1px solid #e2e6e2 !important;
+  border-radius:11px !important;
+  background:#fff !important;
+  color:#5f7884 !important;
+  box-shadow:none !important;
+}
+.settings-row {
+  display:flex;
+  min-height:61px !important;
+  margin:0 !important;
+  padding:9px 11px !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.settings-row + li { border-top:1px solid #eff0ed; }
+.settings-row > span:first-child {
+  width:34px !important; height:34px;
+  border-radius:10px;
+  background:#f0f2ef !important;
+  color:#607d8b !important;
+}
+.page-container ul.divide-y {
+  overflow:hidden;
+  border:1px solid #e4e6e2 !important;
+  border-radius:13px !important;
+  background:#fff !important;
+}
+.page-container ul.divide-y > li + li { border-color:#eff0ed !important; }
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select, textarea, .input {
+  min-height:43px;
+  border:1px solid #e0e4e0 !important;
+  border-radius:10px !important;
+  background:#fff !important;
+  color:#30383b !important;
+  box-shadow:none !important;
+  font-size:13px;
+}
+input:focus, select:focus, textarea:focus, .input:focus {
+  border-color:#92aebc !important;
+  outline:3px solid rgb(101 141 161 / .12) !important;
+  box-shadow:none !important;
+}
+input[type="checkbox"], input[type="radio"] { accent-color:#557b8d; }
+.sheet {
+  border:1px solid #e3e6e2 !important;
+  border-radius:18px 18px 0 0 !important;
+  background:#fbfbf8 !important;
+  box-shadow:0 -12px 40px rgb(30 40 42 / .1) !important;
+}
+
+/* Minimal bottom navigation: no glass effect, no oversized floating button. */
+.app-mobile-dock {
+  left:50%;
+  bottom:max(8px,env(safe-area-inset-bottom));
+  width:min(calc(100% - 28px),460px);
+  padding:6px 7px calc(6px + env(safe-area-inset-bottom)) !important;
+  border:1px solid #e0e4e0 !important;
+  border-radius:16px !important;
+  background:rgb(255 255 253 / .96) !important;
+  box-shadow:0 5px 22px rgb(29 40 42 / .07) !important;
+  backdrop-filter:blur(16px) !important;
+  -webkit-backdrop-filter:blur(16px) !important;
+}
+.app-mobile-dock ul { gap:0; }
+.app-mobile-dock__link {
+  gap:3px;
+  color:#9a9f9e !important;
+  font-size:9px !important;
+  font-weight:560 !important;
+}
+.app-mobile-dock__icon {
+  width:29px !important; height:25px !important;
+  border:0 !important;
+  border-radius:8px !important;
+  background:transparent !important;
+  color:inherit !important;
+  box-shadow:none !important;
+}
+.app-mobile-dock__link.is-active:not(.is-snap) { color:#2e688f !important; }
+.app-mobile-dock__link.is-active:not(.is-snap) .app-mobile-dock__icon {
+  border:0 !important;
+  background:#edf2f3 !important;
+  color:#2e688f !important;
+  box-shadow:none !important;
+}
+.app-mobile-dock__link.is-snap { color:#2e688f !important; }
+.app-mobile-dock__link.is-snap .app-mobile-dock__icon {
+  width:34px !important; height:34px !important;
+  margin-top:-8px !important; margin-bottom:0 !important;
+  border:0 !important;
+  border-radius:11px !important;
+  background:#2e688f !important;
+  color:#fff !important;
+  box-shadow:0 3px 8px rgb(46 104 143 / .17) !important;
+}
+.app-scan-mark { width:21px !important; height:21px !important; }
+.app-scan-mark path { stroke:#fff !important; stroke-width:3.5 !important; }
+
+/* Dark theme follows the same neutral, flat design rather than blue gradients. */
+.dark html, html.dark, .dark body, html.dark body, .dark #root, html.dark #root,
+.dark .app-shell, html.dark .app-shell, .dark .app-shell__body, html.dark .app-shell__body,
+.dark .app-main, html.dark .app-main, .dark .page-heading, html.dark .page-heading,
+.dark .page-container, html.dark .page-container, .dark .home-calm, html.dark .home-calm {
+  background:#131516 !important;
+  background-image:none !important;
+}
+.dark body { color:#eff0ec; }
+.dark .app-topbar { background:rgb(19 21 22 / .94) !important; border-color:#363a3b !important; }
+.dark .app-topbar__link { color:#989e9e !important; }
+.dark .app-topbar__link.is-active { color:#a8c9d8 !important; background:#252f33 !important; }
+.dark .app-mobile-brandbar__word { color:#eff0ec !important; }
+.dark .app-mobile-brandbar__word span { color:#91b4c5 !important; }
+.dark .app-mobile-brandbar__avatar { background:#283235 !important; color:#b3cbd4 !important; border-color:#3a4548; }
+.dark .page-heading__copy h1, .dark .home-calm__header h1 { color:#eff0ec !important; }
+.dark .page-heading__copy p, .dark .home-calm__eyebrow { color:#929999 !important; }
+.dark .home-balance--reference { background:#252c2e !important; }
+.dark .home-summary, .dark .card, .dark .page-container .card,
+.dark .home-recent__list, .dark .page-container ul.divide-y,
+.dark .finance-transaction, .dark .settings-row {
+  border-color:#363c3d !important;
+  background:#1b1e1f !important;
+  box-shadow:none !important;
+}
+.dark .home-summary span, .dark .finance-transaction__copy small { color:#989f9f !important; }
+.dark .home-summary strong, .dark .finance-transaction__title strong,
+.dark .finance-transaction__amount, .dark .home-section-heading h2 { color:#e7e9e5 !important; }
+.dark .home-quick-action > span, .dark .finance-transaction__icon,
+.dark .settings-row > span:first-child {
+  border-color:#3b4446 !important;
+  background:#252c2e !important;
+  color:#a8c4cf !important;
+  box-shadow:none !important;
+}
+.dark .home-quick-action small { color:#b4bcbb !important; }
+.dark .home-summary > div + div { border-color:#363c3d !important; }
+.dark .home-recent__list > li + li, .dark .settings-row + li { border-color:#303637 !important; }
+.dark .btn-primary, .dark .btn-mint { border-color:#dce6e5 !important; background:#e2e9e7 !important; color:#1a2529 !important; }
+.dark .btn-secondary, .dark .btn-soft, .dark .iconbtn {
+  border-color:#41494a !important; background:#202526 !important; color:#d7dfdc !important;
+}
+.dark .chip { border-color:#41494a !important; background:#202526 !important; color:#b6bfbc !important; }
+.dark .chip[aria-pressed="true"], .dark .chip[aria-checked="true"] { border-color:#e0e8e5 !important; background:#e0e8e5 !important; color:#1b2528 !important; }
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.dark select, .dark textarea, .dark .input {
+  border-color:#41494a !important; background:#1b2021 !important; color:#e9ece8 !important;
+}
+.dark .sheet { border-color:#3c4445 !important; background:#1b1e1f !important; }
+.dark .app-mobile-dock {
+  border-color:#3a4243 !important;
+  background:rgb(27 30 31 / .96) !important;
+  box-shadow:0 5px 22px rgb(0 0 0 / .28) !important;
+}
+.dark .app-mobile-dock__link { color:#969e9d !important; }
+.dark .app-mobile-dock__link.is-active:not(.is-snap) { color:#a8c9d8 !important; }
+.dark .app-mobile-dock__link.is-active:not(.is-snap) .app-mobile-dock__icon { background:#293438 !important; color:#a8c9d8 !important; }
+.dark .app-mobile-dock__link.is-snap .app-mobile-dock__icon { background:#527d90 !important; color:#fff !important; }
+
+/* Desktop keeps the same restrained system with a wider reading column. */
+@media (min-width:768px) {
+  .page-container { width:min(100%,1120px); padding:24px 28px 60px; }
+  .home-calm { width:min(100%,1120px); padding:24px 28px 60px; }
+  .page-heading__inner { width:min(100% - 56px,1120px); }
+  .app-mobile-brandbar { display:none !important; }
+  .app-topbar { display:block; }
+  .app-mobile-dock { display:none !important; }
+}
+@media (max-width:480px) {
+  .home-balance__amount { font-size:32px !important; }
+  .home-summary > div { padding:0 8px; }
+  .home-summary span { font-size:9px !important; }
+  .home-summary strong { font-size:11px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-enter { animation:none !important; }
+  .btn, .card, .home-quick-action, .home-quick-action > span,
+  .chip, .iconbtn, .settings-row, .app-mobile-dock__link {
+    transition:none !important;
+    animation:none !important;
+  }
+}
