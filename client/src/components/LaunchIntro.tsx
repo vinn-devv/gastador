@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 const DotLottiePlayer: any = "dotlottie-wc";
-const ANIMATION_END_MS = 5000;
 const INTRO_DURATION_MS = 6700;
 const EXIT_DURATION_MS = 450;
 
