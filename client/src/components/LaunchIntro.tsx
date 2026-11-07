@@ -22,12 +22,19 @@ export function LaunchIntro() {
       aria-live="polite"
     >
       <DotLottiePlayer
-        src={import.meta.env.BASE_URL + "gastador-intro.json"}
+        src={import.meta.env.BASE_URL + "gastador-intro.json?v=4"}
         autoplay
         speed={1}
         mode="forward"
         loop={false}
         className="launch-intro__player launch-intro__video-only-player"
+        style={{
+          width: "min(320vw, 4096px)",
+          height: "auto",
+          aspectRatio: "5 / 4",
+          transform: "none",
+          transformOrigin: "center center",
+        }}
         aria-hidden="true"
       />
     </div>,
