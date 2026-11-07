@@ -4526,3 +4526,29 @@ html, body, #root, body, .app-shell, .app-main, .page-heading {
 @media (prefers-reduced-motion: reduce) {
   .app-mobile-dock, .app-mobile-dock__link, .route-enter { animation:none !important; transition:none !important; }
 }
+
+
+/* Custom scanner glyph based on the supplied Gastador scan icon. */
+.app-mobile-dock__link.is-snap .app-mobile-dock__icon {
+  background: linear-gradient(135deg,#1685ff 0%,#08b5e9 100%) !important;
+  border: 1px solid rgb(255 255 255 / .72) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 5px 13px rgb(20 111 194 / .28) !important;
+}
+.app-scan-mark {
+  display:block;
+  width:25px;
+  height:25px;
+  overflow:visible;
+}
+.app-scan-mark path {
+  fill:none;
+  stroke:#07111d;
+  stroke-width:3.2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.dark .app-mobile-dock__link.is-snap .app-mobile-dock__icon {
+  background:linear-gradient(135deg,#1685ff 0%,#08b5e9 100%) !important;
+  border-color:rgb(255 255 255 / .78) !important;
+}
