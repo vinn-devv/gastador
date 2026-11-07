@@ -92,20 +92,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [reload]);
 
   useEffect(() => {
-    if (!world) return;
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => {
-      const t = world.settings.theme;
-      const dark = t === "dark" || (t === "system" && media.matches);
-      document.documentElement.classList.toggle("dark", dark);
-      document
-        .querySelector('meta[name="theme-color"]')
-        ?.setAttribute("content", dark ? "#050B14" : "#F7F9FC");
-    };
-    apply();
-    media.addEventListener("change", apply);
-    return () => media.removeEventListener("change", apply);
-  }, [world]);
+    // Gastador now uses one fixed visual theme; ignore legacy saved theme preferences.
+    document.documentElement.classList.remove("dark");
+    document.documentElement.style.colorScheme = "dark";
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", "#061a30");
+  }, []);
 
   const value = useMemo<DataContextValue>(() => {
     const current = world ? pickCurrentCycle(world.cycles, today) : null;
