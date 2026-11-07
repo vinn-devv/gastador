@@ -997,8 +997,7 @@ body::before {
 @keyframes launch-ambient-two {
   from { transform: translate3d(0,0,0); }
   to { transform: translate3d(-7rem,-5rem,0); }
-}
-@keyframes launch-wordmark-in {
+}@keyframes launch-wordmark-in {
   from { opacity: 0; transform: translateY(10px); filter: blur(3px); }
   to { opacity: .96; transform: translateY(0); filter: blur(0); }
 }
@@ -1997,8 +1996,7 @@ html, body { background: #050b14; }
 
 /* Digital Pulse style backdrop: local CSS motion, never a remote video dependency. */
 .app-atmosphere {
-  background:
-    radial-gradient(ellipse 70rem 44rem at 17% 4%,rgb(24 84 150 / .2),transparent 70%),
+  background:    radial-gradient(ellipse 70rem 44rem at 17% 4%,rgb(24 84 150 / .2),transparent 70%),
     radial-gradient(ellipse 62rem 48rem at 93% 24%,rgb(17 68 128 / .16),transparent 72%),
     linear-gradient(135deg,#050b14 0%,#071426 48%,#050b14 100%);
 }
@@ -2997,8 +2995,7 @@ html.dark, html.dark body, .dark body { background: #070e19; }
   z-index: 1;
   display: flex;
   width: min(100%, 420px);
-  flex-direction: column;
-  align-items: center;
+  flex-direction: column;  align-items: center;
   gap: 0;
   padding: 24px 20px;
   text-align: center;
@@ -3997,8 +3994,7 @@ body { font-family: "Nunito", "IBM Plex Sans", sans-serif; background: rgb(var(-
   color-scheme: light;
 }
 body {
-  background: rgb(var(--bg));
-  font-family: "Nunito", "IBM Plex Sans", sans-serif;
+  background: rgb(var(--bg));  font-family: "Nunito", "IBM Plex Sans", sans-serif;
 }
 .app-shell { background: rgb(var(--bg)); }
 .page-container { max-width: 760px; padding-top: 14px; }
@@ -4205,3 +4201,113 @@ body, .app-shell, .app-main, .page-heading {
   background-color: #0c141f !important;
   background-image: none !important;
 }
+
+/* Powder-blue canvas + light-blue glass navigation, tuned to the supplied screenshot. */
+:root {
+  --bg: 232 241 248;
+  --surface: 255 255 255;
+  --sunken: 222 235 245;
+  --line: 211 226 238;
+  --ink: 27 43 57;
+  --muted: 104 125 143;
+  --primary: 42 126 194;
+  --on-primary: 255 255 255;
+  --primary-soft: 218 235 248;
+  --mint: 42 126 194;
+  --teal: 42 126 194;
+  --teal-soft: 218 235 248;
+}
+html, body, #root,
+body, .app-shell, .app-main, .page-heading {
+  background-color: #e8f1f8 !important;
+  background-image: none !important;
+}
+body::before {
+  opacity: 0 !important;
+  animation: none !important;
+  background: none !important;
+}
+.app-mobile-dock {
+  background: rgb(205 228 245 / .72) !important;
+  border: 1px solid rgb(119 171 207 / .48) !important;
+  box-shadow:
+    0 12px 34px rgb(36 91 132 / .14),
+    inset 0 1px 0 rgb(255 255 255 / .72) !important;
+  backdrop-filter: blur(26px) saturate(155%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(155%) !important;
+}
+.app-mobile-dock__link {
+  color: #54758f !important;
+}
+.app-mobile-dock__link.is-active {
+  color: #155f98 !important;
+}
+.app-mobile-dock__link.is-active .app-mobile-dock__icon {
+  background: rgb(76 151 207 / .18) !important;
+  color: #155f98 !important;
+}
+.app-mobile-dock__link.is-snap .app-mobile-dock__icon {
+  border-color: rgb(235 246 255 / .95) !important;
+  background: linear-gradient(145deg, #4b9bd4, #176ba9) !important;
+  color: #fff !important;
+  box-shadow: 0 7px 18px rgb(29 105 164 / .28) !important;
+}
+.app-topbar {
+  background: rgb(205 228 245 / .74) !important;
+  border-bottom: 1px solid rgb(119 171 207 / .42) !important;
+  box-shadow: 0 8px 26px rgb(36 91 132 / .07) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
+}
+.app-topbar__link { color: #54758f !important; }
+.app-topbar__link.is-active {
+  color: #fff !important;
+  background: #287fc0 !important;
+}
+.home-calm__brand,
+.page-heading__back,
+.iconbtn {
+  background: rgb(255 255 255 / .78);
+  border-color: rgb(193 215 232 / .85);
+}
+.dark {
+  --bg: 12 20 31;
+  --surface: 19 30 44;
+  --sunken: 26 40 57;
+  --line: 39 54 72;
+  --ink: 239 245 251;
+  --muted: 151 167 185;
+  --primary: 116 184 255;
+  --on-primary: 255 255 255;
+  --primary-soft: 27 45 67;
+  --mint: 116 184 255;
+  --teal: 116 184 255;
+  --teal-soft: 27 45 67;
+  color-scheme: dark;
+}
+.dark html, html.dark,
+.dark body, html.dark body,
+.dark #root, html.dark #root,
+.dark .app-shell, html.dark .app-shell,
+.dark .app-main, html.dark .app-main,
+.dark .page-heading, html.dark .page-heading {
+  background-color: #0c141f !important;
+  background-image: none !important;
+}
+.dark .app-mobile-dock {
+  background: rgb(24 45 65 / .78) !important;
+  border-color: rgb(89 132 169 / .42) !important;
+  box-shadow: 0 12px 34px rgb(0 0 0 / .28), inset 0 1px 0 rgb(255 255 255 / .08) !important;
+}
+.dark .app-mobile-dock__link { color: #a4bbcf !important; }
+.dark .app-mobile-dock__link.is-active { color: #c4e4ff !important; }
+.dark .app-mobile-dock__link.is-active .app-mobile-dock__icon {
+  background: rgb(92 157 207 / .22) !important;
+  color: #c4e4ff !important;
+}
+.dark .app-topbar {
+  background: rgb(20 38 56 / .82) !important;
+  border-color: rgb(66 98 127 / .42) !important;
+}
+.dark .app-topbar__link { color: #a4bbcf !important; }
+.dark .app-topbar__link.is-active { color: #fff !important; background: #286fae !important; }
