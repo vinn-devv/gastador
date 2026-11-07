@@ -1,101 +1,98 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-type DotLottieInstance = {
-  duration?: number;
-  addEventListener: (event: string, listener: () => void) => void;
-  removeEventListener: (event: string, listener: () => void) => void;
-};
-
-type DotLottieElement = HTMLElement & {
-  dotLottie?: DotLottieInstance;
-};
-
-const DotLottiePlayer: any = "dotlottie-wc";
-const MAX_INTRO_MS = 8000;
+const INTRO_EXIT_MS = 420;
+const INTRO_DURATION_MS = 3600;
 
 export function LaunchIntro() {
   const [mounted, setMounted] = useState(true);
-  const playerRef = useRef<DotLottieElement | null>(null);
+  const [exiting, setExiting] = useState(false);
+  const removeTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    const player = playerRef.current;
-    let finished = false;
-    let hardStopTimer = 0;
-    let completionTimer = 0;
-    let errorTimer = 0;
-    let pollTimer = 0;
-    let attachedInstance: DotLottieInstance | undefined;
+    const reducedMotion = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    ).matches ?? false;
+    const duration = reducedMotion ? 1100 : INTRO_DURATION_MS;
 
-    const finish = () => {
-      if (finished) return;
-      finished = true;
-      setMounted(false);
-    };
-
-    const failGracefully = () => {
-      if (finished || errorTimer) return;
-      errorTimer = window.setTimeout(finish, 350);
-    };
-
-    const attachPlayerEvents = () => {
-      if (finished || attachedInstance) return;
-      const instance = player?.dotLottie;
-      if (!instance) {
-        pollTimer = window.setTimeout(attachPlayerEvents, 50);
-        return;
-      }
-
-      attachedInstance = instance;
-      instance.addEventListener("complete", finish);
-      instance.addEventListener("loadError", failGracefully);
-      instance.addEventListener("renderError", failGracefully);
-
-      const duration = Number(instance.duration);
-      const durationMs = Number.isFinite(duration) && duration > 0
-        ? Math.round(duration * 1000)
-        : 5000;
-
-      // The normal close is driven by the animation's complete event.
-      // This timer is only a fallback in case an event is missed.
-      completionTimer = window.setTimeout(finish, Math.min(durationMs + 1200, 7200));
-    };
-
-    attachPlayerEvents();
-    hardStopTimer = window.setTimeout(finish, MAX_INTRO_MS);
+    const exitTimer = window.setTimeout(() => setExiting(true), duration);
+    removeTimer.current = window.setTimeout(
+      () => setMounted(false),
+      duration + INTRO_EXIT_MS,
+    );
 
     return () => {
-      window.clearTimeout(hardStopTimer);
-      window.clearTimeout(completionTimer);
-      window.clearTimeout(errorTimer);
-      window.clearTimeout(pollTimer);
-      if (attachedInstance) {
-        attachedInstance.removeEventListener("complete", finish);
-        attachedInstance.removeEventListener("loadError", failGracefully);
-        attachedInstance.removeEventListener("renderError", failGracefully);
+      window.clearTimeout(exitTimer);
+      if (removeTimer.current !== undefined) {
+        window.clearTimeout(removeTimer.current);
       }
     };
   }, []);
+
+  function skipIntro() {
+    if (exiting) return;
+    setExiting(true);
+    if (removeTimer.current !== undefined) {
+      window.clearTimeout(removeTimer.current);
+    }
+    removeTimer.current = window.setTimeout(
+      () => setMounted(false),
+      INTRO_EXIT_MS,
+    );
+  }
 
   if (!mounted) return null;
 
   return createPortal(
     <div
-      className="launch-intro launch-intro--video-only"
+      className={`launch-intro${exiting ? " launch-intro--exit" : ""}`}
       role="status"
-      aria-label="Opening Gastador"
+      aria-label="Opening Gastador App"
       aria-live="polite"
     >
-      <DotLottiePlayer
-        ref={playerRef}
-        src={import.meta.env.BASE_URL + "gastador-intro.json?v=5"}
-        autoplay
-        speed={1}
-        mode="forward"
-        loop={false}
-        className="launch-intro__player launch-intro__video-only-player"
+      <div className="launch-intro__glow" aria-hidden="true" />
+      <div
+        className="launch-intro__ambient launch-intro__ambient--one"
         aria-hidden="true"
       />
+      <div
+        className="launch-intro__ambient launch-intro__ambient--two"
+        aria-hidden="true"
+      />
+
+      <div className="launch-intro__content">
+        <div className="launch-intro__stage" aria-hidden="true">
+          <span className="launch-intro__halo" />
+          <span className="launch-intro__halo launch-intro__halo--inner" />
+          <div className="launch-intro__mark">
+            <img
+              src={`${import.meta.env.BASE_URL}gastador-intro-mark.svg?v=2`}
+              alt=""
+              draggable={false}
+            />
+          </div>
+          <span className="launch-intro__corner launch-intro__corner--tl" />
+          <span className="launch-intro__corner launch-intro__corner--tr" />
+          <span className="launch-intro__corner launch-intro__corner--bl" />
+          <span className="launch-intro__corner launch-intro__corner--br" />
+          <span className="launch-intro__scan-line" />
+        </div>
+
+        <div className="launch-intro__wordmark">Gastador App</div>
+        <p className="launch-intro__tagline">
+          SNAP IT <span aria-hidden="true">·</span> TRACK IT{" "}
+          <span aria-hidden="true">·</span> STRETCH IT
+        </p>
+      </div>
+
+      <button
+        type="button"
+        className="launch-intro__skip"
+        onClick={skipIntro}
+        disabled={exiting}
+      >
+        Skip intro
+      </button>
     </div>,
     document.body,
   );
