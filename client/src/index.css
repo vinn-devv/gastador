@@ -4988,3 +4988,85 @@ input[type="radio"] {
 @media (prefers-reduced-motion: reduce) {
   .insights-column-bar { transition:none !important; will-change:auto; }
 }
+
+
+/* Simple Gastador button system: quiet surfaces, crisp press feedback. */
+.btn, button.btn, a.btn, .iconbtn, button:not(.app-mobile-dock__link) {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 140ms cubic-bezier(.2,.75,.3,1),
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+.btn, button.btn, a.btn {
+  min-height:42px;
+  padding-inline:16px;
+  border-radius:11px;
+  font-weight:650;
+  letter-spacing:0;
+  box-shadow:none;
+  transform:translateY(0) scale(1);
+}
+.btn::before { display:none; }
+.btn-primary, .btn-mint {
+  border:1px solid #1768a8;
+  background:#1768a8;
+  color:#fff;
+  box-shadow:none;
+}
+.btn-primary:hover, .btn-mint:hover {
+  border-color:#125889;
+  background:#125f99;
+  box-shadow:0 3px 9px rgb(23 104 168 / .16);
+  transform:translateY(-1px);
+}
+.btn-secondary, .btn-soft {
+  border:1px solid #d5e1e9;
+  background:#f7fbfe;
+  color:#285a7c;
+  box-shadow:none;
+}
+.btn-secondary:hover, .btn-soft:hover {
+  border-color:#a9c9df;
+  background:#edf6fc;
+}
+.btn-ghost { border:1px solid transparent; background:transparent; color:#47738f; }
+.btn-ghost:hover { background:#eaf4fb; }
+.btn-danger { border:1px solid #f0d6d6; background:#fff8f8; color:#a94d4d; }
+.btn:active, button.btn:active, a.btn:active, .iconbtn:active {
+  transform:translateY(2px) scale(.97);
+  box-shadow:inset 0 2px 4px rgb(13 48 73 / .12);
+}
+.btn:focus-visible, .iconbtn:focus-visible, button:focus-visible {
+  outline:3px solid rgb(47 145 211 / .28);
+  outline-offset:2px;
+}
+.btn:disabled, button:disabled {
+  cursor:not-allowed;
+  opacity:.52;
+  transform:none;
+  box-shadow:none;
+}
+.iconbtn {
+  border:1px solid #d8e5ee;
+  border-radius:11px;
+  background:#f7fbfe;
+  color:#276a9a;
+  box-shadow:none;
+}
+.iconbtn:hover { border-color:#a9c9df; background:#edf6fc; transform:translateY(-1px); }
+.dark .btn-primary, .dark .btn-mint { border-color:#398ac0; background:#2879ae; color:#fff; }
+.dark .btn-primary:hover, .dark .btn-mint:hover { background:#3289c1; }
+.dark .btn-secondary, .dark .btn-soft, .dark .iconbtn {
+  border-color:#38546c; background:#1b3349; color:#c8e4f5;
+}
+.dark .btn-ghost { color:#9ac9e6; }
+.dark .btn-ghost:hover { background:#203b52; }
+.dark .btn-danger { border-color:#654044; background:#352629; color:#f0aaaa; }
+@media (prefers-reduced-motion: reduce) {
+  .btn, button.btn, a.btn, .iconbtn, button:not(.app-mobile-dock__link) {
+    transition:none !important;
+  }
+}
