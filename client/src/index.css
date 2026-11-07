@@ -3713,3 +3713,27 @@ html.dark, html.dark body, .dark body { background: #070e19; }
     text-shadow: none;
   }
 }
+
+
+/* Keep the wordmark reveal inside the active 3.6s intro window. */
+.launch-intro__copy {
+  margin-top: 0;
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+}
+.launch-intro__tagline {
+  opacity: 0;
+  animation: gastador-tagline-soft-reveal 520ms ease-out 2.25s both !important;
+}
+@keyframes gastador-tagline-soft-reveal {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .launch-intro__tagline {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+}
