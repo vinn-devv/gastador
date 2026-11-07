@@ -5072,11 +5072,10 @@ input[type="radio"] {
 }
 
 
-/* Gastador deep-blue halftone backdrop — shared by app, intro and welcome. */
+/* Shared blue halftone artwork used as the actual backdrop on every screen. */
 :root {
   --gastador-night: #061a30;
   --gastador-blue: #0a2b4b;
-  --gastador-dot: rgb(151 198 232 / 0.48);
 }
 html,
 body {
@@ -5086,10 +5085,7 @@ body {
 body {
   position: relative;
   isolation: isolate;
-  background:
-    radial-gradient(ellipse at 78% 68%, rgb(19 83 133 / 0.34), transparent 43%),
-    radial-gradient(ellipse at 10% 88%, rgb(16 69 112 / 0.3), transparent 36%),
-    linear-gradient(135deg, #041426 0%, #092b4b 54%, #06182d 100%) !important;
+  background: var(--gastador-night) !important;
 }
 body::before {
   content: "";
@@ -5097,18 +5093,7 @@ body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: radial-gradient(circle, var(--gastador-dot) 1.15px, transparent 1.65px);
-  background-size: 11px 11px;
-  background-position: 0 0;
-  opacity: 0.72;
-  -webkit-mask-image:
-    radial-gradient(ellipse 64% 53% at 80% 67%, #000 10%, transparent 100%),
-    radial-gradient(ellipse 54% 43% at 9% 87%, #000 8%, transparent 100%);
-  mask-image:
-    radial-gradient(ellipse 64% 53% at 80% 67%, #000 10%, transparent 100%),
-    radial-gradient(ellipse 54% 43% at 9% 87%, #000 8%, transparent 100%);
-  -webkit-mask-composite: source-over;
-  mask-composite: add;
+  background: url("./assets/gastador-halftone.svg") center center / cover no-repeat;
 }
 .app-shell {
   position: relative;
@@ -5117,10 +5102,7 @@ body::before {
   background: transparent !important;
 }
 .launch-intro {
-  background:
-    radial-gradient(ellipse at 78% 68%, rgb(25 103 160 / 0.38), transparent 44%),
-    radial-gradient(ellipse at 10% 88%, rgb(16 69 112 / 0.32), transparent 36%),
-    linear-gradient(135deg, #041426 0%, #092b4b 54%, #06182d 100%) !important;
+  background: url("./assets/gastador-halftone.svg") center center / cover no-repeat !important;
   color: #e8f5ff;
 }
 .launch-intro::before {
@@ -5129,17 +5111,7 @@ body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgb(164 207 237 / 0.56) 1.15px, transparent 1.65px);
-  background-size: 11px 11px;
-  background-position: 0 0;
-  opacity: 0.76;
-  -webkit-mask-image:
-    radial-gradient(ellipse 64% 53% at 80% 67%, #000 10%, transparent 100%),
-    radial-gradient(ellipse 54% 43% at 9% 87%, #000 8%, transparent 100%);
-  mask-image:
-    radial-gradient(ellipse 64% 53% at 80% 67%, #000 10%, transparent 100%),
-    radial-gradient(ellipse 54% 43% at 9% 87%, #000 8%, transparent 100%);
-  mask-composite: add;
+  background: url("./assets/gastador-halftone.svg") center center / cover no-repeat;
 }
 .launch-intro__glow { z-index: 0; }
 .launch-intro__content,
@@ -5160,10 +5132,7 @@ body::before {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 78% 68%, rgb(25 103 160 / 0.38), transparent 44%),
-    radial-gradient(ellipse at 10% 88%, rgb(16 69 112 / 0.32), transparent 36%),
-    linear-gradient(135deg, #041426 0%, #092b4b 54%, #06182d 100%) !important;
+  background: url("./assets/gastador-halftone.svg") center center / cover no-repeat !important;
 }
 .onboarding-welcome::before {
   content: "";
@@ -5171,15 +5140,5 @@ body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgb(164 207 237 / 0.56) 1.15px, transparent 1.65px);
-  background-size: 11px 11px;
-  background-position: 0 0;
-  opacity: 0.76;
-  -webkit-mask-image:
-    radial-gradient(ellipse 64% 53% at 80% 67%, #000 10%, transparent 100%),
-    radial-gradient(ellipse 54% 43% at 9% 87%, #000 8%, transparent 100%);
-  mask-image:
-    radial-gradient(ellipse 64% 53% at 80% 67%, #000 10%, transparent 100%),
-    radial-gradient(ellipse 54% 43% at 9% 87%, #000 8%, transparent 100%);
-  mask-composite: add;
+  background: url("./assets/gastador-halftone.svg") center center / cover no-repeat;
 }
