@@ -5142,3 +5142,35 @@ body::before {
   pointer-events: none;
   background: url("./assets/gastador-halftone.svg") center center / cover no-repeat;
 }
+
+
+/* Final canvas override: keep the app layout transparent so the artwork is visible. */
+html, body {
+  min-height: 100%;
+  background: #061a30 !important;
+}
+body {
+  background: #061a30 url("./assets/gastador-halftone.svg") center center / cover fixed no-repeat !important;
+}
+#root,
+.app-shell,
+.app-shell__body,
+.app-main,
+.route-enter,
+.page-container {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+.launch-intro {
+  background: #061a30 url("./assets/gastador-halftone.svg") center center / cover no-repeat !important;
+}
+.launch-intro::before {
+  background: none !important;
+}
+.onboarding-welcome {
+  background: #061a30 url("./assets/gastador-halftone.svg") center center / cover no-repeat !important;
+}
+.onboarding-welcome::before {
+  background: none !important;
+}
