@@ -21,6 +21,14 @@ registerRoute(
   })
 );
 
+registerRoute(
+  ({ request, url }) =>
+    request.method === 'GET' &&
+    (url.hostname === 'cdn.jsdelivr.net' || url.hostname === 'unpkg.com') &&
+    url.pathname.includes('/@lottiefiles/dotlottie-'),
+  new CacheFirst({ cacheName: 'gastador-lottie-runtime-v1' })
+);
+
 registerRoute(({ url }) => url.pathname.includes('/tesseract/'), new CacheFirst({ cacheName: 'gastador-ocr-v1' }));
 
 self.addEventListener('fetch', (event) => {

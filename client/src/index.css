@@ -3605,3 +3605,19 @@ html.dark, html.dark body, .dark body { background: #070e19; }
     transform: scale(3.2);
   }
 }
+
+
+/* Fix mobile composition sizing: dotlottie-wc must receive explicit width and height. */
+.launch-intro--video-only .launch-intro__video-only-player {
+  display: block !important;
+  width: min(120vw, 900px, 125svh) !important;
+  height: min(96vw, 720px, 100svh) !important;
+  max-width: none !important;
+  aspect-ratio: 5 / 4;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent !important;
+  transform: none !important;
+  transform-origin: center center;
+}
