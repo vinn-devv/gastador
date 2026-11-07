@@ -4311,3 +4311,218 @@ body::before {
 }
 .dark .app-topbar__link { color: #a4bbcf !important; }
 .dark .app-topbar__link.is-active { color: #fff !important; background: #286fae !important; }
+
+
+/* Screenshot-matched mobile visual system: compact, airy blue fintech UI. */
+:root {
+  --bg: 229 239 247;
+  --surface: 255 255 255;
+  --sunken: 235 243 249;
+  --line: 218 230 239;
+  --ink: 31 48 63;
+  --muted: 112 130 145;
+  --primary: 27 104 169;
+  --on-primary: 255 255 255;
+  --primary-soft: 218 235 247;
+  --mint: 44 137 194;
+  --teal: 44 137 194;
+  --teal-soft: 218 235 247;
+}
+html, body, #root, body, .app-shell, .app-main, .page-heading {
+  background: #e5eff7 !important;
+  background-image: none !important;
+}
+.app-mobile-brandbar { display:none; }
+.page-heading {
+  position: relative;
+  top: auto;
+  z-index: 2;
+  border: 0;
+  background: transparent !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.page-heading__inner {
+  width: min(100% - 2rem, 430px);
+  min-height: 62px;
+  padding: .55rem 0 .25rem;
+}
+.page-heading__copy h1 {
+  color: #20364a !important;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -.045em;
+}
+.page-heading__copy p { color: #74899b !important; font-size: .68rem; }
+.page-heading__back { color: #246b9f; }
+.page-container {
+  width: min(100%, 430px);
+  padding: .65rem 1rem 7rem;
+}
+.home-calm { width: min(100%, 430px); padding: .65rem 1rem 7rem; }
+.home-calm__header { margin: .15rem 0 1rem; }
+.home-calm__header h1 {
+  color: #20364a !important;
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+.home-calm__brand { width: 36px; height: 36px; }
+.home-balance--reference {
+  min-height: 138px;
+  padding: 16px 18px 14px;
+  border-radius: 18px;
+  background: linear-gradient(118deg,#174a70 0%,#1b5e8d 100%);
+  box-shadow: 0 10px 24px rgb(35 84 121 / .15);
+}
+.home-balance__amount { font-size: clamp(2rem,8vw,2.45rem); letter-spacing:-.06em; }
+.home-quick-actions { gap: 7px; margin: 14px 0 18px; }
+.home-quick-action { gap: 6px; }
+.home-quick-action > span {
+  width: 46px; height: 46px; border-radius: 14px;
+  background: #edf4f9; color: #246b9f;
+}
+.home-quick-action small { color: #30475a; font-size: 9px; font-weight: 750; }
+.home-summary {
+  margin: 0 0 18px;
+  padding: 10px 0;
+  border: 1px solid #d8e5ee;
+  border-radius: 15px;
+  background: rgb(255 255 255 / .34);
+}
+.home-summary > div { padding-inline: 9px; }
+.home-summary span { color: #74899b; font-size: 9px; }
+.home-summary strong { color: #2b6592; font-size: 11px; }
+.home-section-heading { margin-bottom: 8px; }
+.home-section-heading h2 { color: #263e52; font-size: 14px; }
+.home-calm__eyebrow { color: #8195a5; font-size: 8px; }
+.home-recent__list { border-radius: 14px; }
+.home-recent .finance-transaction { min-height: 54px; padding: 6px 9px; }
+.finance-transaction { min-height: 56px; }
+.finance-transaction__icon { width: 34px; height: 34px; border-radius: 11px; background:#e8f2f9; color:#2b78ad; }
+.finance-transaction__title strong { font-size: 11px; }
+.finance-transaction__copy small { font-size: 9px; }
+.finance-transaction__amount { font-size: 11px; }
+.home-activity,.home-categories { margin-top: 17px; padding-top: 13px; border-color:#d8e5ee; }
+.page-container ul.divide-y {
+  border: 1px solid #d8e5ee;
+  border-radius: 14px;
+  background: #fff;
+}
+.page-container ul.divide-y > li + li { border-color:#e5edf3; }
+.page-container .chip {
+  min-height: 30px;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: #edf4f9;
+  color: #5d7487;
+  font-size: 10px;
+}
+.page-container .chip[aria-pressed="true"] { background:#1b68a9; color:#fff; }
+.page-container .card, .page-container section.card {
+  border-color:#dce8f0;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgb(39 83 117 / .06);
+}
+.page-container .settings-row {
+  min-height: 56px;
+  margin: 0 0 7px;
+  padding: 7px 10px;
+  border: 1px solid #dce8f0;
+  border-radius: 13px;
+  background: #fff;
+}
+.page-container .settings-row > span:first-child {
+  width: 34px !important;
+  height: 34px;
+  border-radius: 11px;
+  background: #e9f3fa;
+  color: #2876ad;
+}
+.page-container .settings-row:hover { transform:none; background:#fff; }
+.app-mobile-dock {
+  display:block;
+  position:fixed;
+  z-index:60;
+  left:50%;
+  bottom:max(8px,env(safe-area-inset-bottom));
+  width:min(calc(100% - 24px),430px);
+  transform:translateX(-50%);
+  padding:7px 8px calc(7px + env(safe-area-inset-bottom));
+  border:1px solid rgb(137 177 207 / .55) !important;
+  border-radius:20px;
+  background:rgb(184 216 239 / .76) !important;
+  box-shadow:0 10px 28px rgb(39 91 130 / .18),inset 0 1px 0 rgb(255 255 255 / .72) !important;
+  backdrop-filter:blur(22px) saturate(155%) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(155%) !important;
+}
+.app-mobile-dock ul { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:end; }
+.app-mobile-dock__link { gap:3px; color:#52738d !important; font-size:9px; font-weight:650; }
+.app-mobile-dock__icon { width:30px; height:26px; border-radius:9px; }
+.app-mobile-dock__link.is-active { color:#155f98 !important; }
+.app-mobile-dock__link.is-active .app-mobile-dock__icon { background:rgb(255 255 255 / .48) !important; color:#155f98 !important; }
+.app-mobile-dock__link.is-snap .app-mobile-dock__icon {
+  width:40px; height:40px; margin-top:-20px; margin-bottom:-1px;
+  border:2px solid #e7f2fa !important; border-radius:13px;
+  background:linear-gradient(145deg,#42a0db,#1769a8) !important;
+  color:#fff !important; box-shadow:0 5px 14px rgb(28 103 157 / .3);
+}
+.app-mobile-dock__link.is-snap { color:#155f98 !important; }
+.app-topbar { display:none; }
+.dark {
+  --bg: 14 27 40;
+  --surface: 25 41 57;
+  --sunken: 31 49 67;
+  --line: 48 68 87;
+  --ink: 232 242 250;
+  --muted: 157 178 195;
+  --primary: 94 170 224;
+  --primary-soft: 31 57 79;
+  --mint: 94 170 224;
+  --teal: 94 170 224;
+  --teal-soft: 31 57 79;
+}
+.dark html, html.dark, .dark body, html.dark body, .dark #root, html.dark #root,
+.dark .app-shell, html.dark .app-shell, .dark .app-main, html.dark .app-main,
+.dark .page-heading, html.dark .page-heading { background:#0e1b28 !important; }
+.dark .page-heading__copy h1, .dark .home-calm__header h1 { color:#edf6fc !important; }
+.dark .home-summary { background:rgb(24 43 60 / .65); border-color:#2d485f; }
+.dark .home-summary strong { color:#b9dcf3; }
+.dark .home-quick-action small { color:#d4e3ed; }
+.dark .home-recent__list, .dark .page-container ul.divide-y { background:#192939; border-color:#30495e; }
+.dark .page-container .settings-row { background:#192939; border-color:#30495e; }
+.dark .page-container .settings-row > span:first-child { background:#243f57; color:#a7d6f5; }
+.dark .app-mobile-dock {
+  background:rgb(27 52 73 / .82) !important;
+  border-color:rgb(108 153 186 / .45) !important;
+  box-shadow:0 10px 28px rgb(0 0 0 / .28),inset 0 1px 0 rgb(255 255 255 / .1) !important;
+}
+.dark .app-mobile-dock__link { color:#abc3d5 !important; }
+.dark .app-mobile-dock__link.is-active { color:#d2ecff !important; }
+.dark .app-mobile-dock__link.is-active .app-mobile-dock__icon { background:rgb(139 190 225 / .14) !important; color:#d2ecff !important; }
+.dark .app-mobile-dock__link.is-snap .app-mobile-dock__icon { background:linear-gradient(145deg,#398fca,#185c91) !important; border-color:#10263a !important; }
+@media (min-width: 768px) {
+  .app-mobile-brandbar { display:none !important; }
+  .app-topbar { display:block; }
+  .page-container { width:min(100%,1320px); padding:1.35rem 1.5rem 3rem; }
+}
+@media (max-width: 767px) {
+  .app-mobile-brandbar {
+    display:flex; align-items:center; justify-content:space-between;
+    width:min(100% - 2rem,430px); height:34px; margin:10px auto 0;
+  }
+  .app-mobile-brandbar__word { color:#1d65a1; font-size:11px; font-weight:850; letter-spacing:-.02em; }
+  .app-mobile-brandbar__word span { color:#5aa5d8; }
+  .app-mobile-brandbar__avatar {
+    display:grid; place-items:center; width:27px; height:27px;
+    border-radius:50%; background:#d4e7f4; color:#286b9e;
+    font-size:10px; font-weight:800;
+  }
+  .app-mobile-brandbar__avatar span { line-height:1; }
+  .page-heading__inner { width:calc(100% - 2rem); min-height:48px; }
+  .page-container { padding: .45rem 1rem 7rem; }
+  .home-calm { padding-top:.4rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-mobile-dock, .app-mobile-dock__link, .route-enter { animation:none !important; transition:none !important; }
+}
