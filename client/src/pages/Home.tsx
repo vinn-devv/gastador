@@ -1,8 +1,9 @@
-import { ArrowUpRight, CalendarClock, ChevronRight } from "lucide-react";
+import { ArrowLeftRight, ArrowUpRight, CalendarClock, ChevronRight, Plus, ScanLine, SlidersHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useData } from "../app/DataProvider";
 import { CategoryIcon } from "../components/CategoryIcon";
 import { LogoMark } from "../components/Logo";
+import { TransactionRow } from "../components/TransactionRow";
 import { Banner, ScreenSkeleton } from "../components/ui/Bits";
 import { Page } from "../components/ui/PageHeader";
 import { transactionsInCycle } from "../domain/allowance";
@@ -121,42 +122,35 @@ export default function Home() {
         </div>
       )}
 
-      <section className="home-balance" aria-label="Available allowance balance">
-        <div className="home-balance__ambient" aria-hidden="true">
-          <span className="home-balance__ambient-orb home-balance__ambient-orb--one" />
-          <span className="home-balance__ambient-orb home-balance__ambient-orb--two" />
+      <section className="home-balance home-balance--reference" aria-label="Available allowance balance">
+        <div className="home-balance__topline">
+          <span><span className="home-balance__status-dot" /> Available balance</span>
+          <span className="home-balance__trend">↗ {remainingPercent}% left</span>
         </div>
-        <div className="home-balance__ring-wrap">
-          <svg className="home-balance__ring" viewBox="0 0 240 240" role="img" aria-label={remainingPercent + " percent of allowance remaining"}>
-            <defs>
-              <linearGradient id="home-balance-ring-gradient" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#398BFF" />
-                <stop offset="55%" stopColor="#77BBFF" />
-                <stop offset="100%" stopColor="#D1E9FF" />
-              </linearGradient>
-              <filter id="home-balance-ring-glow" x="-60%" y="-60%" width="220%" height="220%">
-                <feGaussianBlur stdDeviation="3.5" result="blur" />
-                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-              </filter>
-            </defs>
-            <circle className="home-balance__ring-track" cx="120" cy="120" r="108" />
-            <circle
-              className="home-balance__ring-progress"
-              cx="120" cy="120" r="108"
-              stroke="url(#home-balance-ring-gradient)"
-              strokeDasharray={circumference}
-              strokeDashoffset={offset}
-              filter="url(#home-balance-ring-glow)"
-            />
-          </svg>
-          <div className="home-balance__center">
-            <span>{remaining < 0 ? "OVER ALLOWANCE" : "AVAILABLE BALANCE"}</span>
-            <strong className="num" data-testid="remaining">{formatMoney(Math.abs(remaining))}</strong>
-            <small>{remaining < 0 ? "amount over" : "to spend"}</small>
-          </div>
+        <strong className="home-balance__amount num" data-testid="remaining">
+          {remaining < 0 ? "−" : ""}{formatMoney(Math.abs(remaining))}
+        </strong>
+        <div className="home-balance__bottomline">
+          <span>{formatMoney(summary.spentCentavos)} spent</span>
+          <span>of {formatMoney(summary.spendableCentavos)}</span>
         </div>
+        <div className="home-balance__progress"><span style={{ width: Math.max(0, Math.min(100, 100 - remainingPercent)) + "%" }} /></div>
       </section>
 
+      <section className="home-quick-actions" aria-label="Quick actions">
+        <Link to="/activity/new" className="home-quick-action">
+          <span><Plus size={21} /></span><small>Add expense</small>
+        </Link>
+        <Link to="/snap" className="home-quick-action">
+          <span><ScanLine size={21} /></span><small>Scan receipt</small>
+        </Link>
+        <Link to="/insights" className="home-quick-action">
+          <span><ArrowLeftRight size={21} /></span><small>Insights</small>
+        </Link>
+        <Link to="/settings" className="home-quick-action">
+          <span><SlidersHorizontal size={21} /></span><small>More</small>
+        </Link>
+      </section>
       <section className="home-summary" aria-label="Allowance summary">
         <div><span>Allowance</span><strong className="num">{formatMoney(summary.spendableCentavos)}</strong></div>
         <div><span>Spent</span><strong className="num">{formatMoney(summary.spentCentavos)}</strong></div>
@@ -164,6 +158,27 @@ export default function Home() {
           <span>Safe per day</span>
           <strong className="num" data-testid="daily-limit">{summary.dailySafeLimitCentavos === null ? "—" : formatMoney(summary.dailySafeLimitCentavos)}</strong>
         </div>
+      </section>
+
+      <section className="home-recent" aria-label="Recent transactions">
+        <div className="home-section-heading">
+          <div><span className="home-calm__eyebrow">YOUR LATEST SPENDING</span><h2>Recent transactions</h2></div>
+          <Link to="/activity">See all <ArrowUpRight size={14} /></Link>
+        </div>
+        {world.transactions.length > 0 ? (
+          <ul className="home-recent__list">
+            {[...world.transactions].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt)).slice(0, 4).map((tx) => (
+              <li key={tx.id}>
+                <TransactionRow tx={tx} categoryName={categoryById.get(tx.categoryId)?.name ?? "Unknown"} showDate />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="home-activity__empty">
+            <p>No transactions yet.</p>
+            <span>Your latest expenses will appear here.</span>
+          </div>
+        )}
       </section>
 
       <section className="home-activity" aria-label="Activity overview">
