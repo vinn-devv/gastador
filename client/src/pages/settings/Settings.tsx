@@ -141,7 +141,7 @@ export default function Settings() {
               to="/settings/preferences"
               icon={SlidersHorizontal}
               title="Preferences and alerts"
-              detail="Theme, budget method, in-app alerts"
+              detail="Currency, budget method, in-app alerts"
             />
             <Row
               to="/settings/backup"
