@@ -3977,3 +3977,180 @@ body { font-family: "Nunito", "IBM Plex Sans", sans-serif; background: rgb(var(-
   --bad-soft: 62 31 39;
   color-scheme: dark;
 }
+
+
+/* Screenshot-led finance UI pass: warm canvas, compact finance rows, blue brand.
+   Layout cues follow the supplied reference; interactive behaviour stays in React. */
+:root {
+  --bg: 248 247 242;
+  --surface: 255 255 255;
+  --sunken: 241 243 240;
+  --line: 231 233 228;
+  --ink: 27 35 42;
+  --muted: 119 128 132;
+  --primary: 43 125 198;
+  --on-primary: 255 255 255;
+  --primary-soft: 231 241 250;
+  --mint: 43 125 198;
+  --teal: 43 125 198;
+  --teal-soft: 231 241 250;
+  color-scheme: light;
+}
+body {
+  background: rgb(var(--bg));
+  font-family: "Nunito", "IBM Plex Sans", sans-serif;
+}
+.app-shell { background: rgb(var(--bg)); }
+.page-container { max-width: 760px; padding-top: 14px; }
+.page-heading { background: rgb(var(--bg) / .96); }
+.page-heading__copy h1 { font-size: 23px; font-weight: 800; }
+.page-container > section, .page-container > .card { border-radius: 20px; }
+.card {
+  border-radius: 19px;
+  border-color: rgb(var(--line));
+  background: rgb(var(--surface));
+  box-shadow: 0 3px 16px rgb(28 45 58 / .035);
+}
+.input, select.input, textarea.input {
+  border-radius: 13px;
+  background: rgb(var(--surface));
+}
+.btn { border-radius: 14px; }
+.btn-primary, .btn-mint { background: #287dc6; color: #fff; }
+.btn-secondary { background: #fff; }
+.chip { background: #eef1f2; }
+.chip[aria-pressed="true"], .page-container .chip[aria-pressed="true"] {
+  background: #174d75;
+  color: #fff;
+}
+
+/* Home mirrors the supplied reference: greeting, prominent balance, quick actions,
+   recent rows, then supporting money information. */
+.home-calm { max-width: 760px; padding-top: 12px; }
+.home-calm__header { margin-bottom: 17px; }
+.home-calm__header h1 { color: rgb(var(--ink)); font-size: clamp(21px,5vw,25px); }
+.home-calm__brand {
+  width: 42px; height: 42px; background: #fff;
+  border: 1px solid rgb(var(--line));
+}
+.home-balance--reference {
+  min-height: 154px;
+  padding: 19px 20px 17px;
+  border-radius: 21px;
+  background: linear-gradient(125deg,#123b5c 0%,#18527b 56%,#236e9e 100%);
+  box-shadow: 0 10px 25px rgb(24 76 115 / .16);
+}
+.home-balance__status-dot { background: #a9d5f5; }
+.home-balance__trend { color: #e0f1ff; }
+.home-balance__progress span { background: #b7ddf7; }
+.home-quick-actions { gap: 12px; margin: 17px 0 24px; }
+.home-quick-action > span {
+  width: 53px; height: 53px; border-radius: 16px;
+  background: #eef2f4; color: #174d75;
+}
+.home-quick-action small { font-size: 11px; font-weight: 800; }
+.home-summary {
+  margin: 0 0 23px;
+  padding: 13px 0;
+  border-block-color: rgb(var(--line));
+}
+.home-summary span { font-size: 11px; }
+.home-summary strong { font-size: 14px; font-weight: 850; }
+.home-section-heading { margin-bottom: 10px; }
+.home-section-heading h2 { font-size: 17px; }
+.home-section-heading > a { color: #287dc6; }
+.home-calm__eyebrow { color: #84939d; }
+.home-recent__list {
+  overflow: hidden;
+  border: 1px solid rgb(var(--line));
+  border-radius: 17px;
+  background: rgb(var(--surface));
+}
+.home-recent__list > li + li { border-top: 1px solid rgb(var(--line)); }
+.home-recent .finance-transaction { min-height: 67px; padding: 8px 12px; }
+.finance-transaction { min-height: 67px; color: rgb(var(--ink)); }
+.finance-transaction__icon {
+  width: 41px; height: 41px; border-radius: 14px;
+  border: 0; background: #edf3f7; color: #246ba9;
+}
+.finance-transaction__title strong { color: rgb(var(--ink)); font-size: 13px; font-weight: 850; }
+.finance-transaction__copy small { color: rgb(var(--muted)); font-size: 11px; }
+.finance-transaction__amount { color: rgb(var(--ink)); font-size: 13px; font-weight: 850; }
+.home-activity, .home-categories { margin-top: 22px; padding-top: 18px; border-top: 1px solid rgb(var(--line)); }
+.home-activity__empty { background: #f0f2ef; }
+
+/* Shared page grammar for Activity, Snap, Insights and Settings. */
+.page-heading__back, .iconbtn { background: #fff; border: 1px solid rgb(var(--line)); }
+.page-container ul.divide-y { overflow: hidden; border-color: rgb(var(--line)); border-radius: 16px; background: rgb(var(--surface)); }
+.page-container ul.divide-y > li + li { border-color: rgb(var(--line)); }
+.page-container .settings-row { min-height: 68px; border-radius: 13px; padding-inline: 10px; }
+.settings-row:hover { background: #f0f4f7; }
+.settings-row > span:first-child { width: 42px; height: 42px; border-radius: 14px; background: #edf3f7; color: #287bc5; }
+.page-container .card { padding: 16px; }
+.page-container .chip { background: #eef1f2; }
+.page-container .chip[aria-pressed="true"] { background: #174d75; }
+.app-mobile-dock {
+  right: 12px; bottom: max(10px,env(safe-area-inset-bottom)); left: 12px;
+  border: 1px solid rgb(225 230 232 / .95); border-radius: 22px;
+  background: rgb(255 255 255 / .96);
+  box-shadow: 0 9px 30px rgb(31 50 66 / .12);
+  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+}
+.app-mobile-dock__link { color: #8a969d; font-size: 10px; font-weight: 800; }
+.app-mobile-dock__link.is-active { color: #174d75; }
+.app-mobile-dock__link.is-active .app-mobile-dock__icon { background: #e8f1f8; }
+.app-mobile-dock__link.is-snap .app-mobile-dock__icon {
+  width: 49px; height: 49px; border: 3px solid #fff; border-radius: 50%;
+  background: linear-gradient(145deg,#3994d8,#1e679f); color: #fff;
+  box-shadow: 0 6px 18px rgb(35 111 180 / .27);
+}
+@media (max-width: 820px) {
+  .app-topbar { display: none; }
+  .app-mobile-dock { display: block; }
+  .app-main { padding-bottom: 7.1rem; }
+  .page-container { padding-inline: 18px; }
+  .page-heading { padding-inline: 18px; }
+}
+@media (max-width: 390px) {
+  .home-quick-actions { gap: 5px; }
+  .home-quick-action > span { width: 49px; height: 49px; }
+  .home-quick-action small { font-size: 10px; }
+}
+
+/* Dark theme keeps the same screen geometry and switches only the surfaces. */
+.dark {
+  --bg: 12 20 31;
+  --surface: 19 30 44;
+  --sunken: 26 40 57;
+  --line: 39 54 72;
+  --ink: 239 245 251;
+  --muted: 151 167 185;
+  --primary: 116 184 255;
+  --on-primary: 255 255 255;
+  --primary-soft: 27 45 67;
+  --mint: 116 184 255;
+  --teal: 116 184 255;
+  --teal-soft: 27 45 67;
+  color-scheme: dark;
+}
+.dark .app-shell { background: rgb(var(--bg)); }
+.dark .home-balance--reference { background: linear-gradient(125deg,#102d46,#15486d 58%,#1b5b87); }
+.dark .home-calm__brand,
+.dark .page-heading__back,
+.dark .iconbtn { background: rgb(var(--surface)); border-color: rgb(var(--line)); }
+.dark .home-quick-action > span,
+.dark .settings-row > span:first-child,
+.dark .finance-transaction__icon { background: rgb(34 57 77); color: #9dccf4; }
+.dark .home-recent__list,
+.dark .page-container ul.divide-y { background: rgb(var(--surface)); border-color: rgb(var(--line)); }
+.dark .finance-transaction__title strong,
+.dark .finance-transaction__amount { color: rgb(var(--ink)); }
+.dark .app-mobile-dock { background: rgb(14 25 39 / .96); border-color: rgb(var(--line)); }
+.dark .app-mobile-dock__link.is-active { color: #a9d4ff; }
+.dark .app-mobile-dock__link.is-active .app-mobile-dock__icon { background: rgb(51 104 153 / .28); }
+.dark .app-mobile-dock__link.is-snap .app-mobile-dock__icon { border-color: #0c1725; }
+.dark .page-container .chip { background: rgb(var(--sunken)); }
+.dark .page-container .chip[aria-pressed="true"] { background: #286fae; color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  .app-mobile-dock__link, .finance-transaction, .settings-row { transition: none !important; }
+}
