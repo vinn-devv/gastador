@@ -3737,3 +3737,14 @@ html.dark, html.dark body, .dark body { background: #070e19; }
     transform: none;
   }
 }
+
+
+/* Tighten the spacing between the Gastador icon and wordmark. */
+.launch-intro__stage {
+  height: min(78vw, 260px) !important;
+}
+@media (max-width: 480px) {
+  .launch-intro__stage {
+    height: min(78vw, 260px) !important;
+  }
+}
