@@ -6,5 +6,7 @@
     <path d="M94 330 V390 Q94 412 116 412 H170"/>
     <path d="M330 412 H384 Q406 412 406 390 V330"/>
   </g>
-  <text x="250" y="338" text-anchor="middle" font-family="Noto Sans, DejaVu Sans, Arial, sans-serif" font-size="245" font-weight="700" fill="#FFFFFF">&#8369;</text>
+  <circle cx="250" cy="250" r="112" fill="#FFC400"/>
+  <circle cx="250" cy="250" r="98" fill="none" stroke="#FFE17A" stroke-width="7"/>
+  <text x="250" y="329" text-anchor="middle" font-family="Noto Sans, DejaVu Sans, Arial, sans-serif" font-size="205" font-weight="800" fill="#102B70">₱</text>
 </svg>
