@@ -3596,12 +3596,12 @@ html.dark, html.dark body, .dark body { background: #070e19; }
   width: min(100vw, 1280px);
   height: auto;
   aspect-ratio: 5 / 4;
-  transform: scale(1.38);
+  transform: scale(1.55);
   transform-origin: center center;
 }
 @media (max-width: 480px) {
   .launch-intro--video-only .launch-intro__video-only-player {
     width: 100vw;
-    transform: scale(1.33);
+    transform: scale(1.5);
   }
 }
