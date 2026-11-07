@@ -77,7 +77,13 @@ export function Shell() {
                   }
                 >
                   <span className="app-mobile-dock__icon">
-                    <Icon size={to === "/snap" ? 23 : 20} strokeWidth={1.8} aria-hidden />
+                    {to === "/snap" ? (
+                      <svg className="app-scan-mark" viewBox="0 0 64 64" aria-hidden="true">
+                        <path d="M23 15H16V23 M41 15H48V23 M16 41V49H23 M48 41V49H41 M16 32H48" />
+                      </svg>
+                    ) : (
+                      <Icon size={20} strokeWidth={1.8} aria-hidden />
+                    )}
                   </span>
                   <span>{label}</span>
                 </NavLink>
