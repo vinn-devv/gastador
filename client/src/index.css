@@ -5460,3 +5460,58 @@ button, .btn, .chip, .app-mobile-dock__link, .settings-row {
 @media (prefers-reduced-motion: reduce) {
   .home-quick-action > span { transition: none !important; }
 }
+
+/* Final polish pass: remove the last legacy light surfaces in the fixed navy theme. */
+.page-heading__back,
+.iconbtn {
+  background: rgb(12 37 61 / .72) !important;
+  border: 1px solid rgb(126 176 211 / .2) !important;
+  color: #cce3f3 !important;
+}
+.page-heading__back:hover,
+.iconbtn:hover {
+  background: rgb(40 91 130 / .32) !important;
+  border-color: rgb(133 197 237 / .36) !important;
+}
+.home-activity__empty {
+  background: linear-gradient(145deg, rgb(13 43 68 / .72), rgb(8 31 52 / .72)) !important;
+  border: 1px solid rgb(126 176 211 / .15);
+  border-radius: 14px;
+}
+.home-activity__empty p { color: #e1eff8 !important; }
+.home-activity__empty span { color: #9bb6c9 !important; }
+.home-categories__track {
+  background: rgb(139 184 214 / .16) !important;
+}
+.home-categories__track span {
+  background: linear-gradient(90deg, #4a9ed6, #a8dcff) !important;
+  box-shadow: 0 0 10px rgb(79 165 220 / .2) !important;
+}
+select option {
+  background: #0c253d;
+  color: #edf6fc;
+}
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  color-scheme: dark;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-color: #83c8f2;
+  outline-offset: 3px;
+}
+@media (max-width: 540px) {
+  .page-heading__inner { width: calc(100% - 2rem); }
+  .page-container { padding-bottom: max(7rem, calc(env(safe-area-inset-bottom) + 6rem)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-heading__back,
+  .iconbtn,
+  .home-categories__track span {
+    transition-duration: 0.01ms !important;
+  }
+}
