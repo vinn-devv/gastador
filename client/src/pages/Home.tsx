@@ -103,8 +103,6 @@ export default function Home() {
   const remainingForRing = Math.min(allowanceTotal, Math.max(0, remaining));
   const remainingRatio = allowanceTotal > 0 ? remainingForRing / allowanceTotal : 0;
   const remainingPercent = Math.round(remainingRatio * 100);
-  const circumference = 2 * Math.PI * 108;
-  const offset = circumference * (1 - remainingRatio);
   return (
     <Page className="home-calm">
       <header className="home-calm__header">
