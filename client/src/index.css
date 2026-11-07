@@ -1034,12 +1034,12 @@ body::before {
   pointer-events: none;
 }
 .launch-intro__stage {
-  width: min(82vw, 276px);
-  height: min(82vw, 276px);
+  width: min(88vw, 320px);
+  height: min(88vw, 320px);
   margin-bottom: 2px;
 }
 .launch-intro__mark {
-  width: clamp(166px, 48vw, 190px);
+  width: clamp(190px, 55vw, 220px);
 }
 .launch-intro__mark img {
   width: 100%;
@@ -1061,7 +1061,7 @@ body::before {
 }
 .launch-intro__wordmark {
   margin-top: 0;
-  font-size: clamp(23px, 5.8vw, 30px);
+  font-size: clamp(29px, 7vw, 36px);
   letter-spacing: -.045em;
   opacity: 0;
   animation-delay: 1.72s;
@@ -1078,8 +1078,8 @@ body::before {
   pointer-events: auto;
 }
 @media (max-width: 420px) {
-  .launch-intro__stage { width: 250px; height: 250px; }
-  .launch-intro__mark { width: 168px; }
+  .launch-intro__stage { width: 280px; height: 280px; }
+  .launch-intro__mark { width: 192px; }
   .launch-intro__lottie-wrap { right: 0; width: 112px; height: 112px; }
 }
 
