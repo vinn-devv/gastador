@@ -3573,3 +3573,19 @@ html.dark, html.dark body, .dark body { background: #070e19; }
     transform: none;
   }
 }
+
+
+/* Coin-only intro framing. The SVG composition is centered on the viewport. */
+.launch-intro--video-only .launch-intro__video-only-player {
+  width: min(100vw, 1100px);
+  aspect-ratio: 5 / 4;
+  height: auto;
+  transform: scale(1.2);
+  transform-origin: center center;
+}
+@media (max-width: 480px) {
+  .launch-intro--video-only .launch-intro__video-only-player {
+    width: 100vw;
+    transform: scale(1.16);
+  }
+}
