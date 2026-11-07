@@ -1,10 +1,10 @@
 import { useData } from '../../app/DataProvider';
 import { ScreenSkeleton } from '../../components/ui/Bits';
-import { ChipGroup, SelectField, TextField, Toggle } from '../../components/ui/Fields';
+import { SelectField, TextField, Toggle } from '../../components/ui/Fields';
 import { Page, PageHeader, Section } from '../../components/ui/PageHeader';
 import { useToast } from '../../components/ui/Toast';
 import { updateSettings } from '../../data/repo';
-import type { AlertPrefs, BudgetMethod, CurrencyCode, ThemePref } from '../../domain/types';
+import type { AlertPrefs, BudgetMethod, CurrencyCode } from '../../domain/types';
 
 const ALERT_ROWS: [keyof AlertPrefs, string][] = [
   ['budget50', 'When half of the allowance is used'],
@@ -26,9 +26,8 @@ export default function Preferences() {
     <>
       <PageHeader title="Preferences" back="/settings" />
       <Page className="max-w-2xl md:mx-0">
-        <Section title="Appearance">
-          <ChipGroup<ThemePref> label="Theme" value={s.theme} onChange={(v) => save({ theme: v })} options={[{ value: 'system', label: 'Match phone' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }]} />
-          <SelectField label="Currency" value={s.currency} onChange={(e) => save({ currency: e.target.value as CurrencyCode })} hint="Gastador is built around the Philippine peso.">
+        <Section title="Currency">
+          <SelectField label="Display currency" value={s.currency} onChange={(e) => save({ currency: e.target.value as CurrencyCode })} hint="Gastador is built around the Philippine peso.">
             {(['PHP', 'USD', 'EUR', 'SGD'] as const).map((c) => <option key={c} value={c}>{c}</option>)}
           </SelectField>
         </Section>
