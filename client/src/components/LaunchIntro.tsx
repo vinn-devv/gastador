@@ -71,14 +71,14 @@ export function LaunchIntro() {
               draggable={false}
             />
           </div>
-          <span className="launch-intro__corner launch-intro__corner--tl" />
-          <span className="launch-intro__corner launch-intro__corner--tr" />
-          <span className="launch-intro__corner launch-intro__corner--bl" />
-          <span className="launch-intro__corner launch-intro__corner--br" />
-          <span className="launch-intro__scan-line" />
         </div>
 
-        <div className="launch-intro__wordmark">Gastador App</div>
+        <div className="launch-intro__copy">
+          <div className="launch-intro__wordmark" aria-label="Gastador App">
+            <span className="launch-intro__wordmark-main">Gastador</span>
+            <span className="launch-intro__wordmark-suffix"> App</span>
+          </div>
+        </div>
         <p className="launch-intro__tagline">
           SNAP IT <span aria-hidden="true">·</span> TRACK IT{" "}
           <span aria-hidden="true">·</span> STRETCH IT
