@@ -46,6 +46,13 @@ export function Shell() {
         </div>
       </header>
 
+      {!focused && (
+        <div className="app-mobile-brandbar no-print">
+          <span className="app-mobile-brandbar__word">Gastador<span>App</span></span>
+          <span className="app-mobile-brandbar__avatar" aria-label="Profile"><span>R</span></span>
+        </div>
+      )}
+
       <div className="app-shell__body">
         <OfflineNotice />
         <main className={focused ? "app-main app-main--focused" : "app-main"}>
