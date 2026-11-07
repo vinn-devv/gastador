@@ -4971,3 +4971,20 @@ input[type="radio"] {
     animation:none !important;
   }
 }
+
+
+/* Insights chart: bars glide to their new heights when Daily/Weekly/Monthly changes. */
+.insights-column-bar {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  transition:
+    y 520ms cubic-bezier(.22,.8,.24,1),
+    height 520ms cubic-bezier(.22,.8,.24,1),
+    x 420ms cubic-bezier(.22,.8,.24,1),
+    width 420ms cubic-bezier(.22,.8,.24,1),
+    opacity 260ms ease;
+  will-change: y, height;
+}
+@media (prefers-reduced-motion: reduce) {
+  .insights-column-bar { transition:none !important; will-change:auto; }
+}
