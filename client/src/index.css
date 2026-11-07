@@ -1,3 +1,4 @@
+@import "https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap";
 @import "@fontsource/ibm-plex-sans/latin-400.css";
 @import "@fontsource/ibm-plex-sans/latin-500.css";
 @import "@fontsource/ibm-plex-sans/latin-600.css";
@@ -3660,5 +3661,55 @@ html.dark, html.dark body, .dark body { background: #070e19; }
   .launch-intro__tagline {
     opacity: 1;
     transform: none;
+  }
+}
+
+
+/* Final wordmark polish: no floating brackets outside the SVG icon. */
+.launch-intro__stage {
+  position: relative;
+}
+.launch-intro__wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  white-space: nowrap;
+  font-family: "Nunito", "IBM Plex Sans", sans-serif !important;
+  font-size: clamp(38px, 9vw, 50px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+  color: #72baff !important;
+  opacity: 1;
+  animation: gastador-wordmark-soft-reveal 760ms cubic-bezier(.2,.8,.2,1) 1.65s both !important;
+}
+.launch-intro__wordmark-main {
+  color: #72baff;
+}
+.launch-intro__wordmark-suffix {
+  color: #ffc400;
+  animation: gastador-app-glow 2.8s ease-in-out 2.35s infinite;
+}
+.launch-intro__tagline {
+  font-family: "Nunito", "IBM Plex Sans", sans-serif;
+  font-weight: 700;
+}
+@keyframes gastador-wordmark-soft-reveal {
+  0% { opacity: 0; transform: translateY(12px) scale(.97); filter: blur(4px); }
+  65% { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes gastador-app-glow {
+  0%, 100% { text-shadow: 0 0 0 rgb(255 196 0 / 0); }
+  50% { text-shadow: 0 0 14px rgb(255 196 0 / .3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .launch-intro__wordmark,
+  .launch-intro__wordmark-suffix {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    filter: none;
+    text-shadow: none;
   }
 }
