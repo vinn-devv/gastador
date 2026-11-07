@@ -3525,3 +3525,51 @@ html.dark, html.dark body, .dark body { background: #070e19; }
     transform: scale(1.16);
   }
 }
+
+
+/* Video-only intro: no added logo, wordmark, tagline, skip UI, or outro motion. */
+.launch-intro--video-only {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: #081321;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: none;
+}
+.launch-intro--video-only .launch-intro__video-only-player {
+  display: block;
+  width: min(100vw, 1100px);
+  height: auto;
+  aspect-ratio: 5 / 4;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  transform: scale(1.2);
+  transform-origin: center;
+}
+.launch-intro--video-only .launch-intro__copy,
+.launch-intro--video-only .launch-intro__skip,
+.launch-intro--video-only .launch-intro__icon-stage,
+.launch-intro--video-only .launch-intro__animation {
+  display: none !important;
+}
+@media (max-width: 480px) {
+  .launch-intro--video-only .launch-intro__video-only-player {
+    width: 100vw;
+    transform: scale(1.16);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .launch-intro--video-only .launch-intro__video-only-player {
+    transform: none;
+  }
+}
