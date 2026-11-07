@@ -8,14 +8,12 @@ import { ToastProvider } from './components/ui/Toast';
 import './index.css';
 import { registerServiceWorker } from './app/registerSw';
 import { LaunchIntro } from './components/LaunchIntro';
-import { AmbientBackdrop } from './components/AmbientBackdrop';
 
 registerServiceWorker();
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     {/* A document-start overlay, independent from router navigation. */}
-    <AmbientBackdrop />
     <LaunchIntro />
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <ToastProvider>
