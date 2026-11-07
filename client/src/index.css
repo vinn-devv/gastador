@@ -4154,3 +4154,33 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .app-mobile-dock__link, .finance-transaction, .settings-row { transition: none !important; }
 }
+
+
+/* Soft vanilla app canvas — keep the page background flat and static. */
+:root {
+  --bg: 250 249 246;
+}
+html, body, #root {
+  min-height: 100%;
+  background-color: #faf9f6;
+  background-image: none !important;
+}
+body, .app-shell, .app-main {
+  background-color: #faf9f6 !important;
+  background-image: none !important;
+}
+.page-heading {
+  background-color: #faf9f6 !important;
+  background-image: none !important;
+}
+.dark html, html.dark,
+.dark body, html.dark body,
+.dark #root, html.dark #root,
+.dark .app-shell, html.dark .app-shell,
+.dark .app-main, html.dark .app-main {
+  background-color: #0c141f !important;
+  background-image: none !important;
+}
+.dark .page-heading, html.dark .page-heading {
+  background-color: #0c141f !important;
+}
