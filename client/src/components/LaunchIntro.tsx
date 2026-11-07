@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
-const INTRO_DURATION_MS = 6500;
+const DotLottiePlayer: any = "dotlottie-wc";
+const ANIMATION_END_MS = 5000;
+const INTRO_DURATION_MS = 6700;
 const EXIT_DURATION_MS = 450;
 
 export function LaunchIntro() {
@@ -31,21 +33,21 @@ export function LaunchIntro() {
       aria-live="polite"
     >
       <div className="launch-intro__content">
-        <div className="launch-intro__icon-stage" aria-hidden="true">
-          <img
-            className="launch-intro__icon"
-            src={import.meta.env.BASE_URL + "gastador-intro-mark.svg"}
-            alt=""
-            draggable={false}
+        <div className="launch-intro__animation" aria-hidden="true">
+          <DotLottiePlayer
+            src={import.meta.env.BASE_URL + "gastador-intro.json"}
+            autoplay
+            speed={1}
+            mode="forward"
+            loop={false}
+            className="launch-intro__player"
           />
         </div>
-
         <div className="launch-intro__copy" aria-hidden="true">
           <div className="launch-intro__wordmark">Gastador</div>
           <p className="launch-intro__tagline">Snap it. Track it. Stretch it.</p>
         </div>
       </div>
-
       <button
         type="button"
         className="launch-intro__skip"
