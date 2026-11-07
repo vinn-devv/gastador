@@ -3954,3 +3954,26 @@ body { font-family: "Nunito", "IBM Plex Sans", sans-serif; background: rgb(var(-
 @media (prefers-reduced-motion: reduce) {
   .home-quick-action > span, .settings-row { transition: none !important; }
 }
+
+/* Keep the existing dark theme tokens after the light finance palette override. */
+.dark {
+  --bg: 12 19 29;
+  --surface: 19 29 43;
+  --sunken: 25 38 55;
+  --line: 37 51 70;
+  --ink: 239 244 250;
+  --muted: 151 166 184;
+  --primary: 116 184 255;
+  --on-primary: 255 255 255;
+  --primary-soft: 27 45 67;
+  --navy: 25 36 52;
+  --balance-end: 19 29 43;
+  --mint: 116 184 255;
+  --teal: 48 132 220;
+  --teal-soft: 27 45 67;
+  --warn: 249 190 88;
+  --warn-soft: 58 47 26;
+  --bad: 250 119 133;
+  --bad-soft: 62 31 39;
+  color-scheme: dark;
+}
