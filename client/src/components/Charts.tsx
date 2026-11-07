@@ -21,6 +21,12 @@ export function ColumnChart({ data, title }: { data: Datum[]; title: string }) {
         role="img"
         aria-label={`${title}. Total ${formatMoney(total)} across ${data.length} periods. Highest ${formatMoney(max)}.`}
       >
+        <defs>
+          <linearGradient id="insights-column-gradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#55aaf0" />
+            <stop offset="100%" stopColor="#1768a8" />
+          </linearGradient>
+        </defs>
         <line x1="0" x2={w} y1={h} y2={h} stroke="rgb(var(--line))" />
         <line
           x1="0"
@@ -34,15 +40,19 @@ export function ColumnChart({ data, title }: { data: Datum[]; title: string }) {
           const bh = d.value > 0 ? Math.max(3, (d.value / max) * (h - 6)) : 0;
           const x = i * (bw + gap);
           return (
-            <g key={d.label + i}>
+            <g key={i}>
               <rect
+                className="insights-column-bar"
                 x={x}
                 y={h - bh}
                 width={bw}
                 height={bh}
                 rx={Math.min(3, bw / 2)}
-                fill="rgb(var(--primary))"
-              />
+                fill="url(#insights-column-gradient)"
+                style={{ transitionDelay: `${Math.min(i * 16, 192)}ms` }}
+              >
+                <title>{d.label}: {formatMoney(d.value)}</title>
+              </rect>
               {i % every === 0 && (
                 <text x={x} y={h + 16} fontSize="10" fill="rgb(var(--muted))">
                   {d.label}
