@@ -29,7 +29,6 @@ export function AnimatedSplashOverlay() {
   const wordScale = useRef(new Animated.Value(0.94)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
   const taglineY = useRef(new Animated.Value(8)).current;
-  const glowOpacity = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -108,12 +107,6 @@ export function AnimatedSplashOverlay() {
             useNativeDriver: true,
           }),
         ]),
-        Animated.timing(glowOpacity, {
-          toValue: 1,
-          duration: 650,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
         Animated.delay(1050),
         Animated.timing(overlayOpacity, {
           toValue: 0,
@@ -140,7 +133,6 @@ export function AnimatedSplashOverlay() {
     wordScale,
     taglineOpacity,
     taglineY,
-    glowOpacity,
     overlayOpacity,
   ]);
 
@@ -234,6 +226,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 18,
+    zIndex: 1,
   },
   dotTravel: {
     position: "absolute",
@@ -311,30 +304,7 @@ const styles = StyleSheet.create({
   app: {
     color: COLORS.gold,
   },
-  taglineWrap: {
-    position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 5,
-  },
-  taglineGlowLayer: {
-    position: "absolute",
-  },
-  taglineGlow: {
-    color: COLORS.tagline,
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 9,
-    letterSpacing: 1.15,
-    includeFontPadding: false,
-    textShadowColor: COLORS.brightBlue,
-    textShadowRadius: 7,
-  },
   tagline: {
-    color: COLORS.tagline,
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 9,
-    letterSpacing: 1.15,
-    includeFontPaddin  tagline: {
     color: COLORS.tagline,
     fontFamily: "serif",
     fontSize: 11,
