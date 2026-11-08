@@ -68,7 +68,7 @@ export function AnimatedSplashOverlay() {
           <View pointerEvents="none" style={[styles.innerHalo, { borderColor: dark ? "rgba(117,177,255,0.16)" : "rgba(71,135,217,0.12)" }]} />
           <Animated.View style={{ opacity: markOpacity, transform: [{ translateY: markY }, { scale: markScale }] }}>
             <Image
-              source={require("@/assets/images/icon-512.png")}
+              source={require("@/assets/images/gastador-intro-mark.svg")}
               style={styles.mark}
               contentFit="contain"
               transition={0}
@@ -77,7 +77,7 @@ export function AnimatedSplashOverlay() {
         </View>
 
         <Animated.View style={[styles.brandCopy, { opacity: wordOpacity, transform: [{ translateY: wordY }] }]}>
-          <Text style={[styles.wordmark, { color: dark ? "#F1F6FF" : "#173A70" }]}>Gastador</Text>
+          <Text style={styles.wordmark}><Text style={styles.wordmarkMain}>Gastador</Text><Text style={styles.wordmarkApp}> App</Text></Text>
           <Text style={[styles.tagline, { color: dark ? "#A9BFDF" : "#62789F" }]}>
             SNAP IT  ·  TRACK IT  ·  STRETCH IT
           </Text>
@@ -128,6 +128,8 @@ const styles = StyleSheet.create({
   mark: { width: 192, height: 192 },
   brandCopy: { alignItems: "center" },
   wordmark: { fontFamily: "IBMPlexSans_700Bold", fontSize: 35, lineHeight: 43, letterSpacing: -1.5 },
+  wordmarkMain: { color: "#72BAFF" },
+  wordmarkApp: { color: "#FFC400" },
   tagline: { marginTop: 7, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 10, letterSpacing: 1.15 },
   skip: { position: "absolute", right: 20, minHeight: 44, paddingHorizontal: 16, borderWidth: 1, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   skipText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
