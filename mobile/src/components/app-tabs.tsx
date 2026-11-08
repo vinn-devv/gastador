@@ -13,16 +13,16 @@ export default function AppTabs() {
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.muted,
         tabBarStyle: {
-          backgroundColor: "rgba(5, 13, 23, 0.92)",
-          borderTopColor: theme.line,
-          borderTopWidth: 1,
-          height: 66,
-          paddingTop: 7,
-          paddingBottom: 7,
+          backgroundColor: "#C5DFF5",
+          borderTopColor: "transparent",
+          borderTopWidth: 0,
+          height: 72,
+          paddingTop: 9,
+          paddingBottom: 9,
         },
         tabBarLabelStyle: {
           fontFamily: "IBMPlexSans_500Medium",
-          fontSize: 11,
+          fontSize: 10,
         },
       }}
     >
