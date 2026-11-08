@@ -92,7 +92,7 @@ export default function ActivityScreen() {
         accessibilityLabel="Search expenses"
       />
 
-      <View style={[styles.summary, { borderColor: theme.line }]}>
+      <View style={[styles.summary, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
         <View>
           <ThemedText type="small" themeColor="muted">Showing {filtered.length} {filtered.length === 1 ? "expense" : "expenses"}</ThemedText>
           <ThemedText style={styles.total}>{formatMoney(total, currency)}</ThemedText>
@@ -166,8 +166,8 @@ const styles = StyleSheet.create({
   header: { gap: 3, marginBottom: 20 },
   title: { fontFamily: "IBMPlexSans_700Bold", fontSize: 29, lineHeight: 36 },
   search: { minHeight: 48, borderWidth: 1, borderRadius: 13, paddingHorizontal: 14, fontFamily: "IBMPlexSans_400Regular", fontSize: 14, marginBottom: 16 },
-  summary: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: 14, marginBottom: 8 },
-  total: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 19, marginTop: 2 },
+  summary: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderWidth: 1, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 16, marginBottom: 12 },
+  total: { fontFamily: "IBMPlexSans_700Bold", fontSize: 22, marginTop: 2, color: "#FFFFFF" },
   empty: { paddingVertical: 34, alignItems: "center", gap: 6 },
   emptyTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
   clear: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13, marginTop: 8 },
