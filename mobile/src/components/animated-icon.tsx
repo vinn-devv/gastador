@@ -18,6 +18,7 @@ const COLORS = {
 
 export function AnimatedSplashOverlay() {
   const [visible, setVisible] = useState(true);
+  const [dotVisible, setDotVisible] = useState(true);
   const { height } = useWindowDimensions();
 
   const dotY = useRef(new Animated.Value(0)).current;
@@ -53,6 +54,7 @@ export function AnimatedSplashOverlay() {
 
     launch.start(({ finished }) => {
       if (!finished) return;
+      setDotVisible(false);
 
       const reveal = Animated.sequence([
         Animated.parallel([
@@ -153,16 +155,18 @@ export function AnimatedSplashOverlay() {
         transition={0}
       />
 
-      <Animated.View
-        style={[
-          styles.launchDot,
-          {
-            transform: [{ translateY: dotY }, { scale: dotScale }],
-          },
-        ]}
-      >
-        <View style={styles.dotCore} />
-      </Animated.View>
+      {dotVisible && (
+        <Animated.View
+          style={[
+            styles.launchDot,
+            {
+              transform: [{ translateY: dotY }, { scale: dotScale }],
+            },
+          ]}
+        >
+          <View style={styles.dotCore} />
+        </Animated.View>
+      )}
 
       <View style={styles.lockup}>
         <Animated.View
