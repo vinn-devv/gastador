@@ -41,6 +41,19 @@ export default function AppTabs() {
       />
       <Tabs.Screen name="new-expense" options={{ href: null }} />
       <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+          tabBarIcon: ({ color, size }) => (
+            <SymbolView
+              name={{ ios: "gearshape.fill", android: "settings", web: "settings" }}
+              tintColor={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="insights"
         options={{
           title: "Insights",
