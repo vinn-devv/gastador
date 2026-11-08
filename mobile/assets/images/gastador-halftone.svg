@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 648 1152" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#02050a"/>
+      <stop offset=".52" stop-color="#050b14"/>
+      <stop offset="1" stop-color="#03070d"/>
+    </linearGradient>
+    <pattern id="dots" width="10.8" height="10.8" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#b9d8f3"/>
+    </pattern>
+    <radialGradient id="right">
+      <stop stop-color="#fff" stop-opacity=".88"/>
+      <stop offset=".42" stop-color="#fff" stop-opacity=".58"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="left">
+      <stop stop-color="#fff" stop-opacity=".76"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lower">
+      <stop stop-color="#fff" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="field">
+      <rect width="648" height="1152" fill="black"/>
+      <ellipse cx="550" cy="650" rx="310" ry="410" fill="url(#right)"/>
+      <ellipse cx="55" cy="965" rx="250" ry="255" fill="url(#left)"/>
+      <ellipse cx="265" cy="835" rx="230" ry="220" fill="url(#lower)"/>
+      <ellipse cx="30" cy="180" rx="170" ry="250" fill="url(#left)" opacity=".48"/>
+    </mask>
+  </defs>
+  <rect width="648" height="1152" fill="url(#base)"/>
+  <rect width="648" height="1152" fill="url(#dots)" mask="url(#field)" opacity=".92"/>
+</svg>
