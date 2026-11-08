@@ -11,7 +11,7 @@ import {
 const COLORS = {
   background: "#06165B",
   tile: "#263A91",
-  blue: "#78BFFF",
+  blue: "#168BFF",
   gold: "#FFC20E",
   white: "#F7F9FF",
   tagline: "#A9B7D4",
@@ -59,7 +59,7 @@ export function AnimatedSplashOverlay() {
   const tileScale = useRef(new Animated.Value(0.035)).current;
   const tileY = useRef(new Animated.Value(0)).current;
   const dotY = useRef(new Animated.Value(0)).current;
-  const dotOpacity = useRef(new Animated.Value(1)).current;
+  const dotMorph = useRef(new Animated.Value(0)).current;
   const tileOpacity = useRef(new Animated.Value(1)).current;
   const fillOpacity = useRef(new Animated.Value(0)).current;
   const borderOpacity = useRef(new Animated.Value(0)).current;
@@ -83,11 +83,12 @@ export function AnimatedSplashOverlay() {
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
-      Animated.timing(dotOpacity, {
-        toValue: 0,
-        duration: 160,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: true,
+      Animated.spring(dotMorph, {
+        toValue: 1,
+        stiffness: 82,
+        damping: 17,
+        mass: 0.9,
+        useNativeDriver: false,
       }),
       Animated.parallel([
         Animated.spring(tileScale, {
@@ -205,7 +206,7 @@ export function AnimatedSplashOverlay() {
     tileScale,
     tileY,
     dotY,
-    dotOpacity,
+    dotMorph,
     tileOpacity,
     fillOpacity,
     borderOpacity,
@@ -237,8 +238,19 @@ export function AnimatedSplashOverlay() {
           styles.startDot,
           {
             left: width / 2 - 6.5,
-            opacity: dotOpacity,
-            transform: [{ translateY: dotY }],
+            backgroundColor: dotMorph.interpolate({
+              inputRange: [0, 1],
+              outputRange: [COLORS.gold, COLORS.tile],
+            }),
+            borderRadius: dotMorph.interpolate({
+              inputRange: [0, 1],
+              outputRange: [7, 34],
+            }),
+            transform: [
+              { translateY: dotY },
+              { scaleX: dotMorph.interpolate({ inputRange: [0, 1], outputRange: [1, tileSize / 13] }) },
+              { scaleY: dotMorph.interpolate({ inputRange: [0, 1], outputRange: [1, tileSize / 13] }) },
+            ],
           },
         ]}
       />
@@ -355,7 +367,6 @@ const styles = StyleSheet.create({
     width: 13,
     height: 13,
     borderRadius: 7,
-    backgroundColor: COLORS.gold,
     zIndex: 2,
   },
   tile: {
