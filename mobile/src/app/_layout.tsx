@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "expo-router";
 import { SQLiteProvider } from "expo-sqlite";
 import * as SplashScreen from "expo-splash-screen";
@@ -31,14 +31,14 @@ export default function TabLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <View style={{ flex: 1, backgroundColor: theme.background }}>
-          <AmbientBackdrop />
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <AmbientBackdrop />
+        <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
           <AppTabs />
-          <AnimatedSplashOverlay />
-        </View>
-      </ThemeProvider>
-    </SQLiteProvider>
+        </SQLiteProvider>
+        <AnimatedSplashOverlay />
+      </View>
+    </ThemeProvider>
   );
 }
