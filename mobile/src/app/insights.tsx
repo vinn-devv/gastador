@@ -81,7 +81,7 @@ export default function InsightsScreen() {
         <ThemedText type="small" themeColor="muted">Calculating your spending…</ThemedText>
       ) : (
         <>
-          <View style={[styles.summary, { borderColor: theme.line }]}>
+          <View style={[styles.summary, { borderColor: theme.primary, backgroundColor: theme.primary }]}>
             <View style={styles.summaryItem}>
               <ThemedText type="small" themeColor="muted">All expenses</ThemedText>
               <ThemedText style={styles.summaryValue}>{formatMoney(totalSpent, currency)}</ThemedText>
@@ -164,10 +164,10 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 38 },
   title: { fontFamily: "IBMPlexSans_700Bold", fontSize: 29, lineHeight: 36, marginTop: 2 },
   subtitle: { marginTop: 3, marginBottom: 22 },
-  summary: { flexDirection: "row", alignItems: "center", borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: 16 },
+  summary: { flexDirection: "row", alignItems: "center", borderWidth: 1, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 18 },
   summaryItem: { flex: 1, gap: 4 },
-  summaryValue: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 19 },
-  divider: { width: StyleSheet.hairlineWidth, height: 36, marginHorizontal: 14 },
+  summaryValue: { fontFamily: "IBMPlexSans_700Bold", fontSize: 21, color: "#FFFFFF" },
+  divider: { width: StyleSheet.hairlineWidth, height: 36, marginHorizontal: 14, backgroundColor: "rgba(255,255,255,0.35)" },
   section: { marginTop: 26 },
   sectionTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 17, marginBottom: 12 },
   cyclePanel: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 15, paddingVertical: 6 },
