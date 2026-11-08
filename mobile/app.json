@@ -25,8 +25,8 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#050B14",
-          "image": "./assets/images/gastador-logo.png",
-          "imageWidth": 200,
+          "image": "./assets/images/icon.png",
+          "imageWidth": 160,
           "resizeMode": "contain"
         }
       ],
