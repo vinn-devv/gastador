@@ -7,182 +7,270 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { Image } from "expo-image";
 import { useFonts } from "expo-font";
 
 const COLORS = {
-  blue: "#8BCBFF",
-  gold: "#FFC928",
-  tagline: "#B7DFFF",
+  background: "#050817",
+  tile: "#263A91",
+  blue: "#78BFFF",
+  gold: "#FFC20E",
+  white: "#F7F9FF",
+  tagline: "#A9B7D4",
 };
+
+const DOTS = Array.from({ length: 11 * 11 }, (_, index) => {
+  const x = index % 11;
+  const y = Math.floor(index / 11);
+  const distance = Math.hypot(x - 5, y - 5);
+  return {
+    key: index,
+    left: `${x * 10}%` as `${number}%`,
+    top: `${y * 10}%` as `${number}%`,
+    opacity: distance > 5 ? 0 : Math.max(0, 0.2 - distance * 0.025),
+  };
+});
+
+function CornerMarks() {
+  return (
+    <>
+      <View style={[styles.corner, styles.topLeft]}>
+        <View style={styles.cornerVertical} />
+        <View style={styles.cornerHorizontal} />
+      </View>
+      <View style={[styles.corner, styles.topRight]}>
+        <View style={styles.cornerVertical} />
+        <View style={styles.cornerHorizontal} />
+      </View>
+      <View style={[styles.corner, styles.bottomLeft]}>
+        <View style={styles.cornerVertical} />
+        <View style={styles.cornerHorizontal} />
+      </View>
+      <View style={[styles.corner, styles.bottomRight]}>
+        <View style={styles.cornerVertical} />
+        <View style={styles.cornerHorizontal} />
+      </View>
+    </>
+  );
+}
 
 export function AnimatedSplashOverlay() {
   const [fontsLoaded] = useFonts({
     TANNimbus: require("@/assets/fonts/TAN-NIMBUS.otf"),
   });
   const [visible, setVisible] = useState(true);
-  const [dotVisible, setDotVisible] = useState(true);
-  const { height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
 
-  const dotY = useRef(new Animated.Value(0)).current;
-  const dotScale = useRef(new Animated.Value(0.82)).current;
-  const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoScale = useRef(new Animated.Value(0.72)).current;
+  const tileScale = useRef(new Animated.Value(0.035)).current;
+  const tileOpacity = useRef(new Animated.Value(1)).current;
+  const fillOpacity = useRef(new Animated.Value(0)).current;
+  const borderOpacity = useRef(new Animated.Value(1)).current;
+  const pesoOpacity = useRef(new Animated.Value(0)).current;
+  const pesoScale = useRef(new Animated.Value(0.72)).current;
+  const cornersOpacity = useRef(new Animated.Value(0)).current;
+  const stackY = useRef(new Animated.Value(0)).current;
+  const stackScale = useRef(new Animated.Value(1)).current;
   const wordOpacity = useRef(new Animated.Value(0)).current;
-  const wordY = useRef(new Animated.Value(18)).current;
-  const wordScale = useRef(new Animated.Value(0.94)).current;
+  const wordY = useRef(new Animated.Value(16)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
-  const taglineY = useRef(new Animated.Value(8)).current;
+  const taglineY = useRef(new Animated.Value(7)).current;
+  const dotsOpacity = useRef(new Animated.Value(1)).current;
   const overlayOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    const launch = Animated.parallel([
-      Animated.spring(dotY, {
-        toValue: -(height * 0.5 - 65),
-        stiffness: 115,
-        damping: 14,
-        mass: 0.72,
-        velocity: -1.15,
-        overshootClamping: false,
-        useNativeDriver: true,
-      }),
-      Animated.spring(dotScale, {
-        toValue: 1.08,
-        stiffness: 135,
-        damping: 12,
-        mass: 0.72,
+    const intro = Animated.sequence([
+      Animated.parallel([
+        Animated.spring(tileScale, {
+          toValue: 1,
+          stiffness: 150,
+          damping: 15,
+          mass: 0.8,
+          useNativeDriver: true,
+        }),
+        Animated.timing(tileOpacity, {
+          toValue: 1,
+          duration: 120,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.timing(fillOpacity, {
+          toValue: 1,
+          duration: 360,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(borderOpacity, {
+          toValue: 0,
+          duration: 420,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pesoOpacity, {
+          toValue: 1,
+          duration: 300,
+          delay: 80,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.spring(pesoScale, {
+          toValue: 1,
+          stiffness: 170,
+          damping: 13,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.timing(cornersOpacity, {
+          toValue: 1,
+          duration: 300,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(dotsOpacity, {
+          toValue: 0.15,
+          duration: 700,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.spring(stackScale, {
+          toValue: 0.82,
+          stiffness: 125,
+          damping: 15,
+          mass: 0.9,
+          useNativeDriver: true,
+        }),
+        Animated.spring(stackY, {
+          toValue: -38,
+          stiffness: 115,
+          damping: 15,
+          mass: 0.9,
+          useNativeDriver: true,
+        }),
+        Animated.timing(wordOpacity, {
+          toValue: 1,
+          duration: 480,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.spring(wordY, {
+          toValue: 0,
+          stiffness: 115,
+          damping: 15,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.timing(taglineOpacity, {
+          toValue: 1,
+          duration: 420,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(taglineY, {
+          toValue: 0,
+          duration: 420,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.delay(2850),
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 420,
+        easing: Easing.inOut(Easing.quad),
         useNativeDriver: true,
       }),
     ]);
 
-    launch.start(({ finished }) => {
-      if (!finished) return;
-      setDotVisible(false);
-
-      const reveal = Animated.sequence([
-        Animated.parallel([
-          Animated.timing(logoOpacity, {
-            toValue: 1,
-            duration: 160,
-            easing: Easing.out(Easing.quad),
-            useNativeDriver: true,
-          }),
-          Animated.spring(logoScale, {
-            toValue: 1,
-            stiffness: 175,
-            damping: 11,
-            mass: 0.8,
-            useNativeDriver: true,
-          }),
-        ]),
-        Animated.parallel([
-          Animated.timing(wordOpacity, {
-            toValue: 1,
-            duration: 480,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-          Animated.spring(wordY, {
-            toValue: 0,
-            stiffness: 105,
-            damping: 14,
-            mass: 0.85,
-            useNativeDriver: true,
-          }),
-          Animated.spring(wordScale, {
-            toValue: 1,
-            stiffness: 125,
-            damping: 13,
-            mass: 0.8,
-            useNativeDriver: true,
-          }),
-        ]),
-        Animated.parallel([
-          Animated.timing(taglineOpacity, {
-            toValue: 1,
-            duration: 420,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-          Animated.timing(taglineY, {
-            toValue: 0,
-            duration: 420,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-        ]),
-        Animated.delay(1050),
-        Animated.timing(overlayOpacity, {
-          toValue: 0,
-          duration: 420,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-      ]);
-
-      reveal.start(({ finished: completed }) => {
-        if (completed) setVisible(false);
-      });
+    intro.start(({ finished }) => {
+      if (finished) setVisible(false);
     });
 
-    return () => launch.stop();
+    return () => intro.stop();
   }, [
-    height,
-    dotY,
-    dotScale,
-    logoOpacity,
-    logoScale,
+    tileScale,
+    tileOpacity,
+    fillOpacity,
+    borderOpacity,
+    pesoOpacity,
+    pesoScale,
+    cornersOpacity,
+    stackY,
+    stackScale,
     wordOpacity,
     wordY,
-    wordScale,
     taglineOpacity,
     taglineY,
+    dotsOpacity,
     overlayOpacity,
   ]);
 
   if (!visible) return null;
+
+  const tileSize = Math.min(width * 0.405, 164);
 
   return (
     <Animated.View
       pointerEvents="auto"
       style={[styles.overlay, { opacity: overlayOpacity }]}
     >
-      {dotVisible && (
-        <Animated.View
-          style={[
-            styles.dotTravel,
-            { transform: [{ translateY: dotY }, { scale: dotScale }] },
-          ]}
-        >
-          <View style={styles.dot} />
-        </Animated.View>
-      )}
+      <View pointerEvents="none" style={styles.glowLarge} />
+      <View pointerEvents="none" style={styles.glowSmall} />
+      <Animated.View pointerEvents="none" style={[styles.dotField, { opacity: dotsOpacity }]}>
+        {DOTS.map((dot) => (
+          <View
+            key={dot.key}
+            style={[
+              styles.backgroundDot,
+              { left: dot.left, top: dot.top, opacity: dot.opacity },
+            ]}
+          />
+        ))}
+      </Animated.View>
 
-      <View style={styles.content}>
+      <Animated.View
+        style={[
+          styles.content,
+          {
+            transform: [{ translateY: stackY }, { scale: stackScale }],
+          },
+        ]}
+      >
         <Animated.View
           style={[
-            styles.logoWrap,
+            styles.tile,
             {
-              opacity: logoOpacity,
-              transform: [{ scale: logoScale }],
+              width: tileSize,
+              height: tileSize,
+              opacity: tileOpacity,
+              transform: [{ scale: tileScale }],
             },
           ]}
         >
-          <Image
-            source={require("@/assets/images/gastador-intro-mark.svg")}
-            style={styles.logo}
-            contentFit="contain"
-            transition={0}
-          />
+          <Animated.View style={[styles.tileFill, { opacity: fillOpacity }]} />
+          <Animated.View style={[styles.tileBorder, { opacity: borderOpacity }]} />
+          <Animated.Text
+            style={[
+              styles.peso,
+              {
+                opacity: pesoOpacity,
+                transform: [{ scale: pesoScale }],
+              },
+            ]}
+          >
+            ₱
+          </Animated.Text>
+          <Animated.View style={[styles.cornerLayer, { opacity: cornersOpacity }]}>
+            <CornerMarks />
+          </Animated.View>
         </Animated.View>
 
         <Animated.View
           style={[
             styles.wordmarkWrap,
-            {
-              opacity: wordOpacity,
-              transform: [{ translateY: wordY }, { scale: wordScale }],
-            },
+            { opacity: wordOpacity, transform: [{ translateY: wordY }] },
           ]}
         >
           <Text style={[styles.wordmark, fontsLoaded && styles.customWordmark]}>
@@ -200,9 +288,9 @@ export function AnimatedSplashOverlay() {
             },
           ]}
         >
-          SNAP IT  ·  TRACK IT  ·  STRETCH IT
+          Scan it. Track it. Save it.
         </Animated.Text>
-      </View>
+      </Animated.View>
     </Animated.View>
   );
 }
@@ -212,56 +300,131 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: 9999,
     elevation: 9999,
-    backgroundColor: "#06165B",
+    backgroundColor: COLORS.background,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
+  },
+  glowLarge: {
+    position: "absolute",
+    width: 470,
+    height: 470,
+    borderRadius: 235,
+    backgroundColor: "#101E59",
+    opacity: 0.42,
+  },
+  glowSmall: {
+    position: "absolute",
+    width: 270,
+    height: 270,
+    borderRadius: 135,
+    backgroundColor: "#17275F",
+    opacity: 0.22,
+  },
+  dotField: {
+    ...StyleSheet.absoluteFill,
+  },
+  backgroundDot: {
+    position: "absolute",
+    width: 2,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: "#52669B",
   },
   content: {
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 18,
+    paddingHorizontal: 20,
   },
-  dotTravel: {
-    position: "absolute",
-    zIndex: 3,
-    bottom: -18,
-    alignSelf: "center",
-  },
-  dot: {
-    width: 13,
-    height: 13,
-    borderRadius: 7,
-    backgroundColor: "#55B9FF",
-  },
-  logoWrap: {
-    width: 148,
-    height: 148,
+  tile: {
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 34,
+    overflow: "visible",
   },
-  logo: {
-    width: 148,
-    height: 148,
+  tileFill: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: 34,
+    backgroundColor: COLORS.tile,
+  },
+  tileBorder: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: 34,
+    borderWidth: 1.5,
+    borderColor: COLORS.gold,
+  },
+  peso: {
+    color: COLORS.white,
+    fontFamily: "Arial",
+    fontWeight: "800",
+    fontSize: 83,
+    lineHeight: 96,
+    includeFontPadding: false,
+    textAlign: "center",
+    marginTop: -5,
+  },
+  cornerLayer: {
+    ...StyleSheet.absoluteFill,
+  },
+  corner: {
+    position: "absolute",
+    width: 24,
+    height: 24,
+  },
+  topLeft: {
+    top: "20%",
+    left: "20%",
+  },
+  topRight: {
+    top: "20%",
+    right: "20%",
+    transform: [{ rotate: "90deg" }],
+  },
+  bottomRight: {
+    bottom: "20%",
+    right: "20%",
+    transform: [{ rotate: "180deg" }],
+  },
+  bottomLeft: {
+    bottom: "20%",
+    left: "20%",
+    transform: [{ rotate: "270deg" }],
+  },
+  cornerVertical: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    width: 6,
+    height: 24,
+    borderRadius: 3,
+    backgroundColor: COLORS.gold,
+  },
+  cornerHorizontal: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    width: 24,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.gold,
   },
   wordmarkWrap: {
-    marginTop: -7,
+    marginTop: 12,
     alignItems: "center",
   },
   wordmark: {
     color: COLORS.blue,
     fontFamily: "serif",
-    fontSize: 42,
-    lineHeight: 54,
-    letterSpacing: 0.1,
+    fontSize: 39,
+    lineHeight: 49,
+    letterSpacing: 0,
     includeFontPadding: false,
     textAlign: "center",
   },
   customWordmark: {
     fontFamily: "TANNimbus",
-    fontSize: 43,
-    letterSpacing: 0,
+    fontSize: 41,
   },
   gastador: {
     color: COLORS.blue,
@@ -272,10 +435,10 @@ const styles = StyleSheet.create({
   tagline: {
     color: COLORS.tagline,
     fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 9,
-    letterSpacing: 1.15,
+    fontSize: 11,
+    letterSpacing: 0.3,
     includeFontPadding: false,
     textAlign: "center",
-    marginTop: 12,
+    marginTop: 7,
   },
 });
