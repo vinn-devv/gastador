@@ -81,7 +81,7 @@ export function AnimatedSplashOverlay() {
         toValue: -(height / 2 - 30.5),
         duration: 1100,
         easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
+        useNativeDriver: false,
       }),
       Animated.spring(dotMorph, {
         toValue: 1,
