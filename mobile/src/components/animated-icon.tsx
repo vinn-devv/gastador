@@ -60,12 +60,10 @@ export function AnimatedSplashOverlay() {
   return (
     <Animated.View
       pointerEvents="auto"
-      style={[styles.overlay, { opacity, backgroundColor: "transparent" }]}
+      style={[styles.overlay, { opacity, backgroundColor: "#050B14" }]}
     >
       <View style={styles.content}>
         <View style={styles.stage}>
-          <View pointerEvents="none" style={[styles.halo, { borderColor: dark ? "rgba(117,177,255,0.2)" : "rgba(71,135,217,0.16)" }]} />
-          <View pointerEvents="none" style={[styles.innerHalo, { borderColor: dark ? "rgba(117,177,255,0.16)" : "rgba(71,135,217,0.12)" }]} />
           <Animated.View style={{ opacity: markOpacity, transform: [{ translateY: markY }, { scale: markScale }] }}>
             <Image
               source={require("@/assets/images/gastador-intro-mark.svg")}
@@ -123,8 +121,6 @@ const styles = StyleSheet.create({
   },
   content: { width: "100%", maxWidth: 440, alignItems: "center", paddingHorizontal: 20 },
   stage: { width: 280, height: 280, maxWidth: "88%", alignItems: "center", justifyContent: "center", marginBottom: 2 },
-  halo: { position: "absolute", width: "72%", height: "72%", borderWidth: 1, borderRadius: 999 },
-  innerHalo: { position: "absolute", width: "54%", height: "54%", borderWidth: 1, borderRadius: 999 },
   mark: { width: 192, height: 192 },
   brandCopy: { alignItems: "center" },
   wordmark: { fontFamily: "IBMPlexSans_700Bold", fontSize: 35, lineHeight: 43, letterSpacing: -1.5 },
