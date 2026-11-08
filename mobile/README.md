@@ -54,3 +54,24 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+## Build a standalone Android APK
+
+The repository includes an EAS production profile that outputs an installable APK.
+
+1. Sign in to your Expo account:
+
+   ```bash
+   npx eas-cli login
+   ```
+
+2. Link this app to your Expo project on the first setup (EAS will prompt during the first build if it is not linked yet).
+
+3. Build the standalone APK:
+
+   ```bash
+   npx eas-cli build --platform android --profile production
+   ```
+
+When the cloud build finishes, download the `.apk` artifact from the EAS build page and install it on your Android device. This production APK does not need Expo Go or a running Metro server.
