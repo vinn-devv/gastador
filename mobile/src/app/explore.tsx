@@ -67,7 +67,7 @@ export default function ActivityScreen() {
 
   return (
     <ScrollView
-      style={[styles.screen, { backgroundColor: theme.background }]}
+      style={styles.screen}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
