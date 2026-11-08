@@ -54,9 +54,10 @@ function CornerMarks() {
 
 export function AnimatedSplashOverlay() {
   const [visible, setVisible] = useState(true);
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
 
   const tileScale = useRef(new Animated.Value(0.035)).current;
+  const tileY = useRef(new Animated.Value(height * 0.42)).current;
   const tileOpacity = useRef(new Animated.Value(1)).current;
   const fillOpacity = useRef(new Animated.Value(0)).current;
   const borderOpacity = useRef(new Animated.Value(1)).current;
@@ -80,6 +81,13 @@ export function AnimatedSplashOverlay() {
           stiffness: 150,
           damping: 15,
           mass: 0.8,
+          useNativeDriver: true,
+        }),
+        Animated.spring(tileY, {
+          toValue: 0,
+          stiffness: 105,
+          damping: 16,
+          mass: 0.9,
           useNativeDriver: true,
         }),
         Animated.timing(tileOpacity, {
@@ -187,6 +195,7 @@ export function AnimatedSplashOverlay() {
     return () => intro.stop();
   }, [
     tileScale,
+    tileY,
     tileOpacity,
     fillOpacity,
     borderOpacity,
@@ -227,7 +236,7 @@ export function AnimatedSplashOverlay() {
               width: tileSize,
               height: tileSize,
               opacity: tileOpacity,
-              transform: [{ scale: tileScale }],
+              transform: [{ translateY: tileY }, { scale: tileScale }],
             },
           ]}
         >
