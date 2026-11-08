@@ -272,6 +272,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   content: {
+    zIndex: 1,
     width: "100%",
     maxWidth: 440,
     alignItems: "center",
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
   },
   dot: {
     position: "absolute",
-    zIndex: 2,
+    zIndex: 0,
     bottom: -7,
     alignSelf: "center",
     width: 7,
@@ -300,8 +301,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   stage: {
-    width: 184,
-    height: 184,
+    width: 164,
+    height: 164,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: -3,
