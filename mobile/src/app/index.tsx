@@ -36,9 +36,9 @@ function formatTransactionDate(date: string, occurredAt: string) {
 }
 
 const QUICK_ACTIONS = [
-  { label: "Add expense", icon: { ios: "plus", android: "add", web: "add" }, route: "/new-expense" as const },
-  { label: "Scan receipt", icon: { ios: "viewfinder", android: "camera", web: "camera" }, route: "/scan" as const },
-  { label: "Insights", icon: { ios: "chart.bar", android: "bar_chart", web: "bar_chart" }, route: "/insights" as const },
+  { label: "Add expense", icon: { ios: "plus.circle", android: "add_circle_outline", web: "add_circle_outline" }, route: "/new-expense" as const },
+  { label: "Scan receipt", icon: { ios: "viewfinder", android: "qr_code_scanner", web: "qr_code_scanner" }, route: "/scan" as const },
+  { label: "Insights", icon: { ios: "chart.bar.xaxis", android: "query_stats", web: "query_stats" }, route: "/insights" as const },
   { label: "Settings", icon: { ios: "slider.horizontal.3", android: "tune", web: "tune" }, route: "/settings" as const },
 ] as const;
 
