@@ -32,7 +32,9 @@ function LiquidTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             const options = descriptors[route.key].options;
             const color = focused ? "#FFFFFF" : "rgba(238,246,255,0.68)";
             const label = typeof options.title === "string" ? options.title : route.name;
-            const onPress = () => {\n              if (!focused) router.navigate(route.name as never);\n            };
+            const onPress = () => {
+              if (!focused) router.navigate(route.name as never);
+            };
 
             return (
               <Pressable
