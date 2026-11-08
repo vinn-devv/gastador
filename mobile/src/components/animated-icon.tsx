@@ -21,114 +21,110 @@ export function AnimatedSplashOverlay() {
   const { height } = useWindowDimensions();
 
   const overlayOpacity = useRef(new Animated.Value(1)).current;
-  const dotY = useRef(new Animated.Value(height * 0.43)).current;
-  const dotOpacity = useRef(new Animated.Value(1)).current;
-  const dotScale = useRef(new Animated.Value(1)).current;
+  const dotY = useRef(new Animated.Value(0)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoScale = useRef(new Animated.Value(0.42)).current;
+  const logoScale = useRef(new Animated.Value(0.72)).current;
   const wordOpacity = useRef(new Animated.Value(0)).current;
   const wordY = useRef(new Animated.Value(13)).current;
   const wordScale = useRef(new Animated.Value(0.94)).current;
-  const wordBlur = useRef(new Animated.Value(0)).current;
+  const wordGlow = useRef(new Animated.Value(0)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
   const taglineY = useRef(new Animated.Value(7)).current;
+  const taglineGlow = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const sequence = Animated.sequence([
-      // The point begins close to the bottom edge and springs into the center.
+      // A solid blue point launches from the very bottom edge to the logo.
       Animated.spring(dotY, {
-        toValue: 0,
-        stiffness: 78,
-        damping: 13,
-        mass: 1.05,
-        velocity: -0.55,
+        toValue: -(height * 0.5 + 70),
+        stiffness: 105,
+        damping: 15,
+        mass: 0.72,
+        velocity: -1.1,
         overshootClamping: false,
         restDisplacementThreshold: 0.5,
         restSpeedThreshold: 0.5,
         useNativeDriver: true,
       }),
 
-      // The dot softly blooms away while the coin mark springs into place.
+      // The mark forms over the point; the point itself never fades or blurs.
       Animated.parallel([
-        Animated.timing(dotOpacity, {
-          toValue: 0,
-          duration: 520,
-          easing: Easing.out(Easing.quad),
-          useNativeDriver: true,
-        }),
-        Animated.timing(dotScale, {
-          toValue: 2.9,
-          duration: 560,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
         Animated.timing(logoOpacity, {
           toValue: 1,
-          duration: 480,
+          duration: 360,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.spring(logoScale, {
           toValue: 1,
-          stiffness: 145,
-          damping: 10.5,
-          mass: 0.9,
-          velocity: 0.12,
+          stiffness: 170,
+          damping: 11,
+          mass: 0.82,
+          velocity: 0.18,
           overshootClamping: false,
           useNativeDriver: true,
-        }),
-      ]),
-
-      Animated.delay(300),
-
-      // A gentle upward pop, while the soft glow resolves into crisp lettering.
-      Animated.parallel([
-        Animated.timing(wordOpacity, {
-          toValue: 1,
-          duration: 900,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.spring(wordY, {
-          toValue: 0,
-          stiffness: 95,
-          damping: 16,
-          mass: 1,
-          useNativeDriver: true,
-        }),
-        Animated.spring(wordScale, {
-          toValue: 1,
-          stiffness: 110,
-          damping: 15,
-          mass: 0.9,
-          useNativeDriver: true,
-        }),
-        Animated.timing(wordBlur, {
-          toValue: 1,
-          duration: 1050,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: false,
         }),
       ]),
 
       Animated.delay(180),
 
       Animated.parallel([
+        Animated.timing(wordOpacity, {
+          toValue: 1,
+          duration: 720,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.spring(wordY, {
+          toValue: 0,
+          stiffness: 100,
+          damping: 15,
+          mass: 0.9,
+          useNativeDriver: true,
+        }),
+        Animated.spring(wordScale, {
+          toValue: 1,
+          stiffness: 120,
+          damping: 14,
+          mass: 0.85,
+          useNativeDriver: true,
+        }),
+      ]),
+
+      Animated.delay(100),
+
+      Animated.parallel([
         Animated.timing(taglineOpacity, {
           toValue: 1,
-          duration: 680,
+          duration: 560,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(taglineY, {
           toValue: 0,
-          duration: 680,
+          duration: 560,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
       ]),
 
-      Animated.delay(1450),
+      // Glow switches on only after both text entrance animations are done.
+      Animated.parallel([
+        Animated.timing(wordGlow, {
+          toValue: 1,
+          duration: 620,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: false,
+        }),
+        Animated.timing(taglineGlow, {
+          toValue: 1,
+          duration: 620,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: false,
+        }),
+      ]),
+
+      Animated.delay(1150),
       Animated.timing(overlayOpacity, {
         toValue: 0,
         duration: 420,
@@ -144,41 +140,46 @@ export function AnimatedSplashOverlay() {
     return () => sequence.stop();
   }, [
     dotY,
-    dotOpacity,
-    dotScale,
+    height,
     logoOpacity,
     logoScale,
     wordOpacity,
     wordY,
     wordScale,
-    wordBlur,
+    wordGlow,
     taglineOpacity,
     taglineY,
+    taglineGlow,
     overlayOpacity,
   ]);
 
   if (!visible) return null;
 
-  const wordGlowRadius = wordBlur.interpolate({
+  const wordGlowRadius = wordGlow.interpolate({
     inputRange: [0, 1],
-    outputRange: [15, 2.5],
+    outputRange: [0, 10],
   });
+  const taglineGlowRadius = taglineGlow.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 5],
+  });
+
   return (
     <Animated.View
       pointerEvents="auto"
       style={[styles.overlay, { opacity: overlayOpacity }]}
     >
+      <Animated.View
+        style={[
+          styles.dot,
+          { transform: [{ translateY: dotY }] },
+        ]}
+      >
+        <View style={styles.dotHighlight} />
+      </Animated.View>
+
       <View style={styles.content}>
         <View style={styles.stage}>
-          <Animated.View
-            style={[
-              styles.dot,
-              {
-                opacity: dotOpacity,
-                transform: [{ translateY: dotY }, { scale: dotScale }],
-              },
-            ]}
-          />
           <Animated.View
             style={[
               styles.logoWrap,
@@ -206,30 +207,52 @@ export function AnimatedSplashOverlay() {
             },
           ]}
         >
-          <Animated.Text
-            style={[
-              styles.wordmark,
-              {
-                textShadowRadius: wordGlowRadius,
-              },
-            ]}
-          >
-            <Text style={styles.wordmarkMain}>Gastador</Text>
-            <Text style={styles.wordmarkApp}> App</Text>
-          </Animated.Text>
+          <View style={styles.wordmarkStack}>
+            <Text style={[styles.wordmark, styles.wordmarkDepth3]}>
+              <Text style={styles.wordmarkMainDepth}>Gastador</Text>
+              <Text style={styles.wordmarkAppDepth}> App</Text>
+            </Text>
+            <Text style={[styles.wordmark, styles.wordmarkDepth2]}>
+              <Text style={styles.wordmarkMainDepth}>Gastador</Text>
+              <Text style={styles.wordmarkAppDepth}> App</Text>
+            </Text>
+            <Animated.Text
+              style={[
+                styles.wordmark,
+                {
+                  textShadowRadius: wordGlowRadius,
+                },
+              ]}
+            >
+              <Text style={styles.wordmarkMain}>Gastador</Text>
+              <Text style={styles.wordmarkApp}> App</Text>
+            </Animated.Text>
+          </View>
         </Animated.View>
 
-        <Animated.Text
+        <Animated.View
           style={[
-            styles.tagline,
+            styles.taglineWrap,
             {
               opacity: taglineOpacity,
               transform: [{ translateY: taglineY }],
             },
           ]}
         >
-          SNAP IT  ·  TRACK IT  ·  STRETCH IT
-        </Animated.Text>
+          <Text style={[styles.tagline, styles.taglineDepth]}>
+            SNAP IT  ·  TRACK IT  ·  STRETCH IT
+          </Text>
+          <Animated.Text
+            style={[
+              styles.tagline,
+              {
+                textShadowRadius: taglineGlowRadius,
+              },
+            ]}
+          >
+            SNAP IT  ·  TRACK IT  ·  STRETCH IT
+          </Animated.Text>
+        </Animated.View>
       </View>
     </Animated.View>
   );
@@ -254,23 +277,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 24,
   },
+  dot: {
+    position: "absolute",
+    zIndex: 2,
+    bottom: -7,
+    alignSelf: "center",
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#72BAFF",
+    borderWidth: 1,
+    borderColor: "#C6E7FF",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+  },
+  dotHighlight: {
+    width: 2,
+    height: 2,
+    marginTop: 1,
+    marginLeft: 1,
+    borderRadius: 1,
+    backgroundColor: "#FFFFFF",
+  },
   stage: {
     width: 184,
     height: 184,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 5,
-  },
-  dot: {
-    position: "absolute",
-    width: 13,
-    height: 13,
-    borderRadius: 7,
-    backgroundColor: COLORS.blue,
-    shadowColor: COLORS.blue,
-    shadowOpacity: 0.8,
-    shadowRadius: 12,
-    elevation: 5,
+    marginBottom: -3,
   },
   logoWrap: {
     width: 144,
@@ -284,15 +318,37 @@ const styles = StyleSheet.create({
   },
   brandCopy: {
     alignItems: "center",
+    marginTop: -2,
+  },
+  wordmarkStack: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
   },
   wordmark: {
-    fontFamily: "sans-serif-rounded",
-    fontWeight: "800",
-    fontSize: 35,
-    lineHeight: 44,
-    letterSpacing: -1.1,
-    textShadowColor: COLORS.blue,
+    fontFamily: "serif",
+    fontWeight: "900",
+    fontSize: 39,
+    lineHeight: 48,
+    letterSpacing: -1.35,
     includeFontPadding: false,
+    textShadowColor: COLORS.blue,
+  },
+  wordmarkDepth3: {
+    position: "absolute",
+    top: 3,
+    color: "#102B70",
+  },
+  wordmarkDepth2: {
+    position: "absolute",
+    top: 1.5,
+    color: "#24518E",
+  },
+  wordmarkMainDepth: {
+    color: "#24518E",
+  },
+  wordmarkAppDepth: {
+    color: "#9A6800",
   },
   wordmarkMain: {
     color: COLORS.blue,
@@ -300,11 +356,23 @@ const styles = StyleSheet.create({
   wordmarkApp: {
     color: COLORS.yellow,
   },
+  taglineWrap: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 5,
+  },
   tagline: {
-    marginTop: 9,
     color: COLORS.tagline,
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 10,
     letterSpacing: 1.25,
+    textShadowColor: COLORS.blue,
+    includeFontPadding: false,
+  },
+  taglineDepth: {
+    position: "absolute",
+    top: 1.5,
+    color: "#365078",
   },
 });
