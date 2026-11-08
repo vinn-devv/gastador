@@ -15,17 +15,41 @@ function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const drag = useRef(new Animated.ValueXY()).current;
+  const tabWidth = useRef(0);
+  const currentIndex = useRef(0);
+  const routeNames = useRef<string[]>([]);
   const panResponder = useMemo(
     () =>
       PanResponder.create({
         onStartShouldSetPanResponder: () => false,
         onMoveShouldSetPanResponder: (_, gesture) =>
           Math.abs(gesture.dx) > 5 || Math.abs(gesture.dy) > 5,
-        onPanResponderGrant: () => drag.extractOffset(),
         onPanResponderMove: (_, gesture) =>
-          drag.setValue({ x: gesture.dx, y: gesture.dy }),
-        onPanResponderRelease: () => drag.flattenOffset(),
-        onPanResponderTerminate: () => drag.flattenOffset(),
+          drag.setValue({ x: gesture.dx, y: 0 }),
+        onPanResponderRelease: (_, gesture) => {
+          const width = tabWidth.current;
+          const current = currentIndex.current;
+          const target = width > 0
+            ? Math.max(0, Math.min(routeNames.current.length - 1, current + Math.round(gesture.dx / width)))
+            : current;
+          const destination = routeNames.current[target];
+          Animated.spring(drag, {
+            toValue: { x: (target - current) * width, y: 0 },
+            useNativeDriver: true,
+            stiffness: 220,
+            damping: 24,
+            mass: 0.7,
+          }).start(() => {
+            drag.setValue({ x: 0, y: 0 });
+            if (destination && target !== current) {
+              const href = (destination === "index" ? "/" : "/" + destination) as Href;
+              router.navigate(href);
+            }
+          });
+        },
+        onPanResponderTerminate: () => {
+          Animated.spring(drag, { toValue: { x: 0, y: 0 }, useNativeDriver: true }).start();
+        },
         onPanResponderTerminationRequest: () => false,
       }),
     [drag],
@@ -33,18 +57,19 @@ function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
   const routes = state.routes.filter((route) =>
     TAB_NAMES.includes(route.name as (typeof TAB_NAMES)[number]),
   );
+  currentIndex.current = routes.findIndex((route) => route.key === state.routes[state.index]?.key);
+  routeNames.current = routes.map((route) => route.name);
 
   return (
     <View pointerEvents="box-none" style={[styles.host, { paddingBottom: Math.max(insets.bottom, 8) }]}>
-      <Animated.View
-        {...panResponder.panHandlers}
-        style={[styles.draggable, { transform: drag.getTranslateTransform() }]}
-      >
-        <View style={styles.shadow}>
+      <View style={styles.shadow}>
         <GlassView
           glassEffectStyle="regular"
           tintColor="#142536"
           style={styles.bar}
+          onLayout={(event) => {
+            tabWidth.current = (event.nativeEvent.layout.width - 14) / Math.max(routes.length, 1);
+          }}
         >
           <View pointerEvents="none" style={styles.topShine} />
           {routes.map((route) => {
@@ -69,17 +94,22 @@ function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
                 style={styles.tab}
               >
                 {focused ? (
-                  <GlassView
-                    glassEffectStyle="regular"
-                    tintColor="#54799A"
-                    isInteractive
-                    style={styles.activeGlass}
+                  <Animated.View
+                    {...panResponder.panHandlers}
+                    style={[styles.activeGlass, { transform: drag.getTranslateTransform() }]}
                   >
-                    <View style={styles.activeInner}>
-                      {options.tabBarIcon?.({ focused, color, size: 21 })}
-                      <ThemedText style={styles.activeLabel}>{label}</ThemedText>
-                    </View>
-                  </GlassView>
+                    <GlassView
+                      glassEffectStyle="regular"
+                      tintColor="#54799A"
+                      isInteractive
+                      style={styles.activeGlassFill}
+                    >
+                      <View style={styles.activeInner}>
+                        {options.tabBarIcon?.({ focused, color, size: 21 })}
+                        <ThemedText style={styles.activeLabel}>{label}</ThemedText>
+                      </View>
+                    </GlassView>
+                  </Animated.View>
                 ) : (
                   <View style={styles.inactiveIcon}>
                     {options.tabBarIcon?.({ focused, color, size: 23 })}
@@ -89,8 +119,7 @@ function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
             );
           })}
         </GlassView>
-        </View>
-      </Animated.View>
+      </View>
     </View>
   );
 }
@@ -168,10 +197,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: "center",
   },
-  draggable: {
-    width: "90%",
-    maxWidth: 420,
-  },
   shadow: {
     borderRadius: 28,
     shadowColor: "#06111D",
@@ -216,6 +241,13 @@ const styles = StyleSheet.create({
   activeGlass: {
     width: 82,
     height: 56,
+    borderRadius: 20,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  activeGlassFill: {
+    ...StyleSheet.absoluteFillObject,
     borderRadius: 20,
     overflow: "hidden",
     backgroundColor: "rgba(116,157,192,0.42)",
