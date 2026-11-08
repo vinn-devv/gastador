@@ -1,10 +1,12 @@
+import { useEffect, type ReactNode } from "react";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "expo-router";
 import { SQLiteProvider } from "expo-sqlite";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "@expo-google-fonts/ibm-plex-sans";
-import { useColorScheme } from "react-native";
+import { View, useColorScheme } from "react-native";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import { AmbientBackdrop } from "@/components/ambient-backdrop";
 import AppTabs from "@/components/app-tabs";
 import { DB_NAME, initializeDatabase } from "@/data/database";
 
@@ -20,13 +22,20 @@ export default function TabLayout() {
     IBMPlexSans_700Bold: require("@expo-google-fonts/ibm-plex-sans/700Bold/IBMPlexSans_700Bold.ttf"),
   });
 
+  useEffect(() => {
+    if (fontsLoaded) void SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
   if (!fontsLoaded) return null;
 
   return (
     <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <AnimatedSplashOverlay />
-        <AppTabs />
+        <View style={{ flex: 1, backgroundColor: "transparent" }}>
+          <AmbientBackdrop />
+          <AppTabs />
+          <AnimatedSplashOverlay />
+        </View>
       </ThemeProvider>
     </SQLiteProvider>
   );
