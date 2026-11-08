@@ -1,7 +1,7 @@
 import { Tabs, useRouter, type Href } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { GlassView } from "expo-glass-effect";
-import { Animated, PanResponder, Pressable, StyleSheet, View } from "react-native";
+import { Animated, PanResponder, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useMemo, useRef } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,6 +14,8 @@ const TAB_NAMES = ["index", "explore", "scan", "insights", "settings"] as const;
 function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
+  const barWidth = Math.min(screenWidth - 36, 420);
   const drag = useRef(new Animated.ValueXY()).current;
   const tabWidth = useRef(0);
   const currentIndex = useRef(0);
@@ -62,11 +64,11 @@ function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
 
   return (
     <View pointerEvents="box-none" style={[styles.host, { paddingBottom: Math.max(insets.bottom, 8) }]}>
-      <View style={styles.shadow}>
+      <View style={[styles.shadow, { width: barWidth }]}>
         <GlassView
           glassEffectStyle="regular"
           tintColor="#142536"
-          style={styles.bar}
+          style={[styles.bar, { width: "100%" }]}
           onLayout={(event) => {
             tabWidth.current = (event.nativeEvent.layout.width - 14) / Math.max(routes.length, 1);
           }}
@@ -196,6 +198,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     alignItems: "center",
+    width: "100%",
   },
   shadow: {
     borderRadius: 28,
@@ -239,7 +242,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   activeGlass: {
-    width: 82,
+    width: "100%",
+    maxWidth: 82,
     height: 56,
     borderRadius: 20,
     overflow: "hidden",
