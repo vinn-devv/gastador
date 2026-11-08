@@ -115,13 +115,13 @@ export default function HomeScreen() {
         <Image source={require("@/assets/images/icon-512.png")} style={styles.brandMark} contentFit="contain" />
       </View>
 
-      <View style={styles.balanceSection}>
+      <View style={[styles.balanceSection, { backgroundColor: theme.primary }]}>
         <View style={styles.balanceTop}>
-          <ThemedText style={styles.balanceLabel} themeColor="muted">AVAILABLE BALANCE</ThemedText>
+          <ThemedText style={[styles.balanceLabel, { color: "#EAF4FC" }]}>AVAILABLE BALANCE</ThemedText>
           {summary && (
             <View style={styles.status}>
               <View style={[styles.statusDot, { backgroundColor: summary.pace === "on_track" ? theme.primary : theme.warning }]} />
-              <ThemedText style={styles.statusText} themeColor="muted">
+              <ThemedText style={[styles.statusText, { color: "#D8EAF8" }]}>
                 {summary.pace === "on_track" ? "On track" :
                   summary.pace === "above_pace" ? "Above pace" :
                   summary.pace === "over_budget" ? "Over allowance" :
@@ -132,22 +132,22 @@ export default function HomeScreen() {
         </View>
 
         {loading ? (
-          <ThemedText style={styles.balanceAmount}>••••••</ThemedText>
+          <ThemedText style={[styles.balanceAmount, { color: "#FFFFFF" }]}>••••••</ThemedText>
         ) : summary ? (
           <ThemedText style={styles.balanceAmount}>
             {remaining < 0 ? "−" : ""}{formatMoney(Math.abs(remaining), currency)}
           </ThemedText>
         ) : (
-          <ThemedText style={styles.balanceEmpty}>Give every peso somewhere to go.</ThemedText>
+          <ThemedText style={[styles.balanceEmpty, { color: "#FFFFFF" }]}>Give every peso somewhere to go.</ThemedText>
         )}
 
         {summary ? (
           <>
-            <View style={[styles.progressTrack, { backgroundColor: theme.sunken }]}>
-              <View style={[styles.progressFill, { width: `${spentPercent}%`, backgroundColor: theme.primary }]} />
+            <View style={[styles.progressTrack, { backgroundColor: "rgba(255,255,255,0.24)" }]}>
+              <View style={[styles.progressFill, { width: `${spentPercent}%`, backgroundColor: "#FFC20E" }]} />
             </View>
             <View style={styles.balanceFooter}>
-              <ThemedText style={styles.balanceCaption} themeColor="muted">
+              <ThemedText style={[styles.balanceCaption, { color: "#D8EAF8" }]}>
                 {formatMoney(summary.spentCentavos, currency)} spent
               </ThemedText>
               <ThemedText style={styles.balanceCaption} themeColor="muted">
@@ -161,7 +161,7 @@ export default function HomeScreen() {
           </ThemedText>
         )}
         {dashboard && (
-          <ThemedText style={styles.cycleDate} themeColor="muted">
+          <ThemedText style={[styles.cycleDate, { color: "#D8EAF8" }]}>
             {dashboard.cycleName} · {formatDate(dashboard.startDate, false)} – {formatDate(dashboard.endDate, false)}
           </ThemedText>
         )}
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   overline: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 10, letterSpacing: 1.5 },
   greeting: { fontFamily: "IBMPlexSans_700Bold", fontSize: 26, lineHeight: 34, letterSpacing: -0.9 },
   brandMark: { width: 38, height: 38 },
-  balanceSection: { marginBottom: 23 },
+  balanceSection: { marginBottom: 20, padding: 18, borderRadius: 18, overflow: "hidden" },
   balanceTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 },
   balanceLabel: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 11, letterSpacing: 1.15 },
   status: { flexDirection: "row", alignItems: "center", gap: 6 },
