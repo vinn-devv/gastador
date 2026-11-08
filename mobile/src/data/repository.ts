@@ -7,7 +7,7 @@ import type {
   Transaction,
 } from "../domain/types";
 import { defaultSettings } from "../domain/types";
-import { fromManilaInput, manilaHourMinute } from "../domain/dates";
+import { addDays, diffDays, fromManilaInput, isValidDate, manilaHourMinute } from "../domain/dates";
 
 type SettingsRow = {
   displayName: string;
@@ -183,6 +183,61 @@ export async function createTransaction(
     input.paymentMethod,
     input.description?.trim() || null,
     now,
+    now,
+  );
+}
+
+
+export type NewCycleInput = {
+  name: string;
+  frequency: Cycle["frequency"];
+  startDate: string;
+  endDate: string;
+  allowanceCentavos: number;
+  plannedSavingsCentavos?: number;
+};
+
+export async function createCycle(
+  db: SQLiteDatabase,
+  input: NewCycleInput,
+): Promise<void> {
+  if (!Number.isSafeInteger(input.allowanceCentavos) || input.allowanceCentavos <= 0) {
+    throw new RangeError("Allowance must be greater than zero.");
+  }
+  if (!isValidDate(input.startDate) || !isValidDate(input.endDate) || input.endDate < input.startDate) {
+    throw new RangeError("Choose a valid allowance date range.");
+  }
+  const savings = input.plannedSavingsCentavos ?? 0;
+  if (!Number.isSafeInteger(savings) || savings < 0 || savings > input.allowanceCentavos) {
+    throw new RangeError("Planned savings must be between zero and the allowance amount.");
+  }
+
+  const existing = await db.getAllAsync<Pick<Cycle, "id" | "startDate" | "endDate">>(
+    "SELECT id, startDate, endDate FROM cycles",
+  );
+  const overlap = existing.find((cycle) =>
+    input.startDate <= cycle.endDate && cycle.startDate <= input.endDate,
+  );
+  if (overlap) {
+    throw new Error("This date range overlaps an existing allowance cycle.");
+  }
+
+  const now = new Date().toISOString();
+  const id = `cycle-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  const defaultName = `Allowance from ${input.startDate}`;
+
+  await db.runAsync(
+    `INSERT INTO cycles (
+      id, name, frequency, startDate, endDate, allowanceCentavos,
+      carryoverCentavos, plannedSavingsCentavos, createdAt
+    ) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)`,
+    id,
+    input.name.trim() || defaultName,
+    input.frequency,
+    input.startDate,
+    input.endDate,
+    input.allowanceCentavos,
+    savings,
     now,
   );
 }
