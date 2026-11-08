@@ -57,6 +57,19 @@ export default function AppTabs() {
         }}
       />
       <Tabs.Screen
+        name="scan"
+        options={{
+          title: "Scan",
+          tabBarIcon: ({ color, size }) => (
+            <SymbolView
+              name={{ ios: "viewfinder", android: "camera", web: "camera" }}
+              tintColor={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="insights"
         options={{
           title: "Insights",
