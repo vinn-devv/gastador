@@ -154,7 +154,7 @@ export function AnimatedSplashOverlay() {
     >
       <Image
         source={require("@/assets/images/gastador-intro-background.jpg")}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
         contentFit="cover"
         transition={0}
       />
@@ -200,9 +200,11 @@ export function AnimatedSplashOverlay() {
           ]}
         >
           <View style={styles.wordmarkStack}>
-            <View style={[styles.wordmarkLine, styles.wordmarkDepth]}>
-              <Text style={styles.gastadorDepth}>Gastador</Text>
-              <Text style={styles.appDepth}> App</Text>
+            <View style={styles.wordmarkDepth}>
+              <Text style={styles.wordmarkLine}>
+                <Text style={styles.gastadorDepth}>Gastador</Text>
+                <Text style={styles.appDepth}> App</Text>
+              </Text>
             </View>
             <Animated.View
               style={[styles.wordmarkGlowLayer, { opacity: glowOpacity }]}
@@ -246,7 +248,7 @@ export function AnimatedSplashOverlay() {
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 9999,
     elevation: 9999,
     backgroundColor: "#06165B",
