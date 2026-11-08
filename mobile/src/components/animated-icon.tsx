@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 const COLORS = {
-  background: "#050817",
+  background: "#06165B",
   tile: "#263A91",
   blue: "#78BFFF",
   gold: "#FFC20E",
@@ -212,20 +212,6 @@ export function AnimatedSplashOverlay() {
       pointerEvents="auto"
       style={[styles.overlay, { opacity: overlayOpacity }]}
     >
-      <View pointerEvents="none" style={styles.glowLarge} />
-      <View pointerEvents="none" style={styles.glowSmall} />
-      <Animated.View pointerEvents="none" style={[styles.dotField, { opacity: dotsOpacity }]}>
-        {DOTS.map((dot) => (
-          <View
-            key={dot.key}
-            style={[
-              styles.backgroundDot,
-              { left: dot.left, top: dot.top, opacity: dot.opacity },
-            ]}
-          />
-        ))}
-      </Animated.View>
-
       <Animated.View
         style={[
           styles.content,
