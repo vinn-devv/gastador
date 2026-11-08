@@ -10,10 +10,9 @@ import {
 import { Image } from "expo-image";
 
 const COLORS = {
-  blue: "#8BCBFF",
-  brightBlue: "#38A5FF",
-  gold: "#FFC928",
-  tagline: "#B7DFFF",
+  blue: "#E8F1FF",
+  gold: "#FFD84D",
+  tagline: "#E4ECFF",
 };
 
 export function AnimatedSplashOverlay() {
@@ -152,12 +151,13 @@ export function AnimatedSplashOverlay() {
       pointerEvents="auto"
       style={[styles.overlay, { opacity: overlayOpacity }]}
     >
-      <Image
-        source={require("@/assets/images/gastador-intro-background.jpg")}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-        transition={0}
-      />
+      <View pointerEvents="none" style={styles.dotGrid}>
+        {Array.from({ length: 20 * 28 }, (_, index) => (
+          <View key={index} style={styles.gridCell}>
+            <View style={styles.gridDot} />
+          </View>
+        ))}
+      </View>
 
       {dotVisible && (
         <Animated.View
@@ -166,9 +166,7 @@ export function AnimatedSplashOverlay() {
             { transform: [{ translateY: dotY }, { scale: dotScale }] },
           ]}
         >
-          <View style={styles.dot}>
-            <View style={styles.dotHighlight} />
-          </View>
+          <View style={styles.dot} />
         </Animated.View>
       )}
 
@@ -199,48 +197,23 @@ export function AnimatedSplashOverlay() {
             },
           ]}
         >
-          <View style={styles.wordmarkStack}>
-            <View style={styles.wordmarkDepth}>
-              <Text style={styles.wordmarkLine}>
-                <Text style={styles.gastadorDepth}>Gastador</Text>
-                <Text style={styles.appDepth}> App</Text>
-              </Text>
-            </View>
-            <Animated.View
-              style={[styles.wordmarkGlowLayer, { opacity: glowOpacity }]}
-            >
-              <Text style={styles.wordmarkLine}>
-                <Text style={styles.gastadorGlow}>Gastador</Text>
-                <Text style={styles.appGlow}> App</Text>
-              </Text>
-            </Animated.View>
-            <Text style={[styles.wordmarkLine, styles.wordmarkFace]}>
-              <Text style={styles.gastador}>Gastador</Text>
-              <Text style={styles.app}> App</Text>
-            </Text>
-          </View>
+          <Text style={styles.wordmarkLine}>
+            <Text style={styles.gastador}>Gastador</Text>
+            <Text style={styles.app}> App</Text>
+          </Text>
         </Animated.View>
 
-        <View style={styles.taglineWrap}>
-          <Animated.View
-            style={[styles.taglineGlowLayer, { opacity: glowOpacity }]}
-          >
-            <Text style={styles.taglineGlow}>
-              SNAP IT  ·  TRACK IT  ·  STRETCH IT
-            </Text>
-          </Animated.View>
-          <Animated.Text
-            style={[
-              styles.tagline,
-              {
-                opacity: taglineOpacity,
-                transform: [{ translateY: taglineY }],
-              },
-            ]}
-          >
-            SNAP IT  ·  TRACK IT  ·  STRETCH IT
-          </Animated.Text>
-        </View>
+        <Animated.Text
+          style={[
+            styles.tagline,
+            {
+              opacity: taglineOpacity,
+              transform: [{ translateY: taglineY }],
+            },
+          ]}
+        >
+          SNAP IT  ·  TRACK IT  ·  STRETCH IT
+        </Animated.Text>
       </View>
     </Animated.View>
   );
@@ -251,7 +224,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: 9999,
     elevation: 9999,
-    backgroundColor: "#06165B",
+    backgroundColor: "#092B78",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -269,25 +242,45 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   dot: {
-    width: 13,
-    height: 13,
-    borderRadius: 7,
-    backgroundColor: "#55B9FF",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#29A7FF",
-    shadowOpacity: 0.9,
-    shadowRadius: 15,
-    elevation: 10,
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    backgroundColor: COLORS.gold,
+    shadowColor: COLORS.gold,
+    shadowOpacity: 0.95,
+    shadowRadius: 14,
+    elevation: 12,
   },
-  dotHighlight: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#EAF8FF",
+  dotGrid: {
+    ...StyleSheet.absoluteFill,
+    top: "6%",
+    left: "5%",
+    width: "90%",
+    height: "88%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    zIndex: 0,
+  },
+  gridCell: {
+    width: "5%",
+    height: "3.5714%",
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(255, 216, 77, 0.24)",
+    position: "relative",
+  },
+  gridDot: {
     position: "absolute",
-    top: 2,
-    left: 2,
+    top: -2.5,
+    left: -2.5,
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: COLORS.gold,
+    shadowColor: COLORS.gold,
+    shadowOpacity: 0.95,
+    shadowRadius: 7,
+    elevation: 7,
   },
   logoWrap: {
     width: 148,
@@ -303,47 +296,17 @@ const styles = StyleSheet.create({
     marginTop: -7,
     alignItems: "center",
   },
-  wordmarkStack: {
-    position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   wordmarkLine: {
     fontFamily: "serif",
-    fontWeight: "900",
+    fontWeight: "700",
     fontSize: 39,
     lineHeight: 48,
-    letterSpacing: -1.3,
+    letterSpacing: 0,
     includeFontPadding: false,
-  },
-  wordmarkDepth: {
-    position: "absolute",
-    top: 3,
-  },
-  gastadorDepth: {
-    color: "#073A8C",
-  },
-  appDepth: {
-    color: "#805300",
-  },
-  wordmarkGlowLayer: {
-    position: "absolute",
-  },
-  gastadorGlow: {
-    color: COLORS.blue,
-    textShadowColor: COLORS.brightBlue,
-    textShadowRadius: 12,
-  },
-  appGlow: {
-    color: COLORS.gold,
-    textShadowColor: "#FFB21C",
-    textShadowRadius: 10,
-  },
-  wordmarkFace: {
-    position: "relative",
+    textAlign: "center",
   },
   gastador: {
-    color: COLORS.blue,
+    color: "#E8F1FF",
   },
   app: {
     color: COLORS.gold,
@@ -371,6 +334,13 @@ const styles = StyleSheet.create({
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 9,
     letterSpacing: 1.15,
+    includeFontPaddin  tagline: {
+    color: COLORS.tagline,
+    fontFamily: "serif",
+    fontSize: 11,
+    letterSpacing: 1.1,
     includeFontPadding: false,
+    textAlign: "center",
+    marginTop: 7,
   },
 });
