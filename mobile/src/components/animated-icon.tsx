@@ -163,11 +163,6 @@ export function AnimatedSplashOverlay() {
     inputRange: [0, 1],
     outputRange: [15, 2.5],
   });
-  const wordGlowOpacity = wordBlur.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.9, 0.32],
-  });
-
   return (
     <Animated.View
       pointerEvents="auto"
@@ -216,7 +211,6 @@ export function AnimatedSplashOverlay() {
               styles.wordmark,
               {
                 textShadowRadius: wordGlowRadius,
-                textShadowOpacity: wordGlowOpacity,
               },
             ]}
           >
