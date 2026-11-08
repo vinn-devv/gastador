@@ -83,7 +83,7 @@ export default function SettingsScreen() {
         <ThemedText type="small" themeColor="muted">Loading settings…</ThemedText>
       ) : (
         <>
-          <View style={styles.section}>
+          <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.line }]}>
             <ThemedText style={styles.sectionTitle}>Profile</ThemedText>
             <ThemedText style={styles.label}>Your name</ThemedText>
             <TextInput
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 40 },
   title: { fontFamily: "IBMPlexSans_700Bold", fontSize: 29, lineHeight: 36, marginTop: 2 },
   subtitle: { marginTop: 3, marginBottom: 24 },
-  section: { marginBottom: 27 },
+  section: { marginBottom: 18, padding: 15, borderRadius: 16, borderWidth: 1 },
   sectionTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 17, marginBottom: 12 },
   sectionHint: { marginTop: -6, marginBottom: 12 },
   label: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13, marginBottom: 7 },
