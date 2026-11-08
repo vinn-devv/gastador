@@ -58,8 +58,8 @@ export function AnimatedSplashOverlay() {
 
   const tileScale = useRef(new Animated.Value(1)).current;
   const tileY = useRef(new Animated.Value(0)).current;
-  const dotY = useRef(new Animated.Value(0)).current;
   const dotMorph = useRef(new Animated.Value(0)).current;
+  const dotOpacity = useRef(new Animated.Value(1)).current;
   const tileOpacity = useRef(new Animated.Value(1)).current;
   const fillOpacity = useRef(new Animated.Value(0)).current;
   const borderOpacity = useRef(new Animated.Value(0)).current;
@@ -77,19 +77,27 @@ export function AnimatedSplashOverlay() {
 
   useEffect(() => {
     const intro = Animated.sequence([
-      Animated.timing(dotY, {
-        toValue: -(height / 2 - 30.5),
-        duration: 1100,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }),
       Animated.spring(dotMorph, {
         toValue: 1,
-        stiffness: 82,
-        damping: 17,
-        mass: 0.9,
+        stiffness: 92,
+        damping: 19,
+        mass: 0.85,
         useNativeDriver: false,
       }),
+      Animated.parallel([
+        Animated.timing(fillOpacity, {
+          toValue: 1,
+          duration: 180,
+          delay: 650,
+          useNativeDriver: true,
+        }),
+        Animated.timing(dotOpacity, {
+          toValue: 0,
+          duration: 180,
+          delay: 650,
+          useNativeDriver: true,
+        }),
+      ]),
       Animated.parallel([
 
         Animated.timing(tileOpacity, {
@@ -198,7 +206,7 @@ export function AnimatedSplashOverlay() {
   }, [
     tileScale,
     tileY,
-    dotY,
+    dotOpacity,
     dotMorph,
     tileOpacity,
     fillOpacity,
@@ -230,7 +238,23 @@ export function AnimatedSplashOverlay() {
         style={[
           styles.startDot,
           {
-            left: width / 2 - 6.5,
+            left: dotMorph.interpolate({
+              inputRange: [0, 1],
+              outputRange: [width / 2 - 6.5, width / 2 - tileSize / 2],
+            }),
+            top: dotMorph.interpolate({
+              inputRange: [0, 1],
+              outputRange: [height - 37, (height - tileSize - 82) / 2],
+            }),
+            width: dotMorph.interpolate({
+              inputRange: [0, 1],
+              outputRange: [13, tileSize],
+            }),
+            height: dotMorph.interpolate({
+              inputRange: [0, 1],
+              outputRange: [13, tileSize],
+            }),
+            opacity: dotOpacity,
             backgroundColor: dotMorph.interpolate({
               inputRange: [0, 1],
               outputRange: [COLORS.gold, COLORS.tile],
@@ -239,11 +263,6 @@ export function AnimatedSplashOverlay() {
               inputRange: [0, 1],
               outputRange: [7, 34],
             }),
-            transform: [
-              { translateY: dotY },
-              { scaleX: dotMorph.interpolate({ inputRange: [0, 1], outputRange: [1, tileSize / 13] }) },
-              { scaleY: dotMorph.interpolate({ inputRange: [0, 1], outputRange: [1, tileSize / 13] }) },
-            ],
           },
         ]}
       />
@@ -356,7 +375,6 @@ const styles = StyleSheet.create({
   },
   startDot: {
     position: "absolute",
-    bottom: 24,
     width: 13,
     height: 13,
     borderRadius: 7,
