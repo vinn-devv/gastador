@@ -33,9 +33,9 @@ export default function NewExpenseScreen() {
         try {
           const [items, settings] = await Promise.all([getCategories(db), getSettings(db)]);
           if (!active) return;
-          setCategories(items);
+          setCategories(items.filter((item) => !item.archivedAt));
           setCurrency(settings.currency);
-          setCategoryId((current) => current || items[0]?.id || "");
+          setCategoryId((current) => current || items.find((item) => !item.archivedAt)?.id || "");
         } catch (loadError) {
           console.error("Could not load expense form:", loadError);
           if (active) setError("Could not load your categories. Please try again.");
