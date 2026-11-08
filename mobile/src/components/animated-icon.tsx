@@ -10,10 +10,10 @@ import {
 import { Image } from "expo-image";
 
 const COLORS = {
-  navy: "#071B49",
-  gold: "#E8C66A",
-  white: "#F7F5EF",
-  muted: "#C7D1E4",
+  blue: "#8BCBFF",
+  brightBlue: "#38A5FF",
+  gold: "#FFC928",
+  tagline: "#B7DFFF",
 };
 
 export function AnimatedSplashOverlay() {
@@ -27,9 +27,10 @@ export function AnimatedSplashOverlay() {
   const logoScale = useRef(new Animated.Value(0.72)).current;
   const wordOpacity = useRef(new Animated.Value(0)).current;
   const wordY = useRef(new Animated.Value(18)).current;
-  const wordScale = useRef(new Animated.Value(0.96)).current;
+  const wordScale = useRef(new Animated.Value(0.94)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
   const taglineY = useRef(new Animated.Value(8)).current;
+  const glowOpacity = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -60,37 +61,37 @@ export function AnimatedSplashOverlay() {
         Animated.parallel([
           Animated.timing(logoOpacity, {
             toValue: 1,
-            duration: 220,
+            duration: 160,
             easing: Easing.out(Easing.quad),
             useNativeDriver: true,
           }),
           Animated.spring(logoScale, {
             toValue: 1,
-            stiffness: 150,
-            damping: 16,
-            mass: 0.9,
+            stiffness: 175,
+            damping: 11,
+            mass: 0.8,
             useNativeDriver: true,
           }),
         ]),
         Animated.parallel([
           Animated.timing(wordOpacity, {
             toValue: 1,
-            duration: 520,
+            duration: 480,
             easing: Easing.out(Easing.cubic),
             useNativeDriver: true,
           }),
           Animated.spring(wordY, {
             toValue: 0,
-            stiffness: 100,
-            damping: 17,
-            mass: 0.9,
+            stiffness: 105,
+            damping: 14,
+            mass: 0.85,
             useNativeDriver: true,
           }),
           Animated.spring(wordScale, {
             toValue: 1,
-            stiffness: 115,
-            damping: 16,
-            mass: 0.9,
+            stiffness: 125,
+            damping: 13,
+            mass: 0.8,
             useNativeDriver: true,
           }),
         ]),
@@ -108,6 +109,12 @@ export function AnimatedSplashOverlay() {
             useNativeDriver: true,
           }),
         ]),
+        Animated.timing(glowOpacity, {
+          toValue: 1,
+          duration: 650,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
         Animated.delay(1050),
         Animated.timing(overlayOpacity, {
           toValue: 0,
@@ -134,6 +141,7 @@ export function AnimatedSplashOverlay() {
     wordScale,
     taglineOpacity,
     taglineY,
+    glowOpacity,
     overlayOpacity,
   ]);
 
@@ -151,7 +159,9 @@ export function AnimatedSplashOverlay() {
             { transform: [{ translateY: dotY }, { scale: dotScale }] },
           ]}
         >
-          <View style={styles.dot} />
+          <View style={styles.dot}>
+            <View style={styles.dotHighlight} />
+          </View>
         </Animated.View>
       )}
 
@@ -182,21 +192,48 @@ export function AnimatedSplashOverlay() {
             },
           ]}
         >
-          <Text style={styles.wordmark}>Gastador</Text>
-          <Text style={styles.appLabel}>APP</Text>
+          <View style={styles.wordmarkStack}>
+            <View style={styles.wordmarkDepth}>
+              <Text style={styles.wordmarkLine}>
+                <Text style={styles.gastadorDepth}>Gastador</Text>
+                <Text style={styles.appDepth}> App</Text>
+              </Text>
+            </View>
+            <Animated.View
+              style={[styles.wordmarkGlowLayer, { opacity: glowOpacity }]}
+            >
+              <Text style={styles.wordmarkLine}>
+                <Text style={styles.gastadorGlow}>Gastador</Text>
+                <Text style={styles.appGlow}> App</Text>
+              </Text>
+            </Animated.View>
+            <Text style={[styles.wordmarkLine, styles.wordmarkFace]}>
+              <Text style={styles.gastador}>Gastador</Text>
+              <Text style={styles.app}> App</Text>
+            </Text>
+          </View>
         </Animated.View>
 
-        <Animated.Text
-          style={[
-            styles.tagline,
-            {
-              opacity: taglineOpacity,
-              transform: [{ translateY: taglineY }],
-            },
-          ]}
-        >
-          SNAP IT  ·  TRACK IT  ·  STRETCH IT
-        </Animated.Text>
+        <View style={styles.taglineWrap}>
+          <Animated.View
+            style={[styles.taglineGlowLayer, { opacity: glowOpacity }]}
+          >
+            <Text style={styles.taglineGlow}>
+              SNAP IT  ·  TRACK IT  ·  STRETCH IT
+            </Text>
+          </Animated.View>
+          <Animated.Text
+            style={[
+              styles.tagline,
+              {
+                opacity: taglineOpacity,
+                transform: [{ translateY: taglineY }],
+              },
+            ]}
+          >
+            SNAP IT  ·  TRACK IT  ·  STRETCH IT
+          </Animated.Text>
+        </View>
       </View>
     </Animated.View>
   );
@@ -207,7 +244,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: 9999,
     elevation: 9999,
-    backgroundColor: COLORS.navy,
+    backgroundColor: "#06165B",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -216,8 +253,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 24,
-    zIndex: 1,
+    paddingHorizontal: 18,
   },
   dotTravel: {
     position: "absolute",
@@ -226,53 +262,108 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   dot: {
-    width: 9,
-    height: 9,
-    borderRadius: 5,
-    backgroundColor: COLORS.gold,
+    width: 13,
+    height: 13,
+    borderRadius: 7,
+    backgroundColor: "#55B9FF",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#29A7FF",
+    shadowOpacity: 0.9,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  dotHighlight: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#EAF8FF",
+    position: "absolute",
+    top: 2,
+    left: 2,
   },
   logoWrap: {
-    width: 116,
-    height: 116,
+    width: 148,
+    height: 148,
     alignItems: "center",
     justifyContent: "center",
   },
   logo: {
-    width: 116,
-    height: 116,
+    width: 148,
+    height: 148,
   },
   wordmarkWrap: {
-    marginTop: 17,
+    marginTop: -7,
     alignItems: "center",
   },
-  wordmark: {
-    color: COLORS.white,
-    fontFamily: "serif",
-    fontSize: 43,
-    fontWeight: "600",
-    letterSpacing: 0.2,
-    lineHeight: 52,
-    includeFontPadding: false,
-    textAlign: "center",
+  wordmarkStack: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  appLabel: {
-    color: COLORS.gold,
-    fontFamily: "sans-serif-medium",
-    fontSize: 10,
-    fontWeight: "600",
-    letterSpacing: 5,
-    marginTop: 7,
-    marginLeft: 5,
+  wordmarkLine: {
+    fontFamily: "serif",
+    fontWeight: "900",
+    fontSize: 39,
+    lineHeight: 48,
+    letterSpacing: -1.3,
     includeFontPadding: false,
+  },
+  wordmarkDepth: {
+    position: "absolute",
+    top: 3,
+  },
+  gastadorDepth: {
+    color: "#073A8C",
+  },
+  appDepth: {
+    color: "#805300",
+  },
+  wordmarkGlowLayer: {
+    position: "absolute",
+  },
+  gastadorGlow: {
+    color: COLORS.blue,
+    textShadowColor: COLORS.brightBlue,
+    textShadowRadius: 12,
+  },
+  appGlow: {
+    color: COLORS.gold,
+    textShadowColor: "#FFB21C",
+    textShadowRadius: 10,
+  },
+  wordmarkFace: {
+    position: "relative",
+  },
+  gastador: {
+    color: COLORS.blue,
+  },
+  app: {
+    color: COLORS.gold,
+  },
+  taglineWrap: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 5,
+  },
+  taglineGlowLayer: {
+    position: "absolute",
+  },
+  taglineGlow: {
+    color: COLORS.tagline,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 9,
+    letterSpacing: 1.15,
+    includeFontPadding: false,
+    textShadowColor: COLORS.brightBlue,
+    textShadowRadius: 7,
   },
   tagline: {
-    color: COLORS.muted,
-    fontFamily: "sans-serif",
+    color: COLORS.tagline,
+    fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 9,
-    fontWeight: "500",
-    letterSpacing: 1.7,
+    letterSpacing: 1.15,
     includeFontPadding: false,
-    textAlign: "center",
-    marginTop: 26,
   },
 });
