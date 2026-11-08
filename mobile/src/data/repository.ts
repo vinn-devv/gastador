@@ -7,6 +7,7 @@ import type {
   Transaction,
 } from "../domain/types";
 import { defaultSettings } from "../domain/types";
+import { fromManilaInput, manilaHourMinute } from "../domain/dates";
 
 type SettingsRow = {
   displayName: string;
@@ -164,6 +165,7 @@ export async function createTransaction(
   }
 
   const now = new Date().toISOString();
+  const occurredAt = fromManilaInput(`${input.date}T${manilaHourMinute()}`) ?? now;
   const id = `tx-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
   await db.runAsync(
@@ -174,7 +176,7 @@ export async function createTransaction(
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'not_applicable', NULL, 0, '[]', ?, ?)`,
     id,
     input.amountCentavos,
-    now,
+    occurredAt,
     input.date,
     input.merchant.trim() || "Expense",
     input.categoryId,
