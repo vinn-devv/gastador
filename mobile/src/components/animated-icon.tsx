@@ -48,17 +48,20 @@ export function AnimatedSplashOverlay() {
           Animated.timing(wordY, { toValue: 0, duration: 620, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
         ]),
       ]),
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(glowScale, { toValue: 1.07, duration: 2300, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-          Animated.timing(glowScale, { toValue: 1, duration: 2300, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        ]),
-      ),
     ]).start();
+
+    const glowLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowScale, { toValue: 1.07, duration: 2300, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(glowScale, { toValue: 1, duration: 2300, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    glowLoop.start();
 
     timer.current = setTimeout(finish, INTRO_DURATION_MS);
     return () => {
       if (timer.current) clearTimeout(timer.current);
+      glowLoop.stop();
     };
   }, []);
 
