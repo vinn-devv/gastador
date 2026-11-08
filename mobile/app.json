@@ -6,13 +6,14 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "gastador",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0F2A6B",
+        "backgroundColor": "#050B14",
         "foregroundImage": "./assets/images/icon.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.gastador.mobile"
     },
     "web": {
       "output": "server",
@@ -23,7 +24,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0F2A6B",
+          "backgroundColor": "#050B14",
           "image": "./assets/images/gastador-logo.png",
           "imageWidth": 200,
           "resizeMode": "contain"
