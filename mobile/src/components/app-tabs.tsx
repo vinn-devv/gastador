@@ -39,6 +39,7 @@ export default function AppTabs() {
           ),
         }}
       />
+      <Tabs.Screen name="new-expense" options={{ href: null }} />
       <Tabs.Screen
         name="explore"
         options={{
