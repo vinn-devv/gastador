@@ -9,11 +9,13 @@ import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { AmbientBackdrop } from "@/components/ambient-backdrop";
 import AppTabs from "@/components/app-tabs";
 import { DB_NAME, initializeDatabase } from "@/data/database";
+import { useTheme } from "@/hooks/use-theme";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const theme = useTheme();
 
   const [fontsLoaded] = useFonts({
     IBMPlexSans_400Regular: require("@expo-google-fonts/ibm-plex-sans/400Regular/IBMPlexSans_400Regular.ttf"),
@@ -31,7 +33,7 @@ export default function TabLayout() {
   return (
     <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <View style={{ flex: 1, backgroundColor: "transparent" }}>
+        <View style={{ flex: 1, backgroundColor: theme.background }}>
           <AmbientBackdrop />
           <AppTabs />
           <AnimatedSplashOverlay />
