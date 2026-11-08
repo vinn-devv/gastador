@@ -8,15 +8,18 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { Image } from "expo-image";
+import { useFonts } from "expo-font";
 
 const COLORS = {
   blue: "#8BCBFF",
-  brightBlue: "#38A5FF",
   gold: "#FFC928",
   tagline: "#B7DFFF",
 };
 
 export function AnimatedSplashOverlay() {
+  const [fontsLoaded] = useFonts({
+    TANNimbus: require("@/assets/fonts/TAN-NIMBUS.otf"),
+  });
   const [visible, setVisible] = useState(true);
   const [dotVisible, setDotVisible] = useState(true);
   const { height } = useWindowDimensions();
@@ -30,7 +33,6 @@ export function AnimatedSplashOverlay() {
   const wordScale = useRef(new Animated.Value(0.94)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
   const taglineY = useRef(new Animated.Value(8)).current;
-  const glowOpacity = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -109,12 +111,6 @@ export function AnimatedSplashOverlay() {
             useNativeDriver: true,
           }),
         ]),
-        Animated.timing(glowOpacity, {
-          toValue: 1,
-          duration: 650,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
         Animated.delay(1050),
         Animated.timing(overlayOpacity, {
           toValue: 0,
@@ -141,7 +137,6 @@ export function AnimatedSplashOverlay() {
     wordScale,
     taglineOpacity,
     taglineY,
-    glowOpacity,
     overlayOpacity,
   ]);
 
@@ -159,9 +154,7 @@ export function AnimatedSplashOverlay() {
             { transform: [{ translateY: dotY }, { scale: dotScale }] },
           ]}
         >
-          <View style={styles.dot}>
-            <View style={styles.dotHighlight} />
-          </View>
+          <View style={styles.dot} />
         </Animated.View>
       )}
 
@@ -192,48 +185,23 @@ export function AnimatedSplashOverlay() {
             },
           ]}
         >
-          <View style={styles.wordmarkStack}>
-            <View style={styles.wordmarkDepth}>
-              <Text style={styles.wordmarkLine}>
-                <Text style={styles.gastadorDepth}>Gastador</Text>
-                <Text style={styles.appDepth}> App</Text>
-              </Text>
-            </View>
-            <Animated.View
-              style={[styles.wordmarkGlowLayer, { opacity: glowOpacity }]}
-            >
-              <Text style={styles.wordmarkLine}>
-                <Text style={styles.gastadorGlow}>Gastador</Text>
-                <Text style={styles.appGlow}> App</Text>
-              </Text>
-            </Animated.View>
-            <Text style={[styles.wordmarkLine, styles.wordmarkFace]}>
-              <Text style={styles.gastador}>Gastador</Text>
-              <Text style={styles.app}> App</Text>
-            </Text>
-          </View>
+          <Text style={[styles.wordmark, fontsLoaded && styles.customWordmark]}>
+            <Text style={styles.gastador}>Gastador</Text>
+            <Text style={styles.app}> App</Text>
+          </Text>
         </Animated.View>
 
-        <View style={styles.taglineWrap}>
-          <Animated.View
-            style={[styles.taglineGlowLayer, { opacity: glowOpacity }]}
-          >
-            <Text style={styles.taglineGlow}>
-              SNAP IT  ·  TRACK IT  ·  STRETCH IT
-            </Text>
-          </Animated.View>
-          <Animated.Text
-            style={[
-              styles.tagline,
-              {
-                opacity: taglineOpacity,
-                transform: [{ translateY: taglineY }],
-              },
-            ]}
-          >
-            SNAP IT  ·  TRACK IT  ·  STRETCH IT
-          </Animated.Text>
-        </View>
+        <Animated.Text
+          style={[
+            styles.tagline,
+            {
+              opacity: taglineOpacity,
+              transform: [{ translateY: taglineY }],
+            },
+          ]}
+        >
+          SNAP IT  ·  TRACK IT  ·  STRETCH IT
+        </Animated.Text>
       </View>
     </Animated.View>
   );
@@ -266,21 +234,6 @@ const styles = StyleSheet.create({
     height: 13,
     borderRadius: 7,
     backgroundColor: "#55B9FF",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#29A7FF",
-    shadowOpacity: 0.9,
-    shadowRadius: 15,
-    elevation: 10,
-  },
-  dotHighlight: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#EAF8FF",
-    position: "absolute",
-    top: 2,
-    left: 2,
   },
   logoWrap: {
     width: 148,
@@ -296,44 +249,19 @@ const styles = StyleSheet.create({
     marginTop: -7,
     alignItems: "center",
   },
-  wordmarkStack: {
-    position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  wordmarkLine: {
-    fontFamily: "serif",
-    fontWeight: "900",
-    fontSize: 39,
-    lineHeight: 48,
-    letterSpacing: -1.3,
-    includeFontPadding: false,
-  },
-  wordmarkDepth: {
-    position: "absolute",
-    top: 3,
-  },
-  gastadorDepth: {
-    color: "#073A8C",
-  },
-  appDepth: {
-    color: "#805300",
-  },
-  wordmarkGlowLayer: {
-    position: "absolute",
-  },
-  gastadorGlow: {
+  wordmark: {
     color: COLORS.blue,
-    textShadowColor: COLORS.brightBlue,
-    textShadowRadius: 12,
+    fontFamily: "serif",
+    fontSize: 42,
+    lineHeight: 54,
+    letterSpacing: 0.1,
+    includeFontPadding: false,
+    textAlign: "center",
   },
-  appGlow: {
-    color: COLORS.gold,
-    textShadowColor: "#FFB21C",
-    textShadowRadius: 10,
-  },
-  wordmarkFace: {
-    position: "relative",
+  customWordmark: {
+    fontFamily: "TANNimbus",
+    fontSize: 43,
+    letterSpacing: 0,
   },
   gastador: {
     color: COLORS.blue,
@@ -341,29 +269,13 @@ const styles = StyleSheet.create({
   app: {
     color: COLORS.gold,
   },
-  taglineWrap: {
-    position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 5,
-  },
-  taglineGlowLayer: {
-    position: "absolute",
-  },
-  taglineGlow: {
-    color: COLORS.tagline,
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 9,
-    letterSpacing: 1.15,
-    includeFontPadding: false,
-    textShadowColor: COLORS.brightBlue,
-    textShadowRadius: 7,
-  },
   tagline: {
     color: COLORS.tagline,
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 9,
     letterSpacing: 1.15,
     includeFontPadding: false,
+    textAlign: "center",
+    marginTop: 12,
   },
 });
