@@ -83,6 +83,7 @@ export default function AppTabs() {
         }}
       />
       <Tabs.Screen name="new-expense" options={{ href: null }} />
+      <Tabs.Screen name="new-cycle" options={{ href: null }} />
     </Tabs>
   );
 }
