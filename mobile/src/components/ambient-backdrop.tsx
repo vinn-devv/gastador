@@ -5,7 +5,7 @@ import { useTheme } from "@/hooks/use-theme";
 export function AmbientBackdrop() {
   const theme = useTheme();
   const drift = useRef(new Animated.Value(0)).current;
-  const dark = theme.background === "#0C131D";
+  const dark = theme.background === "#050B14";
 
   useEffect(() => {
     const loop = Animated.loop(
