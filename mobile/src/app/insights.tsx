@@ -67,7 +67,7 @@ export default function InsightsScreen() {
 
   return (
     <ScrollView
-      style={[styles.screen, { backgroundColor: theme.background }]}
+      style={styles.screen}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
