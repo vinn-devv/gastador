@@ -194,11 +194,11 @@ export default function HomeScreen() {
         </View>
       ) : (
         <Pressable
-          onPress={() => router.push("/new-expense")}
+          onPress={() => router.push("/new-cycle")}
           style={[styles.setupAction, { borderColor: theme.line }]}
         >
-          <ThemedText style={styles.setupActionText}>Start by adding your first expense</ThemedText>
-          <ThemedText type="small" themeColor="muted">You can set up your allowance cycle next.</ThemedText>
+          <ThemedText style={styles.setupActionText}>Create your allowance cycle</ThemedText>
+          <ThemedText type="small" themeColor="muted">Tell Gastador how much allowance you receive and when your next one arrives.</ThemedText>
         </Pressable>
       )}
 
