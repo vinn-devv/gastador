@@ -10,9 +10,10 @@ import {
 import { Image } from "expo-image";
 
 const COLORS = {
-  blue: "#E8F1FF",
-  gold: "#FFD84D",
-  tagline: "#E4ECFF",
+  navy: "#071B49",
+  gold: "#E8C66A",
+  white: "#F7F5EF",
+  muted: "#C7D1E4",
 };
 
 export function AnimatedSplashOverlay() {
@@ -26,7 +27,7 @@ export function AnimatedSplashOverlay() {
   const logoScale = useRef(new Animated.Value(0.72)).current;
   const wordOpacity = useRef(new Animated.Value(0)).current;
   const wordY = useRef(new Animated.Value(18)).current;
-  const wordScale = useRef(new Animated.Value(0.94)).current;
+  const wordScale = useRef(new Animated.Value(0.96)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
   const taglineY = useRef(new Animated.Value(8)).current;
   const overlayOpacity = useRef(new Animated.Value(1)).current;
@@ -59,37 +60,37 @@ export function AnimatedSplashOverlay() {
         Animated.parallel([
           Animated.timing(logoOpacity, {
             toValue: 1,
-            duration: 160,
+            duration: 220,
             easing: Easing.out(Easing.quad),
             useNativeDriver: true,
           }),
           Animated.spring(logoScale, {
             toValue: 1,
-            stiffness: 175,
-            damping: 11,
-            mass: 0.8,
+            stiffness: 150,
+            damping: 16,
+            mass: 0.9,
             useNativeDriver: true,
           }),
         ]),
         Animated.parallel([
           Animated.timing(wordOpacity, {
             toValue: 1,
-            duration: 480,
+            duration: 520,
             easing: Easing.out(Easing.cubic),
             useNativeDriver: true,
           }),
           Animated.spring(wordY, {
             toValue: 0,
-            stiffness: 105,
-            damping: 14,
-            mass: 0.85,
+            stiffness: 100,
+            damping: 17,
+            mass: 0.9,
             useNativeDriver: true,
           }),
           Animated.spring(wordScale, {
             toValue: 1,
-            stiffness: 125,
-            damping: 13,
-            mass: 0.8,
+            stiffness: 115,
+            damping: 16,
+            mass: 0.9,
             useNativeDriver: true,
           }),
         ]),
@@ -143,14 +144,6 @@ export function AnimatedSplashOverlay() {
       pointerEvents="auto"
       style={[styles.overlay, { opacity: overlayOpacity }]}
     >
-      <View pointerEvents="none" style={styles.dotGrid}>
-        {Array.from({ length: 20 * 28 }, (_, index) => (
-          <View key={index} style={styles.gridCell}>
-            <View style={styles.gridDot} />
-          </View>
-        ))}
-      </View>
-
       {dotVisible && (
         <Animated.View
           style={[
@@ -189,10 +182,8 @@ export function AnimatedSplashOverlay() {
             },
           ]}
         >
-          <Text style={styles.wordmarkLine}>
-            <Text style={styles.gastador}>Gastador</Text>
-            <Text style={styles.app}> App</Text>
-          </Text>
+          <Text style={styles.wordmark}>Gastador</Text>
+          <Text style={styles.appLabel}>APP</Text>
         </Animated.View>
 
         <Animated.Text
@@ -216,7 +207,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: 9999,
     elevation: 9999,
-    backgroundColor: "#092B78",
+    backgroundColor: COLORS.navy,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -225,7 +216,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 18,
+    paddingHorizontal: 24,
     zIndex: 1,
   },
   dotTravel: {
@@ -235,82 +226,53 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   dot: {
-    width: 11,
-    height: 11,
-    borderRadius: 6,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
     backgroundColor: COLORS.gold,
-    shadowColor: COLORS.gold,
-    shadowOpacity: 0.95,
-    shadowRadius: 14,
-    elevation: 12,
-  },
-  dotGrid: {
-    ...StyleSheet.absoluteFill,
-    top: "6%",
-    left: "5%",
-    width: "90%",
-    height: "88%",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    zIndex: 0,
-  },
-  gridCell: {
-    width: "5%",
-    height: "3.5714%",
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderLeftWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255, 216, 77, 0.24)",
-    position: "relative",
-  },
-  gridDot: {
-    position: "absolute",
-    top: -2.5,
-    left: -2.5,
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: COLORS.gold,
-    shadowColor: COLORS.gold,
-    shadowOpacity: 0.95,
-    shadowRadius: 7,
-    elevation: 7,
   },
   logoWrap: {
-    width: 148,
-    height: 148,
+    width: 116,
+    height: 116,
     alignItems: "center",
     justifyContent: "center",
   },
   logo: {
-    width: 148,
-    height: 148,
+    width: 116,
+    height: 116,
   },
   wordmarkWrap: {
-    marginTop: -7,
+    marginTop: 17,
     alignItems: "center",
   },
-  wordmarkLine: {
+  wordmark: {
+    color: COLORS.white,
     fontFamily: "serif",
-    fontWeight: "700",
-    fontSize: 39,
-    lineHeight: 48,
-    letterSpacing: 0,
+    fontSize: 43,
+    fontWeight: "600",
+    letterSpacing: 0.2,
+    lineHeight: 52,
     includeFontPadding: false,
     textAlign: "center",
   },
-  gastador: {
-    color: "#E8F1FF",
-  },
-  app: {
+  appLabel: {
     color: COLORS.gold,
+    fontFamily: "sans-serif-medium",
+    fontSize: 10,
+    fontWeight: "600",
+    letterSpacing: 5,
+    marginTop: 7,
+    marginLeft: 5,
+    includeFontPadding: false,
   },
   tagline: {
-    color: COLORS.tagline,
-    fontFamily: "serif",
-    fontSize: 11,
-    letterSpacing: 1.1,
+    color: COLORS.muted,
+    fontFamily: "sans-serif",
+    fontSize: 9,
+    fontWeight: "500",
+    letterSpacing: 1.7,
     includeFontPadding: false,
     textAlign: "center",
-    marginTop: 7,
+    marginTop: 26,
   },
 });
