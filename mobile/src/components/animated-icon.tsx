@@ -10,7 +10,7 @@ import {
 
 const COLORS = {
   background: "#06165B",
-  tile: "#263A91",
+  tile: "#2347B8",
   blue: "#168BFF",
   gold: "#FFC20E",
   white: "#F7F9FF",
@@ -56,7 +56,7 @@ export function AnimatedSplashOverlay() {
   const [visible, setVisible] = useState(true);
   const { width, height } = useWindowDimensions();
 
-  const tileScale = useRef(new Animated.Value(0.035)).current;
+  const tileScale = useRef(new Animated.Value(1)).current;
   const tileY = useRef(new Animated.Value(0)).current;
   const dotY = useRef(new Animated.Value(0)).current;
   const dotMorph = useRef(new Animated.Value(0)).current;
@@ -91,13 +91,6 @@ export function AnimatedSplashOverlay() {
         useNativeDriver: false,
       }),
       Animated.parallel([
-        Animated.spring(tileScale, {
-          toValue: 1,
-          stiffness: 150,
-          damping: 15,
-          mass: 0.8,
-          useNativeDriver: true,
-        }),
 
         Animated.timing(tileOpacity, {
           toValue: 1,
