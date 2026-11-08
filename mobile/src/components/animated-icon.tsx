@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Animated, Easing, StyleSheet, Text, View } from "react-native";
+import { Animated, Easing, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { Image } from "expo-image";
 
 const COLORS = {
@@ -18,9 +18,10 @@ const EXIT_MS = 280;
 
 export function AnimatedSplashOverlay() {
   const [visible, setVisible] = useState(true);
+  const { height } = useWindowDimensions();
 
   const overlayOpacity = useRef(new Animated.Value(1)).current;
-  const dotY = useRef(new Animated.Value(118)).current;
+  const dotY = useRef(new Animated.Value(height * 0.34)).current;
   const dotOpacity = useRef(new Animated.Value(1)).current;
   const dotScale = useRef(new Animated.Value(1)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
