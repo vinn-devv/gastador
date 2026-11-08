@@ -7,7 +7,6 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { useFonts } from "expo-font";
 
 const COLORS = {
   background: "#050817",
@@ -54,9 +53,6 @@ function CornerMarks() {
 }
 
 export function AnimatedSplashOverlay() {
-  const [fontsLoaded] = useFonts({
-    TANNimbus: require("@/assets/fonts/TAN-NIMBUS.otf"),
-  });
   const [visible, setVisible] = useState(true);
   const { width } = useWindowDimensions();
 
@@ -273,7 +269,7 @@ export function AnimatedSplashOverlay() {
             { opacity: wordOpacity, transform: [{ translateY: wordY }] },
           ]}
         >
-          <Text style={[styles.wordmark, fontsLoaded && styles.customWordmark]}>
+          <Text style={styles.wordmark}>
             <Text style={styles.gastador}>Gastador</Text>
             <Text style={styles.app}> App</Text>
           </Text>
@@ -356,7 +352,7 @@ const styles = StyleSheet.create({
   },
   peso: {
     color: COLORS.white,
-    fontFamily: "Arial",
+    fontFamily: "sans-serif",
     fontWeight: "800",
     fontSize: 83,
     lineHeight: 96,
@@ -415,16 +411,13 @@ const styles = StyleSheet.create({
   },
   wordmark: {
     color: COLORS.blue,
-    fontFamily: "serif",
+    fontFamily: "sans-serif",
+    fontWeight: "700",
     fontSize: 39,
     lineHeight: 49,
     letterSpacing: 0,
     includeFontPadding: false,
     textAlign: "center",
-  },
-  customWordmark: {
-    fontFamily: "TANNimbus",
-    fontSize: 41,
   },
   gastador: {
     color: COLORS.blue,
