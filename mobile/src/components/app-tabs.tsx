@@ -39,14 +39,17 @@ export default function AppTabs() {
           ),
         }}
       />
-      <Tabs.Screen name="new-expense" options={{ href: null }} />
       <Tabs.Screen
-        name="settings"
+        name="explore"
         options={{
-          title: "Settings",
+          title: "Activity",
           tabBarIcon: ({ color, size }) => (
             <SymbolView
-              name={{ ios: "gearshape.fill", android: "settings", web: "settings" }}
+              name={{
+                ios: "arrow.left.arrow.right",
+                android: "swap_horiz",
+                web: "swap_horiz",
+              }}
               tintColor={color}
               size={size}
             />
@@ -67,22 +70,19 @@ export default function AppTabs() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="settings"
         options={{
-          title: "Activity",
+          title: "Settings",
           tabBarIcon: ({ color, size }) => (
             <SymbolView
-              name={{
-                ios: "arrow.left.arrow.right",
-                android: "swap_horiz",
-                web: "swap_horiz",
-              }}
+              name={{ ios: "gearshape.fill", android: "settings", web: "settings" }}
               tintColor={color}
               size={size}
             />
           ),
         }}
       />
+      <Tabs.Screen name="new-expense" options={{ href: null }} />
     </Tabs>
   );
 }
