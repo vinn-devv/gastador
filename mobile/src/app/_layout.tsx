@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "expo-router";
 import { SQLiteProvider } from "expo-sqlite";
 import * as SplashScreen from "expo-splash-screen";
@@ -11,7 +10,7 @@ import AppTabs from "@/components/app-tabs";
 import { DB_NAME, initializeDatabase } from "@/data/database";
 import { useTheme } from "@/hooks/use-theme";
 
-SplashScreen.preventAutoHideAsync();
+void SplashScreen.preventAutoHideAsync();
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -24,15 +23,16 @@ export default function TabLayout() {
     IBMPlexSans_700Bold: require("@expo-google-fonts/ibm-plex-sans/700Bold/IBMPlexSans_700Bold.ttf"),
   });
 
-  useEffect(() => {
-    if (fontsLoaded) void SplashScreen.hideAsync();
-  }, [fontsLoaded]);
-
   if (!fontsLoaded) return null;
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <View style={{ flex: 1, backgroundColor: theme.background }}>
+      <View
+        style={{ flex: 1, backgroundColor: "#050B14" }}
+        onLayout={() => {
+          void SplashScreen.hideAsync();
+        }}
+      >
         <HalftoneBackground />
         <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
           <AppTabs />
