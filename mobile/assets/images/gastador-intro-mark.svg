@@ -1,12 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
-  <rect x="12" y="12" width="476" height="476" rx="112" fill="#102B70"/>
-  <g fill="none" stroke="#FFC400" stroke-width="23" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1C438F"/>
+      <stop offset="0.55" stop-color="#102B70"/>
+      <stop offset="1" stop-color="#071A49"/>
+    </linearGradient>
+    <linearGradient id="coin" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#FFF0A8"/>
+      <stop offset="0.34" stop-color="#FFD84D"/>
+      <stop offset="0.78" stop-color="#FFC000"/>
+      <stop offset="1" stop-color="#D99000"/>
+    </linearGradient>
+    <linearGradient id="goldLine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF0A0"/>
+      <stop offset="0.5" stop-color="#FFC400"/>
+      <stop offset="1" stop-color="#D58B00"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dark offset extrusion gives the badge a solid, dimensional edge. -->
+  <rect x="12" y="25" width="476" height="476" rx="112" fill="#020817"/>
+  <rect x="12" y="12" width="476" height="476" rx="112" fill="url(#face)" stroke="#315A9A" stroke-width="5"/>
+  <path d="M42 115 Q42 42 115 42 H385" fill="none" stroke="#4774B5" stroke-width="5" opacity=".42" stroke-linecap="round"/>
+
+  <g fill="none" stroke="#8E6500" stroke-width="29" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 5)">
     <path d="M94 170 V110 Q94 88 116 88 H170"/>
     <path d="M330 88 H384 Q406 88 406 110 V170"/>
     <path d="M94 330 V390 Q94 412 116 412 H170"/>
     <path d="M330 412 H384 Q406 412 406 390 V330"/>
   </g>
-  <circle cx="250" cy="250" r="112" fill="#FFC400"/>
-  <circle cx="250" cy="250" r="98" fill="none" stroke="#FFE17A" stroke-width="7"/>
-  <text x="250" y="329" text-anchor="middle" font-family="Noto Sans, DejaVu Sans, Arial, sans-serif" font-size="205" font-weight="800" fill="#102B70">₱</text>
+  <g fill="none" stroke="url(#goldLine)" stroke-width="23" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M94 170 V110 Q94 88 116 88 H170"/>
+    <path d="M330 88 H384 Q406 88 406 110 V170"/>
+    <path d="M94 330 V390 Q94 412 116 412 H170"/>
+    <path d="M330 412 H384 Q406 412 406 390 V330"/>
+  </g>
+
+  <!-- Coin rim and face are separate layers, not a flat circle. -->
+  <circle cx="250" cy="260" r="116" fill="#9A6500"/>
+  <circle cx="250" cy="250" r="112" fill="#E6A900"/>
+  <circle cx="250" cy="246" r="105" fill="url(#coin)" stroke="#FFF0A0" stroke-width="5"/>
+  <path d="M176 178 A105 105 0 0 1 319 173" fill="none" stroke="#FFF9D6" stroke-width="8" stroke-linecap="round" opacity=".55"/>
+  <circle cx="250" cy="246" r="91" fill="none" stroke="#D58F00" stroke-width="3" opacity=".55"/>
+  <text x="250" y="325" text-anchor="middle" font-family="Noto Sans, DejaVu Sans, Arial, sans-serif" font-size="205" font-weight="800" fill="#0B225B" stroke="#0B225B" stroke-width="5">₱</text>
+  <text x="250" y="320" text-anchor="middle" font-family="Noto Sans, DejaVu Sans, Arial, sans-serif" font-size="205" font-weight="800" fill="#173A83">₱</text>
 </svg>
