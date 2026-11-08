@@ -233,7 +233,7 @@ export function AnimatedSplashOverlay() {
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 1000,
     elevation: 1000,
     overflow: "hidden",
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     opacity: 0.55,
   },
   dotsLayer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   dot: {
     position: "absolute",
