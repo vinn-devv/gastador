@@ -1,23 +1,28 @@
 import { Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
 
+import { useTheme } from "@/hooks/use-theme";
+
 export default function AppTabs() {
+  const theme = useTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#2563EB",
-        tabBarInactiveTintColor: "#8795AA",
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.muted,
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopColor: "#E8EEF7",
-          height: 64,
+          backgroundColor: theme.surface,
+          borderTopColor: theme.line,
+          borderTopWidth: 1,
+          height: 66,
           paddingTop: 7,
           paddingBottom: 7,
         },
         tabBarLabelStyle: {
+          fontFamily: "IBMPlexSans_500Medium",
           fontSize: 11,
-          fontWeight: "600",
         },
       }}
     >
@@ -37,7 +42,7 @@ export default function AppTabs() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Transactions",
+          title: "Activity",
           tabBarIcon: ({ color, size }) => (
             <SymbolView
               name={{
