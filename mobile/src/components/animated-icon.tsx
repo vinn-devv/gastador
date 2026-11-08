@@ -18,7 +18,6 @@ export function AnimatedSplashOverlay() {
   const markY = useRef(new Animated.Value(16)).current;
   const wordOpacity = useRef(new Animated.Value(0)).current;
   const wordY = useRef(new Animated.Value(10)).current;
-  const glowScale = useRef(new Animated.Value(1)).current;
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const finish = () => {
@@ -50,18 +49,9 @@ export function AnimatedSplashOverlay() {
       ]),
     ]).start();
 
-    const glowLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowScale, { toValue: 1.07, duration: 2300, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(glowScale, { toValue: 1, duration: 2300, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ]),
-    );
-    glowLoop.start();
-
     timer.current = setTimeout(finish, INTRO_DURATION_MS);
     return () => {
       if (timer.current) clearTimeout(timer.current);
-      glowLoop.stop();
     };
   }, []);
 
@@ -70,23 +60,8 @@ export function AnimatedSplashOverlay() {
   return (
     <Animated.View
       pointerEvents="auto"
-      style={[styles.overlay, { opacity, backgroundColor: dark ? "#080F20" : "#F8FBFF" }]}
+      style={[styles.overlay, { opacity, backgroundColor: "transparent" }]}
     >
-      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: dark ? "#0C1930" : "#EDF5FF", opacity: 0.55 }]} />
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.glow,
-          {
-            backgroundColor: dark ? "#264B85" : "#C7E2FF",
-            opacity: dark ? 0.18 : 0.42,
-            transform: [{ scale: glowScale }],
-          },
-        ]}
-      />
-      <View style={styles.ambientOne} pointerEvents="none" />
-      <View style={styles.ambientTwo} pointerEvents="none" />
-
       <View style={styles.content}>
         <View style={styles.stage}>
           <View pointerEvents="none" style={[styles.halo, { borderColor: dark ? "rgba(117,177,255,0.2)" : "rgba(71,135,217,0.16)" }]} />
@@ -141,34 +116,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
-  },
-  glow: {
-    position: "absolute",
-    width: 360,
-    height: 360,
-    borderRadius: 180,
-    top: "23%",
-    alignSelf: "center",
-  },
-  ambientOne: {
-    position: "absolute",
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    top: -150,
-    left: -120,
-    backgroundColor: "#9CCAFF",
-    opacity: 0.12,
-  },
-  ambientTwo: {
-    position: "absolute",
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    bottom: -180,
-    right: -150,
-    backgroundColor: "#80B9F6",
-    opacity: 0.13,
   },
   content: { width: "100%", maxWidth: 440, alignItems: "center", paddingHorizontal: 20 },
   stage: { width: 280, height: 280, maxWidth: "88%", alignItems: "center", justifyContent: "center", marginBottom: 2 },
