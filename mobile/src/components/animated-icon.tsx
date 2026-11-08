@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Animated, Easing, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import {
+  Animated,
+  Easing,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { Image } from "expo-image";
 
 const COLORS = {
@@ -9,124 +16,157 @@ const COLORS = {
   tagline: "#A9BFDF",
 };
 
-const DOT_TRAVEL_MS = 680;
-const LOGO_REVEAL_MS = 460;
-const WORDMARK_REVEAL_MS = 440;
-const TAGLINE_REVEAL_MS = 380;
-const HOLD_MS = 850;
-const EXIT_MS = 280;
-
 export function AnimatedSplashOverlay() {
   const [visible, setVisible] = useState(true);
   const { height } = useWindowDimensions();
 
   const overlayOpacity = useRef(new Animated.Value(1)).current;
-  const dotY = useRef(new Animated.Value(height * 0.34)).current;
+  const dotY = useRef(new Animated.Value(height * 0.43)).current;
   const dotOpacity = useRef(new Animated.Value(1)).current;
   const dotScale = useRef(new Animated.Value(1)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoScale = useRef(new Animated.Value(0.12)).current;
-  const wordmarkOpacity = useRef(new Animated.Value(0)).current;
-  const wordmarkY = useRef(new Animated.Value(9)).current;
+  const logoScale = useRef(new Animated.Value(0.42)).current;
+  const wordOpacity = useRef(new Animated.Value(0)).current;
+  const wordY = useRef(new Animated.Value(13)).current;
+  const wordScale = useRef(new Animated.Value(0.94)).current;
+  const wordBlur = useRef(new Animated.Value(0)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
-  const taglineY = useRef(new Animated.Value(5)).current;
+  const taglineY = useRef(new Animated.Value(7)).current;
 
   useEffect(() => {
-    const animation = Animated.sequence([
-      // A single blue point rises into the visual center.
-      Animated.timing(dotY, {
+    const sequence = Animated.sequence([
+      // The point begins close to the bottom edge and springs into the center.
+      Animated.spring(dotY, {
         toValue: 0,
-        duration: DOT_TRAVEL_MS,
-        easing: Easing.out(Easing.cubic),
+        stiffness: 78,
+        damping: 13,
+        mass: 1.05,
+        velocity: -0.55,
+        overshootClamping: false,
+        restDisplacementThreshold: 0.5,
+        restSpeedThreshold: 0.5,
         useNativeDriver: true,
       }),
-      // The point expands away as the coin mark resolves into place.
+
+      // The dot softly blooms away while the coin mark springs into place.
       Animated.parallel([
         Animated.timing(dotOpacity, {
           toValue: 0,
-          duration: LOGO_REVEAL_MS,
+          duration: 520,
           easing: Easing.out(Easing.quad),
           useNativeDriver: true,
         }),
         Animated.timing(dotScale, {
-          toValue: 2.6,
-          duration: LOGO_REVEAL_MS,
+          toValue: 2.9,
+          duration: 560,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(logoOpacity, {
           toValue: 1,
-          duration: LOGO_REVEAL_MS,
+          duration: 480,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.spring(logoScale, {
           toValue: 1,
-          stiffness: 170,
-          damping: 20,
-          mass: 0.85,
+          stiffness: 145,
+          damping: 10.5,
+          mass: 0.9,
+          velocity: 0.12,
+          overshootClamping: false,
           useNativeDriver: true,
         }),
       ]),
-      // Let the completed mark breathe before revealing the name.
-      Animated.delay(130),
+
+      Animated.delay(300),
+
+      // A gentle upward pop, while the soft glow resolves into crisp lettering.
       Animated.parallel([
-        Animated.timing(wordmarkOpacity, {
+        Animated.timing(wordOpacity, {
           toValue: 1,
-          duration: WORDMARK_REVEAL_MS,
+          duration: 900,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
-        Animated.timing(wordmarkY, {
+        Animated.spring(wordY, {
           toValue: 0,
-          duration: WORDMARK_REVEAL_MS,
-          easing: Easing.out(Easing.cubic),
+          stiffness: 95,
+          damping: 16,
+          mass: 1,
           useNativeDriver: true,
+        }),
+        Animated.spring(wordScale, {
+          toValue: 1,
+          stiffness: 110,
+          damping: 15,
+          mass: 0.9,
+          useNativeDriver: true,
+        }),
+        Animated.timing(wordBlur, {
+          toValue: 1,
+          duration: 1050,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: false,
         }),
       ]),
-      Animated.delay(110),
+
+      Animated.delay(180),
+
       Animated.parallel([
         Animated.timing(taglineOpacity, {
           toValue: 1,
-          duration: TAGLINE_REVEAL_MS,
+          duration: 680,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(taglineY, {
           toValue: 0,
-          duration: TAGLINE_REVEAL_MS,
+          duration: 680,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
       ]),
-      Animated.delay(HOLD_MS),
+
+      Animated.delay(1450),
       Animated.timing(overlayOpacity, {
         toValue: 0,
-        duration: EXIT_MS,
+        duration: 420,
         easing: Easing.inOut(Easing.quad),
         useNativeDriver: true,
       }),
     ]);
 
-    animation.start(({ finished }) => {
+    sequence.start(({ finished }) => {
       if (finished) setVisible(false);
     });
 
-    return () => animation.stop();
+    return () => sequence.stop();
   }, [
     dotY,
     dotOpacity,
     dotScale,
     logoOpacity,
     logoScale,
-    wordmarkOpacity,
-    wordmarkY,
+    wordOpacity,
+    wordY,
+    wordScale,
+    wordBlur,
     taglineOpacity,
     taglineY,
     overlayOpacity,
   ]);
 
   if (!visible) return null;
+
+  const wordGlowRadius = wordBlur.interpolate({
+    inputRange: [0, 1],
+    outputRange: [15, 2.5],
+  });
+  const wordGlowOpacity = wordBlur.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.9, 0.32],
+  });
 
   return (
     <Animated.View
@@ -166,15 +206,23 @@ export function AnimatedSplashOverlay() {
           style={[
             styles.brandCopy,
             {
-              opacity: wordmarkOpacity,
-              transform: [{ translateY: wordmarkY }],
+              opacity: wordOpacity,
+              transform: [{ translateY: wordY }, { scale: wordScale }],
             },
           ]}
         >
-          <Text style={styles.wordmark}>
+          <Animated.Text
+            style={[
+              styles.wordmark,
+              {
+                textShadowRadius: wordGlowRadius,
+                textShadowOpacity: wordGlowOpacity,
+              },
+            ]}
+          >
             <Text style={styles.wordmarkMain}>Gastador</Text>
             <Text style={styles.wordmarkApp}> App</Text>
-          </Text>
+          </Animated.Text>
         </Animated.View>
 
         <Animated.Text
@@ -217,7 +265,7 @@ const styles = StyleSheet.create({
     height: 184,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 3,
+    marginBottom: 5,
   },
   dot: {
     position: "absolute",
@@ -225,6 +273,10 @@ const styles = StyleSheet.create({
     height: 13,
     borderRadius: 7,
     backgroundColor: COLORS.blue,
+    shadowColor: COLORS.blue,
+    shadowOpacity: 0.8,
+    shadowRadius: 12,
+    elevation: 5,
   },
   logoWrap: {
     width: 144,
@@ -240,10 +292,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   wordmark: {
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 34,
-    lineHeight: 42,
-    letterSpacing: -1.45,
+    fontFamily: "sans-serif-rounded",
+    fontWeight: "800",
+    fontSize: 35,
+    lineHeight: 44,
+    letterSpacing: -1.1,
+    textShadowColor: COLORS.blue,
+    includeFontPadding: false,
   },
   wordmarkMain: {
     color: COLORS.blue,
@@ -252,10 +307,10 @@ const styles = StyleSheet.create({
     color: COLORS.yellow,
   },
   tagline: {
-    marginTop: 7,
+    marginTop: 9,
     color: COLORS.tagline,
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 10,
-    letterSpacing: 1.15,
+    letterSpacing: 1.25,
   },
 });
