@@ -7,7 +7,7 @@ import type {
   Transaction,
 } from "../domain/types";
 import { defaultSettings } from "../domain/types";
-import { addDays, diffDays, fromManilaInput, isValidDate, manilaHourMinute } from "../domain/dates";
+import { fromManilaInput, isValidDate, manilaHourMinute } from "../domain/dates";
 
 type SettingsRow = {
   displayName: string;
