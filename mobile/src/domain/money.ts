@@ -1,4 +1,4 @@
-export type Centavos = number;
+﻿export type Centavos = number;
 
 export const MAX_CENTAVOS: Centavos = 999_999_999_999;
 
@@ -87,3 +87,4 @@ export function ratioPercent(part: Centavos, whole: Centavos): number {
   if (whole <= 0) return part > 0 ? 100 : 0;
   return Math.round((part * 1000) / whole) / 10;
 }
+
