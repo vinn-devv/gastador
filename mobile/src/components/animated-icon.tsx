@@ -9,12 +9,12 @@ import {
 } from "react-native";
 
 const COLORS = {
-  background: "#06165B",
-  tile: "#2347B8",
-  blue: "#168BFF",
+  background: "#061230",
+  tile: "#0A2F8E",
+  blue: "#2E7BCB",
   gold: "#FFC20E",
   white: "#F7F9FF",
-  tagline: "#A9B7D4",
+  tagline: "#9DAECF",
 };
 
 const DOTS = Array.from({ length: 11 * 11 }, (_, index) => {
@@ -315,7 +315,7 @@ export function AnimatedSplashOverlay() {
             },
           ]}
         >
-          Scan it. Track it. Save it.
+          Snap it. Track it. Stretch it.
         </Animated.Text>
       </Animated.View>
     </Animated.View>
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   tile: {
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 34,
+    borderRadius: 30,
     overflow: "visible",
   },
   tileFill: {
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontFamily: "sans-serif",
     fontWeight: "800",
-    fontSize: 83,
+    fontSize: 80,
     lineHeight: 96,
     includeFontPadding: false,
     textAlign: "center",
@@ -451,9 +451,9 @@ const styles = StyleSheet.create({
     color: COLORS.blue,
     fontFamily: "sans-serif",
     fontWeight: "700",
-    fontSize: 39,
+    fontSize: 40,
     lineHeight: 49,
-    letterSpacing: 0,
+    letterSpacing: -1.4,
     includeFontPadding: false,
     textAlign: "center",
   },
