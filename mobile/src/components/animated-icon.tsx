@@ -58,7 +58,7 @@ export function AnimatedSplashOverlay() {
 
   const tileScale = useRef(new Animated.Value(0.035)).current;
   const tileY = useRef(new Animated.Value(0)).current;
-  const dotY = useRef(new Animated.Value(height * 0.43)).current;
+  const dotY = useRef(new Animated.Value(0)).current;
   const dotOpacity = useRef(new Animated.Value(1)).current;
   const tileOpacity = useRef(new Animated.Value(1)).current;
   const fillOpacity = useRef(new Animated.Value(0)).current;
@@ -78,8 +78,8 @@ export function AnimatedSplashOverlay() {
   useEffect(() => {
     const intro = Animated.sequence([
       Animated.timing(dotY, {
-        toValue: 0,
-        duration: 820,
+        toValue: -(height / 2 - 30.5),
+        duration: 1100,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
@@ -232,6 +232,17 @@ export function AnimatedSplashOverlay() {
       style={[styles.overlay, { opacity: overlayOpacity }]}
     >
       <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.startDot,
+          {
+            left: width / 2 - 6.5,
+            opacity: dotOpacity,
+            transform: [{ translateY: dotY }],
+          },
+        ]}
+      />
+      <Animated.View
         style={[
           styles.content,
           {
@@ -239,11 +250,6 @@ export function AnimatedSplashOverlay() {
           },
         ]}
       >
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.startDot, { opacity: dotOpacity, transform: [{ translateY: dotY }] }]}
-        />
-
         <Animated.View
           style={[
             styles.tile,
@@ -345,10 +351,12 @@ const styles = StyleSheet.create({
   },
   startDot: {
     position: "absolute",
+    bottom: 24,
     width: 13,
     height: 13,
     borderRadius: 7,
     backgroundColor: COLORS.gold,
+    zIndex: 2,
   },
   tile: {
     alignItems: "center",
