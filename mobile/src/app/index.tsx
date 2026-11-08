@@ -40,7 +40,7 @@ const QUICK_ACTIONS = [
   { label: "Activity", icon: { ios: "arrow.left.arrow.right", android: "swap_horiz", web: "swap_horiz" }, route: "/explore" as const },
   { label: "Insights", icon: { ios: "chart.bar", android: "bar_chart", web: "bar_chart" }, route: "/insights" as const },
   { label: "Settings", icon: { ios: "slider.horizontal.3", android: "tune", web: "tune" }, route: "/settings" as const },
-];
+] as const;
 
 export default function HomeScreen() {
   const router = useRouter();
