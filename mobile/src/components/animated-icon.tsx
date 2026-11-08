@@ -26,16 +26,17 @@ export function AnimatedSplashOverlay() {
   const logoOpacity = useRef(new Animated.Value(0)).current;
   const logoScale = useRef(new Animated.Value(0.72)).current;
   const wordOpacity = useRef(new Animated.Value(0)).current;
-  const wordY = useRef(new Animated.Value(22)).current;
-  const wordScale = useRef(new Animated.Value(0.92)).current;
+  const wordY = useRef(new Animated.Value(18)).current;
+  const wordScale = useRef(new Animated.Value(0.94)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
-  const taglineY = useRef(new Animated.Value(10)).current;
+  const taglineY = useRef(new Animated.Value(8)).current;
   const glowOpacity = useRef(new Animated.Value(0)).current;
+  const overlayOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     const launch = Animated.parallel([
       Animated.spring(dotY, {
-        toValue: -(height * 0.47 + 34),
+        toValue: -(height * 0.5 - 65),
         stiffness: 115,
         damping: 14,
         mass: 0.72,
@@ -60,7 +61,7 @@ export function AnimatedSplashOverlay() {
         Animated.parallel([
           Animated.timing(logoOpacity, {
             toValue: 1,
-            duration: 180,
+            duration: 160,
             easing: Easing.out(Easing.quad),
             useNativeDriver: true,
           }),
@@ -115,9 +116,17 @@ export function AnimatedSplashOverlay() {
           useNativeDriver: true,
         }),
         Animated.delay(1050),
+        Animated.timing(overlayOpacity, {
+          toValue: 0,
+          duration: 420,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
       ]);
 
-      reveal.start(() => setVisible(false));
+      reveal.start(({ finished: completed }) => {
+        if (completed) setVisible(false);
+      });
     });
 
     return () => launch.stop();
@@ -133,8 +142,233 @@ export function AnimatedSplashOverlay() {
     taglineOpacity,
     taglineY,
     glowOpacity,
+    overlayOpacity,
   ]);
 
   if (!visible) return null;
 
+  return (
+    <Animated.View
+      pointerEvents="auto"
+      style={[styles.overlay, { opacity: overlayOpacity }]}
+    >
+      <Image
+        source={require("@/assets/images/gastador-intro-background.jpg")}
+        style={StyleSheet.absoluteFillObject}
+        contentFit="cover"
+        transition={0}
+      />
 
+      {dotVisible && (
+        <Animated.View
+          style={[
+            styles.dotTravel,
+            { transform: [{ translateY: dotY }, { scale: dotScale }] },
+          ]}
+        >
+          <View style={styles.dot}>
+            <View style={styles.dotHighlight} />
+          </View>
+        </Animated.View>
+      )}
+
+      <View style={styles.content}>
+        <Animated.View
+          style={[
+            styles.logoWrap,
+            {
+              opacity: logoOpacity,
+              transform: [{ scale: logoScale }],
+            },
+          ]}
+        >
+          <Image
+            source={require("@/assets/images/gastador-intro-mark.svg")}
+            style={styles.logo}
+            contentFit="contain"
+            transition={0}
+          />
+        </Animated.View>
+
+        <Animated.View
+          style={[
+            styles.wordmarkWrap,
+            {
+              opacity: wordOpacity,
+              transform: [{ translateY: wordY }, { scale: wordScale }],
+            },
+          ]}
+        >
+          <View style={styles.wordmarkStack}>
+            <View style={[styles.wordmarkLine, styles.wordmarkDepth]}>
+              <Text style={styles.gastadorDepth}>Gastador</Text>
+              <Text style={styles.appDepth}> App</Text>
+            </View>
+            <Animated.View
+              style={[styles.wordmarkGlowLayer, { opacity: glowOpacity }]}
+            >
+              <Text style={styles.wordmarkLine}>
+                <Text style={styles.gastadorGlow}>Gastador</Text>
+                <Text style={styles.appGlow}> App</Text>
+              </Text>
+            </Animated.View>
+            <Text style={[styles.wordmarkLine, styles.wordmarkFace]}>
+              <Text style={styles.gastador}>Gastador</Text>
+              <Text style={styles.app}> App</Text>
+            </Text>
+          </View>
+        </Animated.View>
+
+        <View style={styles.taglineWrap}>
+          <Animated.View
+            style={[styles.taglineGlowLayer, { opacity: glowOpacity }]}
+          >
+            <Text style={styles.taglineGlow}>
+              SNAP IT  ·  TRACK IT  ·  STRETCH IT
+            </Text>
+          </Animated.View>
+          <Animated.Text
+            style={[
+              styles.tagline,
+              {
+                opacity: taglineOpacity,
+                transform: [{ translateY: taglineY }],
+              },
+            ]}
+          >
+            SNAP IT  ·  TRACK IT  ·  STRETCH IT
+          </Animated.Text>
+        </View>
+      </View>
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 9999,
+    elevation: 9999,
+    backgroundColor: "#06165B",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  content: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 18,
+  },
+  dotTravel: {
+    position: "absolute",
+    zIndex: 3,
+    bottom: -18,
+    alignSelf: "center",
+  },
+  dot: {
+    width: 13,
+    height: 13,
+    borderRadius: 7,
+    backgroundColor: "#55B9FF",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#29A7FF",
+    shadowOpacity: 0.9,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  dotHighlight: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#EAF8FF",
+    position: "absolute",
+    top: 2,
+    left: 2,
+  },
+  logoWrap: {
+    width: 148,
+    height: 148,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logo: {
+    width: 148,
+    height: 148,
+  },
+  wordmarkWrap: {
+    marginTop: -7,
+    alignItems: "center",
+  },
+  wordmarkStack: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  wordmarkLine: {
+    fontFamily: "serif",
+    fontWeight: "900",
+    fontSize: 39,
+    lineHeight: 48,
+    letterSpacing: -1.3,
+    includeFontPadding: false,
+  },
+  wordmarkDepth: {
+    position: "absolute",
+    top: 3,
+  },
+  gastadorDepth: {
+    color: "#073A8C",
+  },
+  appDepth: {
+    color: "#805300",
+  },
+  wordmarkGlowLayer: {
+    position: "absolute",
+  },
+  gastadorGlow: {
+    color: COLORS.blue,
+    textShadowColor: COLORS.brightBlue,
+    textShadowRadius: 12,
+  },
+  appGlow: {
+    color: COLORS.gold,
+    textShadowColor: "#FFB21C",
+    textShadowRadius: 10,
+  },
+  wordmarkFace: {
+    position: "relative",
+  },
+  gastador: {
+    color: COLORS.blue,
+  },
+  app: {
+    color: COLORS.gold,
+  },
+  taglineWrap: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 5,
+  },
+  taglineGlowLayer: {
+    position: "absolute",
+  },
+  taglineGlow: {
+    color: COLORS.tagline,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 9,
+    letterSpacing: 1.15,
+    includeFontPadding: false,
+    textShadowColor: COLORS.brightBlue,
+    textShadowRadius: 7,
+  },
+  tagline: {
+    color: COLORS.tagline,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 9,
+    letterSpacing: 1.15,
+    includeFontPadding: false,
+  },
+});
