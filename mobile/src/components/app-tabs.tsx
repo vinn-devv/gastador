@@ -13,7 +13,7 @@ export default function AppTabs() {
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.muted,
         tabBarStyle: {
-          backgroundColor: theme.surface,
+          backgroundColor: "rgba(5, 13, 23, 0.92)",
           borderTopColor: theme.line,
           borderTopWidth: 1,
           height: 66,
