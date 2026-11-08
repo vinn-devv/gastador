@@ -170,16 +170,22 @@ export function AnimatedSplashOverlay() {
       {dotVisible && (
         <Animated.View
           style={[
-            styles.dot,
-            {
-              width: dotSize,
-              height: dotSize,
-              borderRadius: dotRadius,
-              transform: [{ translateY: dotY }],
-            },
+            styles.dotTravel,
+            { transform: [{ translateY: dotY }] },
           ]}
         >
-          <View style={styles.dotHighlight} />
+          <Animated.View
+            style={[
+              styles.dot,
+              {
+                width: dotSize,
+                height: dotSize,
+                borderRadius: dotRadius,
+              },
+            ]}
+          >
+            <View style={styles.dotHighlight} />
+          </Animated.View>
         </Animated.View>
       )}
 
@@ -273,11 +279,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 24,
   },
-  dot: {
+  dotTravel: {
     position: "absolute",
     zIndex: 2,
     bottom: -72,
     alignSelf: "center",
+  },
+  dot: {
     backgroundColor: "#2365E8",
     overflow: "hidden",
     alignItems: "flex-start",
