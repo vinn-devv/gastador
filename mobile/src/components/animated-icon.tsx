@@ -1,13 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Easing,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useColorScheme,
-} from "react-native";
+import { Animated, Easing, Pressable, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -44,58 +36,22 @@ export function AnimatedSplashOverlay() {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.sequence([
-        Animated.parallel([
-          Animated.timing(markOpacity, {
-            toValue: 1,
-            duration: 180,
-            useNativeDriver: true,
-          }),
-          Animated.spring(markScale, {
-            toValue: 1,
-            friction: 5,
-            tension: 58,
-            useNativeDriver: true,
-          }),
-          Animated.timing(markY, {
-            toValue: 0,
-            duration: 900,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-        ]),
+      Animated.parallel([
+        Animated.timing(markOpacity, { toValue: 1, duration: 180, useNativeDriver: true }),
+        Animated.spring(markScale, { toValue: 1, friction: 5, tension: 58, useNativeDriver: true }),
+        Animated.timing(markY, { toValue: 0, duration: 900, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
       ]),
       Animated.sequence([
         Animated.delay(650),
         Animated.parallel([
-          Animated.timing(wordOpacity, {
-            toValue: 1,
-            duration: 620,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-          Animated.timing(wordY, {
-            toValue: 0,
-            duration: 620,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
+          Animated.timing(wordOpacity, { toValue: 1, duration: 620, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+          Animated.timing(wordY, { toValue: 0, duration: 620, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
         ]),
       ]),
       Animated.loop(
         Animated.sequence([
-          Animated.timing(glowScale, {
-            toValue: 1.07,
-            duration: 2300,
-            easing: Easing.inOut(Easing.sin),
-            useNativeDriver: true,
-          }),
-          Animated.timing(glowScale, {
-            toValue: 1,
-            duration: 2300,
-            easing: Easing.inOut(Easing.sin),
-            useNativeDriver: true,
-          }),
+          Animated.timing(glowScale, { toValue: 1.07, duration: 2300, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+          Animated.timing(glowScale, { toValue: 1, duration: 2300, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
         ]),
       ),
     ]).start();
@@ -110,22 +66,10 @@ export function AnimatedSplashOverlay() {
 
   return (
     <Animated.View
-      pointerEvents="box-none"
-      style={[
-        styles.overlay,
-        {
-          opacity,
-          backgroundColor: dark ? "#080F20" : "#F8FBFF",
-        },
-      ]}
+      pointerEvents="auto"
+      style={[styles.overlay, { opacity, backgroundColor: dark ? "#080F20" : "#F8FBFF" }]}
     >
-      <View
-        pointerEvents="none"
-        style={[
-          StyleSheet.absoluteFill,
-          { backgroundColor: dark ? "#0C1930" : "#EDF5FF", opacity: 0.55 },
-        ]}
-      />
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: dark ? "#0C1930" : "#EDF5FF", opacity: 0.55 }]} />
       <Animated.View
         pointerEvents="none"
         style={[
@@ -142,20 +86,9 @@ export function AnimatedSplashOverlay() {
 
       <View style={styles.content}>
         <View style={styles.stage}>
-          <View
-            pointerEvents="none"
-            style={[styles.halo, { borderColor: dark ? "rgba(117,177,255,0.2)" : "rgba(71,135,217,0.16)" }]}
-          />
-          <View
-            pointerEvents="none"
-            style={[styles.innerHalo, { borderColor: dark ? "rgba(117,177,255,0.16)" : "rgba(71,135,217,0.12)" }]}
-          />
-          <Animated.View
-            style={{
-              opacity: markOpacity,
-              transform: [{ translateY: markY }, { scale: markScale }],
-            }}
-          >
+          <View pointerEvents="none" style={[styles.halo, { borderColor: dark ? "rgba(117,177,255,0.2)" : "rgba(71,135,217,0.16)" }]} />
+          <View pointerEvents="none" style={[styles.innerHalo, { borderColor: dark ? "rgba(117,177,255,0.16)" : "rgba(71,135,217,0.12)" }]} />
+          <Animated.View style={{ opacity: markOpacity, transform: [{ translateY: markY }, { scale: markScale }] }}>
             <Image
               source={require("@/assets/images/icon-512.png")}
               style={styles.mark}
@@ -165,15 +98,8 @@ export function AnimatedSplashOverlay() {
           </Animated.View>
         </View>
 
-        <Animated.View
-          style={[
-            styles.brandCopy,
-            { opacity: wordOpacity, transform: [{ translateY: wordY }] },
-          ]}
-        >
-          <Text style={[styles.wordmark, { color: dark ? "#F1F6FF" : "#173A70" }]}>
-            Gastador
-          </Text>
+        <Animated.View style={[styles.brandCopy, { opacity: wordOpacity, transform: [{ translateY: wordY }] }]}>
+          <Text style={[styles.wordmark, { color: dark ? "#F1F6FF" : "#173A70" }]}>Gastador</Text>
           <Text style={[styles.tagline, { color: dark ? "#A9BFDF" : "#62789F" }]}>
             SNAP IT  ·  TRACK IT  ·  STRETCH IT
           </Text>
@@ -198,9 +124,7 @@ export function AnimatedSplashOverlay() {
           },
         ]}
       >
-        <Text style={[styles.skipText, { color: dark ? "#A9BFDF" : "#607493" }]}>
-          Skip intro
-        </Text>
+        <Text style={[styles.skipText, { color: dark ? "#A9BFDF" : "#607493" }]}>Skip intro</Text>
       </Pressable>
     </Animated.View>
   );
@@ -243,65 +167,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#80B9F6",
     opacity: 0.13,
   },
-  content: {
-    width: "100%",
-    maxWidth: 440,
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  stage: {
-    width: 280,
-    height: 280,
-    maxWidth: "88%",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 2,
-  },
-  halo: {
-    position: "absolute",
-    width: "72%",
-    height: "72%",
-    borderWidth: 1,
-    borderRadius: 999,
-  },
-  innerHalo: {
-    position: "absolute",
-    width: "54%",
-    height: "54%",
-    borderWidth: 1,
-    borderRadius: 999,
-  },
-  mark: {
-    width: 192,
-    height: 192,
-  },
-  brandCopy: {
-    alignItems: "center",
-  },
-  wordmark: {
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 35,
-    lineHeight: 43,
-    letterSpacing: -1.5,
-  },
-  tagline: {
-    marginTop: 7,
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 10,
-    letterSpacing: 1.15,
-  },
-  skip: {
-    position: "absolute",
-    right: 20,
-    minHeight: 44,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  skipText: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 13,
-  },
+  content: { width: "100%", maxWidth: 440, alignItems: "center", paddingHorizontal: 20 },
+  stage: { width: 280, height: 280, maxWidth: "88%", alignItems: "center", justifyContent: "center", marginBottom: 2 },
+  halo: { position: "absolute", width: "72%", height: "72%", borderWidth: 1, borderRadius: 999 },
+  innerHalo: { position: "absolute", width: "54%", height: "54%", borderWidth: 1, borderRadius: 999 },
+  mark: { width: 192, height: 192 },
+  brandCopy: { alignItems: "center" },
+  wordmark: { fontFamily: "IBMPlexSans_700Bold", fontSize: 35, lineHeight: 43, letterSpacing: -1.5 },
+  tagline: { marginTop: 7, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 10, letterSpacing: 1.15 },
+  skip: { position: "absolute", right: 20, minHeight: 44, paddingHorizontal: 16, borderWidth: 1, borderRadius: 999, alignItems: "center", justifyContent: "center" },
+  skipText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
 });
