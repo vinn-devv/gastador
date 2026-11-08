@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Animated, Easing, Pressable, Text, View, useColorScheme } from "react-native";
+import { Animated, Easing, Pressable, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
