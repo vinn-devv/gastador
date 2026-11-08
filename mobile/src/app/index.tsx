@@ -37,7 +37,7 @@ function formatTransactionDate(date: string, occurredAt: string) {
 
 const QUICK_ACTIONS = [
   { label: "Add expense", icon: { ios: "plus", android: "add", web: "add" }, route: "/new-expense" as const },
-  { label: "Activity", icon: { ios: "arrow.left.arrow.right", android: "swap_horiz", web: "swap_horiz" }, route: "/explore" as const },
+  { label: "Scan receipt", icon: { ios: "viewfinder", android: "camera", web: "camera" }, route: "/scan" as const },
   { label: "Insights", icon: { ios: "chart.bar", android: "bar_chart", web: "bar_chart" }, route: "/insights" as const },
   { label: "Settings", icon: { ios: "slider.horizontal.3", android: "tune", web: "tune" }, route: "/settings" as const },
 ] as const;
