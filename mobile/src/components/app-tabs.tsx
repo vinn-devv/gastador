@@ -32,7 +32,7 @@ export default function AppTabs() {
           title: "Home",
           tabBarIcon: ({ color, size }) => (
             <SymbolView
-              name={{ ios: "house.fill", android: "home", web: "home" }}
+              name={{ ios: "wallet.pass", android: "account_balance_wallet", web: "account_balance_wallet" }}
               tintColor={color}
               size={size}
             />
@@ -45,11 +45,7 @@ export default function AppTabs() {
           title: "Activity",
           tabBarIcon: ({ color, size }) => (
             <SymbolView
-              name={{
-                ios: "arrow.left.arrow.right",
-                android: "swap_horiz",
-                web: "swap_horiz",
-              }}
+              name={{ ios: "receipt", android: "receipt_long", web: "receipt_long" }}
               tintColor={color}
               size={size}
             />
@@ -62,7 +58,7 @@ export default function AppTabs() {
           title: "Scan",
           tabBarIcon: ({ color, size }) => (
             <SymbolView
-              name={{ ios: "viewfinder", android: "camera", web: "camera" }}
+              name={{ ios: "viewfinder", android: "qr_code_scanner", web: "qr_code_scanner" }}
               tintColor={color}
               size={size}
             />
@@ -75,7 +71,7 @@ export default function AppTabs() {
           title: "Insights",
           tabBarIcon: ({ color, size }) => (
             <SymbolView
-              name={{ ios: "chart.bar.fill", android: "bar_chart", web: "bar_chart" }}
+              name={{ ios: "chart.bar.xaxis", android: "query_stats", web: "query_stats" }}
               tintColor={color}
               size={size}
             />
@@ -88,7 +84,7 @@ export default function AppTabs() {
           title: "Settings",
           tabBarIcon: ({ color, size }) => (
             <SymbolView
-              name={{ ios: "gearshape.fill", android: "settings", web: "settings" }}
+              name={{ ios: "slider.horizontal.3", android: "tune", web: "tune" }}
               tintColor={color}
               size={size}
             />
