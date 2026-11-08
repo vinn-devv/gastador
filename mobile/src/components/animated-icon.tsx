@@ -57,10 +57,12 @@ export function AnimatedSplashOverlay() {
   const { width, height } = useWindowDimensions();
 
   const tileScale = useRef(new Animated.Value(0.035)).current;
-  const tileY = useRef(new Animated.Value(height * 0.42)).current;
+  const tileY = useRef(new Animated.Value(0)).current;
+  const dotY = useRef(new Animated.Value(height * 0.43)).current;
+  const dotOpacity = useRef(new Animated.Value(1)).current;
   const tileOpacity = useRef(new Animated.Value(1)).current;
   const fillOpacity = useRef(new Animated.Value(0)).current;
-  const borderOpacity = useRef(new Animated.Value(1)).current;
+  const borderOpacity = useRef(new Animated.Value(0)).current;
   const pesoOpacity = useRef(new Animated.Value(0)).current;
   const pesoScale = useRef(new Animated.Value(0.72)).current;
   const cornersOpacity = useRef(new Animated.Value(0)).current;
@@ -75,6 +77,18 @@ export function AnimatedSplashOverlay() {
 
   useEffect(() => {
     const intro = Animated.sequence([
+      Animated.timing(dotY, {
+        toValue: 0,
+        duration: 820,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(dotOpacity, {
+        toValue: 0,
+        duration: 160,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
       Animated.parallel([
         Animated.spring(tileScale, {
           toValue: 1,
@@ -83,13 +97,7 @@ export function AnimatedSplashOverlay() {
           mass: 0.8,
           useNativeDriver: true,
         }),
-        Animated.spring(tileY, {
-          toValue: 0,
-          stiffness: 105,
-          damping: 16,
-          mass: 0.9,
-          useNativeDriver: true,
-        }),
+
         Animated.timing(tileOpacity, {
           toValue: 1,
           duration: 120,
@@ -196,6 +204,8 @@ export function AnimatedSplashOverlay() {
   }, [
     tileScale,
     tileY,
+    dotY,
+    dotOpacity,
     tileOpacity,
     fillOpacity,
     borderOpacity,
@@ -229,6 +239,11 @@ export function AnimatedSplashOverlay() {
           },
         ]}
       >
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.startDot, { opacity: dotOpacity, transform: [{ translateY: dotY }] }]}
+        />
+
         <Animated.View
           style={[
             styles.tile,
@@ -327,6 +342,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
+  },
+  startDot: {
+    position: "absolute",
+    width: 13,
+    height: 13,
+    borderRadius: 7,
+    backgroundColor: COLORS.gold,
   },
   tile: {
     alignItems: "center",
