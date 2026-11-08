@@ -1,4 +1,4 @@
-import { Tabs } from "expo-router";
+import { Tabs, useRouter, type Href } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { GlassView } from "expo-glass-effect";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -10,7 +10,8 @@ import { useTheme } from "@/hooks/use-theme";
 
 const TAB_NAMES = ["index", "explore", "scan", "insights", "settings"] as const;
 
-function LiquidTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const routes = state.routes.filter((route) =>
     TAB_NAMES.includes(route.name as (typeof TAB_NAMES)[number]),
@@ -32,15 +33,9 @@ function LiquidTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             const color = focused ? "#FFFFFF" : "rgba(238,246,255,0.68)";
             const label = typeof options.title === "string" ? options.title : route.name;
             const onPress = () => {
-              const event = navigation.emit({
-                type: "tabPress",
-                target: route.key,
-                canPreventDefault: true,
-              });
-
-              if (!focused && !event.defaultPrevented) {
-                navigation.navigate(route.name, route.params);
-              }
+              if (focused) return;
+              const href = (route.name === "index" ? "/" : `/${route.name}`) as Href;
+              router.navigate(href);
             };
 
             return (
