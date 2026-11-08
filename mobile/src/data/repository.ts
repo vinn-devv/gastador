@@ -138,3 +138,49 @@ export async function getAllTransactions(
     receiptHashes: JSON.parse(receiptHashesJson),
   }));
 }
+
+
+export type NewTransactionInput = {
+  amountCentavos: number;
+  date: string;
+  merchant: string;
+  categoryId: string;
+  paymentMethod: Transaction["paymentMethod"];
+  description?: string | null;
+};
+
+export async function createTransaction(
+  db: SQLiteDatabase,
+  input: NewTransactionInput,
+): Promise<void> {
+  if (!Number.isSafeInteger(input.amountCentavos) || input.amountCentavos <= 0) {
+    throw new RangeError("Expense amount must be greater than zero.");
+  }
+  if (!input.categoryId.trim()) {
+    throw new Error("Choose a category before saving.");
+  }
+  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(input.date)) {
+    throw new Error("Choose a valid expense date.");
+  }
+
+  const now = new Date().toISOString();
+  const id = `tx-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+
+  await db.runAsync(
+    `INSERT INTO transactions (
+      id, amountCentavos, occurredAt, date, merchant, categoryId,
+      paymentMethod, description, source, ocrStatus, externalReference,
+      isSplurge, receiptHashesJson, createdAt, updatedAt
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'not_applicable', NULL, 0, '[]', ?, ?)`,
+    id,
+    input.amountCentavos,
+    now,
+    input.date,
+    input.merchant.trim() || "Expense",
+    input.categoryId,
+    input.paymentMethod,
+    input.description?.trim() || null,
+    now,
+    now,
+  );
+}
