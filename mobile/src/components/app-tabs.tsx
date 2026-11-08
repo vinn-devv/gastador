@@ -1,8 +1,9 @@
 import { Tabs, useRouter, type Href } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { GlassView } from "expo-glass-effect";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Animated, PanResponder, Pressable, StyleSheet, View } from "react-native";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { useMemo, useRef } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
@@ -13,13 +14,33 @@ const TAB_NAMES = ["index", "explore", "scan", "insights", "settings"] as const;
 function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const drag = useRef(new Animated.ValueXY()).current;
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => false,
+        onMoveShouldSetPanResponder: (_, gesture) =>
+          Math.abs(gesture.dx) > 5 || Math.abs(gesture.dy) > 5,
+        onPanResponderGrant: () => drag.extractOffset(),
+        onPanResponderMove: (_, gesture) =>
+          drag.setValue({ x: gesture.dx, y: gesture.dy }),
+        onPanResponderRelease: () => drag.flattenOffset(),
+        onPanResponderTerminate: () => drag.flattenOffset(),
+        onPanResponderTerminationRequest: () => false,
+      }),
+    [drag],
+  );
   const routes = state.routes.filter((route) =>
     TAB_NAMES.includes(route.name as (typeof TAB_NAMES)[number]),
   );
 
   return (
     <View pointerEvents="box-none" style={[styles.host, { paddingBottom: Math.max(insets.bottom, 8) }]}>
-      <View style={styles.shadow}>
+      <Animated.View
+        {...panResponder.panHandlers}
+        style={[styles.draggable, { transform: drag.getTranslateTransform() }]}
+      >
+        <View style={styles.shadow}>
         <GlassView
           glassEffectStyle="regular"
           tintColor="#142536"
@@ -68,7 +89,8 @@ function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
             );
           })}
         </GlassView>
-      </View>
+        </View>
+      </Animated.View>
     </View>
   );
 }
@@ -141,9 +163,14 @@ export default function AppTabs() {
 const styles = StyleSheet.create({
   host: {
     position: "absolute",
-    left: 18,
-    right: 18,
+    left: 0,
+    right: 0,
     bottom: 0,
+    alignItems: "center",
+  },
+  draggable: {
+    width: "90%",
+    maxWidth: 420,
   },
   shadow: {
     borderRadius: 28,
