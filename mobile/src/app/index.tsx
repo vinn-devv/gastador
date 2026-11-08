@@ -194,7 +194,7 @@ export default function HomeScreen() {
         </View>
       ) : (
         <Pressable
-          onPress={() => router.push("/explore")}
+          onPress={() => router.push("/new-expense")}
           style={[styles.setupAction, { borderColor: theme.line }]}
         >
           <ThemedText style={styles.setupActionText}>Start by adding your first expense</ThemedText>
@@ -204,7 +204,7 @@ export default function HomeScreen() {
 
       <View style={styles.actions}>
         <Pressable
-          onPress={() => router.push("/explore")}
+          onPress={() => router.push("/new-expense")}
           style={[styles.primaryAction, { backgroundColor: theme.primarySoft }]}
         >
           <ThemedText style={[styles.primaryActionText, { color: theme.onPrimary }]}>+ Add expense</ThemedText>
