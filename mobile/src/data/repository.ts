@@ -47,7 +47,6 @@ export async function getCategories(db: SQLiteDatabase): Promise<Category[]> {
   return db.getAllAsync<Category>(
     `SELECT id, name, sortOrder, archivedAt, createdAt
      FROM categories
-     WHERE archivedAt IS NULL
      ORDER BY sortOrder ASC, name ASC`,
   );
 }
