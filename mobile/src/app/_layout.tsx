@@ -6,7 +6,6 @@ import { useFonts } from "@expo-google-fonts/ibm-plex-sans";
 import { View, useColorScheme } from "react-native";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
-import { AmbientBackdrop } from "@/components/ambient-backdrop";
 import AppTabs from "@/components/app-tabs";
 import { DB_NAME, initializeDatabase } from "@/data/database";
 import { useTheme } from "@/hooks/use-theme";
@@ -33,7 +32,6 @@ export default function TabLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <View style={{ flex: 1, backgroundColor: theme.background }}>
-        <AmbientBackdrop />
         <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
           <AppTabs />
         </SQLiteProvider>
