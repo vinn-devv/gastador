@@ -160,7 +160,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View style={styles.headerCopy}>
           <ThemedText style={styles.overline} themeColor="muted">
-            YOUR ALLOWANCE
+            Your allowance
           </ThemedText>
           <ThemedText style={styles.greeting}>
             {greeting()}
@@ -177,7 +177,7 @@ export default function HomeScreen() {
       <View style={[styles.balanceSection, { backgroundColor: theme.surface, borderColor: theme.line, borderLeftColor: theme.primary }]}>
         <View style={styles.balanceTop}>
           <ThemedText style={[styles.balanceLabel, { color: theme.muted }]}>
-            AVAILABLE BALANCE
+            Available to spend
           </ThemedText>
           {summary && (
             <View style={styles.status}>
@@ -252,7 +252,7 @@ export default function HomeScreen() {
           </ThemedText>
         )}
         {dashboard && (
-          <ThemedText style={[styles.cycleDate, { color: "#D8EAF8" }]}>
+          <ThemedText style={[styles.cycleDate, { color: theme.muted }]}>
             {dashboard.cycleName} · {formatDate(dashboard.startDate, false)} –{" "}
             {formatDate(dashboard.endDate, false)}
           </ThemedText>
@@ -341,7 +341,7 @@ export default function HomeScreen() {
       <View style={styles.sectionHeading}>
         <View>
           <ThemedText style={styles.sectionKicker} themeColor="muted">
-            YOUR LATEST SPENDING
+            Recent activity
           </ThemedText>
           <ThemedText style={styles.sectionTitle}>
             Recent transactions
@@ -455,8 +455,8 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
   },
   greeting: {
-    fontFamily: "serif",
-    fontSize: 28,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 27,
     lineHeight: 36,
     letterSpacing: -0.9,
   },
@@ -464,9 +464,9 @@ const styles = StyleSheet.create({
   balanceSection: {
     marginBottom: 20,
     padding: 20,
-    borderRadius: 8,
+    borderRadius: 6,
     borderWidth: 1,
-    borderLeftWidth: 3,
+    borderLeftWidth: 4,
     overflow: "hidden",
   },
   balanceTop: {
@@ -485,8 +485,8 @@ const styles = StyleSheet.create({
   statusText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
   balanceAmount: {
     color: "#202A35",
-    fontFamily: "serif",
-    fontSize: 42,
+    fontFamily: "IBMPlexSans_700Bold",
+    fontSize: 40,
     lineHeight: 54,
     letterSpacing: -2.1,
     marginTop: 8,
@@ -577,13 +577,13 @@ const styles = StyleSheet.create({
   },
   sectionKicker: {
     fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 9,
-    letterSpacing: 1.25,
+    fontSize: 11,
+    letterSpacing: 0,
     marginBottom: 3,
   },
   sectionTitle: {
-    fontFamily: "Georgia",
-    fontSize: 21,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 20,
     letterSpacing: -0.45,
   },
   seeAll: {
