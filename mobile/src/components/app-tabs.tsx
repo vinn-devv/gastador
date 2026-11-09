@@ -109,7 +109,7 @@ function WalletTabBar({ state, descriptors }: { state: TabState; descriptors: Ta
         </>
       ) : null}
 
-      <View style={[styles.dock, { paddingBottom: insets.bottom }]}>
+      <View style={[styles.dock, { bottom: insets.bottom }]}>
         <View style={styles.barSurface}>
           <Svg width={width} height={72} style={StyleSheet.absoluteFill}>
             <Path d={notchPath} fill="#FFFFFF" />
