@@ -7,6 +7,7 @@ import * as Haptics from "expo-haptics";
 import Svg, { Path } from "react-native-svg";
 
 import { ThemedText } from "@/components/themed-text";
+import { SHEET_GAP } from "@/constants/layout";
 
 type TabState = { index: number; routes: Array<{ key: string; name: string }> };
 type TabDescriptors = Record<string, { options: {
@@ -45,7 +46,9 @@ function WalletTabBar({ state, descriptors }: { state: TabState; descriptors: Ta
   const menuItemProgress = [useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current];
   const buttonRotation = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
-  const dockHeight = 72 + insets.bottom;
+  const safeBottom = Math.max(insets.bottom, SHEET_GAP);
+  const safeExtra = safeBottom - SHEET_GAP;
+  const dockHeight = 72 + safeExtra;
 
   const openMenu = useCallback(() => {
     if (menuOpen) return;
@@ -82,12 +85,13 @@ function WalletTabBar({ state, descriptors }: { state: TabState; descriptors: Ta
   }, [closeMenu, router]);
 
   const visibleRoutes = state.routes.filter((route) => VISIBLE_TABS.includes(route.name as (typeof VISIBLE_TABS)[number]));
-  const centerX = width / 2;
-  const notchPath = `M 0 0 L ${centerX - 52} 0 C ${centerX - 34} 0 ${centerX - 34} 25 ${centerX} 25 C ${centerX + 34} 25 ${centerX + 34} 0 ${centerX + 52} 0 L ${width} 0 L ${width} 72 L 0 72 Z`;
+  const barWidth = width - SHEET_GAP * 2;
+  const centerX = barWidth / 2;
+  const notchPath = `M 0 0 L ${centerX - 52} 0 C ${centerX - 34} 0 ${centerX - 34} 25 ${centerX} 25 C ${centerX + 34} 25 ${centerX + 34} 0 ${centerX + 52} 0 L ${barWidth} 0 L ${barWidth} ${dockHeight} L 0 ${dockHeight} Z`;
   const rotate = buttonRotation.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "45deg"] });
 
   return (
-    <View pointerEvents="box-none" style={[styles.host, { height: dockHeight }]}>
+    <View pointerEvents="box-none" style={[styles.host, { height: 72 + safeBottom }]}>
       {menuOpen ? (
         <>
           <Animated.View pointerEvents="none" style={[styles.dimLayer, { top: -height + dockHeight, bottom: -dockHeight, opacity: overlayProgress }]} />
@@ -109,12 +113,12 @@ function WalletTabBar({ state, descriptors }: { state: TabState; descriptors: Ta
         </>
       ) : null}
 
-      <View style={[styles.dock, { bottom: insets.bottom }]}>
-        <View style={styles.barSurface}>
-          <Svg width={width} height={72} style={StyleSheet.absoluteFill}>
+      <View style={[styles.dock, { bottom: SHEET_GAP, height: dockHeight }]}>
+        <View style={[styles.barSurface, { height: dockHeight }]}>
+          <Svg width={barWidth} height={dockHeight} style={StyleSheet.absoluteFill}>
             <Path d={notchPath} fill="#FFFFFF" />
           </Svg>
-          <View style={styles.tabsRow}>
+          <View style={[styles.tabsRow, { bottom: safeExtra }]}>
             {visibleRoutes.slice(0, 2).map((route) => {
               const focused = state.routes[state.index]?.key === route.key;
               const options = descriptors[route.key]?.options;
@@ -150,7 +154,7 @@ function WalletTabBar({ state, descriptors }: { state: TabState; descriptors: Ta
         </View>
       </View>
 
-      <Animated.View style={[styles.scanButtonWrap, { bottom: insets.bottom + 28, transform: [{ scale: buttonScale }, { rotate }] }]}>
+      <Animated.View style={[styles.scanButtonWrap, { bottom: safeBottom + 28, transform: [{ scale: buttonScale }, { rotate }] }]}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Add expense menu"
@@ -188,9 +192,9 @@ const styles = StyleSheet.create({
   menuStack: { position: "absolute", left: 0, right: 0, alignItems: "center", gap: 12, zIndex: 4 },
   menuPill: { minWidth: 184, minHeight: 48, paddingHorizontal: 17, borderRadius: 16, backgroundColor: "#FFFFFF", flexDirection: "row", alignItems: "center", gap: 12, shadowColor: "#142B55", shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.16, shadowRadius: 12, elevation: 8 },
   menuText: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 15 },
-  dock: { position: "absolute", left: 0, right: 0, bottom: 0, height: 72, paddingBottom: 0, backgroundColor: "transparent", zIndex: 2 },
-  barSurface: { height: 72, width: "100%", backgroundColor: "transparent" },
-  tabsRow: { height: 72, flexDirection: "row", alignItems: "center", justifyContent: "space-around" },
+  dock: { position: "absolute", left: SHEET_GAP, right: SHEET_GAP, height: 72, paddingBottom: 0, backgroundColor: "transparent", zIndex: 2 },
+  barSurface: { width: "100%", backgroundColor: "#FFFFFF", borderBottomLeftRadius: 24, borderBottomRightRadius: 24, overflow: "hidden" },
+  tabsRow: { position: "absolute", left: 0, right: 0, height: 72, flexDirection: "row", alignItems: "center", justifyContent: "space-around" },
   tab: { flex: 1, minWidth: 0, minHeight: 52, alignItems: "center", justifyContent: "center", paddingTop: 3 },
   tabLabel: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 11, lineHeight: 15, marginTop: 1 },
   centerSlot: { flex: 1, minWidth: 0, height: 52 },
