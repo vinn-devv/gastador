@@ -186,12 +186,14 @@ export default function InsightsScreen() {
               Spending by category
             </ThemedText>
             {breakdown.length === 0 ? (
-              <ThemedText type="small" themeColor="muted">
-                Your category breakdown will appear after you record an expense.
-              </ThemedText>
-              <Pressable onPress={() => router.push("/new-expense")} style={styles.setupButton} accessibilityRole="button" accessibilityLabel="Add an expense">
-                <ThemedText style={styles.setupButtonText}>Add an expense</ThemedText>
-              </Pressable>
+              <>
+                <ThemedText type="small" themeColor="muted">
+                  Your category breakdown will appear after you record an expense.
+                </ThemedText>
+                <Pressable onPress={() => router.push("/new-expense")} style={styles.setupButton} accessibilityRole="button" accessibilityLabel="Add an expense">
+                  <ThemedText style={styles.setupButtonText}>Add an expense</ThemedText>
+                </Pressable>
+              </>
             ) : (
               breakdown.map((item) => {
                 const percent =
