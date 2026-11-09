@@ -347,7 +347,7 @@ export default function HomeScreen() {
         )}
         </>
         ) : (
-          <View style={styles.insightContent}>
+          <View style={[styles.insightContent, { paddingTop: Math.max(0, (insightViewportHeight - RING_SIZE) / 2) }]}>
             <StaggeredRow index={0}>
               <View style={styles.ringWrap}>
                 <Svg width={RING_SIZE} height={RING_SIZE} viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}>
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   contentScrollInner: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 0 },
   sheetTab: { flex: 1, height: TH, alignItems: "center", justifyContent: "center" },
   sheetTabText: { fontFamily: "IBMPlexSans_700Bold", fontSize: 16, lineHeight: 22 },
-  insightContent: { flexGrow: 1, width: "100%", alignItems: "center", justifyContent: "flex-start", paddingTop: Math.max(0, (insightViewportHeight - RING_SIZE) / 2), paddingBottom: 24, gap: 18 },
+  insightContent: { flexGrow: 1, width: "100%", alignItems: "center", justifyContent: "flex-start", paddingTop: 0, paddingBottom: 24, gap: 18 },
   noAllowanceText: { color: "#6B7280", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18, lineHeight: 25, textAlign: "center", maxWidth: 150 },
   ringWrap: { width: RING_SIZE, height: RING_SIZE, alignItems: "center", justifyContent: "center" },
   ringCenter: { position: "absolute", width: RING_SIZE - 52, minHeight: 92, alignItems: "center", justifyContent: "center" },
