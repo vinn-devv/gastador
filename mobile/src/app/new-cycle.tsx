@@ -3,7 +3,6 @@ import { KeyboardAvoidingView, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DateField } from "@/components/date-field";
 import { ScreenLayout } from "@/components/screen-layout";
-import { navBarSpace } from "@/constants/layout";
 import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import {
@@ -13,7 +12,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { onTabBarScroll } from "@/components/tab-bar-visibility";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
@@ -125,8 +123,6 @@ export default function NewCycleScreen() {
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"
-        onScroll={onTabBarScroll}
-        scrollEventThrottle={16}
       >
 
       <View style={styles.field}>
@@ -178,7 +174,7 @@ export default function NewCycleScreen() {
       </View>
 
       <View style={styles.field}>
-        <DateField label="Allowance starts on" value={startDate} onChange={changeStart} maximumDate={today} />
+        <DateField label="Allowance starts on" value={startDate} onChange={changeStart} />
       </View>
 
       <View style={styles.field}>
