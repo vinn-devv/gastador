@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     alignSelf: "flex-start",
-    minHeight: 43,
+    minHeight: 44,
     paddingHorizontal: 18,
     borderRadius: 6,
     alignItems: "center",
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   choices: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
   choice: {
     minWidth: 68,
-    minHeight: 43,
+    minHeight: 44,
     borderWidth: 1,
     borderRadius: 8,
     alignItems: "center",
