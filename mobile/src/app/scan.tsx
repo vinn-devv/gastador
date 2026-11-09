@@ -74,7 +74,7 @@ export default function ScanScreen() {
 
   return (
     <ScreenLayout title="Scan QR" subtitle="Scan a payment QR or upload one from your gallery." onBack={() => router.back()} stackScreen>
-    <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + SHEET_GAP + 24 }]} keyboardShouldPersistTaps="handled">
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + SHEET_GAP + 24 }]} keyboardShouldPersistTaps="handled">
 
       <View style={styles.actions}>
         <Pressable onPress={() => router.push("/new-expense")} style={[styles.action, { backgroundColor: theme.primarySoft, borderColor: theme.primary }]}>
