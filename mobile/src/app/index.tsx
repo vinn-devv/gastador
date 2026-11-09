@@ -103,7 +103,7 @@ export default function HomeScreen() {
   const balanceLabelOpacity = useRef(new RNAnimated.Value(0)).current;
   const [animatedRemaining, setAnimatedRemaining] = useState(0);
   const donutProgress = useSharedValue(0);
-  const donutCircumference = 2 * Math.PI * 66;
+  const donutCircumference = 2 * Math.PI * 74;
   const donutAnimatedProps = useAnimatedProps(() => ({
     strokeDashoffset: donutCircumference * (1 - donutProgress.value),
   }));
@@ -152,18 +152,26 @@ export default function HomeScreen() {
   const summary = dashboard?.summary;
   const remaining = summary?.remainingCentavos ?? 0;
   const spendable = summary?.spendableCentavos ?? 0;
-  const spentPercent = spendable > 0 ? Math.max(0, Math.min(100, (summary!.spentCentavos / spendable) * 100)) : 0;
+  const rawSpentPercent = spendable > 0 ? Math.max(0, (summary!.spentCentavos / spendable) * 100) : 0;
+  const spentPercent = Math.min(100, rawSpentPercent);
   const formattedBalance = formatMoney(summary ? (remaining < 0 ? -animatedRemaining : animatedRemaining) : 0, currency);
   const balanceFirstDigit = formattedBalance.search(/\d/);
   const balancePrefix = balanceFirstDigit >= 0 ? formattedBalance.slice(0, balanceFirstDigit) : "";
   const balanceDigits = balanceFirstDigit >= 0 ? formattedBalance.slice(balanceFirstDigit) : formattedBalance;
   const balanceSign = /^[−-]/.test(balancePrefix.trim()) ? balancePrefix.trim().slice(0, 1) : "";
   const balanceCurrencySymbol = balancePrefix.replace(balanceSign, "").trim();
-  const hasInsightExpenses = Boolean(summary && summary.spentCentavos > 0);
-  const insightPercent = hasInsightExpenses ? Math.round(spentPercent) : 0;
+  const hasAllowance = Boolean(summary);
+  const insightPercent = hasAllowance ? Math.round(rawSpentPercent) : 0;
   const insightSpent = summary?.spentCentavos ?? 0;
   const insightLeft = summary?.remainingCentavos ?? 0;
-  const insightDaysLeft = summary?.daysRemaining ?? 0;
+  const insightDailyLimit = summary?.plannedDailyCentavos ?? 0;
+  const insightStatus = !hasAllowance
+    ? "No allowance set. Set one up in Settings to start tracking."
+    : rawSpentPercent > 100
+      ? "You’ve gone over your allowance."
+      : rawSpentPercent > 80
+        ? "Careful, you’ve used most of your allowance."
+        : "You’re on track. Keep it up!";
 
   useEffect(() => {
     if (loading) return;
@@ -180,11 +188,11 @@ export default function HomeScreen() {
   useEffect(() => {
     if (sheetTab !== "insight") return;
     donutProgress.value = 0;
-    donutProgress.value = withTiming(hasInsightExpenses ? spentPercent / 100 : 0, {
+    donutProgress.value = withTiming(hasAllowance ? spentPercent / 100 : 0, {
       duration: 700,
       easing: Easing.out(Easing.cubic),
     });
-  }, [donutProgress, hasInsightExpenses, sheetTab, spentPercent]);
+  }, [donutProgress, hasAllowance, sheetTab, spentPercent]);
 
   const switchSheetTab = useCallback((next: "activity" | "insight") => {
     if (next === sheetTab) return;
@@ -289,24 +297,28 @@ export default function HomeScreen() {
           <View style={styles.insightContent}>
             <StaggeredRow index={0}>
               <View style={styles.donutWrap}>
-                <Svg width={160} height={160} viewBox="0 0 160 160" style={!hasInsightExpenses ? styles.donutGhost : undefined}>
-                  <Circle cx={80} cy={80} r={66} stroke="#EAF3FF" strokeWidth={14} fill="none" />
+                <Svg width={180} height={180} viewBox="0 0 180 180">
+                  <Circle cx={90} cy={90} r={82} stroke="#BFDBFE" strokeWidth={1} fill="none" />
+                  <Circle cx={90} cy={90} r={74} stroke="#DBEAFE" strokeWidth={16} fill="none" />
+                  {!hasAllowance || insightPercent === 0 ? (
+                    <Path d="M 90 16 A 74 74 0 0 1 126.5 25.6" stroke="#2563EB" strokeOpacity={0.4} strokeWidth={2.5} strokeLinecap="round" strokeDasharray="2 5" fill="none" />
+                  ) : null}
                   <AnimatedCircle
-                    cx={80}
-                    cy={80}
-                    r={66}
+                    cx={90}
+                    cy={90}
+                    r={74}
                     stroke="#2563EB"
-                    strokeWidth={14}
+                    strokeWidth={16}
                     strokeLinecap="round"
                     fill="none"
                     strokeDasharray={`${donutCircumference} ${donutCircumference}`}
                     animatedProps={donutAnimatedProps}
-                    transform="rotate(-90 80 80)"
+                    transform="rotate(-90 90 90)"
                   />
                 </Svg>
                 <View pointerEvents="none" style={styles.donutCenter}>
                   <ThemedText style={styles.donutPercent}>{insightPercent}%</ThemedText>
-                  <ThemedText style={styles.donutLabel}>spent</ThemedText>
+                  <ThemedText style={styles.donutLabel}>of allowance spent</ThemedText>
                 </View>
               </View>
             </StaggeredRow>
@@ -325,16 +337,17 @@ export default function HomeScreen() {
               </Reanimated.View>
               <Reanimated.View style={styles.insightStatSlot} entering={FadeInDown.duration(240).delay(150)}>
                 <View style={styles.insightStatChip}>
-                  <ThemedText style={styles.insightStatValue}>{insightDaysLeft}</ThemedText>
-                  <ThemedText style={styles.insightStatLabel}>Days left</ThemedText>
+                  <ThemedText style={styles.insightStatValue}>{formatMoney(insightDailyLimit, currency)}</ThemedText>
+                  <ThemedText style={styles.insightStatLabel}>Daily limit</ThemedText>
                 </View>
               </Reanimated.View>
             </View>
-            {!hasInsightExpenses ? (
-              <StaggeredRow index={4}>
-                <ThemedText style={styles.insightEmptyCaption}>Add expenses to see your summary.</ThemedText>
-              </StaggeredRow>
-            ) : null}
+            <StaggeredRow index={4}>
+              <View style={styles.insightStatusPill}>
+                <SymbolView name={{ ios: "info.circle", android: "info", web: "info" }} tintColor="#2563EB" size={16} />
+                <ThemedText style={styles.insightStatusText}>{insightStatus}</ThemedText>
+              </View>
+            </StaggeredRow>
           </View>
         )}
         </Reanimated.View>
@@ -354,28 +367,29 @@ const styles = StyleSheet.create({
   notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 18 },
   balanceBlock: { minHeight: 122, alignItems: "center", justifyContent: "center" },
-  balanceLabel: { color: "rgba(255,232,138,0.9)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 20, marginBottom: 1 },
-  balanceAmount: { color: "#FFD54A", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 72, letterSpacing: -2, includeFontPadding: false },
-  balanceSign: { color: "#FFD54A", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
-  pesoSign: { color: "#FFD54A", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
+  balanceLabel: { color: "rgba(255,255,255,0.85)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 20, marginBottom: 1 },
+  balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 72, letterSpacing: -2, includeFontPadding: false },
+  balanceSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
+  pesoSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
   shapeHeader: { height: SHAPE_HEIGHT, backgroundColor: "#2563EB", marginBottom: -1 },
   shapeTabLabels: { position: "absolute", top: 0, left: 0, right: 0, height: TAB_HEIGHT, flexDirection: "row" },
   sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
   whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", paddingHorizontal: 20, paddingTop: 13, paddingBottom: 100, minHeight: 390 },
   sheetTab: { flex: 1, height: TAB_HEIGHT, alignItems: "center", justifyContent: "center" },
   sheetTabText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  insightContent: { alignItems: "center", paddingTop: 8, paddingBottom: 12, gap: 18 },
-  donutWrap: { width: 160, height: 160, alignItems: "center", justifyContent: "center" },
+  insightContent: { flexGrow: 1, width: "100%", alignItems: "center", justifyContent: "center", paddingTop: 24, paddingBottom: 24, gap: 20 },
+  donutWrap: { width: 180, height: 180, alignItems: "center", justifyContent: "center", marginBottom: 0 },
   donutCenter: { position: "absolute", alignItems: "center", justifyContent: "center" },
-  donutPercent: { color: "#1E40AF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 28, lineHeight: 34 },
-  donutLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, lineHeight: 15 },
+  donutPercent: { color: "#1E40AF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 32, lineHeight: 38 },
+  donutLabel: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, lineHeight: 16 },
   insightStatsRow: { width: "100%", flexDirection: "row", gap: 12 },
   insightStatSlot: { flex: 1, minWidth: 0 },
   donutGhost: { opacity: 0.42 },
   insightStatChip: { flex: 1, minWidth: 0, minHeight: 68, borderRadius: 16, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center", paddingHorizontal: 5, paddingVertical: 9, gap: 3 },
-  insightStatValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 16, lineHeight: 21 },
+  insightStatValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 18, lineHeight: 23 },
   insightStatLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, lineHeight: 16 },
-  insightEmptyCaption: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, textAlign: "center", marginTop: -4 },
+  insightStatusPill: { width: "100%", minHeight: 44, borderRadius: 12, backgroundColor: "#EAF3FF", paddingHorizontal: 13, paddingVertical: 10, flexDirection: "row", alignItems: "center", gap: 9 },
+  insightStatusText: { flex: 1, color: "#1E40AF", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, lineHeight: 17 },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 17 },
   sectionHeaderActions: { flexDirection: "row", alignItems: "center", gap: 12 },
   addExpenseButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
