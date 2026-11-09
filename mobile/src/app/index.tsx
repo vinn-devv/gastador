@@ -238,7 +238,7 @@ export default function HomeScreen() {
               />
             </View>
             <View style={styles.balanceFooter}>
-              <ThemedText style={[styles.balanceCaption, { color: "#596575" }]}>
+              <ThemedText style={[styles.balanceCaption, { color: theme.muted }]}>
                 {formatMoney(summary.spentCentavos, currency)} spent
               </ThemedText>
               <ThemedText style={[styles.balanceCaption, { color: theme.muted }]} themeColor="muted">
