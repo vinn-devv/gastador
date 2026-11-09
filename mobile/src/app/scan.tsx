@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   shutter: { width: 74, height: 74, borderRadius: 37, borderWidth: 4, borderColor: "#FFFFFF", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.18)" },
   shutterInner: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#FFFFFF" },
   photoActions: { position: "absolute", bottom: 18, left: 14, right: 14, flexDirection: "row", gap: 10 },
-  secondaryButton: { minHeight: 48, flex: 1, backgroundColor: "rgba(20,30,45,0.75)", borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  secondaryButton: { minHeight: 48, flex: 1, backgroundColor: "rgba(20,30,45,0.75)", borderRadius: 8, alignItems: "center", justifyContent: "center" },
   secondaryText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold" },
   primaryButton: { minHeight: 48, paddingHorizontal: 16, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   primaryText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
@@ -207,6 +207,6 @@ const styles = StyleSheet.create({
   resultHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   resultTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
   qrText: { fontFamily: "IBMPlexSans_400Regular", fontSize: 13, lineHeight: 19 },
-  error: { borderRadius: 14, padding: 13 },
+  error: { borderRadius: 8, padding: 13 },
   privacy: { textAlign: "center", marginTop: 2 },
 });
