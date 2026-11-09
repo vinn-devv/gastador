@@ -124,7 +124,7 @@ export default function NewCycleScreen() {
         </ThemedText>
       </Pressable>
       <ThemedText type="small" themeColor="muted">
-        PLAN YOUR ALLOWANCE
+        Allowance setup
       </ThemedText>
       <ThemedText style={styles.title}>New allowance cycle</ThemedText>
       <ThemedText type="small" themeColor="muted" style={styles.subtitle}>
@@ -259,8 +259,8 @@ const styles = StyleSheet.create({
   back: { alignSelf: "flex-start", marginBottom: 22 },
   backText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   title: {
-    fontFamily: "serif",
-    fontSize: 31,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 30,
     lineHeight: 36,
     marginTop: 2,
   },
@@ -270,14 +270,14 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 48,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 6,
     paddingHorizontal: 13,
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 15,
   },
   amountInput: {
     minHeight: 58,
-    fontFamily: "Georgia",
+    fontFamily: "IBMPlexSans_700Bold",
     fontSize: 25,
   },
   options: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
