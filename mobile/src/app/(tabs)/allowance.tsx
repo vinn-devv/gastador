@@ -9,10 +9,9 @@ import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
 import { navBarSpace } from "@/constants/layout";
 import { getCycles, getSettings } from "@/data/repository";
-import { formatDate } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
 import { cycleStatus } from "@/domain/allowance";
-import { manilaToday } from "@/domain/dates";
+import { formatDate, manilaToday } from "@/domain/dates";
 import type { Cycle, CurrencyCode } from "@/domain/types";
 
 const frequencyLabel: Record<Cycle["frequency"], string> = {
