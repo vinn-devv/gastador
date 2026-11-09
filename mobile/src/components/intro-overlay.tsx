@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet } from "react-native";
 import { WebView, type WebViewMessageEvent } from "react-native-webview";
 
@@ -11,16 +11,16 @@ export function IntroOverlay() {
   const opacity = useRef(new Animated.Value(1)).current;
   const finished = useRef(false);
 
-  const finish = (): void => {
+  const finish = useCallback((): void => {
     if (finished.current) return;
     finished.current = true;
     Animated.timing(opacity, { toValue: 0, duration: 350, useNativeDriver: true }).start(() => setVisible(false));
-  };
+  }, [opacity]);
 
   useEffect(() => {
     const t = setTimeout(finish, 6000);
     return () => clearTimeout(t);
-  }, []);
+  }, [finish]);
 
   if (!visible) return null;
 
