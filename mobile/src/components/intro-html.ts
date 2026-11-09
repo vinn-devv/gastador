@@ -4,10 +4,10 @@ export const INTRO_HTML = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#315D8A">
+<meta name="theme-color" content="#2563EB">
 <title>Gastador Intro</title>
 <style>
-:root{--bg:#315D8A;--ink:#FFFFFF;--sub:rgba(255,255,255,.82);--glow:rgba(255,255,255,.12);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#2563EB;--ink:#FFFFFF;--sub:rgba(255,255,255,.82);--glow:rgba(255,255,255,.12);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 
 
 *,*::before,*::after{box-sizing:border-box}
