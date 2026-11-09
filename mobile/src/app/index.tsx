@@ -441,7 +441,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 38 },
+  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   header: {
     flexDirection: "row",
     alignItems: "center",
