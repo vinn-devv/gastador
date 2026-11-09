@@ -36,7 +36,7 @@ jobs:
       - name: Type-check mobile app
         run: npx tsc --noEmit
       - name: Lint mobile app
-        run: npx expo lint -- --rule "react-hooks/refs: off" --rule "react-hooks/immutability: off" --rule "react-hooks/set-state-in-effect: off"
+        run: 'npx expo lint -- --rule "react-hooks/refs: off" --rule "react-hooks/immutability: off" --rule "react-hooks/set-state-in-effect: off"'
       - name: Bundle Android JavaScript and assets
         run: npx expo export --platform android
       - name: Generate Android native project
