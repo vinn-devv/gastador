@@ -6,7 +6,7 @@ Apply these rules whenever changing Gastador's interface. Treat this as the prod
 Gastador is an Android-first, local-first personal allowance and expense tracker for Filipino students. Its primary job is to answer: "How much of my allowance can I still spend?" Default currency is PHP. Existing budgeting, SQLite, backup, scan, and transaction behaviour must remain intact unless the task explicitly requests a functional change.
 
 ## Design identity
-The user-approved visual reference is a clean blue wallet interface: a deep ledger-blue balance header, pale-blue circular quick actions, a white lower content sheet with a soft curved top edge, compact transaction rows, and restrained white bottom navigation. Reproduce this composition closely across Gastador screens. Do not substitute a different design direction, add decorative gradients, or introduce generic dashboard cards. Gastador remains a student allowance tracker, not a cryptocurrency wallet; never add crypto assets, transfer, exchange, or withdrawal concepts from the reference.
+The user-approved visual reference is a clean blue wallet interface: a saturated royal-blue balance header, sky-blue circular quick actions, a white lower content sheet with a soft curved top edge, compact transaction rows, and restrained white bottom navigation. Reproduce this composition closely across Gastador screens. Do not substitute a different design direction, add decorative gradients, or introduce generic dashboard cards. Gastador remains a student allowance tracker, not a cryptocurrency wallet; never add crypto assets, transfer, exchange, or withdrawal concepts from the reference.
 
 ## Colour tokens
 Use semantic tokens from `src/constants/theme.ts` for interface colours:
@@ -15,9 +15,9 @@ Use semantic tokens from `src/constants/theme.ts` for interface colours:
 - Main text: `#202A35`
 - Secondary text: `#56616B`
 - Muted text: `#68747D`
-- Ledger blue: `#315D8A`
-- Pale blue action: `#C8D8E7`
-- Selected pale blue: `#E7EDF3`
+- Ledger blue: `#2563EB`
+- Pale blue action: `#8EC5FF`
+- Selected pale blue: `#EAF3FF`
 - Divider: `#D9DEE2`
 - Positive: `#3F8068`
 - Warning: `#98652F`
