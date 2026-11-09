@@ -1,7 +1,7 @@
-import { useCallback, useMemo, useRef, useState } from "react";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { Animated, PanResponder, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 
@@ -18,11 +18,12 @@ const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "clear", "0", ".", "d
 export default function NewExpenseScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
+  const params = useLocalSearchParams<{ amount?: string; merchant?: string }>();
   const theme = useTheme();
   const [categories, setCategories] = useState<Category[]>([]);
   const [currency, setCurrency] = useState("PHP");
-  const [amount, setAmount] = useState("");
-  const [merchant, setMerchant] = useState("");
+  const [amount, setAmount] = useState(params.amount ?? "");
+  const [merchant, setMerchant] = useState(params.merchant ?? "");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(manilaToday());
   const [categoryId, setCategoryId] = useState("");
@@ -31,10 +32,6 @@ export default function NewExpenseScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [swipeTrackWidth, setSwipeTrackWidth] = useState(0);
-  const swipeTrackWidthRef = useRef(0);
-  const swipeX = useRef(new Animated.Value(0)).current;
-
   useFocusEffect(
     useCallback(() => {
       let active = true;
@@ -96,30 +93,6 @@ export default function NewExpenseScreen() {
     }
   }
 
-  const saveRef = useRef(save);
-  saveRef.current = save;
-  const maxSwipe = Math.max(0, swipeTrackWidth - 54);
-  swipeTrackWidthRef.current = swipeTrackWidth;
-  const swipeResponder = useMemo(() => PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 3,
-    onPanResponderMove: (_, gesture) => {
-      const limit = Math.max(0, swipeTrackWidthRef.current - 54);
-      swipeX.setValue(Math.max(0, Math.min(limit, gesture.dx)));
-    },
-    onPanResponderRelease: async (_, gesture) => {
-      const limit = Math.max(0, swipeTrackWidthRef.current - 54);
-      if (limit > 0 && gesture.dx >= limit * 0.78) {
-        Animated.timing(swipeX, { toValue: limit, duration: 110, useNativeDriver: true }).start(async () => {
-          await saveRef.current();
-          Animated.spring(swipeX, { toValue: 0, damping: 18, stiffness: 180, useNativeDriver: true }).start();
-        });
-      } else {
-        Animated.spring(swipeX, { toValue: 0, damping: 16, stiffness: 190, useNativeDriver: true }).start();
-      }
-    },
-    onPanResponderTerminate: () => Animated.spring(swipeX, { toValue: 0, useNativeDriver: true }).start(),
-  }), [swipeX]);
   const fieldStyle = [styles.input, { backgroundColor: theme.surface, borderColor: theme.line, color: theme.text }];
   const formattedAmount = amount ? amount : "0.00";
 
