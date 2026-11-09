@@ -178,17 +178,7 @@ export default function ActivityScreen() {
                 },
               ]}
             >
-              <View
-                style={[styles.icon, { backgroundColor: "#E9EEF5" }]}
-              >
-                <ThemedText
-                  style={[styles.initial, { color: theme.primary }]}
-                >
-                  {(item.merchant || categoryNames.get(item.categoryId) || "E")
-                    .charAt(0)
-                    .toUpperCase()}
-                </ThemedText>
-              </View>
+              <View style={[styles.rowRule, { backgroundColor: theme.primary }]} />
               <View style={styles.info}>
                 <ThemedText style={styles.merchant} numberOfLines={1}>
                   {item.merchant || "Untitled expense"}
