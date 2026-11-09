@@ -203,6 +203,7 @@ export default function ActivityScreen() {
 }
 
 const styles = StyleSheet.create({
+  rowRule: { width: 3, height: 34, borderRadius: 2 },
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   header: { gap: 3, marginBottom: 20 },
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
   search: {
     minHeight: 48,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 6,
     paddingHorizontal: 14,
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 14,
