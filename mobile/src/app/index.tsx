@@ -289,7 +289,7 @@ export default function HomeScreen() {
           <View style={styles.insightContent}>
             <StaggeredRow index={0}>
               <View style={styles.donutWrap}>
-                <Svg width={160} height={160} viewBox="0 0 160 160">
+                <Svg width={160} height={160} viewBox="0 0 160 160" style={!hasInsightExpenses ? styles.donutGhost : undefined}>
                   <Circle cx={80} cy={80} r={66} stroke="#EAF3FF" strokeWidth={14} fill="none" />
                   <AnimatedCircle
                     cx={80}
@@ -311,24 +311,24 @@ export default function HomeScreen() {
               </View>
             </StaggeredRow>
             <View style={styles.insightStatsRow}>
-              <StaggeredRow index={1}>
+              <Reanimated.View style={styles.insightStatSlot} entering={FadeInDown.duration(240).delay(50)}>
                 <View style={styles.insightStatChip}>
                   <ThemedText style={styles.insightStatValue}>{formatMoney(insightSpent, currency)}</ThemedText>
                   <ThemedText style={styles.insightStatLabel}>Spent</ThemedText>
                 </View>
-              </StaggeredRow>
-              <StaggeredRow index={2}>
+              </Reanimated.View>
+              <Reanimated.View style={styles.insightStatSlot} entering={FadeInDown.duration(240).delay(100)}>
                 <View style={styles.insightStatChip}>
                   <ThemedText style={styles.insightStatValue}>{formatMoney(insightLeft, currency)}</ThemedText>
                   <ThemedText style={styles.insightStatLabel}>Left</ThemedText>
                 </View>
-              </StaggeredRow>
-              <StaggeredRow index={3}>
+              </Reanimated.View>
+              <Reanimated.View style={styles.insightStatSlot} entering={FadeInDown.duration(240).delay(150)}>
                 <View style={styles.insightStatChip}>
                   <ThemedText style={styles.insightStatValue}>{insightDaysLeft}</ThemedText>
                   <ThemedText style={styles.insightStatLabel}>Days left</ThemedText>
                 </View>
-              </StaggeredRow>
+              </Reanimated.View>
             </View>
             {!hasInsightExpenses ? (
               <StaggeredRow index={4}>
@@ -370,6 +370,8 @@ const styles = StyleSheet.create({
   donutPercent: { color: "#1E40AF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 28, lineHeight: 34 },
   donutLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, lineHeight: 15 },
   insightStatsRow: { width: "100%", flexDirection: "row", gap: 12 },
+  insightStatSlot: { flex: 1, minWidth: 0 },
+  donutGhost: { opacity: 0.42 },
   insightStatChip: { flex: 1, minWidth: 0, minHeight: 68, borderRadius: 16, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center", paddingHorizontal: 5, paddingVertical: 9, gap: 3 },
   insightStatValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 16, lineHeight: 21 },
   insightStatLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, lineHeight: 16 },
