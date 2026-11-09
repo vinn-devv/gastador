@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   balanceLabel: { color: "rgba(255,232,138,0.9)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 20, marginBottom: 1 },
   balanceAmount: { color: "#FFD54A", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 72, letterSpacing: -2, includeFontPadding: false },
   balanceSign: { color: "#FFD54A", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
-  pesoSign: { color: "#FFD54A", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top", textShadowColor: "transparent", textShadowRadius: 0 },
+  pesoSign: { color: "#FFD54A", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
   shapeHeader: { height: SHAPE_HEIGHT, backgroundColor: "#2563EB", marginBottom: -1 },
   shapeTabLabels: { position: "absolute", top: 0, left: 0, right: 0, height: TAB_HEIGHT, flexDirection: "row" },
   sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
