@@ -100,7 +100,7 @@ export default function SettingsScreen() {
       scrollEventThrottle={16}
     >
       <ThemedText type="small" themeColor="muted">
-        MAKE IT YOURS
+        Your preferences
       </ThemedText>
       <ThemedText style={styles.title}>Settings</ThemedText>
       <ThemedText type="small" themeColor="muted" style={styles.subtitle}>
@@ -214,7 +214,7 @@ export default function SettingsScreen() {
                     <ThemedText
                       style={[
                         styles.methodTitle,
-                        { color: selected ? theme.onPrimary : theme.text },
+                        { color: selected ? theme.primary : theme.text },
                       ]}
                     >
                       {method.label}
@@ -258,15 +258,15 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   title: {
-    fontFamily: "serif",
-    fontSize: 31,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 30,
     lineHeight: 36,
     marginTop: 2,
   },
   subtitle: { marginTop: 3, marginBottom: 24 },
   section: { marginBottom: 18, padding: 15, borderRadius: 0, borderWidth: 0, borderBottomWidth: StyleSheet.hairlineWidth },
   sectionTitle: {
-    fontFamily: "Georgia",
+    fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 19,
     marginBottom: 12,
   },
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 48,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 6,
     paddingHorizontal: 13,
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 15,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     minHeight: 43,
     paddingHorizontal: 18,
-    borderRadius: 12,
+    borderRadius: 6,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
