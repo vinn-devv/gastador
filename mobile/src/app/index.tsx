@@ -3,7 +3,6 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { onTabBarScroll } from "@/components/tab-bar-visibility";
 
@@ -175,9 +174,9 @@ export default function HomeScreen() {
         />
       </View>
 
-      <LinearGradient colors={[theme.primary, theme.balanceEnd]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.balanceSection}>
+      <View style={[styles.balanceSection, { backgroundColor: theme.surface, borderColor: theme.line }]}>
         <View style={styles.balanceTop}>
-          <ThemedText style={[styles.balanceLabel, { color: "#EAF4FC" }]}>
+          <ThemedText style={[styles.balanceLabel, { color: theme.muted }]}>
             AVAILABLE BALANCE
           </ThemedText>
           {summary && (
@@ -193,7 +192,7 @@ export default function HomeScreen() {
                   },
                 ]}
               />
-              <ThemedText style={[styles.statusText, { color: "#D8EAF8" }]}>
+              <ThemedText style={[styles.statusText, { color: theme.muted }]}>
                 {summary.pace === "on_track"
                   ? "On track"
                   : summary.pace === "above_pace"
@@ -209,7 +208,7 @@ export default function HomeScreen() {
         </View>
 
         {loading ? (
-          <ThemedText style={[styles.balanceAmount, { color: "#FFFFFF" }]}>
+          <ThemedText style={[styles.balanceAmount, { color: theme.text }]}>
             ••••••
           </ThemedText>
         ) : summary ? (
@@ -228,13 +227,13 @@ export default function HomeScreen() {
             <View
               style={[
                 styles.progressTrack,
-                { backgroundColor: "rgba(255,255,255,0.24)" },
+                { backgroundColor: theme.sunken },
               ]}
             >
               <View
                 style={[
                   styles.progressFill,
-                  { width: `${spentPercent}%`, backgroundColor: "#62E0C2" },
+                  { width: `${spentPercent}%`, backgroundColor: theme.primary },
                 ]}
               />
             </View>
@@ -258,7 +257,7 @@ export default function HomeScreen() {
             {formatDate(dashboard.endDate, false)}
           </ThemedText>
         )}
-      </LinearGradient>
+      </View>
 
       {!summary && !loading ? (
         <Pressable
@@ -293,7 +292,7 @@ export default function HomeScreen() {
             style={styles.quickAction}
           >
             <View
-              style={[styles.quickIcon, { backgroundColor: theme.primarySoft }]}
+              style={[styles.quickIcon, { backgroundColor: "#EEF1F3" }]}
             >
               <SymbolView
                 name={action.icon}
@@ -457,15 +456,19 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 26,
-    lineHeight: 34,
+    fontFamily: "Georgia",
+    fontSize: 28,
+    lineHeight: 36,
     letterSpacing: -0.9,
   },
   brandMark: { width: 38, height: 38 },
   balanceSection: {
     marginBottom: 20,
     padding: 18,
-    borderRadius: 18,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderLeftWidth: 3,
+    padding: 20,
     overflow: "hidden",
   },
   balanceTop: {
@@ -484,8 +487,8 @@ const styles = StyleSheet.create({
   statusText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
   balanceAmount: {
     color: "#FFFFFF",
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 43,
+    fontFamily: "Georgia",
+    fontSize: 42,
     lineHeight: 54,
     letterSpacing: -2.1,
     marginTop: 8,
@@ -510,7 +513,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     gap: 8,
   },
-  balanceCaption: { color: "#EAF2FF", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
+  balanceCaption: { color: "#7A817F", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
   cycleDate: {
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 11,
@@ -581,8 +584,8 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   sectionTitle: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 19,
+    fontFamily: "Georgia",
+    fontSize: 21,
     letterSpacing: -0.45,
   },
   seeAll: {
