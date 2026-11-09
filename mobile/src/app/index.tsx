@@ -224,7 +224,7 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.shapeHeader}>
-        <Svg width={width} height={SHAPE_HEIGHT + 16} style={styles.shapeSvg} overflow="visible">
+        <Svg width={width} height={SHAPE_HEIGHT + 16} style={styles.shapeSvg}>
           <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.06)" transform="translate(0 -14)" />
           <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.12)" transform="translate(0 -6)" />
           <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.22)" transform="translate(0 -2)" />
