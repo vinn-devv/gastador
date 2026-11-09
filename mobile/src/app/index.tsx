@@ -147,11 +147,12 @@ export default function HomeScreen() {
   const remaining = summary?.remainingCentavos ?? 0;
   const spendable = summary?.spendableCentavos ?? 0;
   const spentPercent = spendable > 0 ? Math.max(0, Math.min(100, (summary!.spentCentavos / spendable) * 100)) : 0;
-  const formattedBalance = formatMoney(summary ? animatedRemaining : 0, currency);
+  const formattedBalance = formatMoney(summary ? (remaining < 0 ? -animatedRemaining : animatedRemaining) : 0, currency);
   const balanceFirstDigit = formattedBalance.search(/\d/);
   const balancePrefix = balanceFirstDigit >= 0 ? formattedBalance.slice(0, balanceFirstDigit) : "";
   const balanceDigits = balanceFirstDigit >= 0 ? formattedBalance.slice(balanceFirstDigit) : formattedBalance;
-  const balanceSign = balancePrefix.replace("₱", "").trim();
+  const balanceSign = /^[−-]/.test(balancePrefix.trim()) ? balancePrefix.trim().slice(0, 1) : "";
+  const balanceCurrencySymbol = balancePrefix.replace(balanceSign, "").trim();
 
   useEffect(() => {
     if (loading) return;
@@ -159,7 +160,7 @@ export default function HomeScreen() {
     balanceProgress.setValue(0);
     balanceLabelOpacity.setValue(0);
     RNAnimated.parallel([
-      RNAnimated.timing(balanceProgress, { toValue: Math.max(0, remaining), duration: 850, easing: RNEasing.out(RNEasing.cubic), useNativeDriver: false }),
+      RNAnimated.timing(balanceProgress, { toValue: Math.abs(remaining), duration: 850, easing: RNEasing.out(RNEasing.cubic), useNativeDriver: false }),
       RNAnimated.timing(balanceLabelOpacity, { toValue: 1, duration: 420, easing: RNEasing.out(RNEasing.quad), useNativeDriver: true }),
     ]).start();
     return () => { balanceProgress.removeListener(listener); balanceProgress.stopAnimation(); balanceLabelOpacity.stopAnimation(); };
@@ -191,7 +192,7 @@ export default function HomeScreen() {
           <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel={`Available to spend ${formattedBalance}. Open allowance setup.`} style={styles.balanceTapTarget}>
             <RNAnimated.Text style={styles.balanceAmount}>
               {balanceSign ? <Text style={styles.balanceSign}>{balanceSign}</Text> : null}
-              {balancePrefix.includes("₱") ? <Text style={styles.pesoSign}>₱</Text> : null}
+              {balanceCurrencySymbol ? <Text style={styles.pesoSign}>{balanceCurrencySymbol}</Text> : null}
               {balanceDigits}
             </RNAnimated.Text>
           </Pressable>
