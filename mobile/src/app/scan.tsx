@@ -17,7 +17,6 @@ export default function ScanScreen() {
       onScroll={onTabBarScroll}
       scrollEventThrottle={16}
     >
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <ThemedText style={[styles.brand, { color: theme.primary }]}>
           GastadorApp
