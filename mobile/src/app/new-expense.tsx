@@ -89,10 +89,10 @@ export default function NewExpenseScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <ScrollView style={styles.screen} contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + SHEET_GAP + 24 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View style={styles.sheet}>
-          <View style={styles.balancePanel}>
+          <View style={[styles.balancePanel, { backgroundColor: theme.background }]}>
             <View style={{ flex: 1 }}>
-              <ThemedText style={styles.balanceLabel}>Current allowance balance</ThemedText>
-              <ThemedText style={styles.balanceValue}>{availableBalance === null ? "No active allowance" : formatMoney(availableBalance, currency)}</ThemedText>
+              <ThemedText style={[styles.balanceLabel, { color: theme.muted }]}>Current allowance balance</ThemedText>
+              <ThemedText style={[styles.balanceValue, { color: theme.text }]}>{availableBalance === null ? "No active allowance" : formatMoney(availableBalance, currency)}</ThemedText>
             </View>
             <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Set up allowance" style={styles.balanceAdd}>
               <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor={theme.primary} size={19} />
@@ -100,20 +100,20 @@ export default function NewExpenseScreen() {
           </View>
 
           <View style={styles.amountArea}>
-            <ThemedText style={styles.amountLabel}>Expense amount</ThemedText>
+            <ThemedText style={[styles.amountLabel, { color: theme.text }]}>Expense amount</ThemedText>
             <View style={[styles.amountInputWrap, { borderColor: theme.line, backgroundColor: theme.surface }]}>
-              <ThemedText style={styles.currencyPrefix}>{currency === "PHP" ? "₱" : currency}</ThemedText>
+              <ThemedText style={[styles.currencyPrefix, { color: theme.primary }]}>{currency === "PHP" ? "₱" : currency}</ThemedText>
               <TextInput value={amount} onChangeText={(value) => { setAmount(value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1")); setError(""); }} placeholder="0.00" placeholderTextColor={theme.muted} keyboardType="decimal-pad" accessibilityLabel="Expense amount" style={[styles.amountInput, { color: theme.text }]} />
             </View>
           </View>
 
           <View style={styles.field}>
-            <ThemedText style={styles.label}>What did you spend on?</ThemedText>
+            <ThemedText style={[styles.label, { color: theme.text }]}>What did you spend on?</ThemedText>
             <TextInput value={merchant} onChangeText={setMerchant} placeholder="e.g. Lunch, Jeepney fare" placeholderTextColor={theme.muted} accessibilityLabel="Merchant or expense description" style={fieldStyle} />
           </View>
 
           <View style={styles.field}>
-            <ThemedText style={styles.label}>Category</ThemedText>
+            <ThemedText style={[styles.label, { color: theme.text }]}>Category</ThemedText>
             {loading ? <ThemedText style={styles.muted}>Loading categories…</ThemedText> : (
               <View style={styles.optionGrid}>
                 {categories.map((category) => {
@@ -127,7 +127,7 @@ export default function NewExpenseScreen() {
           </View>
 
           <View style={styles.field}>
-            <ThemedText style={styles.label}>Paid with</ThemedText>
+            <ThemedText style={[styles.label, { color: theme.text }]}>Paid with</ThemedText>
             <View style={styles.optionGrid}>
               {PAYMENT_METHODS.map((method) => {
                 const selected = paymentMethod === method.value;
@@ -142,7 +142,7 @@ export default function NewExpenseScreen() {
             <DateField label="Date" value={date} onChange={(value) => { setDate(value); setDateError(""); }} maximumDate={manilaToday()} error={dateError} />
           </View>
           <View style={styles.field}>
-            <ThemedText style={styles.label}>Note (optional)</ThemedText>
+            <ThemedText style={[styles.label, { color: theme.text }]}>Note (optional)</ThemedText>
             <TextInput value={description} onChangeText={setDescription} placeholder="Add a short note" placeholderTextColor={theme.muted} accessibilityLabel="Optional expense note" style={[...fieldStyle, styles.noteInput]} multiline />
           </View>
 
@@ -161,17 +161,17 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   scrollContent: { flexGrow: 1 },
   sheet: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 24 },
-  balancePanel: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#F3F5F6", borderRadius: 15, padding: 14, marginBottom: 18 },
-  balanceLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
-  balanceValue: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 19, marginTop: 3 },
+  balancePanel: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderRadius: 15, padding: 14, marginBottom: 18 },
+  balanceLabel: { fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
+  balanceValue: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 19, marginTop: 3 },
   balanceAdd: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
   amountArea: { paddingVertical: 4, marginBottom: 18, gap: 8 },
-  amountLabel: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  amountLabel: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   amountInputWrap: { minHeight: 60, borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", gap: 10 },
-  currencyPrefix: { color: "#2563EB", fontFamily: "IBMPlexSans_700Bold", fontSize: 24 },
+  currencyPrefix: { fontFamily: "IBMPlexSans_700Bold", fontSize: 24 },
   amountInput: { flex: 1, minWidth: 0, fontFamily: "IBMPlexSans_700Bold", fontSize: 25, paddingVertical: 8 },
   field: { marginBottom: 18, gap: 8 },
-  label: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  label: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   input: { minHeight: 48, borderWidth: 1, borderRadius: 12, paddingHorizontal: 15, fontFamily: "IBMPlexSans_400Regular", fontSize: 14 },
   optionGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   option: { minHeight: 43, borderWidth: 1, borderRadius: 9, paddingHorizontal: 13, justifyContent: "center" },
