@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useIsFocused, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenLayout } from "@/components/screen-layout";
@@ -17,7 +17,6 @@ export default function ScanScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
-  const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [qrValue, setQrValue] = useState("");
   const [error, setError] = useState("");
@@ -36,6 +35,7 @@ export default function ScanScreen() {
     setLastCode(result.data);
     const parsed = parseQrExpense(result.data);
     if (!parsed) {
+      setQrValue(result.data);
       setError("This QR code has no readable amount. You can add the expense manually.");
       return;
     }
@@ -58,7 +58,10 @@ export default function ScanScreen() {
       if (codes.length > 0) {
         const parsed = parseQrExpense(codes[0].data);
         if (parsed) router.push({ pathname: "/new-expense", params: parsed });
-        else setError("This QR code has no readable amount. You can add the expense manually.");
+        else {
+          setQrValue(codes[0].data);
+          setError("This QR code has no readable amount. You can add the expense manually.");
+        }
       } else {
         setError("No QR code was found in that image. Choose a clearer image with the full code visible.");
       }
@@ -87,7 +90,6 @@ export default function ScanScreen() {
       {permission?.granted && focused ? (
         <View style={styles.cameraShell}>
           <CameraView
-            ref={cameraRef}
             style={styles.camera}
             facing="back"
             active={focused}
