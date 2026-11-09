@@ -5,6 +5,7 @@ import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Animated, Easing, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import Svg, { Path } from "react-native-svg";
 
 import { ThemedText } from "@/components/themed-text";
 import {
@@ -70,6 +71,7 @@ export default function HomeScreen() {
   const [sheetTab, setSheetTab] = useState<"activity" | "insight">("activity");
   const [sheetTabsWidth, setSheetTabsWidth] = useState(0);
   const tabIndicator = useRef(new Animated.Value(0)).current;
+  const tabTextProgress = useRef(new Animated.Value(0)).current;
   const sheetEntrance = useRef(new Animated.Value(0)).current;
   const tabTransition = useRef(new Animated.Value(1)).current;
   const balanceProgress = useRef(new Animated.Value(0)).current;
@@ -129,19 +131,23 @@ export default function HomeScreen() {
     return () => { balanceProgress.removeListener(listener); balanceProgress.stopAnimation(); };
   }, [balanceProgress, loading, remaining]);
 
-  useEffect(() => {
-    Animated.timing(tabIndicator, { toValue: sheetTab === "insight" ? 1 : 0, duration: 300, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }).start();
-  }, [sheetTab, tabIndicator]);
-
-  useEffect(() => {
-    tabTransition.setValue(0);
-    Animated.timing(tabTransition, { toValue: 1, duration: 280, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }).start();
-  }, [sheetTab, tabTransition]);
+  const switchSheetTab = useCallback((next: "activity" | "insight") => {
+    if (next === sheetTab) return;
+    Animated.timing(tabTransition, { toValue: 0, duration: 140, easing: Easing.in(Easing.cubic), useNativeDriver: true }).start(({ finished }) => {
+      if (!finished) return;
+      setSheetTab(next);
+      Animated.parallel([
+        Animated.timing(tabIndicator, { toValue: next === "insight" ? 1 : 0, duration: 300, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(tabTextProgress, { toValue: next === "insight" ? 1 : 0, duration: 300, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
+        Animated.timing(tabTransition, { toValue: 1, duration: 160, delay: 50, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      ]).start();
+    });
+  }, [sheetTab, tabIndicator, tabTextProgress, tabTransition]);
 
   return (
     <>
     <StatusBar style="light" />
-    <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 78, 90) }]}>
+    <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent}>
       <View style={styles.blueHeader}>
         <View style={[styles.topLine, { paddingTop: Math.max(insets.top, 8) }]}>
           <ThemedText style={styles.walletTitle}>Wallet</ThemedText>
@@ -184,18 +190,20 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <Animated.View style={[styles.whiteSheet, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
+      <Animated.View style={[styles.sheetShadow, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
+        <View style={[styles.whiteSheet, { paddingBottom: Math.max(insets.bottom + 90, 100) }]}>
         <View style={styles.sheetHandle} />
         <View style={styles.sheetTabs} onLayout={(event) => setSheetTabsWidth(event.nativeEvent.layout.width)}>
-          <Animated.View style={[styles.sheetIndicator, { width: Math.max(0, (sheetTabsWidth - 50) / 2), transform: [{ translateX: tabIndicator.interpolate({ inputRange: [0, 1], outputRange: [0, Math.max(0, (sheetTabsWidth - 50) / 2) + 8] }) }] }]}>
-            <View style={styles.tabCurveLeft} />
-            <View style={styles.tabCurveRight} />
+          <Animated.View pointerEvents="none" style={[styles.sheetIndicator, { width: Math.max(0, (sheetTabsWidth - 8) / 2), transform: [{ translateX: tabIndicator.interpolate({ inputRange: [0, 1], outputRange: [0, Math.max(0, (sheetTabsWidth - 8) / 2) + 8] }) }] }]}>
+            <Svg width="100%" height="52" viewBox="0 0 200 52" preserveAspectRatio="none">
+              <Path d="M16 0 H184 Q200 0 200 16 V36 C200 36 184 36 184 52 H16 C16 36 0 36 0 36 V16 Q0 0 16 0 Z" fill="#FFFFFF" />
+            </Svg>
           </Animated.View>
-          <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => setSheetTab("activity")} style={[styles.sheetTab, sheetTab === "activity" && styles.sheetTabActive]}>
-            <ThemedText style={[styles.sheetTabText, sheetTab === "activity" && styles.sheetTabTextActive]}>Activity</ThemedText>
+          <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => switchSheetTab("activity")} style={styles.sheetTab}>
+            <Animated.Text style={[styles.sheetTabText, { color: tabTextProgress.interpolate({ inputRange: [0, 1], outputRange: ["#1E40AF", "#EAF3FF"] }) }]}>Activity</Animated.Text>
           </Pressable>
-          <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "insight" }} onPress={() => setSheetTab("insight")} style={[styles.sheetTab, sheetTab === "insight" && styles.sheetTabActive]}>
-            <ThemedText style={[styles.sheetTabText, sheetTab === "insight" && styles.sheetTabTextActive]}>Insight</ThemedText>
+          <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "insight" }} onPress={() => switchSheetTab("insight")} style={styles.sheetTab}>
+            <Animated.Text style={[styles.sheetTabText, { color: tabTextProgress.interpolate({ inputRange: [0, 1], outputRange: ["#EAF3FF", "#1E40AF"] }) }]}>Insight</Animated.Text>
           </Pressable>
         </View>
         <Animated.View style={{ opacity: tabTransition, transform: [{ translateX: tabTransition.interpolate({ inputRange: [0, 1], outputRange: [sheetTab === "activity" ? -16 : 16, 0] }) }] }}>
@@ -267,12 +275,20 @@ export default function HomeScreen() {
                 </View></StaggeredRow>
               </>
             ) : (
-              <View style={styles.emptyState}>
-                <ThemedText style={styles.emptyTitle}>Start with an allowance</ThemedText>
-                <ThemedText style={styles.emptyText}>Set up your allowance cycle to see spending insights.</ThemedText>
-                <Pressable onPress={() => router.push("/new-cycle")} style={styles.emptyButton}>
-                  <ThemedText style={styles.emptyButtonText}>Set up allowance</ThemedText>
-                </Pressable>
+              <View style={styles.insightEmptyState}>
+                <View pointerEvents="none" style={styles.ghostPreview}>
+                  <View style={styles.ghostRing}><View style={styles.ghostRingInner} /></View>
+                  <View style={styles.ghostChart}>
+                    {[26, 42, 32, 55, 38, 48, 30].map((height, index) => <View key={index} style={[styles.ghostBar, { height }]} />)}
+                  </View>
+                </View>
+                <View style={styles.insightEmptyCopy}>
+                  <ThemedText style={styles.emptyTitle}>Start with an allowance</ThemedText>
+                  <ThemedText style={styles.emptyText}>Set up your allowance cycle to see spending insights.</ThemedText>
+                  <Pressable onPress={() => router.push("/new-cycle")} style={styles.emptyButton}>
+                    <ThemedText style={styles.emptyButtonText}>Set up allowance</ThemedText>
+                  </Pressable>
+                </View>
               </View>
             )}
             <StaggeredRow index={4}><Pressable onPress={() => router.push("/insights")} style={styles.fullInsightsLink}>
@@ -282,6 +298,7 @@ export default function HomeScreen() {
           </View>
         )}
         </Animated.View>
+        </View>
       </Animated.View>
     </ScrollView>
     </>
@@ -290,7 +307,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  scrollContent: { paddingBottom: 90, flexGrow: 1 },
+  scrollContent: { paddingBottom: 0, flexGrow: 1 },
   blueHeader: { paddingHorizontal: 23, paddingTop: 4, paddingBottom: 27 },
   topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },
@@ -310,17 +327,21 @@ const styles = StyleSheet.create({
   action: { flex: 1, alignItems: "center", gap: 7, minWidth: 0 },
   actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#8EC5FF", alignItems: "center", justifyContent: "center" },
   actionLabel: { color: "#FFFFFF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
-  whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", borderTopLeftRadius: 32, borderTopRightRadius: 32, marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 30, minHeight: 390, shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
+  sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
+  whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", borderTopLeftRadius: 32, borderTopRightRadius: 32, overflow: "hidden", marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 100, minHeight: 390 },
   sheetHandle: { width: 34, height: 4, borderRadius: 2, backgroundColor: "#D9DEE2", alignSelf: "center", marginBottom: 19 },
-  sheetTabs: { flexDirection: "row", gap: 8, marginBottom: 19, marginHorizontal: -21, marginTop: 0, paddingHorizontal: 21, paddingTop: 0, paddingBottom: 0, height: 52, alignItems: "stretch", backgroundColor: "#2563EB" },
+  sheetTabs: { flexDirection: "row", marginBottom: 19, marginHorizontal: -21, marginTop: 0, paddingHorizontal: 4, height: 52, alignItems: "stretch", backgroundColor: "#2563EB", overflow: "hidden" },
   sheetTab: { flex: 1, minHeight: 52, alignItems: "center", justifyContent: "center", zIndex: 2 },
-  sheetTabActive: { backgroundColor: "transparent" },
-  sheetIndicator: { position: "absolute", left: 21, top: 0, bottom: 0, borderTopLeftRadius: 16, borderTopRightRadius: 16, backgroundColor: "#FFFFFF", zIndex: 1 },
-  tabCurveLeft: { position: "absolute", width: 18, height: 18, borderRadius: 9, backgroundColor: "#2563EB", left: -9, bottom: -9 },
-  tabCurveRight: { position: "absolute", width: 18, height: 18, borderRadius: 9, backgroundColor: "#2563EB", right: -9, bottom: -9 },
-  sheetTabText: { color: "#EAF3FF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  sheetTabTextActive: { color: "#1E40AF" },
+  sheetIndicator: { position: "absolute", left: 4, top: 0, bottom: 0, zIndex: 1 },
+  sheetTabText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   insightContent: { paddingTop: 2, paddingBottom: 10 },
+  insightEmptyState: { minHeight: 210, justifyContent: "center", alignItems: "center", position: "relative", overflow: "hidden", borderRadius: 18 },
+  ghostPreview: { position: "absolute", top: 4, left: 12, right: 12, height: 130, opacity: 0.3, flexDirection: "row", alignItems: "center", justifyContent: "space-around" },
+  ghostRing: { width: 92, height: 92, borderRadius: 46, borderWidth: 12, borderColor: "#8EC5FF", alignItems: "center", justifyContent: "center" },
+  ghostRingInner: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#EAF3FF" },
+  ghostChart: { height: 74, flexDirection: "row", alignItems: "flex-end", gap: 6 },
+  ghostBar: { width: 10, borderTopLeftRadius: 5, borderTopRightRadius: 5, backgroundColor: "#2563EB" },
+  insightEmptyCopy: { alignItems: "center", gap: 7, paddingTop: 22 },
   insightEyebrow: { color: "#64748B", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 10, letterSpacing: 1, marginBottom: 15 },
   insightMetricRow: { flexDirection: "row", gap: 12 },
   insightMetric: { flex: 1, backgroundColor: "#F4F8FF", borderRadius: 14, padding: 13, gap: 6 },
