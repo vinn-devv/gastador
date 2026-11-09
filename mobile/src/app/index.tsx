@@ -54,7 +54,7 @@ import {
 import { formatDate, formatTime, manilaToday } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
 import type { AppSettings } from "@/domain/types";
-import { SHEET_GAP } from "@/constants/layout";
+import { SHEET_GAP, navBarSpace } from "@/constants/layout";
 
 type Dashboard = {
   summary: CycleSummary;
@@ -583,7 +583,7 @@ export default function HomeScreen() {
               }}
               contentContainerStyle={[
                 styles.contentScrollInner,
-                { paddingBottom: insets.bottom + 92 },
+                { paddingBottom: navBarSpace(insets.bottom) },
               ]}
               showsVerticalScrollIndicator={false}
             >
