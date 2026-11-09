@@ -100,7 +100,7 @@ export default function SettingsScreen() {
       scrollEventThrottle={16}
     >
       <ThemedText type="small" themeColor="muted">
-        MAKE IT YOURS
+        Your preferences
       </ThemedText>
       <ThemedText style={styles.title}>Settings</ThemedText>
       <ThemedText type="small" themeColor="muted" style={styles.subtitle}>
@@ -124,6 +124,7 @@ export default function SettingsScreen() {
             <TextInput
               value={name}
               onChangeText={setName}
+              accessibilityLabel="Your name"
               placeholder="Name for your greeting"
               placeholderTextColor={theme.muted}
               maxLength={80}
@@ -131,23 +132,36 @@ export default function SettingsScreen() {
             />
             <Pressable
               disabled={saving || name.trim() === settings.displayName}
+              accessibilityRole="button"
+              accessibilityLabel="Save name"
               onPress={() => void update({ displayName: name.trim() })}
               style={[
                 styles.saveButton,
                 {
-                  backgroundColor: theme.primary,
-                  opacity:
-                    saving || name.trim() === settings.displayName ? 0.45 : 1,
+                  backgroundColor:
+                    saving || name.trim() === settings.displayName
+                      ? theme.sunken
+                      : theme.primary,
                 },
               ]}
             >
-              <ThemedText style={[styles.saveText, { color: theme.onPrimary }]}>
+              <ThemedText
+                style={[
+                  styles.saveText,
+                  {
+                    color:
+                      saving || name.trim() === settings.displayName
+                        ? theme.textSecondary
+                        : theme.onPrimary,
+                  },
+                ]}
+              >
                 Save name
               </ThemedText>
             </Pressable>
           </View>
 
-          <View style={styles.section}>
+          <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.line }]}>
             <ThemedText style={styles.sectionTitle}>
               Display currency
             </ThemedText>
@@ -167,6 +181,8 @@ export default function SettingsScreen() {
                     key={currency}
                     onPress={() => void update({ currency })}
                     disabled={saving || selected}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
                     style={[
                       styles.choice,
                       {
@@ -180,7 +196,7 @@ export default function SettingsScreen() {
                     <ThemedText
                       style={[
                         styles.choiceText,
-                        { color: selected ? theme.onPrimary : theme.text },
+                        { color: selected ? theme.primary : theme.text },
                       ]}
                     >
                       {currency}
@@ -191,7 +207,7 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          <View style={styles.section}>
+          <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.line }]}>
             <ThemedText style={styles.sectionTitle}>Budget method</ThemedText>
             <View style={styles.methodList}>
               {BUDGET_METHODS.map((method) => {
@@ -201,6 +217,8 @@ export default function SettingsScreen() {
                     key={method.value}
                     onPress={() => void update({ budgetMethod: method.value })}
                     disabled={saving || selected}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
                     style={[
                       styles.method,
                       {
@@ -214,7 +232,7 @@ export default function SettingsScreen() {
                     <ThemedText
                       style={[
                         styles.methodTitle,
-                        { color: selected ? theme.onPrimary : theme.text },
+                        { color: selected ? theme.primary : theme.text },
                       ]}
                     >
                       {method.label}
@@ -222,7 +240,7 @@ export default function SettingsScreen() {
                     <ThemedText
                       type="small"
                       style={{
-                        color: selected ? theme.onPrimary : theme.muted,
+                        color: theme.textSecondary,
                       }}
                     >
                       {method.detail}
@@ -256,18 +274,18 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 40 },
+  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 150 },
   title: {
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 29,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 30,
     lineHeight: 36,
     marginTop: 2,
   },
   subtitle: { marginTop: 3, marginBottom: 24 },
-  section: { marginBottom: 18, padding: 15, borderRadius: 16, borderWidth: 1 },
+  section: { marginBottom: 16, padding: 15, borderRadius: 12, borderWidth: 1, gap: 2 },
   sectionTitle: {
     fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 17,
+    fontSize: 19,
     marginBottom: 12,
   },
   sectionHint: { marginTop: -6, marginBottom: 12 },
@@ -275,16 +293,16 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 48,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 6,
     paddingHorizontal: 13,
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 15,
   },
   saveButton: {
     alignSelf: "flex-start",
-    minHeight: 43,
+    minHeight: 44,
     paddingHorizontal: 18,
-    borderRadius: 12,
+    borderRadius: 6,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
@@ -293,16 +311,16 @@ const styles = StyleSheet.create({
   choices: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
   choice: {
     minWidth: 68,
-    minHeight: 43,
+    minHeight: 44,
     borderWidth: 1,
-    borderRadius: 22,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 15,
   },
   choiceText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   methodList: { gap: 9 },
-  method: { borderWidth: 1, borderRadius: 13, padding: 14, gap: 3 },
+  method: { minHeight: 68, borderWidth: 1, borderRadius: 9, padding: 13, gap: 4, justifyContent: "center" },
   methodTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   message: { marginTop: -12, marginBottom: 20 },
   privacy: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 17, gap: 5 },

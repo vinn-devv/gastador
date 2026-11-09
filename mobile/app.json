@@ -6,10 +6,10 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "gastador",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#050B14",
+        "backgroundColor": "#F3F5F6",
         "foregroundImage": "./assets/images/icon.png"
       },
       "predictiveBackGestureEnabled": false,
@@ -24,11 +24,18 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#050B14",
+          "backgroundColor": "#F3F5F6",
           "resizeMode": "contain"
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Gastador to capture receipts and scan QR codes.",
+          "recordAudioAndroid": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -98,7 +98,7 @@ export default function NewExpenseScreen() {
         <ThemedText style={[styles.backText, { color: theme.primary }]}>‹ Back</ThemedText>
       </Pressable>
 
-      <ThemedText type="small" themeColor="muted">RECORD A PURCHASE</ThemedText>
+      <ThemedText type="small" themeColor="muted">New transaction</ThemedText>
       <ThemedText style={styles.title}>Add expense</ThemedText>
       <ThemedText type="small" themeColor="muted" style={styles.intro}>
         Add the details now. Your record stays on this device.
@@ -113,7 +113,7 @@ export default function NewExpenseScreen() {
           placeholderTextColor={theme.muted}
           keyboardType="decimal-pad"
           style={[...fieldStyle, styles.amountInput]}
-          accessibilityLabel="Expense amount"
+          accessibilityLabel="Expense amount in selected currency"
         />
       </View>
 
@@ -123,6 +123,7 @@ export default function NewExpenseScreen() {
           value={merchant}
           onChangeText={setMerchant}
           placeholder="e.g. Lunch, Jeepney fare"
+          accessibilityLabel="Merchant or expense description"
           placeholderTextColor={theme.muted}
           style={fieldStyle}
           maxLength={100}
@@ -151,7 +152,7 @@ export default function NewExpenseScreen() {
                 >
                   <ThemedText style={[
                     styles.optionText,
-                    { color: selected ? theme.onPrimary : theme.text },
+                    { color: selected ? theme.primary : theme.text },
                   ]}>{category.name}</ThemedText>
                 </Pressable>
               );
@@ -179,7 +180,7 @@ export default function NewExpenseScreen() {
               >
                 <ThemedText style={[
                   styles.optionText,
-                  { color: selected ? theme.onPrimary : theme.text },
+                  { color: selected ? theme.primary : theme.text },
                 ]}>{method.label}</ThemedText>
               </Pressable>
             );
@@ -193,6 +194,7 @@ export default function NewExpenseScreen() {
           value={date}
           onChangeText={setDate}
           placeholder="YYYY-MM-DD"
+          accessibilityLabel="Expense date"
           placeholderTextColor={theme.muted}
           style={fieldStyle}
           autoCapitalize="none"
@@ -206,6 +208,7 @@ export default function NewExpenseScreen() {
           value={description}
           onChangeText={setDescription}
           placeholder="Add a short note"
+          accessibilityLabel="Optional expense note"
           placeholderTextColor={theme.muted}
           style={[...fieldStyle, styles.noteInput]}
           multiline
@@ -237,21 +240,21 @@ export default function NewExpenseScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 44 },
+  content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 124 },
   back: { alignSelf: "flex-start", marginBottom: 22 },
   backText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
-  title: { fontFamily: "IBMPlexSans_700Bold", fontSize: 29, lineHeight: 36, marginTop: 2 },
+  title: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 30, lineHeight: 36, marginTop: 2 },
   intro: { marginTop: 3, marginBottom: 25 },
   field: { marginBottom: 19, gap: 8 },
   label: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
-  input: { minHeight: 48, borderWidth: 1, borderRadius: 12, paddingHorizontal: 13, fontFamily: "IBMPlexSans_400Regular", fontSize: 15 },
-  amountInput: { minHeight: 58, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 23 },
+  input: { minHeight: 48, borderWidth: 1, borderRadius: 6, paddingHorizontal: 13, fontFamily: "IBMPlexSans_400Regular", fontSize: 15 },
+  amountInput: { minHeight: 58, fontFamily: "IBMPlexSans_700Bold", fontSize: 26 },
   optionGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  option: { minHeight: 42, borderWidth: 1, borderRadius: 22, paddingHorizontal: 14, justifyContent: "center" },
+  option: { minHeight: 44, borderWidth: 1, borderRadius: 8, paddingHorizontal: 14, justifyContent: "center" },
   optionText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13 },
   noteInput: { minHeight: 88, paddingTop: 12, textAlignVertical: "top" },
   error: { padding: 12, borderRadius: 10, marginBottom: 14 },
   errorText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13 },
-  saveButton: { minHeight: 52, borderRadius: 14, alignItems: "center", justifyContent: "center", marginTop: 4 },
+  saveButton: { minHeight: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", marginTop: 4 },
   saveText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
 });

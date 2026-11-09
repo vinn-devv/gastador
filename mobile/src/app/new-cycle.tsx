@@ -124,7 +124,7 @@ export default function NewCycleScreen() {
         </ThemedText>
       </Pressable>
       <ThemedText type="small" themeColor="muted">
-        PLAN YOUR ALLOWANCE
+        Allowance setup
       </ThemedText>
       <ThemedText style={styles.title}>New allowance cycle</ThemedText>
       <ThemedText type="small" themeColor="muted" style={styles.subtitle}>
@@ -137,6 +137,7 @@ export default function NewCycleScreen() {
           value={allowance}
           onChangeText={setAllowance}
           placeholder="e.g. 3000"
+          accessibilityLabel="Allowance amount in Philippine pesos"
           placeholderTextColor={theme.muted}
           keyboardType="decimal-pad"
           style={[...fieldStyle, styles.amountInput]}
@@ -167,7 +168,7 @@ export default function NewCycleScreen() {
                 <ThemedText
                   style={[
                     styles.optionText,
-                    { color: selected ? theme.onPrimary : theme.text },
+                    { color: selected ? theme.primary : theme.text },
                   ]}
                 >
                   {item.label}
@@ -184,6 +185,7 @@ export default function NewCycleScreen() {
           value={startDate}
           onChangeText={changeStart}
           placeholder="YYYY-MM-DD"
+          accessibilityLabel="Allowance start date"
           placeholderTextColor={theme.muted}
           style={fieldStyle}
           autoCapitalize="none"
@@ -196,6 +198,7 @@ export default function NewCycleScreen() {
           value={nextDate}
           onChangeText={setNextDate}
           placeholder="YYYY-MM-DD"
+          accessibilityLabel="Next allowance arrival date"
           placeholderTextColor={theme.muted}
           style={fieldStyle}
           autoCapitalize="none"
@@ -211,6 +214,7 @@ export default function NewCycleScreen() {
           value={savings}
           onChangeText={setSavings}
           placeholder="0.00"
+          accessibilityLabel="Planned savings amount"
           placeholderTextColor={theme.muted}
           keyboardType="decimal-pad"
           style={fieldStyle}
@@ -223,6 +227,7 @@ export default function NewCycleScreen() {
           value={name}
           onChangeText={setName}
           placeholder="e.g. November allowance"
+          accessibilityLabel="Allowance cycle name"
           placeholderTextColor={theme.muted}
           maxLength={80}
           style={fieldStyle}
@@ -255,12 +260,12 @@ export default function NewCycleScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 44 },
+  content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 124 },
   back: { alignSelf: "flex-start", marginBottom: 22 },
   backText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   title: {
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 28,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 30,
     lineHeight: 36,
     marginTop: 2,
   },
@@ -270,21 +275,21 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 48,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 6,
     paddingHorizontal: 13,
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 15,
   },
   amountInput: {
     minHeight: 58,
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 23,
+    fontFamily: "IBMPlexSans_700Bold",
+    fontSize: 25,
   },
   options: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   option: {
-    minHeight: 42,
+    minHeight: 44,
     borderWidth: 1,
-    borderRadius: 22,
+    borderRadius: 8,
     paddingHorizontal: 13,
     justifyContent: "center",
   },
@@ -293,7 +298,7 @@ const styles = StyleSheet.create({
   errorText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13 },
   saveButton: {
     minHeight: 52,
-    borderRadius: 14,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 4,

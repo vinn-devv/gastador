@@ -4,12 +4,12 @@ export const INTRO_HTML = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0C3590">
+<meta name="theme-color" content="#F3F5F6">
 <title>Gastador Intro</title>
 <style>
-:root{--bg:#061230;--ink:#F2D61C;--sub:#9DAECF;--glow:rgba(242,214,28,.22);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#061230;--ink:#F2D61C;--sub:#9DAECF;--glow:rgba(242,214,28,.20)}}
-:root[data-theme="dark"]{--bg:#061230;--ink:#F2D61C;--sub:#9DAECF;--glow:rgba(242,214,28,.20)}
+:root{--bg:#F3F5F6;--ink:#315D8A;--sub:#7A817F;--glow:rgba(49,93,138,.10);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);overflow:hidden;-webkit-tap-highlight-color:transparent;font-family:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
 .stage{position:relative;height:100%;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(14px,3.2dvh,30px);padding:0 24px;text-align:center;cursor:pointer;user-select:none}
@@ -17,7 +17,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);overflow:hi
 .markwrap::before{content:"";position:absolute;inset:-45%;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 65%)}
 .mark{position:relative;width:100%;height:100%;display:block;overflow:visible}
 .tile{transform-box:fill-box;transform-origin:center}
-.c{fill:none;stroke:#F2D61C;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;transform-origin:60px 60px}
+.c{fill:none;stroke:#315D8A;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;transform-origin:60px 60px}
 .p{fill:none;stroke:#EFEDE4;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 2;stroke-dashoffset:0}
 .b{fill:none;stroke:#EFEDE4;stroke-width:5.5;stroke-linecap:round;transform-origin:62px 58px}
 .flash{fill:#fff;opacity:0}
