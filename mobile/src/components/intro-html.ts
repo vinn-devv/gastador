@@ -7,7 +7,7 @@ export const INTRO_HTML = `<!DOCTYPE html>
 <meta name="theme-color" content="#315D8A">
 <title>Gastador Intro</title>
 <style>
-:root{--bg:#315D8A;--ink:#FFFFFF;--sub:rgba(255,248,239,.82);--glow:rgba(255,255,255,.12);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#315D8A;--ink:#FFFFFF;--sub:rgba(255,255,255,.82);--glow:rgba(255,255,255,.12);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 
 
 *,*::before,*::after{box-sizing:border-box}
