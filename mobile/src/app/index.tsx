@@ -4,7 +4,8 @@ import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Animated, Easing, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Animated as RNAnimated, Easing as RNEasing, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
+import Reanimated, { Easing, FadeInDown, FadeInLeft, FadeInRight, FadeOutLeft, FadeOutRight, interpolateColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
 
 import { ThemedText } from "@/components/themed-text";
@@ -29,6 +30,42 @@ type Dashboard = {
 
 type WalletSymbolName = ComponentProps<typeof SymbolView>["name"];
 
+const AnimatedPath = Reanimated.createAnimatedComponent(Path);
+
+const TAB_HEIGHT = 48;
+const FLARE_RADIUS = 16;
+const SHEET_RADIUS = 32;
+const TAB_CORNER = 20;
+const SHAPE_HEIGHT = TAB_HEIGHT + SHEET_RADIUS;
+
+function buildPath(p: number, W: number, Hs: number) {
+  "worklet";
+  const w = W / 2;
+  const x = p * w;
+  const rl = FLARE_RADIUS * p;
+  const rr = FLARE_RADIUS * (1 - p);
+  const sl = SHEET_RADIUS * p;
+  const sr = SHEET_RADIUS * (1 - p);
+
+  return [
+    `M 0 ${Hs}`,
+    `L 0 ${TAB_HEIGHT + sl}`,
+    `A ${sl} ${sl} 0 0 1 ${sl} ${TAB_HEIGHT}`,
+    `L ${x - rl} ${TAB_HEIGHT}`,
+    `A ${rl} ${rl} 0 0 0 ${x} ${TAB_HEIGHT - rl}`,
+    `L ${x} ${TAB_CORNER}`,
+    `A ${TAB_CORNER} ${TAB_CORNER} 0 0 1 ${x + TAB_CORNER} 0`,
+    `L ${x + w - TAB_CORNER} 0`,
+    `A ${TAB_CORNER} ${TAB_CORNER} 0 0 1 ${x + w} ${TAB_CORNER}`,
+    `L ${x + w} ${TAB_HEIGHT - rr}`,
+    `A ${rr} ${rr} 0 0 0 ${x + w + rr} ${TAB_HEIGHT}`,
+    `L ${W - sr} ${TAB_HEIGHT}`,
+    `A ${sr} ${sr} 0 0 1 ${W} ${TAB_HEIGHT + sr}`,
+    `L ${W} ${Hs}`,
+    "Z",
+  ].join(" ");
+}
+
 const ACTIONS: { label: string; sub: string; icon: WalletSymbolName; route: "/new-cycle" | "/new-expense" | "/scan" | "/insights" }[] = [
   { label: "Allowance", sub: "Set or update", icon: { ios: "wallet.pass", android: "account_balance_wallet", web: "account_balance_wallet" }, route: "/new-cycle" as const },
   { label: "Add expense", sub: "Record spending", icon: { ios: "plus", android: "add", web: "add" }, route: "/new-expense" as const },
@@ -47,38 +84,32 @@ function categorySymbol(category: string): WalletSymbolName {
 }
 
 function StaggeredRow({ index, children }: { index: number; children: ReactNode }) {
-  const progress = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(progress, { toValue: 1, duration: 240, delay: index * 50, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-    return () => progress.stopAnimation();
-  }, [index, progress]);
-  return (
-    <Animated.View style={{ opacity: progress, transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
-      {children}
-    </Animated.View>
-  );
+  return <Reanimated.View entering={FadeInDown.duration(240).delay(index * 50)}>{children}</Reanimated.View>;
 }
 
 export default function HomeScreen() {
   const router = useRouter();
   const db = useSQLiteContext();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const [transactions, setTransactions] = useState<RecentTransaction[]>([]);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [sheetTab, setSheetTab] = useState<"activity" | "insight">("activity");
-  const [sheetTabsWidth, setSheetTabsWidth] = useState(0);
-  const tabIndicator = useRef(new Animated.Value(0)).current;
-  const tabTextProgress = useRef(new Animated.Value(0)).current;
+  const [contentDirection, setContentDirection] = useState<1 | -1>(1);
+  const progress = useSharedValue(0);
+  const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, width, SHAPE_HEIGHT) }));
+  const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#EAF3FF"]) }));
+  const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#EAF3FF", "#1E40AF"]) }));
   const sheetEntrance = useRef(new Animated.Value(0)).current;
-  const tabTransition = useRef(new Animated.Value(1)).current;
+
   const balanceProgress = useRef(new Animated.Value(0)).current;
   const [animatedRemaining, setAnimatedRemaining] = useState(0);
 
   useEffect(() => {
-    Animated.spring(sheetEntrance, { toValue: 1, damping: 19, stiffness: 115, mass: 0.9, useNativeDriver: true }).start();
+    RNAnimated.spring(sheetEntrance, { toValue: 1, damping: 19, stiffness: 115, mass: 0.9, useNativeDriver: true }).start();
     return () => { sheetEntrance.stopAnimation(); };
   }, [sheetEntrance]);
 
@@ -127,22 +158,17 @@ export default function HomeScreen() {
     if (loading) return;
     const listener = balanceProgress.addListener(({ value }) => setAnimatedRemaining(Math.round(value)));
     balanceProgress.setValue(0);
-    Animated.timing(balanceProgress, { toValue: Math.max(0, remaining), duration: 850, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+    RNAnimated.timing(balanceProgress, { toValue: Math.max(0, remaining), duration: 850, easing: RNEasing.out(RNEasing.cubic), useNativeDriver: false }).start();
     return () => { balanceProgress.removeListener(listener); balanceProgress.stopAnimation(); };
   }, [balanceProgress, loading, remaining]);
 
   const switchSheetTab = useCallback((next: "activity" | "insight") => {
     if (next === sheetTab) return;
-    Animated.timing(tabTransition, { toValue: 0, duration: 140, easing: Easing.in(Easing.cubic), useNativeDriver: true }).start(({ finished }) => {
-      if (!finished) return;
-      setSheetTab(next);
-      Animated.parallel([
-        Animated.timing(tabIndicator, { toValue: next === "insight" ? 1 : 0, duration: 300, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }),
-        Animated.timing(tabTextProgress, { toValue: next === "insight" ? 1 : 0, duration: 300, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
-        Animated.timing(tabTransition, { toValue: 1, duration: 160, delay: 50, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-      ]).start();
-    });
-  }, [sheetTab, tabIndicator, tabTextProgress, tabTransition]);
+    const target = next === "insight" ? 1 : 0;
+    setContentDirection(next === "insight" ? 1 : -1);
+    setSheetTab(next);
+    progress.value = withTiming(target, { duration: 300, easing: Easing.inOut(Easing.ease) });
+  }, [progress, sheetTab]);
 
   return (
     <>
@@ -190,26 +216,26 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <View style={styles.sheetTabs} onLayout={(event) => setSheetTabsWidth(event.nativeEvent.layout.width)}>
-        <Animated.View pointerEvents="none" style={[styles.sheetIndicator, { width: Math.max(0, (sheetTabsWidth - 16) / 2), transform: [{ translateX: tabIndicator.interpolate({ inputRange: [0, 1], outputRange: [0, Math.max(0, (sheetTabsWidth - 16) / 2)] }) }] }]}>
-          <Svg width="100%" height="52" viewBox="0 0 200 52" preserveAspectRatio="none">
-            <Path d="M16 0 H184 Q200 0 200 16 V36 C200 36 184 36 184 52 H16 C16 36 0 36 0 36 V16 Q0 0 16 0 Z" fill="#FFFFFF" />
-          </Svg>
-        </Animated.View>
-        <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => switchSheetTab("activity")} style={styles.sheetTab}>
-          <Animated.Text style={[styles.sheetTabText, { color: tabTextProgress.interpolate({ inputRange: [0, 1], outputRange: ["#1E40AF", "#EAF3FF"] }) }]}>Activity</Animated.Text>
-        </Pressable>
-        <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "insight" }} onPress={() => switchSheetTab("insight")} style={styles.sheetTab}>
-          <Animated.Text style={[styles.sheetTabText, { color: tabTextProgress.interpolate({ inputRange: [0, 1], outputRange: ["#EAF3FF", "#1E40AF"] }) }]}>Insight</Animated.Text>
-        </Pressable>
+      <View style={styles.shapeHeader}>
+        <Svg width={width} height={SHAPE_HEIGHT}>
+          <AnimatedPath animatedProps={animatedPathProps} fill="#FFFFFF" />
+        </Svg>
+        <View style={styles.shapeTabLabels}>
+          <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => switchSheetTab("activity")} style={styles.sheetTab}>
+            <Reanimated.Text style={[styles.sheetTabText, activityLabelStyle]}>Activity</Reanimated.Text>
+          </Pressable>
+          <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "insight" }} onPress={() => switchSheetTab("insight")} style={styles.sheetTab}>
+            <Reanimated.Text style={[styles.sheetTabText, insightLabelStyle]}>Insight</Reanimated.Text>
+          </Pressable>
+        </View>
       </View>
-      <Animated.View style={[styles.sheetShadow, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
-        <View style={[styles.whiteSheet, {
-          paddingBottom: Math.max(insets.bottom + 90, 100),
-          borderTopLeftRadius: sheetTab === "activity" ? 0 : 32,
-          borderTopRightRadius: sheetTab === "insight" ? 0 : 32,
-        }]}>
-        <Animated.View style={{ opacity: tabTransition, transform: [{ translateX: tabTransition.interpolate({ inputRange: [0, 1], outputRange: [sheetTab === "activity" ? 16 : -16, 0] }) }] }}>
+      <Reanimated.View style={[styles.sheetShadow, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
+        <View style={[styles.whiteSheet, { paddingBottom: Math.max(insets.bottom + 90, 100) }]}>
+        <Reanimated.View
+          key={sheetTab}
+          entering={(contentDirection === 1 ? FadeInLeft : FadeInRight).duration(180).delay(50)}
+          exiting={(contentDirection === 1 ? FadeOutRight : FadeOutLeft).duration(140)}
+        >
         {sheetTab === "activity" ? (
         <>
         <View style={styles.sectionHeader}>
@@ -300,9 +326,9 @@ export default function HomeScreen() {
             </Pressable></StaggeredRow>
           </View>
         )}
-        </Animated.View>
+        </Reanimated.View>
         </View>
-      </Animated.View>
+      </Reanimated.View>
     </ScrollView>
     </>
   );
@@ -330,20 +356,20 @@ const styles = StyleSheet.create({
   action: { flex: 1, alignItems: "center", gap: 7, minWidth: 0 },
   actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#8EC5FF", alignItems: "center", justifyContent: "center" },
   actionLabel: { color: "#FFFFFF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
+  shapeHeader: { height: SHAPE_HEIGHT, backgroundColor: "#2563EB", marginBottom: -1 },
+  shapeTabLabels: { position: "absolute", top: 0, left: 0, right: 0, height: TAB_HEIGHT, flexDirection: "row" },
   sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
-  whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", borderTopLeftRadius: 32, borderTopRightRadius: 32, overflow: "hidden", marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 100, minHeight: 390 },
-  sheetTabs: { flexDirection: "row", marginTop: 0, paddingHorizontal: 8, height: 52, alignItems: "stretch", backgroundColor: "#2563EB", overflow: "hidden" },
-  sheetTab: { flex: 1, minHeight: 52, alignItems: "center", justifyContent: "center", zIndex: 2 },
-  sheetIndicator: { position: "absolute", left: 8, top: 0, bottom: 0, zIndex: 1 },
+  whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", paddingHorizontal: 20, paddingTop: 13, paddingBottom: 100, minHeight: 390 },
+  sheetTab: { flex: 1, height: TAB_HEIGHT, alignItems: "center", justifyContent: "center" },
   sheetTabText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   insightContent: { paddingTop: 2, paddingBottom: 10 },
-  insightEmptyState: { minHeight: 210, justifyContent: "center", alignItems: "center", position: "relative", overflow: "hidden", borderRadius: 18 },
-  ghostPreview: { position: "absolute", top: 4, left: 12, right: 12, height: 130, opacity: 0.3, flexDirection: "row", alignItems: "center", justifyContent: "space-around" },
+  insightEmptyState: { minHeight: 250, justifyContent: "center", alignItems: "center", gap: 16, paddingVertical: 16 },
+  ghostPreview: { width: "100%", height: 112, opacity: 0.3, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 28 },
   ghostRing: { width: 92, height: 92, borderRadius: 46, borderWidth: 12, borderColor: "#8EC5FF", alignItems: "center", justifyContent: "center" },
   ghostRingInner: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#EAF3FF" },
   ghostChart: { height: 74, flexDirection: "row", alignItems: "flex-end", gap: 6 },
   ghostBar: { width: 10, borderTopLeftRadius: 5, borderTopRightRadius: 5, backgroundColor: "#2563EB" },
-  insightEmptyCopy: { alignItems: "center", gap: 7, paddingTop: 22 },
+  insightEmptyCopy: { alignItems: "center", gap: 7, paddingHorizontal: 4 },
   insightEyebrow: { color: "#64748B", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 10, letterSpacing: 1, marginBottom: 15 },
   insightMetricRow: { flexDirection: "row", gap: 12 },
   insightMetric: { flex: 1, backgroundColor: "#F4F8FF", borderRadius: 14, padding: 13, gap: 6 },
