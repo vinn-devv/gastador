@@ -108,6 +108,7 @@ export default function HomeScreen() {
   const progress = useSharedValue(0);
   const stageWidth = Math.max(0, width - SHEET_GAP * 2);
   const [stageHeight, setStageHeight] = useState(0);
+  const [insightViewportHeight, setInsightViewportHeight] = useState(0);
   const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, stageWidth, stageHeight + SHEET_GAP) }));
   const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "rgba(255,255,255,0.75)"]) }));
   const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["rgba(255,255,255,0.75)", "#1E40AF"]) }));
@@ -290,7 +291,15 @@ export default function HomeScreen() {
           </Pressable>
         </View>
         <RNAnimated.View style={[styles.sheetContentHost, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }] }]}>
-        <ScrollView style={styles.contentScroll} contentContainerStyle={[styles.contentScrollInner, { paddingBottom: insets.bottom + 92 }]} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.contentScroll}
+          onLayout={(event) => {
+            const nextHeight = Math.round(event.nativeEvent.layout.height);
+            setInsightViewportHeight((current) => current === nextHeight ? current : nextHeight);
+          }}
+          contentContainerStyle={[styles.contentScrollInner, { paddingBottom: insets.bottom + 92 }]}
+          showsVerticalScrollIndicator={false}
+        >
         <Reanimated.View
           key={sheetTab}
           entering={(contentDirection === 1 ? FadeInLeft : FadeInRight).duration(400)}
@@ -426,7 +435,7 @@ const styles = StyleSheet.create({
   contentScrollInner: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 0 },
   sheetTab: { flex: 1, height: TH, alignItems: "center", justifyContent: "center" },
   sheetTabText: { fontFamily: "IBMPlexSans_700Bold", fontSize: 16, lineHeight: 22 },
-  insightContent: { flexGrow: 1, width: "100%", alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 24, gap: 18 },
+  insightContent: { flexGrow: 1, width: "100%", alignItems: "center", justifyContent: "flex-start", paddingTop: Math.max(0, (insightViewportHeight - RING_SIZE) / 2), paddingBottom: 24, gap: 18 },
   noAllowanceText: { color: "#6B7280", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18, lineHeight: 25, textAlign: "center", maxWidth: 150 },
   ringWrap: { width: RING_SIZE, height: RING_SIZE, alignItems: "center", justifyContent: "center" },
   ringCenter: { position: "absolute", width: RING_SIZE - 52, minHeight: 92, alignItems: "center", justifyContent: "center" },
