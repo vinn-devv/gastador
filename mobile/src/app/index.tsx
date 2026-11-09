@@ -192,7 +192,6 @@ export default function HomeScreen() {
 
       <Animated.View style={[styles.sheetShadow, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
         <View style={[styles.whiteSheet, { paddingBottom: Math.max(insets.bottom + 90, 100) }]}>
-        <View style={styles.sheetHandle} />
         <View style={styles.sheetTabs} onLayout={(event) => setSheetTabsWidth(event.nativeEvent.layout.width)}>
           <Animated.View pointerEvents="none" style={[styles.sheetIndicator, { width: Math.max(0, (sheetTabsWidth - 8) / 2), transform: [{ translateX: tabIndicator.interpolate({ inputRange: [0, 1], outputRange: [0, Math.max(0, (sheetTabsWidth - 8) / 2) + 8] }) }] }]}>
             <Svg width="100%" height="52" viewBox="0 0 200 52" preserveAspectRatio="none">
@@ -329,7 +328,6 @@ const styles = StyleSheet.create({
   actionLabel: { color: "#FFFFFF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
   sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
   whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", borderTopLeftRadius: 32, borderTopRightRadius: 32, overflow: "hidden", marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 100, minHeight: 390 },
-  sheetHandle: { width: 34, height: 4, borderRadius: 2, backgroundColor: "#D9DEE2", alignSelf: "center", marginBottom: 19 },
   sheetTabs: { flexDirection: "row", marginBottom: 19, marginHorizontal: -21, marginTop: 0, paddingHorizontal: 4, height: 52, alignItems: "stretch", backgroundColor: "#2563EB", overflow: "hidden" },
   sheetTab: { flex: 1, minHeight: 52, alignItems: "center", justifyContent: "center", zIndex: 2 },
   sheetIndicator: { position: "absolute", left: 4, top: 0, bottom: 0, zIndex: 1 },
