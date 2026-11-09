@@ -347,7 +347,7 @@ export default function HomeScreen() {
         )}
         </>
         ) : (
-          <View style={[styles.insightContent, { paddingTop: Math.max(0, (insightViewportHeight - RING_SIZE) / 2) }]}>
+          <View style={[styles.insightContent, { paddingTop: Math.max(0, (insightViewportHeight - RING_SIZE) / 2 - 12) }]}>
             <StaggeredRow index={0}>
               <View style={styles.ringWrap}>
                 <Svg width={RING_SIZE} height={RING_SIZE} viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}>
