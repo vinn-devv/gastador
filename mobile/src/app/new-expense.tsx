@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   input: { minHeight: 48, borderWidth: 1, borderRadius: 6, paddingHorizontal: 13, fontFamily: "IBMPlexSans_400Regular", fontSize: 15 },
   amountInput: { minHeight: 58, fontFamily: "IBMPlexSans_700Bold", fontSize: 26 },
   optionGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  option: { minHeight: 42, borderWidth: 1, borderRadius: 8, paddingHorizontal: 14, justifyContent: "center" },
+  option: { minHeight: 44, borderWidth: 1, borderRadius: 8, paddingHorizontal: 14, justifyContent: "center" },
   optionText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13 },
   noteInput: { minHeight: 88, paddingTop: 12, textAlignVertical: "top" },
   error: { padding: 12, borderRadius: 10, marginBottom: 14 },
