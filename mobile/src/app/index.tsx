@@ -3,6 +3,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { onTabBarScroll } from "@/components/tab-bar-visibility";
 
@@ -160,7 +161,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View style={styles.headerCopy}>
           <ThemedText style={styles.overline} themeColor="muted">
-            YOUR MONEY, IN VIEW
+            YOUR ALLOWANCE
           </ThemedText>
           <ThemedText style={styles.greeting}>
             {greeting()}
@@ -174,7 +175,7 @@ export default function HomeScreen() {
         />
       </View>
 
-      <View style={[styles.balanceSection, { backgroundColor: theme.primary }]}>
+      <LinearGradient colors={[theme.primary, theme.balanceEnd]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.balanceSection}>
         <View style={styles.balanceTop}>
           <ThemedText style={[styles.balanceLabel, { color: "#EAF4FC" }]}>
             AVAILABLE BALANCE
@@ -187,8 +188,8 @@ export default function HomeScreen() {
                   {
                     backgroundColor:
                       summary.pace === "on_track"
-                        ? theme.primary
-                        : theme.warning,
+                        ? "#62E0C2"
+                        : "#FFD08A",
                   },
                 ]}
               />
@@ -233,7 +234,7 @@ export default function HomeScreen() {
               <View
                 style={[
                   styles.progressFill,
-                  { width: `${spentPercent}%`, backgroundColor: "#FFC20E" },
+                  { width: `${spentPercent}%`, backgroundColor: "#62E0C2" },
                 ]}
               />
             </View>
@@ -257,7 +258,7 @@ export default function HomeScreen() {
             {formatDate(dashboard.endDate, false)}
           </ThemedText>
         )}
-      </View>
+      </LinearGradient>
 
       {!summary && !loading ? (
         <Pressable
@@ -482,6 +483,7 @@ const styles = StyleSheet.create({
   statusDot: { width: 7, height: 7, borderRadius: 4 },
   statusText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
   balanceAmount: {
+    color: "#FFFFFF",
     fontFamily: "IBMPlexSans_700Bold",
     fontSize: 43,
     lineHeight: 54,
@@ -508,7 +510,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     gap: 8,
   },
-  balanceCaption: { fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
+  balanceCaption: { color: "#EAF2FF", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
   cycleDate: {
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 11,
