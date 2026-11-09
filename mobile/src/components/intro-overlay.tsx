@@ -4,7 +4,7 @@ import { WebView, type WebViewMessageEvent } from "react-native-webview";
 
 import { INTRO_HTML } from "@/components/intro-html";
 
-const BG = "#F3F5F6";
+const BG = "#D96E4C";
 
 export function IntroOverlay() {
   const [visible, setVisible] = useState(true);
@@ -14,11 +14,7 @@ export function IntroOverlay() {
   const finish = (): void => {
     if (finished.current) return;
     finished.current = true;
-    Animated.timing(opacity, {
-      toValue: 0,
-      duration: 350,
-      useNativeDriver: true,
-    }).start(() => setVisible(false));
+    Animated.timing(opacity, { toValue: 0, duration: 350, useNativeDriver: true }).start(() => setVisible(false));
   };
 
   useEffect(() => {
@@ -40,9 +36,7 @@ export function IntroOverlay() {
         javaScriptEnabled
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        onMessage={(e: WebViewMessageEvent): void => {
-          if (e.nativeEvent.data === "done") finish();
-        }}
+        onMessage={(e: WebViewMessageEvent): void => { if (e.nativeEvent.data === "done") finish(); }}
         onError={finish}
       />
     </Animated.View>
@@ -50,13 +44,6 @@ export function IntroOverlay() {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    backgroundColor: BG,
-    zIndex: 999,
-    elevation: 999,
-  },
-  web: {
-    flex: 1,
-    backgroundColor: BG,
-  },
+  root: { backgroundColor: BG, zIndex: 999, elevation: 999 },
+  web: { flex: 1, backgroundColor: BG },
 });
