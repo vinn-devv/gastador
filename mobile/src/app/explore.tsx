@@ -120,11 +120,11 @@ export default function ActivityScreen() {
       <View
         style={[
           styles.summary,
-          { backgroundColor: theme.primary, borderColor: theme.primary },
+          { backgroundColor: theme.surface, borderColor: theme.line },
         ]}
       >
         <View>
-          <ThemedText type="small" style={{ color: "#EAF2FF" }}>
+          <ThemedText type="small" themeColor="muted">
             Showing {filtered.length}{" "}
             {filtered.length === 1 ? "expense" : "expenses"}
           </ThemedText>
@@ -179,7 +179,7 @@ export default function ActivityScreen() {
               ]}
             >
               <View
-                style={[styles.icon, { backgroundColor: theme.primarySoft }]}
+                style={[styles.icon, { backgroundColor: "#E9EEF5" }]}
               >
                 <ThemedText
                   style={[styles.initial, { color: theme.onPrimary }]}
@@ -216,11 +216,11 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   header: { gap: 3, marginBottom: 20 },
-  title: { fontFamily: "IBMPlexSans_700Bold", fontSize: 29, lineHeight: 36 },
+  title: { fontFamily: "Georgia", fontSize: 31, lineHeight: 36 },
   search: {
     minHeight: 48,
     borderWidth: 1,
-    borderRadius: 13,
+    borderRadius: 8,
     paddingHorizontal: 14,
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 14,
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 16,
     marginBottom: 12,
