@@ -28,8 +28,8 @@ Keep light mode as the deliberate visual direction.
 ## Contrast and surface rules
 - Every text element must be readable against its actual rendered background.
 - Never use white text on pale blue, grey, or white surfaces.
-- White text is reserved for the solid ledger-blue primary action.
-- Selected controls use pale blue fill with dark blue text and a visible blue border.
+- White text is reserved for the solid wallet-orange header and primary actions.
+- Selected controls use soft orange fill with dark text and a visible orange border.
 - Disabled controls remain readable; use muted dark text, not low-opacity white.
 - Inputs use a white surface, dark input text, muted placeholder, and visible divider border.
 - Positive/negative amounts use their semantic colours and must not be the only indication of income/expense.
