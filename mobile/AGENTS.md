@@ -6,30 +6,30 @@ Apply these rules whenever changing Gastador's interface. Treat this as the prod
 Gastador is an Android-first, local-first personal allowance and expense tracker for Filipino students. Its primary job is to answer: "How much of my allowance can I still spend?" Default currency is PHP. Existing budgeting, SQLite, backup, scan, and transaction behaviour must remain intact unless the task explicitly requests a functional change.
 
 ## Design identity
-The user-approved visual reference is a warm orange wallet interface: a burnt-orange balance header, pale-yellow circular quick actions, a white lower content sheet with a soft curved top edge, compact transaction rows, and restrained white bottom navigation. Reproduce this composition closely across Gastador screens. Do not substitute a different design direction, add decorative gradients, or introduce generic dashboard cards. Gastador remains a student allowance tracker, not a cryptocurrency wallet; never add crypto assets, transfer, exchange, or withdrawal concepts from the reference.
+The user-approved visual reference is a clean blue wallet interface: a deep ledger-blue balance header, pale-blue circular quick actions, a white lower content sheet with a soft curved top edge, compact transaction rows, and restrained white bottom navigation. Reproduce this composition closely across Gastador screens. Do not substitute a different design direction, add decorative gradients, or introduce generic dashboard cards. Gastador remains a student allowance tracker, not a cryptocurrency wallet; never add crypto assets, transfer, exchange, or withdrawal concepts from the reference.
 
 ## Colour tokens
 Use semantic tokens from `src/constants/theme.ts` for interface colours:
-- Canvas: `#FFF8F2`
+- Canvas: `#F3F5F6`
 - Surface: `#FFFFFF`
-- Main text: `#292522`
-- Secondary text: `#76675F`
-- Muted text: `#9A8A80`
-- Wallet orange: `#D96E4C`
-- Pale-yellow action: `#F5D77A`
-- Selected soft orange: `#FCE9DF`
-- Divider: `#F0E2D8`
-- Positive: `#56866A`
-- Warning: `#9A682D`
-- Negative: `#B64F45`
+- Main text: `#202A35`
+- Secondary text: `#56616B`
+- Muted text: `#68747D`
+- Ledger blue: `#315D8A`
+- Pale blue action: `#C8D8E7`
+- Selected pale blue: `#E7EDF3`
+- Divider: `#D9DEE2`
+- Positive: `#3F8068`
+- Warning: `#98652F`
+- Negative: `#AD4D4A`
 
 Keep light mode as the deliberate visual direction.
 
 ## Contrast and surface rules
 - Every text element must be readable against its actual rendered background.
 - Never use white text on pale blue, grey, or white surfaces.
-- White text is reserved for the solid wallet-orange header and primary actions.
-- Selected controls use soft orange fill with dark text and a visible orange border.
+- White text is reserved for the solid ledger-blue header and primary actions.
+- Selected controls use pale blue fill with dark text and a visible blue border.
 - Disabled controls remain readable; use muted dark text, not low-opacity white.
 - Inputs use a white surface, dark input text, muted placeholder, and visible divider border.
 - Positive/negative amounts use their semantic colours and must not be the only indication of income/expense.
