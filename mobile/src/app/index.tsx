@@ -53,6 +53,7 @@ export default function HomeScreen() {
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [sheetTab, setSheetTab] = useState<"activity" | "insight">("activity");
 
   useFocusEffect(
     useCallback(() => {
@@ -97,14 +98,14 @@ export default function HomeScreen() {
 
   return (
     <>
-    <StatusBar style="light" backgroundColor="#315D8A" />
-    <ScrollView style={[styles.screen, { backgroundColor: "#315D8A" }]} contentContainerStyle={styles.scrollContent}>
+    <StatusBar style="light" backgroundColor="#2563EB" />
+    <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent}>
       <View style={styles.blueHeader}>
         <View style={styles.topLine}>
           <ThemedText style={styles.walletTitle}>Wallet</ThemedText>
           <View style={styles.headerActions}>
             <View accessibilityLabel="Notifications" style={styles.notificationButton}>
-              <SymbolView name={{ ios: "bell.badge", android: "notifications", web: "notifications" }} tintColor="#315D8A" size={19} />
+              <SymbolView name={{ ios: "bell.badge", android: "notifications", web: "notifications" }} tintColor="#2563EB" size={19} />
             </View>
             <Pressable onPress={() => router.push("/settings")} accessibilityRole="button" accessibilityLabel="Open profile and settings" style={styles.profileButton}>
               <Image source={require("@/assets/images/icon-512.png")} style={styles.profileMark} contentFit="contain" />
@@ -149,13 +150,23 @@ export default function HomeScreen() {
 
       <View style={styles.whiteSheet}>
         <View style={styles.sheetHandle} />
+        <View style={styles.sheetTabs}>
+          <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => setSheetTab("activity")} style={[styles.sheetTab, sheetTab === "activity" && styles.sheetTabActive]}>
+            <ThemedText style={[styles.sheetTabText, sheetTab === "activity" && styles.sheetTabTextActive]}>Activity</ThemedText>
+          </Pressable>
+          <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "insight" }} onPress={() => setSheetTab("insight")} style={[styles.sheetTab, sheetTab === "insight" && styles.sheetTabActive]}>
+            <ThemedText style={[styles.sheetTabText, sheetTab === "insight" && styles.sheetTabTextActive]}>Insight</ThemedText>
+          </Pressable>
+        </View>
+        {sheetTab === "activity" ? (
+        <>
         <View style={styles.sectionHeader}>
           <View>
-            <ThemedText style={styles.sectionTitle}>My expenses</ThemedText>
+            <ThemedText style={styles.sectionTitle}>Recent expenses</ThemedText>
             <ThemedText style={styles.sectionSubtitle}>Your latest spending activity</ThemedText>
           </View>
           <Pressable onPress={() => router.push("/explore")} accessibilityRole="button" accessibilityLabel="View all activity" hitSlop={10}>
-            <ThemedText style={[styles.link, { color: "#315D8A" }]}>See all ↗</ThemedText>
+            <ThemedText style={[styles.link, { color: "#2563EB" }]}>See all ↗</ThemedText>
           </Pressable>
         </View>
 
@@ -165,7 +176,7 @@ export default function HomeScreen() {
           <ThemedText style={styles.emptyText}>Loading expenses…</ThemedText>
         ) : transactions.length === 0 ? (
           <View style={styles.emptyState}>
-            <View style={styles.emptyIcon}><SymbolView name={{ ios: "receipt", android: "receipt_long", web: "receipt_long" }} tintColor="#315D8A" size={22} /></View>
+            <View style={styles.emptyIcon}><SymbolView name={{ ios: "receipt", android: "receipt_long", web: "receipt_long" }} tintColor="#2563EB" size={22} /></View>
             <ThemedText style={styles.emptyTitle}>No expenses yet</ThemedText>
             <ThemedText style={styles.emptyText}>Add an expense or scan a receipt to see it here.</ThemedText>
             <Pressable onPress={() => router.push("/new-expense")} style={styles.emptyButton}>
@@ -177,7 +188,7 @@ export default function HomeScreen() {
             {transactions.map((item, index) => (
               <View key={item.id} style={[styles.transactionRow, index < transactions.length - 1 && styles.rowDivider]}>
                 <View style={styles.categoryIcon}>
-                  <SymbolView name={categorySymbol(item.categoryName)} tintColor="#315D8A" size={19} />
+                  <SymbolView name={categorySymbol(item.categoryName)} tintColor="#2563EB" size={19} />
                 </View>
                 <View style={styles.transactionInfo}>
                   <ThemedText style={styles.transactionName} numberOfLines={1}>{item.merchant || "Expense"}</ThemedText>
@@ -189,6 +200,46 @@ export default function HomeScreen() {
           </View>
         )}
         <ThemedText style={styles.privacyNote}>Your financial records stay on this device.</ThemedText>
+        </>
+        ) : (
+          <View style={styles.insightContent}>
+            <ThemedText style={styles.insightEyebrow}>ALLOWANCE OVERVIEW</ThemedText>
+            {summary ? (
+              <>
+                <View style={styles.insightMetricRow}>
+                  <View style={styles.insightMetric}>
+                    <ThemedText style={styles.insightMetricLabel}>Spent so far</ThemedText>
+                    <ThemedText style={styles.insightMetricValue}>{formatMoney(summary.spentCentavos, currency)}</ThemedText>
+                  </View>
+                  <View style={styles.insightMetric}>
+                    <ThemedText style={styles.insightMetricLabel}>Still available</ThemedText>
+                    <ThemedText style={styles.insightMetricValue}>{formatMoney(summary.remainingCentavos, currency)}</ThemedText>
+                  </View>
+                </View>
+                <View style={styles.insightTrack}>
+                  <View style={[styles.insightFill, { width: `${spentPercent}%` }]} />
+                </View>
+                <ThemedText style={styles.insightHint}>{Math.round(spentPercent)}% of your spendable allowance used</ThemedText>
+                <View style={styles.insightDaily}>
+                  <ThemedText style={styles.insightMetricLabel}>Safe to spend per day</ThemedText>
+                  <ThemedText style={styles.insightDailyValue}>{summary.dailySafeLimitCentavos === null ? "—" : formatMoney(summary.dailySafeLimitCentavos, currency)}</ThemedText>
+                </View>
+              </>
+            ) : (
+              <View style={styles.emptyState}>
+                <ThemedText style={styles.emptyTitle}>Start with an allowance</ThemedText>
+                <ThemedText style={styles.emptyText}>Set up your allowance cycle to see spending insights.</ThemedText>
+                <Pressable onPress={() => router.push("/new-cycle")} style={styles.emptyButton}>
+                  <ThemedText style={styles.emptyButtonText}>Set up allowance</ThemedText>
+                </Pressable>
+              </View>
+            )}
+            <Pressable onPress={() => router.push("/insights")} style={styles.fullInsightsLink}>
+              <ThemedText style={styles.fullInsightsText}>View detailed insights</ThemedText>
+              <SymbolView name={{ ios: "arrow.up.right", android: "north_east", web: "north_east" }} tintColor="#2563EB" size={16} />
+            </Pressable>
+          </View>
+        )}
       </View>
     </ScrollView>
     </>
@@ -201,26 +252,44 @@ const styles = StyleSheet.create({
   blueHeader: { paddingHorizontal: 23, paddingTop: 18, paddingBottom: 27 },
   topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },
-  notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#E7EDF3", alignItems: "center", justifyContent: "center" },
+  notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
   greeting: { color: "rgba(255,255,255,0.78)", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, marginTop: 2 },
-  profileButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#E7EDF3", alignItems: "center", justifyContent: "center" },
+  profileButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   profileMark: { width: 27, height: 27 },
   balanceLabel: { color: "rgba(255,255,255,0.82)", textAlign: "center", fontFamily: "IBMPlexSans_500Medium", fontSize: 12, marginTop: 2 },
   balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 43, lineHeight: 54, letterSpacing: -1.5, marginTop: 3 },
   balanceSetup: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 24, marginTop: 12 },
-  balanceArrow: { color: "#C8D8E7" },
+  balanceArrow: { color: "#8EC5FF" },
   balanceMeta: { flexDirection: "row", justifyContent: "space-between", marginTop: 6 },
   balanceMetaText: { color: "rgba(255,255,255,0.88)", fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
   progressTrack: { height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.24)", overflow: "hidden", marginTop: 7 },
-  progressFill: { height: "100%", borderRadius: 3, backgroundColor: "#C8D8E7" },
+  progressFill: { height: "100%", borderRadius: 3, backgroundColor: "#8EC5FF" },
   cycleText: { color: "rgba(255,255,255,0.78)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, marginTop: 8 },
   actionRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 25, gap: 5 },
   action: { flex: 1, alignItems: "center", gap: 7, minWidth: 0 },
-  actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#C8D8E7", alignItems: "center", justifyContent: "center" },
+  actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#8EC5FF", alignItems: "center", justifyContent: "center" },
   actionLabel: { color: "#FFFFFF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
   whiteSheet: { backgroundColor: "#FFFFFF", borderTopLeftRadius: 34, borderTopRightRadius: 34, marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 30, minHeight: 390 },
   sheetHandle: { width: 34, height: 4, borderRadius: 2, backgroundColor: "#D9DEE2", alignSelf: "center", marginBottom: 19 },
+  sheetTabs: { flexDirection: "row", gap: 8, marginBottom: 19, backgroundColor: "#EAF3FF", borderRadius: 24, padding: 4 },
+  sheetTab: { flex: 1, minHeight: 42, alignItems: "center", justifyContent: "center", borderRadius: 21 },
+  sheetTabActive: { backgroundColor: "#2563EB" },
+  sheetTabText: { color: "#64748B", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  sheetTabTextActive: { color: "#FFFFFF" },
+  insightContent: { paddingTop: 2, paddingBottom: 10 },
+  insightEyebrow: { color: "#64748B", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 10, letterSpacing: 1, marginBottom: 15 },
+  insightMetricRow: { flexDirection: "row", gap: 12 },
+  insightMetric: { flex: 1, backgroundColor: "#F4F8FF", borderRadius: 14, padding: 13, gap: 6 },
+  insightMetricLabel: { color: "#64748B", fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
+  insightMetricValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 18 },
+  insightTrack: { height: 8, borderRadius: 4, backgroundColor: "#EAF3FF", overflow: "hidden", marginTop: 18 },
+  insightFill: { height: "100%", backgroundColor: "#2563EB", borderRadius: 4 },
+  insightHint: { color: "#64748B", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, marginTop: 7 },
+  insightDaily: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "#DCE7F5", marginTop: 17, paddingTop: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  insightDailyValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 18 },
+  fullInsightsLink: { flexDirection: "row", alignItems: "center", gap: 7, alignSelf: "flex-start", marginTop: 20, minHeight: 40 },
+  fullInsightsText: { color: "#2563EB", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 17 },
   sectionTitle: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
   sectionSubtitle: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, marginTop: 2 },
@@ -228,16 +297,16 @@ const styles = StyleSheet.create({
   transactionList: { marginTop: 2 },
   transactionRow: { minHeight: 67, flexDirection: "row", alignItems: "center", gap: 11, paddingVertical: 10 },
   rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#D9DEE2" },
-  categoryIcon: { width: 39, height: 39, borderRadius: 20, backgroundColor: "#E7EDF3", alignItems: "center", justifyContent: "center" },
+  categoryIcon: { width: 39, height: 39, borderRadius: 20, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   transactionInfo: { flex: 1, gap: 3 },
   transactionName: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   transactionMeta: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 10 },
   transactionAmount: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
   emptyState: { alignItems: "center", paddingVertical: 22, gap: 7 },
-  emptyIcon: { width: 46, height: 46, borderRadius: 23, backgroundColor: "#E7EDF3", alignItems: "center", justifyContent: "center", marginBottom: 2 },
+  emptyIcon: { width: 46, height: 46, borderRadius: 23, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center", marginBottom: 2 },
   emptyTitle: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
   emptyText: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, textAlign: "center" },
-  emptyButton: { minHeight: 43, paddingHorizontal: 18, borderRadius: 22, backgroundColor: "#315D8A", alignItems: "center", justifyContent: "center", marginTop: 6 },
+  emptyButton: { minHeight: 43, paddingHorizontal: 18, borderRadius: 22, backgroundColor: "#2563EB", alignItems: "center", justifyContent: "center", marginTop: 6 },
   emptyButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
   privacyNote: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, textAlign: "center", marginTop: 22 },
 });
