@@ -3,7 +3,7 @@ name: Mobile validation
 on:
   push:
     branches:
-      - mobile-website-design-migration
+      - main
     paths:
       - "mobile/**"
       - ".github/workflows/mobile-validation.yml"
