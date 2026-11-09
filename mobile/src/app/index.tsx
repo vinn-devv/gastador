@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
@@ -27,14 +27,16 @@ type Dashboard = {
   endDate: string;
 };
 
-const ACTIONS = [
+type WalletSymbolName = ComponentProps<typeof SymbolView>["name"];
+
+const ACTIONS: { label: string; sub: string; icon: WalletSymbolName; route: "/new-cycle" | "/new-expense" | "/scan" | "/insights" }[] = [
   { label: "Allowance", sub: "Set or update", icon: { ios: "wallet.pass", android: "account_balance_wallet", web: "account_balance_wallet" }, route: "/new-cycle" as const },
   { label: "Add expense", sub: "Record spending", icon: { ios: "plus", android: "add", web: "add" }, route: "/new-expense" as const },
   { label: "Scan receipt", sub: "Use camera", icon: { ios: "viewfinder", android: "qr_code_scanner", web: "qr_code_scanner" }, route: "/scan" as const },
   { label: "Insights", sub: "See your habits", icon: { ios: "chart.pie", android: "pie_chart", web: "pie_chart" }, route: "/insights" as const },
 ];
 
-function categorySymbol(category: string) {
+function categorySymbol(category: string): WalletSymbolName {
   const value = category.toLowerCase();
   if (value.includes("food")) return { ios: "fork.knife", android: "restaurant", web: "restaurant" };
   if (value.includes("transport")) return { ios: "bus", android: "directions_bus", web: "directions_bus" };
@@ -139,7 +141,7 @@ export default function HomeScreen() {
 
   return (
     <>
-    <StatusBar style="light" backgroundColor="#2563EB" />
+    <StatusBar style="light" />
     <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent}>
       <View style={styles.blueHeader}>
         <View style={styles.topLine}>
