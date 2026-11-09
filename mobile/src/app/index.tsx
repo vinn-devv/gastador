@@ -697,7 +697,7 @@ export default function HomeScreen() {
                       {
                         paddingTop: Math.max(
                           0,
-                          (insightViewportHeight - RING_SIZE) / 2 - 34,
+                          (insightViewportHeight - RING_SIZE) / 2 - 46,
                         ),
                       },
                     ]}
