@@ -13,7 +13,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { onTabBarScroll } from "@/components/tab-bar-visibility";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
@@ -105,8 +104,6 @@ export default function SettingsScreen() {
     <ScrollView
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]}
-      onScroll={onTabBarScroll}
-      scrollEventThrottle={16}
     >
 
       {loading || !settings ? (
