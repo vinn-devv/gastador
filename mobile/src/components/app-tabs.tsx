@@ -81,7 +81,7 @@ export default function AppTabs() {
 
 const styles = StyleSheet.create({
   host: { position: "absolute", left: 0, right: 0, bottom: 0 },
-  bar: { minHeight: 70, borderTopWidth: StyleSheet.hairlineWidth, paddingHorizontal: 10, flexDirection: "row", alignItems: "center", justifyContent: "space-around" },
+  bar: { minHeight: 70, borderTopWidth: 0, paddingHorizontal: 10, flexDirection: "row", alignItems: "center", justifyContent: "space-around" },
   tab: { flex: 1, minWidth: 0, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 2, paddingTop: 5 },
   tabLabel: { fontFamily: "IBMPlexSans_500Medium", fontSize: 10, lineHeight: 14 },
   activeMark: { width: 13, height: 2, borderRadius: 2, marginTop: 1 },
