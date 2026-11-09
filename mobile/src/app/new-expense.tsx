@@ -1,7 +1,9 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { navBarSpace } from "@/constants/layout";
 import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 
@@ -20,6 +22,7 @@ export default function NewExpenseScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ amount?: string; merchant?: string }>();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
   const [currency, setCurrency] = useState("PHP");
   const [amount, setAmount] = useState(params.amount ?? "");
@@ -99,8 +102,9 @@ export default function NewExpenseScreen() {
   return (
     <>
       <StatusBar style="light" />
-      <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        <View style={styles.orangeHeader}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={[styles.scrollContent, { paddingBottom: navBarSpace(insets.bottom) }]} keyboardShouldPersistTaps="handled">
+        <View style={[styles.orangeHeader, { paddingTop: insets.top + 16 }]}>
           <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Go back" style={styles.back}>
             <SymbolView name={{ ios: "chevron.left", android: "arrow_back", web: "arrow_back" }} tintColor="#FFFFFF" size={21} />
           </Pressable>
@@ -185,6 +189,7 @@ export default function NewExpenseScreen() {
           </Pressable>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </>
   );
 }
