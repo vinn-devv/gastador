@@ -150,6 +150,9 @@ export default function NewCycleScreen() {
               <Pressable
                 key={item.value}
                 onPress={() => changeFrequency(item.value)}
+                accessibilityRole="radio"
+                accessibilityState={{ selected }}
+                accessibilityLabel={item.label}
                 style={[
                   styles.option,
                   {
