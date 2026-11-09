@@ -152,6 +152,11 @@ export default function ActivityScreen() {
               ? "Expenses you add will be listed here."
               : "Try another search term."}
           </ThemedText>
+          {transactions.length === 0 && (
+            <Pressable onPress={() => router.push("/new-expense")} accessibilityRole="button" style={[styles.addExpense, { backgroundColor: theme.primary }]}>
+              <ThemedText style={styles.addExpenseText}>Add expense</ThemedText>
+            </Pressable>
+          )}
           {query.length > 0 && (
             <Pressable onPress={() => setQuery("")} hitSlop={8}>
               <ThemedText style={[styles.clear, { color: theme.primary }]}>
@@ -231,6 +236,8 @@ const styles = StyleSheet.create({
   empty: { paddingVertical: 34, alignItems: "center", gap: 6 },
   emptyTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
   clear: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13, marginTop: 8 },
+  addExpense: { minHeight: 48, paddingHorizontal: 22, borderRadius: 14, alignItems: "center", justifyContent: "center", marginTop: 12 },
+  addExpenseText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 14 },
   transaction: {
     minHeight: 78,
     flexDirection: "row",
