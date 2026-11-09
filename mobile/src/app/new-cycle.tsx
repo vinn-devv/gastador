@@ -137,6 +137,7 @@ export default function NewCycleScreen() {
           value={allowance}
           onChangeText={setAllowance}
           placeholder="e.g. 3000"
+          accessibilityLabel="Allowance amount in Philippine pesos"
           placeholderTextColor={theme.muted}
           keyboardType="decimal-pad"
           style={[...fieldStyle, styles.amountInput]}
@@ -184,6 +185,7 @@ export default function NewCycleScreen() {
           value={startDate}
           onChangeText={changeStart}
           placeholder="YYYY-MM-DD"
+          accessibilityLabel="Allowance start date"
           placeholderTextColor={theme.muted}
           style={fieldStyle}
           autoCapitalize="none"
@@ -196,6 +198,7 @@ export default function NewCycleScreen() {
           value={nextDate}
           onChangeText={setNextDate}
           placeholder="YYYY-MM-DD"
+          accessibilityLabel="Next allowance arrival date"
           placeholderTextColor={theme.muted}
           style={fieldStyle}
           autoCapitalize="none"
@@ -211,6 +214,7 @@ export default function NewCycleScreen() {
           value={savings}
           onChangeText={setSavings}
           placeholder="0.00"
+          accessibilityLabel="Planned savings amount"
           placeholderTextColor={theme.muted}
           keyboardType="decimal-pad"
           style={fieldStyle}
@@ -223,6 +227,7 @@ export default function NewCycleScreen() {
           value={name}
           onChangeText={setName}
           placeholder="e.g. November allowance"
+          accessibilityLabel="Allowance cycle name"
           placeholderTextColor={theme.muted}
           maxLength={80}
           style={fieldStyle}
