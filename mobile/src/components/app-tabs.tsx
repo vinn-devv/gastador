@@ -22,7 +22,7 @@ type TabDescriptors = Record<string, { options: {
   tabBarIcon?: (props: { focused: boolean; color: string; size: number }) => ReactNode;
 } }>;
 
-const VISIBLE_TABS = ["index", "new-cycle", "insights", "settings"] as const;
+const VISIBLE_TABS = ["index", "allowance", "insights", "settings"] as const;
 
 function WalletTabItem({ focused, label, icon, onPress, accessibilityLabel }: { focused: boolean; label: string; icon: ReactNode; onPress: () => void; accessibilityLabel: string }) {
   const progress = useRef(new Animated.Value(focused ? 1 : 0)).current;
@@ -95,8 +95,6 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
   const centerX = barWidth / 2;
   const notchPath = `M 0 0 L ${centerX - 52} 0 C ${centerX - 34} 0 ${centerX - 34} 25 ${centerX} 25 C ${centerX + 34} 25 ${centerX + 34} 0 ${centerX + 52} 0 L ${barWidth} 0 L ${barWidth} ${dockHeight} L 0 ${dockHeight} Z`;
   const rotate = buttonRotation.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "45deg"] });
-  const activeRouteName = state.routes[state.index]?.name;
-  if (!VISIBLE_TABS.includes(activeRouteName as (typeof VISIBLE_TABS)[number])) return null;
 
   return (
     <View pointerEvents="box-none" style={[styles.host, { height: 72 + safeBottom }]}>
@@ -189,12 +187,9 @@ export default function AppTabs() {
   return (
     <Tabs tabBar={(props) => <WalletTabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: "Home", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "house", android: "home", web: "home" }} tintColor={color} size={size} /> }} />
-      <Tabs.Screen name="new-cycle" options={{ title: "Allowance", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "wallet.pass", android: "account_balance_wallet", web: "account_balance_wallet" }} tintColor={color} size={size} /> }} />
+      <Tabs.Screen name="allowance" options={{ title: "Allowance", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "wallet.pass", android: "account_balance_wallet", web: "account_balance_wallet" }} tintColor={color} size={size} /> }} />
       <Tabs.Screen name="insights" options={{ title: "Insights", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "chart.pie", android: "pie_chart", web: "pie_chart" }} tintColor={color} size={size} /> }} />
       <Tabs.Screen name="settings" options={{ title: "Settings", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "gearshape", android: "settings", web: "settings" }} tintColor={color} size={size} /> }} />
-      <Tabs.Screen name="explore" options={{ href: null }} />
-      <Tabs.Screen name="scan" options={{ href: null }} />
-      <Tabs.Screen name="new-expense" options={{ href: null }} />
     </Tabs>
   );
 }
