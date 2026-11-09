@@ -1,11 +1,8 @@
-import { DefaultTheme, ThemeProvider } from "expo-router";
+import { DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import { SQLiteProvider } from "expo-sqlite";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "@expo-google-fonts/nunito";
 import { View } from "react-native";
-import { StatusBar } from "expo-status-bar";
-
-import AppTabs from "@/components/app-tabs";
 import { DB_NAME, initializeDatabase } from "@/data/database";
 import { IntroOverlay } from "@/components/intro-overlay";
 
@@ -25,9 +22,22 @@ export default function TabLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
       <View style={{ flex: 1, backgroundColor: "#F3F5F6" }} onLayout={() => { void SplashScreen.hideAsync(); }}>
-        <StatusBar style="dark" />
         <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
-          <AppTabs />
+          <Stack
+            initialRouteName="(tabs)"
+            screenOptions={{
+              headerShown: false,
+              animation: "slide_from_right",
+              animationDuration: 280,
+              contentStyle: { backgroundColor: "#2563EB" },
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="new-expense" options={{ animation: "fade_from_bottom" }} />
+            <Stack.Screen name="scan" options={{ animation: "fade_from_bottom" }} />
+            <Stack.Screen name="expenses" options={{ animation: "slide_from_right" }} />
+            <Stack.Screen name="new-cycle" options={{ animation: "slide_from_right" }} />
+          </Stack>
         </SQLiteProvider>
         <IntroOverlay />
       </View>
