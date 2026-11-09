@@ -24,7 +24,6 @@ export default function TabLayout() {
       <View style={{ flex: 1, backgroundColor: "#2563EB" }} onLayout={() => { void SplashScreen.hideAsync(); }}>
         <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
           <Stack
-            initialRouteName="(tabs)"
             screenOptions={{
               headerShown: false,
               animation: "slide_from_right",
