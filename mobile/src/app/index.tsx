@@ -39,8 +39,8 @@ const R = 24;
 const SR = 40;
 const C = 28;
 const SVG_PAD = 16;
-const RING_SIZE = 240;
-const RING_STROKE = 14;
+const RING_SIZE = 260;
+const RING_STROKE = 16;
 const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
@@ -141,7 +141,7 @@ export default function HomeScreen() {
     return {
       cx: RING_SIZE / 2 + Math.cos(angle) * radius,
       cy: RING_SIZE / 2 + Math.sin(angle) * radius,
-      r: 5.5 * ringHeadPulse.value,
+      r: 6 * ringHeadPulse.value,
       opacity: ringProgress.value > 0 ? 1 : 0,
     };
   });
@@ -343,11 +343,11 @@ export default function HomeScreen() {
               <View style={styles.ringWrap}>
                 <Svg width={RING_SIZE} height={RING_SIZE} viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}>
                   <G rotation={-90} origin={`${RING_SIZE / 2}, ${RING_SIZE / 2}`}>
-                    <Circle cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_RADIUS} stroke="#BFDBFE" strokeWidth={RING_STROKE} fill="none" />
+                    <Circle cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_RADIUS} stroke="#93C5FD" strokeWidth={RING_STROKE} fill="none" />
                     {hasAllowance && rawSpentPercent > 0 ? (
                       <>
                         <AnimatedCircle cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_RADIUS} stroke={ringColor} strokeWidth={RING_STROKE} strokeLinecap="round" fill="none" strokeDasharray={`${RING_CIRCUMFERENCE} ${RING_CIRCUMFERENCE}`} animatedProps={ringAnimatedProps} />
-                        <AnimatedCircle cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_RADIUS} stroke="#93C5FD" strokeWidth={RING_STROKE} strokeLinecap="round" fill="none" animatedProps={shimmerAnimatedProps} />
+                        <AnimatedCircle cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_RADIUS} stroke="#BFDBFE" strokeWidth={RING_STROKE} strokeLinecap="round" fill="none" animatedProps={shimmerAnimatedProps} />
                         <AnimatedCircle cx={RING_SIZE / 2} cy={RING_SIZE / 2} fill="#FFFFFF" stroke={ringColor} strokeWidth={3} animatedProps={ringHeadProps} />
                       </>
                     ) : null}
@@ -430,8 +430,8 @@ const styles = StyleSheet.create({
   noAllowanceText: { color: "#6B7280", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18, lineHeight: 25, textAlign: "center", maxWidth: 150 },
   ringWrap: { width: RING_SIZE, height: RING_SIZE, alignItems: "center", justifyContent: "center" },
   ringCenter: { position: "absolute", width: RING_SIZE - 52, minHeight: 92, alignItems: "center", justifyContent: "center" },
-  ringPercent: { fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 54, textAlign: "center" },
-  ringLabel: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 13, lineHeight: 18, textAlign: "center" },
+  ringPercent: { fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 44, lineHeight: 58, textAlign: "center" },
+  ringLabel: { color: "#56616B", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, lineHeight: 20, textAlign: "center" },
   insightStatsRow: { width: "100%", flexDirection: "row", gap: 12 },
   insightStatSlot: { flex: 1, minWidth: 0 },
   insightStatChip: { flex: 1, minWidth: 0, minHeight: 72, borderRadius: 16, backgroundColor: "#F3F7FF", alignItems: "center", justifyContent: "center", paddingHorizontal: 5, paddingVertical: 10, gap: 3 },
