@@ -264,7 +264,7 @@ export default function HomeScreen() {
           onPress={() => router.push("/new-cycle")}
           style={[styles.setupAction, { backgroundColor: theme.primary }]}
         >
-          <ThemedText style={styles.setupActionText}>
+          <ThemedText style={[styles.setupActionText, { color: theme.onPrimary }]}>
             Set up allowance
           </ThemedText>
           <SymbolView
@@ -510,7 +510,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   setupActionText: {
-    color: theme.onPrimary,
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 14,
   },
