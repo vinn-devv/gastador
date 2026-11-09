@@ -180,7 +180,7 @@ export default function SettingsScreen() {
                     <ThemedText
                       style={[
                         styles.choiceText,
-                        { color: selected ? theme.onPrimary : theme.text },
+                        { color: selected ? theme.primary : theme.text },
                       ]}
                     >
                       {currency}
@@ -222,7 +222,7 @@ export default function SettingsScreen() {
                     <ThemedText
                       type="small"
                       style={{
-                        color: selected ? theme.onPrimary : theme.muted,
+                        color: selected ? theme.primary : theme.muted,
                       }}
                     >
                       {method.detail}
@@ -258,16 +258,16 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   title: {
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 29,
+    fontFamily: "Georgia",
+    fontSize: 31,
     lineHeight: 36,
     marginTop: 2,
   },
   subtitle: { marginTop: 3, marginBottom: 24 },
-  section: { marginBottom: 18, padding: 15, borderRadius: 16, borderWidth: 1 },
+  section: { marginBottom: 18, padding: 15, borderRadius: 0, borderWidth: 0, borderBottomWidth: StyleSheet.hairlineWidth },
   sectionTitle: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 17,
+    fontFamily: "Georgia",
+    fontSize: 19,
     marginBottom: 12,
   },
   sectionHint: { marginTop: -6, marginBottom: 12 },
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 48,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 8,
     paddingHorizontal: 13,
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 15,
@@ -295,14 +295,14 @@ const styles = StyleSheet.create({
     minWidth: 68,
     minHeight: 43,
     borderWidth: 1,
-    borderRadius: 22,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 15,
   },
   choiceText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   methodList: { gap: 9 },
-  method: { borderWidth: 1, borderRadius: 13, padding: 14, gap: 3 },
+  method: { borderWidth: 1, borderRadius: 8, padding: 14, gap: 3 },
   methodTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   message: { marginTop: -12, marginBottom: 20 },
   privacy: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 17, gap: 5 },
