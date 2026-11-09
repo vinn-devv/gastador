@@ -217,7 +217,7 @@ export default function HomeScreen() {
             {formatMoney(Math.abs(remaining), currency)}
           </ThemedText>
         ) : (
-          <ThemedText style={[styles.balanceEmpty, { color: "#FFFFFF" }]}>
+          <ThemedText style={[styles.balanceEmpty, { color: "#202A35" }]}>
             Give every peso somewhere to go.
           </ThemedText>
         )}
@@ -238,7 +238,7 @@ export default function HomeScreen() {
               />
             </View>
             <View style={styles.balanceFooter}>
-              <ThemedText style={[styles.balanceCaption, { color: "#D8EAF8" }]}>
+              <ThemedText style={[styles.balanceCaption, { color: "#596575" }]}>
                 {formatMoney(summary.spentCentavos, currency)} spent
               </ThemedText>
               <ThemedText style={styles.balanceCaption} themeColor="muted">
@@ -455,8 +455,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
   },
   greeting: {
-    fontFamily: "IBMPlexSans_700Bold",
-    fontFamily: "Georgia",
+    fontFamily: "serif",
     fontSize: 28,
     lineHeight: 36,
     letterSpacing: -0.9,
@@ -464,7 +463,7 @@ const styles = StyleSheet.create({
   brandMark: { width: 38, height: 38 },
   balanceSection: {
     marginBottom: 20,
-    padding: 18,
+    padding: 20,
     borderRadius: 8,
     borderWidth: 1,
     borderLeftWidth: 3,
@@ -486,8 +485,8 @@ const styles = StyleSheet.create({
   statusDot: { width: 7, height: 7, borderRadius: 4 },
   statusText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
   balanceAmount: {
-    color: "#FFFFFF",
-    fontFamily: "Georgia",
+    color: "#202A35",
+    fontFamily: "serif",
     fontSize: 42,
     lineHeight: 54,
     letterSpacing: -2.1,
