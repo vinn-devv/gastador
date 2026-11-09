@@ -9,7 +9,6 @@ import {
 } from "react-native";
 
 const COLORS = {
-  background: "#050B18",
   tile: "#172F83",
   gold: "#FFC20E",
   white: "#F7F9FF",
@@ -200,7 +199,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: 9999,
     elevation: 9999,
-    backgroundColor: COLORS.background,
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },
