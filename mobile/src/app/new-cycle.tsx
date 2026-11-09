@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { KeyboardAvoidingView, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ScreenLayout } from "@/components/screen-layout";
+import { navBarSpace } from "@/constants/layout";
 import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import {
@@ -29,6 +33,7 @@ export default function NewCycleScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const today = manilaToday();
   const [name, setName] = useState("");
   const [allowance, setAllowance] = useState("");
@@ -113,23 +118,14 @@ export default function NewCycleScreen() {
   ];
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.content}
-      onScroll={onTabBarScroll}
-      scrollEventThrottle={16}
-    >
-      <Pressable onPress={() => router.back()} hitSlop={10} style={styles.back}>
-        <ThemedText style={[styles.backText, { color: theme.primary }]}>
-          ‹ Back
-        </ThemedText>
-      </Pressable>
-      <ThemedText type="small" themeColor="muted">
-        Allowance setup
-      </ThemedText>
-      <ThemedText style={styles.title}>New allowance cycle</ThemedText>
-      <ThemedText type="small" themeColor="muted" style={styles.subtitle}>
-        Set the amount you receive and the dates it needs to cover.
-      </ThemedText>
+    <ScreenLayout title="Allowance" subtitle="Set up the amount and schedule of your next allowance.">
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]}
+        keyboardShouldPersistTaps="handled"
+        onScroll={onTabBarScroll}
+        scrollEventThrottle={16}
+      >
 
       <View style={styles.field}>
         <ThemedText style={styles.label}>Allowance amount (PHP)</ThemedText>
@@ -254,29 +250,22 @@ export default function NewCycleScreen() {
           {saving ? "Saving…" : "Save allowance cycle"}
         </ThemedText>
       </Pressable>
-    </ScrollView>
+      </ScrollView>
+      </KeyboardAvoidingView>
+    </ScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 124 },
-  back: { alignSelf: "flex-start", marginBottom: 22 },
-  backText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
-  title: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 30,
-    lineHeight: 36,
-    marginTop: 2,
-  },
-  subtitle: { marginTop: 3, marginBottom: 25 },
+  content: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 24 },
   field: { marginBottom: 19, gap: 8 },
   label: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   input: {
-    minHeight: 48,
+    minHeight: 50,
     borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 13,
+    borderRadius: 12,
+    paddingHorizontal: 15,
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 15,
   },
@@ -298,7 +287,7 @@ const styles = StyleSheet.create({
   errorText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13 },
   saveButton: {
     minHeight: 52,
-    borderRadius: 8,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 4,
