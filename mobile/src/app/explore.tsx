@@ -25,10 +25,13 @@ import {
   type Transaction,
 } from "@/domain/types";
 import { onTabBarScroll } from "@/components/tab-bar-visibility";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { navBarSpace } from "@/constants/layout";
 
 export default function ActivityScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [currency, setCurrency] = useState<CurrencyCode>("PHP");
@@ -85,7 +88,7 @@ export default function ActivityScreen() {
 
   return (
     <ScrollView
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]}
       onScroll={onTabBarScroll}
       scrollEventThrottle={16}
     >
