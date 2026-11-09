@@ -229,7 +229,7 @@ export default function HomeScreen() {
           </Pressable>
         </View>
       </View>
-      <Reanimated.View style={[styles.sheetShadow, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
+      <RNAnimated.View style={[styles.sheetShadow, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
         <View style={[styles.whiteSheet, { paddingBottom: Math.max(insets.bottom + 90, 100) }]}>
         <Reanimated.View
           key={sheetTab}
@@ -328,7 +328,7 @@ export default function HomeScreen() {
         )}
         </Reanimated.View>
         </View>
-      </Reanimated.View>
+      </RNAnimated.View>
     </ScrollView>
     </>
   );
