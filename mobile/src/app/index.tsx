@@ -20,6 +20,7 @@ import { pickCurrentCycle, summarizeCycle, type CycleSummary } from "@/domain/al
 import { formatDate, formatTime, manilaToday } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
 import type { AppSettings } from "@/domain/types";
+import { SHEET_GAP } from "@/constants/layout";
 
 type Dashboard = {
   summary: CycleSummary;
@@ -38,7 +39,6 @@ const R = 24;
 const SR = 40;
 const C = 28;
 const SVG_PAD = 16;
-const SHEET_GAP = 12;
 const RING_SIZE = 240;
 const RING_STROKE = 14;
 const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
@@ -51,30 +51,32 @@ function buildPath(p: number, W: number, H: number) {
   const tabBottom = top + TH;
   const half = W / 2;
   const x = q * half;
-  const flareLeft = R * q;
-  const flareRight = R * (1 - q);
-  const sheetLeft = SR * q;
-  const sheetRight = SR * (1 - q);
+  const leftFlare = R * q;
+  const rightFlare = R * (1 - q);
+  const leftShoulder = SR * q;
+  const rightShoulder = SR * (1 - q);
   const bottom = Math.max(tabBottom + 80, H - SHEET_GAP);
-  const corner = 12;
+  const bottomRadius = 12;
+  const tabRadius = C;
+  const joinRadius = R;
   return [
-    "M 0 " + (bottom - corner),
-    "L 0 " + (tabBottom + sheetLeft),
-    "Q 0 " + (tabBottom + sheetLeft * 0.45) + " " + sheetLeft + " " + tabBottom,
-    "L " + (x - flareLeft) + " " + tabBottom,
-    "Q " + (x - flareLeft) + " " + tabBottom + " " + x + " " + (tabBottom - flareLeft),
-    "L " + x + " " + (top + C),
-    "Q " + x + " " + top + " " + (x + C) + " " + top,
-    "L " + (x + half - C) + " " + top,
-    "Q " + (x + half) + " " + top + " " + (x + half) + " " + (top + C),
-    "L " + (x + half) + " " + (tabBottom - flareRight),
-    "Q " + (x + half + flareRight) + " " + tabBottom + " " + (x + half) + " " + tabBottom,
-    "L " + (W - sheetRight) + " " + tabBottom,
-    "Q " + W + " " + (tabBottom + sheetRight * 0.45) + " " + W + " " + (tabBottom + sheetRight),
-    "L " + W + " " + (bottom - corner),
-    "Q " + W + " " + bottom + " " + (W - corner) + " " + bottom,
-    "L " + corner + " " + bottom,
-    "Q 0 " + bottom + " 0 " + (bottom - corner),
+    "M 0 " + (bottom - bottomRadius),
+    "L 0 " + (tabBottom + leftShoulder),
+    "C 0 " + (tabBottom + leftShoulder * 0.42) + " " + (leftShoulder * 0.48) + " " + tabBottom + " " + leftShoulder + " " + tabBottom,
+    "L " + (x - leftFlare) + " " + tabBottom,
+    "C " + (x - leftFlare * 0.34) + " " + tabBottom + " " + x + " " + (tabBottom - leftFlare * 0.34) + " " + x + " " + (tabBottom - leftFlare),
+    "L " + x + " " + (top + tabRadius),
+    "C " + x + " " + (top + tabRadius * 0.42) + " " + (x + tabRadius * 0.42) + " " + top + " " + (x + tabRadius) + " " + top,
+    "L " + (x + half - tabRadius) + " " + top,
+    "C " + (x + half - tabRadius * 0.42) + " " + top + " " + (x + half) + " " + (top + tabRadius * 0.42) + " " + (x + half) + " " + (top + tabRadius),
+    "L " + (x + half) + " " + (tabBottom - rightFlare),
+    "C " + (x + half) + " " + (tabBottom - rightFlare * 0.34) + " " + (x + half + rightFlare * 0.34) + " " + tabBottom + " " + (x + half + rightFlare) + " " + tabBottom,
+    "L " + (W - rightShoulder) + " " + tabBottom,
+    "C " + (W - rightShoulder * 0.48) + " " + tabBottom + " " + W + " " + (tabBottom + rightShoulder * 0.42) + " " + W + " " + (tabBottom + rightShoulder),
+    "L " + W + " " + (bottom - bottomRadius),
+    "C " + W + " " + (bottom - bottomRadius * 0.42) + " " + (W - bottomRadius * 0.42) + " " + bottom + " " + (W - bottomRadius) + " " + bottom,
+    "L " + bottomRadius + " " + bottom,
+    "C " + (bottomRadius * 0.42) + " " + bottom + " 0 " + (bottom - bottomRadius * 0.42) + " 0 " + (bottom - bottomRadius),
     "Z",
   ].join(" ");
 }
@@ -96,7 +98,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const db = useSQLiteContext();
   const insets = useSafeAreaInsets();
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const [transactions, setTransactions] = useState<RecentTransaction[]>([]);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [settings, setSettings] = useState<AppSettings | null>(null);
@@ -106,7 +108,7 @@ export default function HomeScreen() {
   const [contentDirection, setContentDirection] = useState<1 | -1>(1);
   const progress = useSharedValue(0);
   const stageWidth = Math.max(0, width - SHEET_GAP * 2);
-  const stageHeight = Math.max(360, height - insets.top - 202 - SHEET_GAP);
+  const [stageHeight, setStageHeight] = useState(0);
   const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, stageWidth, stageHeight + SHEET_GAP) }));
   const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#FFE88A"]) }));
   const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#FFE88A", "#1E40AF"]) }));
@@ -268,7 +270,13 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <View style={styles.sheetStage}>
+      <View
+        style={styles.sheetStage}
+        onLayout={(event) => {
+          const nextHeight = Math.round(event.nativeEvent.layout.height);
+          setStageHeight((current) => current === nextHeight ? current : nextHeight);
+        }}
+      >
         <Svg width={stageWidth} height={stageHeight + 40} style={styles.shapeSvg}>
           <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.05)" transform="translate(0 -8)" />
           <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.10)" transform="translate(0 -3)" />
@@ -412,12 +420,12 @@ const styles = StyleSheet.create({
   headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },
   notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 22, lineHeight: 29 },
-  balanceBlock: { minHeight: 132, alignItems: "center", justifyContent: "center", gap: 7 },
+  balanceBlock: { minHeight: 152, paddingTop: 20, alignItems: "center", justifyContent: "center", gap: 7 },
   balanceLabel: { color: "rgba(255,255,255,0.85)", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16, lineHeight: 22, marginBottom: 0 },
   balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 84, letterSpacing: -1.5, includeFontPadding: false },
   balanceSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 35, lineHeight: 84, includeFontPadding: false, verticalAlign: "top" },
   pesoSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 35, lineHeight: 84, includeFontPadding: false, verticalAlign: "top" },
-  sheetStage: { flex: 1, minHeight: 360, marginHorizontal: SHEET_GAP, marginBottom: SHEET_GAP, backgroundColor: "#2563EB", borderRadius: 12, overflow: "hidden" },
+  sheetStage: { flex: 1, minHeight: 320, width: "100%", maxWidth: "100%", alignSelf: "center", marginHorizontal: SHEET_GAP, marginBottom: SHEET_GAP, backgroundColor: "#2563EB", borderRadius: 24, overflow: "hidden" },
   shapeSvg: { position: "absolute", top: 0, left: 0, zIndex: 0 },
   shapeTabLabels: { position: "absolute", top: SVG_PAD, left: 0, right: 0, height: TH, flexDirection: "row", zIndex: 2 },
   sheetContentHost: { position: "absolute", top: SVG_PAD + TH + 24, left: 0, right: 0, bottom: 0, zIndex: 1 },
