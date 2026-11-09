@@ -4,7 +4,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Animated as RNAnimated, Easing as RNEasing, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Animated as RNAnimated, Easing as RNEasing, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import Reanimated, { Easing, FadeInDown, FadeInLeft, FadeInRight, FadeOutLeft, FadeOutRight, interpolateColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
 
@@ -60,18 +60,11 @@ function buildPath(p: number, W: number, Hs: number) {
     `L ${x + w} ${TAB_HEIGHT - rr}`,
     `A ${rr} ${rr} 0 0 0 ${x + w + rr} ${TAB_HEIGHT}`,
     `L ${W - sr} ${TAB_HEIGHT}`,
-    `A ${sr} ${sr} 0 0 1 ${W} ${TAB_HEIGHT + sr}`,
+    `C ${W - sr * 0.4477} ${TAB_HEIGHT} ${W} ${TAB_HEIGHT + sr * 0.4477} ${W} ${TAB_HEIGHT + sr}`,
     `L ${W} ${Hs}`,
     "Z",
   ].join(" ");
 }
-
-const ACTIONS: { label: string; sub: string; icon: WalletSymbolName; route: "/new-cycle" | "/new-expense" | "/scan" | "/insights" }[] = [
-  { label: "Allowance", sub: "Set or update", icon: { ios: "wallet.pass", android: "account_balance_wallet", web: "account_balance_wallet" }, route: "/new-cycle" as const },
-  { label: "Add expense", sub: "Record spending", icon: { ios: "plus", android: "add", web: "add" }, route: "/new-expense" as const },
-  { label: "Scan receipt", sub: "Use camera", icon: { ios: "viewfinder", android: "qr_code_scanner", web: "qr_code_scanner" }, route: "/scan" as const },
-  { label: "Insights", sub: "See your habits", icon: { ios: "chart.pie", android: "pie_chart", web: "pie_chart" }, route: "/insights" as const },
-];
 
 function categorySymbol(category: string): WalletSymbolName {
   const value = category.toLowerCase();
@@ -106,6 +99,7 @@ export default function HomeScreen() {
   const sheetEntrance = useRef(new RNAnimated.Value(0)).current;
 
   const balanceProgress = useRef(new RNAnimated.Value(0)).current;
+  const balanceLabelOpacity = useRef(new RNAnimated.Value(0)).current;
   const [animatedRemaining, setAnimatedRemaining] = useState(0);
 
   useEffect(() => {
@@ -153,13 +147,22 @@ export default function HomeScreen() {
   const remaining = summary?.remainingCentavos ?? 0;
   const spendable = summary?.spendableCentavos ?? 0;
   const spentPercent = spendable > 0 ? Math.max(0, Math.min(100, (summary!.spentCentavos / spendable) * 100)) : 0;
+  const formattedBalance = formatMoney(summary ? animatedRemaining : 0, currency);
+  const balanceFirstDigit = formattedBalance.search(/\\d/);
+  const balancePrefix = balanceFirstDigit >= 0 ? formattedBalance.slice(0, balanceFirstDigit) : "";
+  const balanceDigits = balanceFirstDigit >= 0 ? formattedBalance.slice(balanceFirstDigit) : formattedBalance;
+  const balanceSign = balancePrefix.replace("₱", "").trim();
 
   useEffect(() => {
     if (loading) return;
     const listener = balanceProgress.addListener(({ value }) => setAnimatedRemaining(Math.round(value)));
     balanceProgress.setValue(0);
-    RNAnimated.timing(balanceProgress, { toValue: Math.max(0, remaining), duration: 850, easing: RNEasing.out(RNEasing.cubic), useNativeDriver: false }).start();
-    return () => { balanceProgress.removeListener(listener); balanceProgress.stopAnimation(); };
+    balanceLabelOpacity.setValue(0);
+    RNAnimated.parallel([
+      RNAnimated.timing(balanceProgress, { toValue: Math.max(0, remaining), duration: 850, easing: RNEasing.out(RNEasing.cubic), useNativeDriver: false }),
+      RNAnimated.timing(balanceLabelOpacity, { toValue: 1, duration: 420, easing: RNEasing.out(RNEasing.quad), useNativeDriver: true }),
+    ]).start();
+    return () => { balanceProgress.removeListener(listener); balanceProgress.stopAnimation(); balanceLabelOpacity.stopAnimation(); };
   }, [balanceProgress, loading, remaining]);
 
   const switchSheetTab = useCallback((next: "activity" | "insight") => {
@@ -175,7 +178,7 @@ export default function HomeScreen() {
     <StatusBar style="light" />
     <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent}>
       <View style={styles.blueHeader}>
-        <View style={[styles.topLine, { paddingTop: insets.top + 8 }]}>
+        <View style={styles.topLine}>
           <ThemedText style={styles.walletTitle}>Wallet</ThemedText>
           <View style={styles.headerActions}>
             <View accessibilityLabel="Notifications" style={styles.notificationButton}>
@@ -183,36 +186,15 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-
-        <ThemedText style={styles.balanceLabel}>Available to spend</ThemedText>
-        <ThemedText style={styles.balanceAmount}>{loading ? "••••••" : `${remaining < 0 ? "−" : ""}${formatMoney(summary ? animatedRemaining : 0, currency)}`}</ThemedText>
-        {!loading && !summary ? (
-          <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Set up allowance" hitSlop={8}>
-            <ThemedText style={styles.balanceSetup}>Set up your allowance <ThemedText style={styles.balanceArrow}>↗</ThemedText></ThemedText>
+        <View style={styles.balanceBlock}>
+          <RNAnimated.Text style={[styles.balanceLabel, { opacity: balanceLabelOpacity }]}>Available to spend</RNAnimated.Text>
+          <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel={`Available to spend ${formattedBalance}. Open allowance setup.`} style={styles.balanceTapTarget}>
+            <RNAnimated.Text style={styles.balanceAmount}>
+              {balanceSign ? <Text style={styles.balanceSign}>{balanceSign}</Text> : null}
+              {balancePrefix.includes("₱") ? <Text style={styles.pesoSign}>₱</Text> : null}
+              {balanceDigits}
+            </RNAnimated.Text>
           </Pressable>
-        ) : null}
-        {summary ? (
-          <>
-            <View style={styles.balanceMeta}>
-              <ThemedText style={styles.balanceMetaText}>{formatMoney(summary.spentCentavos, currency)} spent</ThemedText>
-              <ThemedText style={styles.balanceMetaText}>{Math.max(0, Math.round(100 - spentPercent))}% left</ThemedText>
-            </View>
-            <View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${spentPercent}%` }]} /></View>
-            <ThemedText style={styles.cycleText}>{dashboard?.cycleName} · {formatDate(dashboard?.startDate ?? "", false)} – {formatDate(dashboard?.endDate ?? "", false)}</ThemedText>
-          </>
-        ) : (
-          <ThemedText style={styles.cycleText}>Track your allowance and know what you can safely spend.</ThemedText>
-        )}
-
-        <View style={styles.actionRow}>
-          {ACTIONS.map((action) => (
-            <Pressable key={action.label} onPress={() => router.push(action.route)} accessibilityRole="button" accessibilityLabel={action.label} style={({ pressed }) => [styles.action, { transform: [{ scale: pressed ? 0.95 : 1 }] }]}>
-              <View style={styles.actionCircle}>
-                <SymbolView name={action.icon} tintColor="#202A35" size={22} />
-              </View>
-              <ThemedText style={styles.actionLabel}>{action.label}</ThemedText>
-            </Pressable>
-          ))}
         </View>
       </View>
 
@@ -230,7 +212,7 @@ export default function HomeScreen() {
         </View>
       </View>
       <RNAnimated.View style={[styles.sheetShadow, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
-        <View style={[styles.whiteSheet, { paddingBottom: Math.max(insets.bottom + 90, 100) }]}>
+        <View style={[styles.whiteSheet, { paddingBottom: insets.bottom + 138 }]}>
         <Reanimated.View
           key={sheetTab}
           entering={(contentDirection === 1 ? FadeInLeft : FadeInRight).duration(180).delay(50)}
@@ -243,9 +225,14 @@ export default function HomeScreen() {
             <ThemedText style={styles.sectionTitle}>Recent expenses</ThemedText>
             <ThemedText style={styles.sectionSubtitle}>Your latest spending activity</ThemedText>
           </View>
-          <Pressable onPress={() => router.push("/explore")} accessibilityRole="button" accessibilityLabel="View all activity" hitSlop={10}>
-            <ThemedText style={[styles.link, { color: "#2563EB" }]}>See all ↗</ThemedText>
-          </Pressable>
+          <View style={styles.sectionHeaderActions}>
+            <Pressable onPress={() => router.push("/explore")} accessibilityRole="button" accessibilityLabel="View all activity" hitSlop={10}>
+              <ThemedText style={[styles.link, { color: "#2563EB" }]}>See all ↗</ThemedText>
+            </Pressable>
+            <Pressable onPress={() => router.push("/new-expense")} accessibilityRole="button" accessibilityLabel="Add expense" hitSlop={8} style={({ pressed }) => [styles.addExpenseButton, { transform: [{ scale: pressed ? 0.92 : 1 }] }]}>
+              <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor="#2563EB" size={19} />
+            </Pressable>
+          </View>
         </View>
 
         {loadError ? (
@@ -337,25 +324,17 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   scrollContent: { paddingBottom: 0, flexGrow: 1 },
-  blueHeader: { paddingHorizontal: 23, paddingTop: 0, paddingBottom: 27 },
-  topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
+  blueHeader: { paddingHorizontal: 23, paddingTop: 0, paddingBottom: 18 },
+  topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },
   notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
-  walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
-  greeting: { color: "rgba(255,255,255,0.78)", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, marginTop: 2 },
-  balanceLabel: { color: "rgba(255,255,255,0.82)", textAlign: "center", fontFamily: "IBMPlexSans_500Medium", fontSize: 12, marginTop: 2 },
-  balanceAmount: { color: "#EAF3FF", textAlign: "center", fontFamily: "IBMPlexSans_700Bold", fontSize: 48, lineHeight: 58, letterSpacing: -1.8, marginTop: 3 },
-  balanceSetup: { color: "#EAF3FF", textAlign: "center", fontFamily: "IBMPlexSans_500Medium", fontSize: 12, textDecorationLine: "underline", marginTop: 3 },
-  balanceArrow: { color: "#8EC5FF" },
-  balanceMeta: { flexDirection: "row", justifyContent: "space-between", marginTop: 6 },
-  balanceMetaText: { color: "rgba(255,255,255,0.88)", fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
-  progressTrack: { height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.24)", overflow: "hidden", marginTop: 7 },
-  progressFill: { height: "100%", borderRadius: 3, backgroundColor: "#8EC5FF" },
-  cycleText: { color: "rgba(255,255,255,0.78)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, marginTop: 8 },
-  actionRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 25, gap: 5 },
-  action: { flex: 1, alignItems: "center", gap: 7, minWidth: 0 },
-  actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#8EC5FF", alignItems: "center", justifyContent: "center" },
-  actionLabel: { color: "#FFFFFF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
+  walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 18 },
+  balanceBlock: { minHeight: 122, alignItems: "center", justifyContent: "center" },
+  balanceLabel: { color: "rgba(234,243,255,0.8)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 20, marginBottom: 1 },
+  balanceTapTarget: { minHeight: 76, minWidth: 180, alignItems: "center", justifyContent: "center" },
+  balanceAmount: { color: "#EAF3FF", textAlign: "center", fontFamily: "IBMPlexSans_700Bold", fontSize: 64, lineHeight: 72, letterSpacing: -2, includeFontPadding: false },
+  balanceSign: { color: "#EAF3FF", fontFamily: "IBMPlexSans_700Bold", fontSize: 40, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
+  pesoSign: { color: "#EAF3FF", fontFamily: "IBMPlexSans_700Bold", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
   shapeHeader: { height: SHAPE_HEIGHT, backgroundColor: "#2563EB", marginBottom: -1 },
   shapeTabLabels: { position: "absolute", top: 0, left: 0, right: 0, height: TAB_HEIGHT, flexDirection: "row" },
   sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
@@ -383,6 +362,8 @@ const styles = StyleSheet.create({
   fullInsightsLink: { flexDirection: "row", alignItems: "center", gap: 7, alignSelf: "flex-start", marginTop: 20, minHeight: 40 },
   fullInsightsText: { color: "#2563EB", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 17 },
+  sectionHeaderActions: { flexDirection: "row", alignItems: "center", gap: 12 },
+  addExpenseButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   sectionTitle: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
   sectionSubtitle: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, marginTop: 2 },
   link: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
