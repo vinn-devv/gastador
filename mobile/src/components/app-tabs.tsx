@@ -33,16 +33,16 @@ function EditorialTabBar({ state, descriptors }: { state: TabState; descriptors:
         accessibilityState={focused ? { selected: true } : {}}
         onPress={() => router.navigate((route.name === "index" ? "/" : `/${route.name}`) as Href)}
         style={styles.tab}>
-        {options?.tabBarIcon?.({ focused, color: focused ? theme.primary : "#8A8D8B", size: 20 })}
-        <ThemedText style={[styles.tabLabel, { color: focused ? theme.primary : "#777E82" }]}>{label}</ThemedText>
+        {options?.tabBarIcon?.({ focused, color: focused ? theme.primary : theme.muted, size: 20 })}
+        <ThemedText style={[styles.tabLabel, { color: focused ? theme.primary : theme.textSecondary }]}>{label}</ThemedText>
         <View style={[styles.activeMark, { backgroundColor: focused ? theme.primary : "transparent" }]} />
       </Pressable>
     );
   };
 
   return (
-    <View style={[styles.host, { paddingBottom: Math.max(insets.bottom, 7) }]}>
-      <View style={[styles.bar, { borderTopColor: theme.line }]}>
+    <View style={[styles.host, { paddingBottom: Math.max(insets.bottom, 7), backgroundColor: theme.surface }]}>
+      <View style={[styles.bar, { borderTopColor: theme.line, backgroundColor: theme.surface }]}>
         {left.map(renderTab)}
         <Pressable accessibilityRole="button" accessibilityLabel="Add expense or scan"
           onPress={() => router.navigate("/scan" as Href)} style={[styles.addButton, { backgroundColor: theme.primary }]}>
@@ -69,8 +69,8 @@ export default function AppTabs() {
 }
 
 const styles = StyleSheet.create({
-  host: { position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: "#FFFFFF" },
-  bar: { minHeight: 65, borderTopWidth: StyleSheet.hairlineWidth, paddingHorizontal: 9, flexDirection: "row", alignItems: "center", justifyContent: "space-around", backgroundColor: "#FFFFFF" },
+  host: { position: "absolute", left: 0, right: 0, bottom: 0 },
+  bar: { minHeight: 65, borderTopWidth: StyleSheet.hairlineWidth, paddingHorizontal: 9, flexDirection: "row", alignItems: "center", justifyContent: "space-around" },
   tab: { flex: 1, minWidth: 0, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 2, paddingTop: 5 },
   tabLabel: { fontFamily: "IBMPlexSans_500Medium", fontSize: 9, lineHeight: 12 },
   activeMark: { width: 14, height: 2, borderRadius: 2, marginTop: 1 },
