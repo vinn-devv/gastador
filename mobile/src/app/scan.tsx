@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useIsFocused, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ScreenLayout } from "@/components/screen-layout";
+import { navBarSpace } from "@/constants/layout";
 import { Camera, CameraView, useCameraPermissions, type BarcodeScanningResult } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
@@ -12,6 +15,7 @@ import { useTheme } from "@/hooks/use-theme";
 export default function ScanScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
@@ -85,11 +89,8 @@ export default function ScanScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      <View style={styles.header}>
-        <ThemedText style={styles.title}>Scan</ThemedText>
-        <ThemedText type="small" themeColor="muted">Capture a receipt or read a payment QR code.</ThemedText>
-      </View>
+    <ScreenLayout title="Scan QR" subtitle="Scan a payment QR or upload one from your gallery." onBack={() => router.back()}>
+    <ScrollView contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]} keyboardShouldPersistTaps="handled">
 
       <View style={styles.actions}>
         <Pressable onPress={() => router.push("/new-expense")} style={[styles.action, { backgroundColor: theme.primarySoft, borderColor: theme.primary }]}>
@@ -98,7 +99,7 @@ export default function ScanScreen() {
         </Pressable>
         <Pressable onPress={() => void uploadQR()} disabled={busy} style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.line, opacity: busy ? 0.55 : 1 }]}>
           <SymbolView name={{ ios: "qrcode", android: "qr_code", web: "qr_code" }} tintColor={theme.text} size={18} />
-          <ThemedText style={styles.actionText}>Upload QR</ThemedText>
+          <ThemedText style={styles.actionText}>Upload QR from gallery</ThemedText>
         </Pressable>
       </View>
 
@@ -171,8 +172,9 @@ export default function ScanScreen() {
           <ThemedText style={{ color: theme.danger }}>{error}</ThemedText>
         </View>
       )}
-      <ThemedText type="small" themeColor="muted" style={styles.privacy}>QR codes are read on this device. Receipt photos are previewed temporarily; text recognition and receipt attachment are not connected yet.</ThemedText>
+      <ThemedText type="small" themeColor="muted" style={styles.privacy}>QR codes are read on this device. No payment is sent.</ThemedText>
     </ScrollView>
+    </ScreenLayout>
   );
 }
 
