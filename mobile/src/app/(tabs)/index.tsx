@@ -639,10 +639,12 @@ export default function HomeScreen() {
                           No expenses yet
                         </ThemedText>
                         <ThemedText style={styles.emptyText}>
-                          Add an expense or scan a receipt to see it here.
+                          Add an expense or scan a payment QR to see it here.
                         </ThemedText>
                         <Pressable
                           onPress={() => router.push("/new-expense")}
+                          accessibilityRole="button"
+                          accessibilityLabel="Add your first expense"
                           style={styles.emptyButton}
                         >
                           <ThemedText style={styles.emptyButtonText}>
