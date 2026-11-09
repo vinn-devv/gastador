@@ -9,7 +9,6 @@ import {
   Text,
   View,
 } from "react-native";
-import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { GlassSurface } from "@/components/glass-surface";
@@ -19,6 +18,30 @@ import {
   subscribeTabBarHidden,
   tabBarHidden,
 } from "@/components/tab-bar-visibility";
+
+type LiquidTabBarProps = {
+  state: {
+    index: number;
+    routes: Array<{
+      key: string;
+      name: string;
+    }>;
+  };
+  descriptors: Record<
+    string,
+    {
+      options: {
+        title?: string;
+        tabBarAccessibilityLabel?: string;
+        tabBarIcon?: (props: {
+          focused: boolean;
+          color: string;
+          size: number;
+        }) => ReactNode;
+      };
+    }
+  >;
+};
 
 const TAB_NAMES = ["index", "explore", "scan", "insights", "settings"] as const;
 const BAR_H = 66;
@@ -104,7 +127,7 @@ function TabBarHandle({ active, bottom }: { active: boolean; bottom: number }) {
   );
 }
 
-function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
+function LiquidTabBar({ state, descriptors }: LiquidTabBarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [barWidth, setBarWidth] = useState(0);

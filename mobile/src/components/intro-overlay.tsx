@@ -6,16 +6,12 @@ import { INTRO_HTML } from "@/components/intro-html";
 
 const BG = "#061230";
 
-/**
- * Full-screen animated intro. Plays once per app launch, then fades out.
- * Tap anywhere to skip.
- */
 export function IntroOverlay() {
   const [visible, setVisible] = useState(true);
   const opacity = useRef(new Animated.Value(1)).current;
   const finished = useRef(false);
 
-  const finish = () => {
+  const finish = (): void => {
     if (finished.current) return;
     finished.current = true;
     Animated.timing(opacity, {
@@ -25,7 +21,6 @@ export function IntroOverlay() {
     }).start(() => setVisible(false));
   };
 
-  // Safety net: never leave the user stuck on the intro.
   useEffect(() => {
     const t = setTimeout(finish, 6000);
     return () => clearTimeout(t);
@@ -45,7 +40,7 @@ export function IntroOverlay() {
         javaScriptEnabled
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        onMessage={(e: WebViewMessageEvent) => {
+        onMessage={(e: WebViewMessageEvent): void => {
           if (e.nativeEvent.data === "done") finish();
         }}
         onError={finish}
