@@ -124,6 +124,7 @@ export default function SettingsScreen() {
             <TextInput
               value={name}
               onChangeText={setName}
+              accessibilityLabel="Your name"
               placeholder="Name for your greeting"
               placeholderTextColor={theme.muted}
               maxLength={80}
@@ -131,17 +132,30 @@ export default function SettingsScreen() {
             />
             <Pressable
               disabled={saving || name.trim() === settings.displayName}
+              accessibilityRole="button"
+              accessibilityLabel="Save name"
               onPress={() => void update({ displayName: name.trim() })}
               style={[
                 styles.saveButton,
                 {
-                  backgroundColor: theme.primary,
-                  opacity:
-                    saving || name.trim() === settings.displayName ? 0.45 : 1,
+                  backgroundColor:
+                    saving || name.trim() === settings.displayName
+                      ? theme.sunken
+                      : theme.primary,
                 },
               ]}
             >
-              <ThemedText style={[styles.saveText, { color: theme.onPrimary }]}>
+              <ThemedText
+                style={[
+                  styles.saveText,
+                  {
+                    color:
+                      saving || name.trim() === settings.displayName
+                        ? theme.textSecondary
+                        : theme.onPrimary,
+                  },
+                ]}
+              >
                 Save name
               </ThemedText>
             </Pressable>
