@@ -103,7 +103,7 @@ export default function HomeScreen() {
   const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, width, SHAPE_HEIGHT) }));
   const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#EAF3FF"]) }));
   const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#EAF3FF", "#1E40AF"]) }));
-  const sheetEntrance = useRef(new Animated.Value(0)).current;
+  const sheetEntrance = useRef(new RNAnimated.Value(0)).current;
 
   const balanceProgress = useRef(new Animated.Value(0)).current;
   const [animatedRemaining, setAnimatedRemaining] = useState(0);
@@ -337,7 +337,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   scrollContent: { paddingBottom: 0, flexGrow: 1 },
-  blueHeader: { paddingHorizontal: 23, paddingTop: 4, paddingBottom: 27 },
+  blueHeader: { paddingHorizontal: 23, paddingTop: 0, paddingBottom: 27 },
   topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },
   notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
