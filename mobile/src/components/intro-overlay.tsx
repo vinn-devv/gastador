@@ -4,7 +4,7 @@ import { WebView, type WebViewMessageEvent } from "react-native-webview";
 
 import { INTRO_HTML } from "@/components/intro-html";
 
-const BG = "#F7F9FC";
+const BG = "#F7F6F2";
 
 export function IntroOverlay() {
   const [visible, setVisible] = useState(true);
