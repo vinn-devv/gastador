@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 24 },
   viewExpenses: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", marginTop: 4 },
-  setupButton: { minHeight: 48, paddingHorizontal: 20, borderRadius: 14, alignItems: "center", justifyContent: "center", alignSelf: "flex-start", marginTop: 12 },
+  setupButton: { minHeight: 52, paddingHorizontal: 20, borderRadius: 14, alignItems: "center", justifyContent: "center", alignSelf: "stretch", width: "100%", marginTop: 12 },
   setupButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 14 },
   summary: {
     flexDirection: "row",
