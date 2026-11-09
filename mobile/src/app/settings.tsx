@@ -1,4 +1,7 @@
 import { useCallback, useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ScreenLayout } from "@/components/screen-layout";
+import { navBarSpace } from "@/constants/layout";
 import { useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import {
@@ -38,6 +41,7 @@ const BUDGET_METHODS: { value: BudgetMethod; label: string; detail: string }[] =
 export default function SettingsScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
@@ -94,18 +98,12 @@ export default function SettingsScreen() {
   ];
 
   return (
+    <ScreenLayout title="Settings" subtitle="Your preferences are saved locally on this device.">
     <ScrollView
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]}
       onScroll={onTabBarScroll}
       scrollEventThrottle={16}
     >
-      <ThemedText type="small" themeColor="muted">
-        Your preferences
-      </ThemedText>
-      <ThemedText style={styles.title}>Settings</ThemedText>
-      <ThemedText type="small" themeColor="muted" style={styles.subtitle}>
-        Your preferences are saved locally on this device.
-      </ThemedText>
 
       {loading || !settings ? (
         <ThemedText type="small" themeColor="muted">
@@ -269,20 +267,14 @@ export default function SettingsScreen() {
         </ThemedText>
       </View>
     </ScrollView>
+    </ScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 150 },
-  title: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 30,
-    lineHeight: 36,
-    marginTop: 2,
-  },
-  subtitle: { marginTop: 3, marginBottom: 24 },
-  section: { marginBottom: 16, padding: 15, borderRadius: 12, borderWidth: 1, gap: 2 },
+  content: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 24 },
+  section: { marginBottom: 22, paddingVertical: 8, borderRadius: 0, borderWidth: 0, gap: 2 },
   sectionTitle: {
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 19,
@@ -293,8 +285,8 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 48,
     borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 13,
+    borderRadius: 12,
+    paddingHorizontal: 15,
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 15,
   },
@@ -302,7 +294,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     minHeight: 44,
     paddingHorizontal: 18,
-    borderRadius: 6,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
