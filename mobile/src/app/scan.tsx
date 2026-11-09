@@ -179,7 +179,7 @@ export default function ScanScreen() {
 const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 130, gap: 16 },
   header: { gap: 4 },
-  title: { fontFamily: "Georgia", fontSize: 31, lineHeight: 36 },
+  title: { fontFamily: "serif", fontSize: 31, lineHeight: 36 },
   actions: { flexDirection: "row", gap: 10 },
   action: { flex: 1, minHeight: 48, borderWidth: 1, borderRadius: 8, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingHorizontal: 8 },
   actionText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
