@@ -255,7 +255,7 @@ export default function NewCycleScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 44 },
+  content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 124 },
   back: { alignSelf: "flex-start", marginBottom: 22 },
   backText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   title: {
