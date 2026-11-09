@@ -421,7 +421,7 @@ export default function HomeScreen() {
       balanceProgress.stopAnimation();
       balanceLabelOpacity.stopAnimation();
     };
-  }, [balanceProgress, loading, remaining]);
+  }, [balanceLabelOpacity, balanceProgress, loading, remaining]);
 
   useEffect(() => {
     ringProgress.value = withSpring(hasAllowance ? spentPercent / 100 : 0, {
