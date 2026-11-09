@@ -8,6 +8,7 @@ import Svg, { Path } from "react-native-svg";
 
 import { ThemedText } from "@/components/themed-text";
 import { SHEET_GAP } from "@/constants/layout";
+import type { TabParamList } from "@/types/navigation";
 
 type TabState = { index: number; routes: Array<{ key: string; name: string }> };
 type TabBarNavigation = {
@@ -22,7 +23,7 @@ type TabDescriptors = Record<string, { options: {
   tabBarIcon?: (props: { focused: boolean; color: string; size: number }) => ReactNode;
 } }>;
 
-const VISIBLE_TABS = ["index", "allowance", "insights", "settings"] as const;
+const VISIBLE_TABS: (keyof TabParamList)[] = ["index", "allowance", "insights", "settings"];
 
 function WalletTabItem({ focused, label, icon, onPress, accessibilityLabel }: { focused: boolean; label: string; icon: ReactNode; onPress: () => void; accessibilityLabel: string }) {
   const progress = useRef(new Animated.Value(focused ? 1 : 0)).current;
