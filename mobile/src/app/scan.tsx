@@ -11,6 +11,7 @@ import { SymbolView } from "expo-symbols";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
+import { parseQrExpense } from "@/domain/qr-expense";
 
 export default function ScanScreen() {
   const router = useRouter();
@@ -34,12 +35,15 @@ export default function ScanScreen() {
   }, [focused, permission, requestPermission]);
 
   const onBarcodeScanned = useCallback((result: BarcodeScanningResult) => {
-    if (result.data && result.data !== lastCode) {
-      setLastCode(result.data);
-      setQrValue(result.data);
-      setError("");
+    if (!result.data || result.data === lastCode) return;
+    setLastCode(result.data);
+    const parsed = parseQrExpense(result.data);
+    if (!parsed) {
+      setError("This QR code has no readable amount. You can add the expense manually.");
+      return;
     }
-  }, [lastCode]);
+    router.push({ pathname: "/new-expense", params: parsed });
+  }, [lastCode, router]);
 
   async function captureReceipt() {
     if (!cameraRef.current || busy || !cameraReady) return;
@@ -69,7 +73,9 @@ export default function ScanScreen() {
       setBusy(true);
       const codes = await Camera.scanFromURLAsync(result.assets[0].uri, ["qr"]);
       if (codes.length > 0) {
-        setQrValue(codes[0].data);
+        const parsed = parseQrExpense(codes[0].data);
+        if (parsed) router.push({ pathname: "/new-expense", params: parsed });
+        else setError("This QR code has no readable amount. You can add the expense manually.");
       } else {
         setError("No QR code was found in that image. Choose a clearer image with the full code visible.");
       }
