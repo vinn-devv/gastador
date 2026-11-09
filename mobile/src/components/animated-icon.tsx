@@ -197,7 +197,7 @@ export function AnimatedSplashOverlay() {
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 9999,
     elevation: 9999,
     backgroundColor: COLORS.background,
@@ -217,12 +217,12 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   tileFill: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     borderRadius: 25,
     backgroundColor: COLORS.tile,
   },
   tileBorder: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     borderRadius: 25,
     borderWidth: 1.5,
     borderColor: "rgba(255,194,14,0.9)",
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     marginTop: -4,
   },
   cornerLayer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   corner: {
     position: "absolute",
