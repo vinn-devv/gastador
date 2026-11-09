@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 
@@ -13,7 +13,7 @@ import { manilaToday, isValidDate } from "@/domain/dates";
 import { formatMoney, parseMoney } from "@/domain/money";
 import { PAYMENT_METHODS, type Category, type PaymentMethod } from "@/domain/types";
 
-const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "clear", "0", "delete"] as const;
+const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "clear", "0", ".", "delete"] as const;
 
 export default function NewExpenseScreen() {
   const db = useSQLiteContext();
@@ -137,14 +137,11 @@ export default function NewExpenseScreen() {
                 )}
               </Pressable>
             ))}
-            <Pressable onPress={() => pressKey(".")} accessibilityRole="button" accessibilityLabel="Decimal point" style={styles.key}>
-              <ThemedText style={styles.keyText}>.</ThemedText>
-            </Pressable>
           </View>
 
           <View style={styles.field}>
             <ThemedText style={styles.label}>What did you spend on?</ThemedText>
-            <TextInputShim value={merchant} onChangeText={setMerchant} placeholder="e.g. Lunch, Jeepney fare" style={fieldStyle} />
+            <TextInput value={merchant} onChangeText={setMerchant} placeholder="e.g. Lunch, Jeepney fare" placeholderTextColor={theme.muted} accessibilityLabel="Merchant or expense description" style={fieldStyle} />
           </View>
 
           <View style={styles.field}>
@@ -175,11 +172,11 @@ export default function NewExpenseScreen() {
 
           <View style={styles.field}>
             <ThemedText style={styles.label}>Date</ThemedText>
-            <TextInputShim value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" style={fieldStyle} />
+            <TextInput value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" placeholderTextColor={theme.muted} accessibilityLabel="Expense date" style={fieldStyle} />
           </View>
           <View style={styles.field}>
             <ThemedText style={styles.label}>Note (optional)</ThemedText>
-            <TextInputShim value={description} onChangeText={setDescription} placeholder="Add a short note" style={[...fieldStyle, styles.noteInput]} multiline />
+            <TextInput value={description} onChangeText={setDescription} placeholder="Add a short note" placeholderTextColor={theme.muted} accessibilityLabel="Optional expense note" style={[...fieldStyle, styles.noteInput]} multiline />
           </View>
 
           {!!error && <View style={[styles.error, { backgroundColor: theme.dangerSoft }]}><ThemedText style={[styles.errorText, { color: theme.danger }]}>{error}</ThemedText></View>}
@@ -191,11 +188,6 @@ export default function NewExpenseScreen() {
       </ScrollView>
     </>
   );
-}
-
-function TextInputShim(props: { value: string; onChangeText: (value: string) => void; placeholder: string; style: any; multiline?: boolean }) {
-  const { TextInput } = require("react-native") as typeof import("react-native");
-  return <TextInput value={props.value} onChangeText={props.onChangeText} placeholder={props.placeholder} placeholderTextColor="#9A8A80" style={props.style} multiline={props.multiline} accessibilityLabel={props.placeholder} />;
 }
 
 const styles = StyleSheet.create({
