@@ -1,7 +1,7 @@
 import { DefaultTheme, ThemeProvider } from "expo-router";
 import { SQLiteProvider } from "expo-sqlite";
 import * as SplashScreen from "expo-splash-screen";
-import { useFonts } from "@expo-google-fonts/ibm-plex-sans";
+import { useFonts } from "@expo-google-fonts/nunito";
 import { View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
@@ -13,10 +13,11 @@ void SplashScreen.preventAutoHideAsync();
 
 export default function TabLayout() {
   const [fontsLoaded] = useFonts({
-    IBMPlexSans_400Regular: require("@expo-google-fonts/ibm-plex-sans/400Regular/IBMPlexSans_400Regular.ttf"),
-    IBMPlexSans_500Medium: require("@expo-google-fonts/ibm-plex-sans/500Medium/IBMPlexSans_500Medium.ttf"),
-    IBMPlexSans_600SemiBold: require("@expo-google-fonts/ibm-plex-sans/600SemiBold/IBMPlexSans_600SemiBold.ttf"),
-    IBMPlexSans_700Bold: require("@expo-google-fonts/ibm-plex-sans/700Bold/IBMPlexSans_700Bold.ttf"),
+    IBMPlexSans_400Regular: require("@expo-google-fonts/nunito/400Regular/Nunito_400Regular.ttf"),
+    IBMPlexSans_500Medium: require("@expo-google-fonts/nunito/600SemiBold/Nunito_600SemiBold.ttf"),
+    IBMPlexSans_600SemiBold: require("@expo-google-fonts/nunito/600SemiBold/Nunito_600SemiBold.ttf"),
+    IBMPlexSans_700Bold: require("@expo-google-fonts/nunito/700Bold/Nunito_700Bold.ttf"),
+    IBMPlexSans_800ExtraBold: require("@expo-google-fonts/nunito/800ExtraBold/Nunito_800ExtraBold.ttf"),
   });
 
   if (!fontsLoaded) return null;
