@@ -118,7 +118,7 @@ export default function NewExpenseScreen() {
               <View style={styles.optionGrid}>
                 {categories.map((category) => {
                   const selected = categoryId === category.id;
-                  return <Pressable key={category.id} onPress={() => setCategoryId(category.id)} style={[styles.option, { backgroundColor: selected ? theme.primarySoft : theme.surface, borderColor: selected ? theme.primary : theme.line }]}>
+                  return <Pressable key={category.id} onPress={() => setCategoryId(category.id)} accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={category.name} style={[styles.option, { backgroundColor: selected ? theme.primarySoft : theme.surface, borderColor: selected ? theme.primary : theme.line }]}>
                     <ThemedText style={[styles.optionText, { color: selected ? theme.primary : theme.text }]}>{category.name}</ThemedText>
                   </Pressable>;
                 })}
@@ -131,7 +131,7 @@ export default function NewExpenseScreen() {
             <View style={styles.optionGrid}>
               {PAYMENT_METHODS.map((method) => {
                 const selected = paymentMethod === method.value;
-                return <Pressable key={method.value} onPress={() => setPaymentMethod(method.value)} style={[styles.option, { backgroundColor: selected ? theme.primarySoft : theme.surface, borderColor: selected ? theme.primary : theme.line }]}>
+                return <Pressable key={method.value} onPress={() => setPaymentMethod(method.value)} accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={method.label} style={[styles.option, { backgroundColor: selected ? theme.primarySoft : theme.surface, borderColor: selected ? theme.primary : theme.line }]}>
                   <ThemedText style={[styles.optionText, { color: selected ? theme.primary : theme.text }]}>{method.label}</ThemedText>
                 </Pressable>;
               })}
