@@ -92,7 +92,7 @@ export default function HomeScreen() {
   const [sheetTab, setSheetTab] = useState<"activity" | "insight">("activity");
   const [contentDirection, setContentDirection] = useState<1 | -1>(1);
   const progress = useSharedValue(0);
-  const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, width, SHAPE_HEIGHT) }));
+  const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, width, SHAPE_HEIGHT + 16) }));
   const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#FFE88A"]) }));
   const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#FFE88A", "#1E40AF"]) }));
   const sheetEntrance = useRef(new RNAnimated.Value(0)).current;
@@ -224,8 +224,12 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.shapeHeader}>
-        <Svg width={width} height={SHAPE_HEIGHT}>
+        <Svg width={width} height={SHAPE_HEIGHT + 16} style={styles.shapeSvg} overflow="visible">
+          <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.06)" transform="translate(0 -14)" />
+          <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.12)" transform="translate(0 -6)" />
+          <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.22)" transform="translate(0 -2)" />
           <AnimatedPath animatedProps={animatedPathProps} fill="#FFFFFF" />
+          <AnimatedPath animatedProps={animatedPathProps} fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth={1} />
         </Svg>
         <View style={styles.shapeTabLabels}>
           <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => switchSheetTab("activity")} style={styles.sheetTab}>
@@ -369,9 +373,10 @@ const styles = StyleSheet.create({
   balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 72, letterSpacing: -2, includeFontPadding: false },
   balanceSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
   pesoSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
-  shapeHeader: { height: SHAPE_HEIGHT, backgroundColor: "#2563EB", marginBottom: -1 },
+  shapeHeader: { height: SHAPE_HEIGHT + 16, backgroundColor: "#2563EB", marginBottom: -2, zIndex: 2 },
+  shapeSvg: { position: "absolute", top: 0, left: 0, overflow: "visible" },
   shapeTabLabels: { position: "absolute", top: 0, left: 0, right: 0, height: TAB_HEIGHT, flexDirection: "row" },
-  sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
+  sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#1E40AF", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 0, zIndex: 1 },
   whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", paddingHorizontal: 20, paddingTop: 13, paddingBottom: 100, minHeight: 390 },
   sheetTab: { flex: 1, height: TAB_HEIGHT, alignItems: "center", justifyContent: "center" },
   sheetTabText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
