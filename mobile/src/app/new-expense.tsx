@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { navBarSpace } from "@/constants/layout";
 import { SymbolView } from "expo-symbols";
@@ -87,7 +87,7 @@ export default function NewExpenseScreen() {
     setError("");
     try {
       await createTransaction(db, { amountCentavos: cents, date, merchant, categoryId, paymentMethod, description });
-      router.back();
+      Alert.alert("Expense saved", "Your expense has been added.", [{ text: "OK", onPress: () => router.back() }]);
     } catch (saveError) {
       console.error("Could not save expense:", saveError);
       setError("Your expense could not be saved. Please check the details and try again.");
