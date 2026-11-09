@@ -106,7 +106,7 @@ export default function HomeScreen() {
   const [contentDirection, setContentDirection] = useState<1 | -1>(1);
   const progress = useSharedValue(0);
   const stageWidth = Math.max(0, width - SHEET_GAP * 2);
-  const stageHeight = Math.max(360, height - insets.top - 207 - SHEET_GAP);
+  const stageHeight = Math.max(360, height - insets.top - 193 - SHEET_GAP);
   const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, stageWidth, stageHeight + SHEET_GAP) }));
   const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#FFE88A"]) }));
   const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#FFE88A", "#1E40AF"]) }));
