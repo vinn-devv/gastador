@@ -236,11 +236,13 @@ export default function HomeScreen() {
     progress.value = withTiming(target, { duration: 320, easing: Easing.inOut(Easing.cubic) });
   }, [progress, sheetTab]);
 
-  const displayPercent = rawSpentPercent >= 10
-    ? `${Math.round(rawSpentPercent)}%`
-    : rawSpentPercent >= 1
-      ? `${rawSpentPercent.toFixed(1)}%`
-      : `${rawSpentPercent.toFixed(2)}%`;
+  const displayPercent = rawSpentPercent === 0
+    ? "0%"
+    : rawSpentPercent >= 10
+      ? `${Math.round(rawSpentPercent)}%`
+      : rawSpentPercent >= 1
+        ? `${rawSpentPercent.toFixed(1)}%`
+        : `${rawSpentPercent.toFixed(2)}%`;
   const ringColor = rawSpentPercent > 100 ? "#F87171" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
 
   return (
