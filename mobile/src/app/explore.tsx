@@ -214,7 +214,7 @@ export default function ActivityScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 36 },
+  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   header: { gap: 3, marginBottom: 20 },
   title: { fontFamily: "IBMPlexSans_700Bold", fontSize: 29, lineHeight: 36 },
   search: {
