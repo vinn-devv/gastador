@@ -148,7 +148,7 @@ export default function HomeScreen() {
   const spendable = summary?.spendableCentavos ?? 0;
   const spentPercent = spendable > 0 ? Math.max(0, Math.min(100, (summary!.spentCentavos / spendable) * 100)) : 0;
   const formattedBalance = formatMoney(summary ? animatedRemaining : 0, currency);
-  const balanceFirstDigit = formattedBalance.search(/\\d/);
+  const balanceFirstDigit = formattedBalance.search(/\d/);
   const balancePrefix = balanceFirstDigit >= 0 ? formattedBalance.slice(0, balanceFirstDigit) : "";
   const balanceDigits = balanceFirstDigit >= 0 ? formattedBalance.slice(balanceFirstDigit) : formattedBalance;
   const balanceSign = balancePrefix.replace("₱", "").trim();
@@ -332,9 +332,9 @@ const styles = StyleSheet.create({
   balanceBlock: { minHeight: 122, alignItems: "center", justifyContent: "center" },
   balanceLabel: { color: "rgba(234,243,255,0.8)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 20, marginBottom: 1 },
   balanceTapTarget: { minHeight: 76, minWidth: 180, alignItems: "center", justifyContent: "center" },
-  balanceAmount: { color: "#EAF3FF", textAlign: "center", fontFamily: "IBMPlexSans_700Bold", fontSize: 64, lineHeight: 72, letterSpacing: -2, includeFontPadding: false },
-  balanceSign: { color: "#EAF3FF", fontFamily: "IBMPlexSans_700Bold", fontSize: 40, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
-  pesoSign: { color: "#EAF3FF", fontFamily: "IBMPlexSans_700Bold", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
+  balanceAmount: { color: "#EAF3FF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 72, letterSpacing: -2, includeFontPadding: false },
+  balanceSign: { color: "#EAF3FF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
+  pesoSign: { color: "#EAF3FF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
   shapeHeader: { height: SHAPE_HEIGHT, backgroundColor: "#2563EB", marginBottom: -1 },
   shapeTabLabels: { position: "absolute", top: 0, left: 0, right: 0, height: TAB_HEIGHT, flexDirection: "row" },
   sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
