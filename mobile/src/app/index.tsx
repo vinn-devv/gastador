@@ -56,9 +56,8 @@ function buildPath(p: number, W: number, H: number) {
   const leftShoulder = SR * q;
   const rightShoulder = SR * (1 - q);
   const bottom = Math.max(tabBottom + 80, H - SHEET_GAP);
-  const bottomRadius = 12;
+  const bottomRadius = 24;
   const tabRadius = C;
-  const joinRadius = R;
   return [
     "M 0 " + (bottom - bottomRadius),
     "L 0 " + (tabBottom + leftShoulder),
@@ -294,8 +293,8 @@ export default function HomeScreen() {
         <ScrollView style={styles.contentScroll} contentContainerStyle={[styles.contentScrollInner, { paddingBottom: insets.bottom + 92 }]} showsVerticalScrollIndicator={false}>
         <Reanimated.View
           key={sheetTab}
-          entering={(contentDirection === 1 ? FadeInLeft : FadeInRight).duration(180).delay(50)}
-          exiting={(contentDirection === 1 ? FadeOutRight : FadeOutLeft).duration(140)}
+          entering={(contentDirection === 1 ? FadeInLeft : FadeInRight).duration(220)}
+          exiting={(contentDirection === 1 ? FadeOutRight : FadeOutLeft).duration(180)}
         >
         {sheetTab === "activity" ? (
         <>
