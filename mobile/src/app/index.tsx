@@ -4,6 +4,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { Image } from "expo-image";
 import { StatusBar } from "expo-status-bar";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Animated, Easing, Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
@@ -63,6 +64,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const db = useSQLiteContext();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [transactions, setTransactions] = useState<RecentTransaction[]>([]);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [settings, setSettings] = useState<AppSettings | null>(null);
@@ -142,30 +144,24 @@ export default function HomeScreen() {
   return (
     <>
     <StatusBar style="light" />
-    <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent}>
+    <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 78, 90) }]}>
       <View style={styles.blueHeader}>
-        <View style={styles.topLine}>
+        <View style={[styles.topLine, { paddingTop: Math.max(insets.top, 8) }]}>
           <ThemedText style={styles.walletTitle}>Wallet</ThemedText>
           <View style={styles.headerActions}>
             <View accessibilityLabel="Notifications" style={styles.notificationButton}>
               <SymbolView name={{ ios: "bell.badge", android: "notifications", web: "notifications" }} tintColor="#2563EB" size={19} />
             </View>
-            <Pressable onPress={() => router.push("/settings")} accessibilityRole="button" accessibilityLabel="Open profile and settings" style={styles.profileButton}>
-              <Image source={require("@/assets/images/icon-512.png")} style={styles.profileMark} contentFit="contain" />
-            </Pressable>
           </View>
         </View>
 
         <ThemedText style={styles.balanceLabel}>Available to spend</ThemedText>
-        {loading ? (
-          <ThemedText style={styles.balanceAmount}>••••••</ThemedText>
-        ) : summary ? (
-          <ThemedText style={styles.balanceAmount}>{remaining < 0 ? "−" : ""}{formatMoney(animatedRemaining, currency)}</ThemedText>
-        ) : (
-          <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Set up allowance">
+        <ThemedText style={styles.balanceAmount}>{loading ? "••••••" : `${remaining < 0 ? "−" : ""}${formatMoney(summary ? animatedRemaining : 0, currency)}`}</ThemedText>
+        {!loading && !summary ? (
+          <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Set up allowance" hitSlop={8}>
             <ThemedText style={styles.balanceSetup}>Set up your allowance <ThemedText style={styles.balanceArrow}>↗</ThemedText></ThemedText>
           </Pressable>
-        )}
+        ) : null}
         {summary ? (
           <>
             <View style={styles.balanceMeta}>
@@ -294,18 +290,16 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  scrollContent: { paddingBottom: 100 },
-  blueHeader: { paddingHorizontal: 23, paddingTop: 18, paddingBottom: 27 },
+  scrollContent: { paddingBottom: 90, flexGrow: 1 },
+  blueHeader: { paddingHorizontal: 23, paddingTop: 4, paddingBottom: 27 },
   topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },
   notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
   greeting: { color: "rgba(255,255,255,0.78)", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, marginTop: 2 },
-  profileButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
-  profileMark: { width: 27, height: 27 },
   balanceLabel: { color: "rgba(255,255,255,0.82)", textAlign: "center", fontFamily: "IBMPlexSans_500Medium", fontSize: 12, marginTop: 2 },
-  balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 43, lineHeight: 54, letterSpacing: -1.5, marginTop: 3 },
-  balanceSetup: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 24, marginTop: 12 },
+  balanceAmount: { color: "#EAF3FF", textAlign: "center", fontFamily: "IBMPlexSans_700Bold", fontSize: 48, lineHeight: 58, letterSpacing: -1.8, marginTop: 3 },
+  balanceSetup: { color: "#EAF3FF", textAlign: "center", fontFamily: "IBMPlexSans_500Medium", fontSize: 12, textDecorationLine: "underline", marginTop: 3 },
   balanceArrow: { color: "#8EC5FF" },
   balanceMeta: { flexDirection: "row", justifyContent: "space-between", marginTop: 6 },
   balanceMetaText: { color: "rgba(255,255,255,0.88)", fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
@@ -316,14 +310,14 @@ const styles = StyleSheet.create({
   action: { flex: 1, alignItems: "center", gap: 7, minWidth: 0 },
   actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#8EC5FF", alignItems: "center", justifyContent: "center" },
   actionLabel: { color: "#FFFFFF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
-  whiteSheet: { backgroundColor: "#FFFFFF", borderTopLeftRadius: 34, borderTopRightRadius: 34, marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 30, minHeight: 390 },
+  whiteSheet: { backgroundColor: "#FFFFFF", borderTopLeftRadius: 32, borderTopRightRadius: 32, marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 30, minHeight: 390, shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
   sheetHandle: { width: 34, height: 4, borderRadius: 2, backgroundColor: "#D9DEE2", alignSelf: "center", marginBottom: 19 },
-  sheetTabs: { flexDirection: "row", gap: 8, marginBottom: 19, backgroundColor: "#EAF3FF", borderRadius: 24, padding: 4 },
-  sheetTab: { flex: 1, minHeight: 42, alignItems: "center", justifyContent: "center", borderRadius: 21 },
+  sheetTabs: { flexDirection: "row", gap: 8, marginBottom: 19, marginHorizontal: -21, marginTop: 0, paddingHorizontal: 21, paddingTop: 0, paddingBottom: 0, height: 52, alignItems: "stretch", backgroundColor: "#2563EB" },
+  sheetTab: { flex: 1, minHeight: 52, alignItems: "center", justifyContent: "center", zIndex: 2 },
   sheetTabActive: { backgroundColor: "transparent" },
-  sheetIndicator: { position: "absolute", left: 4, top: 4, bottom: 4, borderRadius: 21, backgroundColor: "#2563EB" },
-  sheetTabText: { color: "#64748B", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  sheetTabTextActive: { color: "#FFFFFF" },
+  sheetIndicator: { position: "absolute", left: 21, top: 0, bottom: 0, borderTopLeftRadius: 16, borderTopRightRadius: 16, backgroundColor: "#FFFFFF", zIndex: 1 },
+  sheetTabText: { color: "#EAF3FF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  sheetTabTextActive: { color: "#1E40AF" },
   insightContent: { paddingTop: 2, paddingBottom: 10 },
   insightEyebrow: { color: "#64748B", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 10, letterSpacing: 1, marginBottom: 15 },
   insightMetricRow: { flexDirection: "row", gap: 12 },
