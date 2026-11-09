@@ -3,7 +3,7 @@ import { useIsFocused, useRouter } from "expo-router";
 import { Camera, CameraView, useCameraPermissions, type BarcodeScanningResult } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 
 import { ThemedText } from "@/components/themed-text";
@@ -147,7 +147,11 @@ export default function ScanScreen() {
           <SymbolView name={{ ios: "camera.fill", android: "photo_camera", web: "photo_camera" }} tintColor={theme.primary} size={30} />
           <ThemedText style={styles.permissionTitle}>{permission?.canAskAgain === false ? "Camera access is off" : "Allow camera access"}</ThemedText>
           <ThemedText type="small" themeColor="muted">{permission?.canAskAgain === false ? "Enable camera permission in your phone settings to scan and capture receipts." : "Gastador uses the camera only when you open Scan. Photos stay on this device."}</ThemedText>
-          {permission?.canAskAgain !== false && <Pressable onPress={() => void requestPermission()} style={[styles.primaryButton, { backgroundColor: theme.primary }]}><ThemedText style={styles.primaryText}>Enable camera</ThemedText></Pressable>}
+          {permission?.canAskAgain === false ? (
+            <Pressable onPress={() => void Linking.openSettings()} style={[styles.primaryButton, { backgroundColor: theme.primary }]}><ThemedText style={styles.primaryText}>Open settings</ThemedText></Pressable>
+          ) : (
+            <Pressable onPress={() => void requestPermission()} style={[styles.primaryButton, { backgroundColor: theme.primary }]}><ThemedText style={styles.primaryText}>Enable camera</ThemedText></Pressable>
+          )}
         </View>
       )}
 
@@ -167,7 +171,7 @@ export default function ScanScreen() {
           <ThemedText style={{ color: theme.danger }}>{error}</ThemedText>
         </View>
       )}
-      <ThemedText type="small" themeColor="muted" style={styles.privacy}>Camera and QR images are processed on this device.</ThemedText>
+      <ThemedText type="small" themeColor="muted" style={styles.privacy}>QR codes are read on this device. Receipt photos are previewed temporarily; text recognition and receipt attachment are not connected yet.</ThemedText>
     </ScrollView>
   );
 }
