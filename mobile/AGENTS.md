@@ -6,23 +6,24 @@ Apply these rules whenever changing Gastador's interface. Treat this as the prod
 Gastador is an Android-first, local-first personal allowance and expense tracker for Filipino students. Its primary job is to answer: "How much of my allowance can I still spend?" Default currency is PHP. Existing budgeting, SQLite, backup, scan, and transaction behaviour must remain intact unless the task explicitly requests a functional change.
 
 ## Design identity
-Use a crisp, cool, practical student-ledger aesthetic. Do not drift into generic fintech dashboards, generic AI card layouts, warm cream editorial templates, gradients, glassmorphism, or excessive rounded tiles.
+The user-approved visual reference is a warm orange wallet interface: a burnt-orange balance header, pale-yellow circular quick actions, a white lower content sheet with a soft curved top edge, compact transaction rows, and restrained white bottom navigation. Reproduce this composition closely across Gastador screens. Do not substitute a different design direction, add decorative gradients, or introduce generic dashboard cards. Gastador remains a student allowance tracker, not a cryptocurrency wallet; never add crypto assets, transfer, exchange, or withdrawal concepts from the reference.
 
-### Colour tokens
-Use only semantic tokens from `src/constants/theme.ts` for interface colours:
-- Canvas: `#F3F5F6`
+## Colour tokens
+Use semantic tokens from `src/constants/theme.ts` for interface colours:
+- Canvas: `#FFF8F2`
 - Surface: `#FFFFFF`
-- Main text: `#202A35`
-- Secondary text: `#56616B`
-- Muted text: `#68747D`
-- Ledger blue: `#315D8A`
-- Selected pale blue: `#E7EDF3`
-- Divider: `#D9DEE2`
-- Positive: `#3F8068`
-- Warning: `#98652F`
-- Negative: `#AD4D4A`
+- Main text: `#292522`
+- Secondary text: `#76675F`
+- Muted text: `#9A8A80`
+- Wallet orange: `#D96E4C`
+- Pale-yellow action: `#F5D77A`
+- Selected soft orange: `#FCE9DF`
+- Divider: `#F0E2D8`
+- Positive: `#56866A`
+- Warning: `#9A682D`
+- Negative: `#B64F45`
 
-Keep light mode as the app's deliberate visual direction. If a dark theme is added later, it must have independently tested semantic tokens; never reuse light-mode dark text on a dark surface.
+Keep light mode as the deliberate visual direction.
 
 ## Contrast and surface rules
 - Every text element must be readable against its actual rendered background.
