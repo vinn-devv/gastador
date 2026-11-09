@@ -3,6 +3,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { Image } from "expo-image";
+import { StatusBar } from "expo-status-bar";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
@@ -101,6 +102,8 @@ export default function HomeScreen() {
   const spentPercent = spendable > 0 ? Math.max(0, Math.min(100, (summary!.spentCentavos / spendable) * 100)) : 0;
 
   return (
+    <>
+    <StatusBar style="light" backgroundColor={theme.orange} />
     <ScrollView style={[styles.screen, { backgroundColor: theme.orange }]} contentContainerStyle={styles.scrollContent}>
       <View style={styles.orangeHeader}>
         <View style={styles.topLine}>
@@ -206,6 +209,7 @@ export default function HomeScreen() {
         <ThemedText style={styles.privacyNote}>Your financial records stay on this device.</ThemedText>
       </View>
     </ScrollView>
+    </>
   );
 }
 
