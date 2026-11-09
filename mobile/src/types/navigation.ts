@@ -13,8 +13,3 @@ export type TabParamList = {
   settings: undefined;
 };
 
-declare global {
-  namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
-  }
-}
