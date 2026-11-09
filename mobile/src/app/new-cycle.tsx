@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { DateField } from "@/components/date-field";
 import { ScreenLayout } from "@/components/screen-layout";
 import { navBarSpace } from "@/constants/layout";
 import { useRouter } from "expo-router";
@@ -45,11 +46,13 @@ export default function NewCycleScreen() {
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [dateError, setDateError] = useState("");
 
   function changeFrequency(value: Frequency) {
     setFrequency(value);
     const suggested = nextAllowanceDate(value, startDate);
-    if (suggested) setNextDate(suggested);
+    setNextDate(suggested ?? "");
+    setDateError("");
   }
 
   function changeStart(value: string) {
@@ -57,6 +60,7 @@ export default function NewCycleScreen() {
     if (isValidDate(value)) {
       const suggested = nextAllowanceDate(frequency, value);
       if (suggested) setNextDate(suggested);
+      setDateError("");
     }
   }
 
@@ -71,14 +75,12 @@ export default function NewCycleScreen() {
       setError("Enter a valid savings amount or leave it blank.");
       return;
     }
-    if (
-      !isValidDate(startDate) ||
-      !isValidDate(nextDate) ||
-      nextDate <= startDate
-    ) {
-      setError("Choose a valid next allowance date after the start date.");
+    if (!isValidDate(startDate) || !isValidDate(nextDate) || nextDate <= startDate) {
+      setDateError("Next allowance must be after the start date.");
+      setError("Review the allowance dates.");
       return;
     }
+    setDateError("");
     if (savingsCents > allowanceCents) {
       setError("Planned savings cannot be greater than your allowance.");
       return;
@@ -118,10 +120,10 @@ export default function NewCycleScreen() {
   ];
 
   return (
-    <ScreenLayout title="Allowance" subtitle="Set up the amount and schedule of your next allowance.">
+    <ScreenLayout title="New allowance cycle" subtitle="Set up the amount and schedule of your next allowance." onBack={() => router.back()} stackScreen>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"
         onScroll={onTabBarScroll}
         scrollEventThrottle={16}
@@ -176,31 +178,13 @@ export default function NewCycleScreen() {
       </View>
 
       <View style={styles.field}>
-        <ThemedText style={styles.label}>Allowance starts on</ThemedText>
-        <TextInput
-          value={startDate}
-          onChangeText={changeStart}
-          placeholder="YYYY-MM-DD"
-          accessibilityLabel="Allowance start date"
-          placeholderTextColor={theme.muted}
-          style={fieldStyle}
-          autoCapitalize="none"
-        />
+        <DateField label="Allowance starts on" value={startDate} onChange={changeStart} maximumDate={today} />
       </View>
 
       <View style={styles.field}>
-        <ThemedText style={styles.label}>Next allowance arrives</ThemedText>
-        <TextInput
-          value={nextDate}
-          onChangeText={setNextDate}
-          placeholder="YYYY-MM-DD"
-          accessibilityLabel="Next allowance arrival date"
-          placeholderTextColor={theme.muted}
-          style={fieldStyle}
-          autoCapitalize="none"
-        />
+        <DateField label="Next allowance arrives" value={nextDate} onChange={(value) => { setNextDate(value); setDateError(""); }} minimumDate={isValidDate(startDate) ? addDays(startDate, 1) : undefined} error={dateError} />
         <ThemedText type="small" themeColor="muted">
-          Your cycle ends the day before your next allowance arrives.
+          {frequency === "custom" ? "Choose your own next allowance date." : "This date is suggested from your allowance frequency."} Your cycle ends the day before.
         </ThemedText>
       </View>
 
