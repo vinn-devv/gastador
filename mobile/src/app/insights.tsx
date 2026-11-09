@@ -110,7 +110,7 @@ export default function InsightsScreen() {
             ]}
           >
             <View style={styles.summaryItem}>
-              <ThemedText type="small" themeColor="muted">
+              <ThemedText type="small" style={{ color: "#EAF2FF" }}>
                 All expenses
               </ThemedText>
               <ThemedText style={styles.summaryValue}>
@@ -119,7 +119,7 @@ export default function InsightsScreen() {
             </View>
             <View style={[styles.divider, { backgroundColor: theme.line }]} />
             <View style={styles.summaryItem}>
-              <ThemedText type="small" themeColor="muted">
+              <ThemedText type="small" style={{ color: "#EAF2FF" }}>
                 Transactions
               </ThemedText>
               <ThemedText style={styles.summaryValue}>
