@@ -1,4 +1,4 @@
-﻿export type Centavos = number;
+export type Centavos = number;
 
 export const MAX_CENTAVOS: Centavos = 999_999_999_999;
 
