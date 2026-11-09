@@ -37,11 +37,15 @@ const TAB_HEIGHT = 48;
 const FLARE_RADIUS = 24;
 const SHEET_RADIUS = 40;
 const TAB_CORNER = 28;
-const SHAPE_HEIGHT = TAB_HEIGHT + SHEET_RADIUS;
+const SVG_PADDING_TOP = 16;
+const SHAPE_HEIGHT = SVG_PADDING_TOP + TAB_HEIGHT + SHEET_RADIUS + 24;
 
-function buildPath(p: number, W: number, Hs: number) {
+function buildPath(p: number, W: number) {
   "worklet";
   const q = Math.min(1, Math.max(0, p));
+  const top = SVG_PADDING_TOP;
+  const tabBottom = top + TAB_HEIGHT;
+  const Hs = top + TAB_HEIGHT + SHEET_RADIUS + 24;
   const w = W / 2;
   const x = q * w;
   const rl = FLARE_RADIUS * q;
@@ -50,18 +54,18 @@ function buildPath(p: number, W: number, Hs: number) {
   const sr = SHEET_RADIUS * (1 - q);
   return [
     "M 0 " + Hs,
-    "L 0 " + (TAB_HEIGHT + sl),
-    "Q 0 " + (TAB_HEIGHT + sl * 0.45) + " " + sl + " " + TAB_HEIGHT,
-    "L " + (x - rl) + " " + TAB_HEIGHT,
-    "Q " + (x - rl) + " " + TAB_HEIGHT + " " + x + " " + (TAB_HEIGHT - rl),
-    "L " + x + " " + TAB_CORNER,
-    "Q " + x + " 0 " + (x + TAB_CORNER) + " 0",
-    "L " + (x + w - TAB_CORNER) + " 0",
-    "Q " + (x + w) + " 0 " + (x + w) + " " + TAB_CORNER,
-    "L " + (x + w) + " " + (TAB_HEIGHT - rr),
-    "Q " + (x + w + rr) + " " + TAB_HEIGHT + " " + (x + w) + " " + TAB_HEIGHT,
-    "L " + (W - sr) + " " + TAB_HEIGHT,
-    "Q " + W + " " + (TAB_HEIGHT + sr * 0.45) + " " + W + " " + (TAB_HEIGHT + sr),
+    "L 0 " + (tabBottom + sl),
+    "Q 0 " + (tabBottom + sl * 0.45) + " " + sl + " " + tabBottom,
+    "L " + (x - rl) + " " + tabBottom,
+    "Q " + (x - rl) + " " + tabBottom + " " + x + " " + (tabBottom - rl),
+    "L " + x + " " + (top + TAB_CORNER),
+    "Q " + x + " " + top + " " + (x + TAB_CORNER) + " " + top,
+    "L " + (x + w - TAB_CORNER) + " " + top,
+    "Q " + (x + w) + " " + top + " " + (x + w) + " " + (top + TAB_CORNER),
+    "L " + (x + w) + " " + (tabBottom - rr),
+    "Q " + (x + w + rr) + " " + tabBottom + " " + (x + w) + " " + tabBottom,
+    "L " + (W - sr) + " " + tabBottom,
+    "Q " + W + " " + (tabBottom + sr * 0.45) + " " + W + " " + (tabBottom + sr),
     "L " + W + " " + Hs, "Z",
   ].join(" ");
 }
@@ -92,7 +96,7 @@ export default function HomeScreen() {
   const [sheetTab, setSheetTab] = useState<"activity" | "insight">("activity");
   const [contentDirection, setContentDirection] = useState<1 | -1>(1);
   const progress = useSharedValue(0);
-  const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, width, SHAPE_HEIGHT + 16) }));
+  const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, width) }));
   const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#FFE88A"]) }));
   const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#FFE88A", "#1E40AF"]) }));
   const sheetEntrance = useRef(new RNAnimated.Value(0)).current;
@@ -163,13 +167,11 @@ export default function HomeScreen() {
   const insightSpent = summary?.spentCentavos ?? 0;
   const insightLeft = summary?.remainingCentavos ?? 0;
   const insightDailyLimit = summary?.plannedDailyCentavos ?? 0;
-  const insightStatus = !hasAllowance
-    ? "No allowance set. Set one up in Settings to start tracking."
-    : rawSpentPercent > 100
-      ? "You’ve gone over your allowance."
-      : rawSpentPercent > 80
-        ? "Careful, you’ve used most of your allowance."
-        : "You’re on track. Keep it up!";
+  const insightStatus = rawSpentPercent > 100
+    ? "You’ve gone over your allowance."
+    : rawSpentPercent > 80
+      ? "Careful, you’ve used most of your allowance."
+      : "You’re on track. Keep it up!";
 
   useEffect(() => {
     if (loading) return;
@@ -224,7 +226,8 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.shapeHeader}>
-        <Svg width={width} height={SHAPE_HEIGHT + 16} style={styles.shapeSvg}>
+        <View pointerEvents="none" style={styles.whiteBase} />
+        <Svg width={width} height={SHAPE_HEIGHT} style={styles.shapeSvg}>
           <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.06)" transform="translate(0 -14)" />
           <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.12)" transform="translate(0 -6)" />
           <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.22)" transform="translate(0 -2)" />
@@ -293,7 +296,6 @@ export default function HomeScreen() {
             ))}
           </View>
         )}
-        <ThemedText style={styles.privacyNote}>Your financial records stay on this device.</ThemedText>
         </>
         ) : (
           <View style={styles.insightContent}>
@@ -318,12 +320,16 @@ export default function HomeScreen() {
                     transform="rotate(-90 90 90)"
                   />
                 </Svg>
-                <View pointerEvents="none" style={styles.donutCenter}>
-                  <ThemedText style={styles.donutPercent}>{insightPercent}%</ThemedText>
-                  <ThemedText style={styles.donutLabel}>of allowance spent</ThemedText>
-                </View>
+                {hasAllowance ? (
+                  <View pointerEvents="none" style={styles.donutCenter}>
+                    <ThemedText style={styles.donutPercent}>{insightPercent}%</ThemedText>
+                    <ThemedText style={styles.donutLabel}>of allowance spent</ThemedText>
+                  </View>
+                ) : null}
               </View>
             </StaggeredRow>
+            {hasAllowance ? (
+            <>
             <View style={styles.insightStatsRow}>
               <Reanimated.View style={styles.insightStatSlot} entering={FadeInDown.duration(240).delay(50)}>
                 <View style={styles.insightStatChip}>
@@ -350,6 +356,10 @@ export default function HomeScreen() {
                 <ThemedText style={styles.insightStatusText}>{insightStatus}</ThemedText>
               </View>
             </StaggeredRow>
+            </>
+            ) : (
+              <ThemedText style={styles.noAllowanceText}>No allowance tracked.</ThemedText>
+            )}
           </View>
         )}
         </Reanimated.View>
@@ -373,14 +383,16 @@ const styles = StyleSheet.create({
   balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 80, lineHeight: 96, letterSpacing: -2, includeFontPadding: false },
   balanceSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 44, lineHeight: 96, includeFontPadding: false, verticalAlign: "top" },
   pesoSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 44, lineHeight: 96, includeFontPadding: false, verticalAlign: "top" },
-  shapeHeader: { height: SHAPE_HEIGHT + 16, backgroundColor: "#2563EB", marginBottom: -2, zIndex: 2 },
+  shapeHeader: { height: SHAPE_HEIGHT, backgroundColor: "#2563EB", marginBottom: -2, zIndex: 2 },
+  whiteBase: { position: "absolute", top: SVG_PADDING_TOP + TAB_HEIGHT - 2, left: 0, right: 0, bottom: -24, backgroundColor: "#FFFFFF" },
   shapeSvg: { position: "absolute", top: 0, left: 0, overflow: "visible" },
   shapeTabLabels: { position: "absolute", top: 0, left: 0, right: 0, height: TAB_HEIGHT, flexDirection: "row" },
   sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#1E40AF", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 0, zIndex: 1 },
-  whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", paddingHorizontal: 24, paddingTop: 16, paddingBottom: 100, minHeight: 390, borderTopLeftRadius: 40, borderTopRightRadius: 40 },
+  whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", paddingHorizontal: 24, paddingTop: 16, paddingBottom: 100, minHeight: 390 },
   sheetTab: { flex: 1, height: TAB_HEIGHT, alignItems: "center", justifyContent: "center" },
   sheetTabText: { fontFamily: "IBMPlexSans_700Bold", fontSize: 18, lineHeight: 24 },
-  insightContent: { flexGrow: 1, width: "100%", alignItems: "center", justifyContent: "center", paddingTop: 24, paddingBottom: 24, gap: 20 },
+  insightContent: { flexGrow: 1, width: "100%", alignItems: "center", justifyContent: "center", paddingTop: 24, paddingBottom: 24, gap: 24 },
+  noAllowanceText: { color: "#6B7280", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18, lineHeight: 24, textAlign: "center" },
   donutWrap: { width: 180, height: 180, alignItems: "center", justifyContent: "center", marginBottom: 0 },
   donutCenter: { position: "absolute", alignItems: "center", justifyContent: "center" },
   donutPercent: { color: "#1E40AF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 32, lineHeight: 38 },
@@ -412,5 +424,4 @@ const styles = StyleSheet.create({
   emptyText: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 16, lineHeight: 21, textAlign: "center" },
   emptyButton: { minHeight: 56, paddingHorizontal: 32, borderRadius: 999, backgroundColor: "#2563EB", alignItems: "center", justifyContent: "center", marginTop: 8 },
   emptyButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16, lineHeight: 21 },
-  privacyNote: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, textAlign: "center", marginTop: 22 },
 });
