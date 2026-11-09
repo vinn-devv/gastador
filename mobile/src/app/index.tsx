@@ -16,7 +16,7 @@ import {
   type RecentTransaction,
 } from "@/data/repository";
 import { pickCurrentCycle, summarizeCycle, type CycleSummary } from "@/domain/allowance";
-import { formatDate, formatTime, manilaHour, manilaToday } from "@/domain/dates";
+import { formatDate, formatTime, manilaToday } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
 import type { AppSettings } from "@/domain/types";
 
@@ -33,11 +33,6 @@ const ACTIONS = [
   { label: "Scan receipt", sub: "Use camera", icon: { ios: "viewfinder", android: "qr_code_scanner", web: "qr_code_scanner" }, route: "/scan" as const },
   { label: "Insights", sub: "See your habits", icon: { ios: "chart.pie", android: "pie_chart", web: "pie_chart" }, route: "/insights" as const },
 ];
-
-function greeting() {
-  const hour = manilaHour();
-  return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-}
 
 function categorySymbol(category: string) {
   const value = category.toLowerCase();
