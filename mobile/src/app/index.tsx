@@ -106,7 +106,7 @@ export default function HomeScreen() {
   const [contentDirection, setContentDirection] = useState<1 | -1>(1);
   const progress = useSharedValue(0);
   const stageWidth = Math.max(0, width - SHEET_GAP * 2);
-  const stageHeight = Math.max(360, height - insets.top - 212 - 72 - insets.bottom - SHEET_GAP);
+  const stageHeight = Math.max(360, height - insets.top - 207 - SHEET_GAP);
   const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, stageWidth, stageHeight + 40) }));
   const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#FFE88A"]) }));
   const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#FFE88A", "#1E40AF"]) }));
@@ -135,7 +135,7 @@ export default function HomeScreen() {
     };
   });
   const ringHeadProps = useAnimatedProps(() => {
-    const angle = ringProgress.value * Math.PI * 2 - Math.PI / 2;
+    const angle = ringProgress.value * Math.PI * 2;
     const radius = RING_RADIUS;
     return {
       cx: RING_SIZE / 2 + Math.cos(angle) * radius,
@@ -198,7 +198,6 @@ export default function HomeScreen() {
   const balanceSign = /^[−-]/.test(balancePrefix.trim()) ? balancePrefix.trim().slice(0, 1) : "";
   const balanceCurrencySymbol = balancePrefix.replace(balanceSign, "").trim();
   const hasAllowance = Boolean(summary);
-  const insightPercent = hasAllowance ? Math.round(rawSpentPercent) : 0;
   const insightSpent = summary?.spentCentavos ?? 0;
   const insightLeft = summary?.remainingCentavos ?? 0;
   const insightDailyLimit = summary?.plannedDailyCentavos ?? 0;
@@ -410,7 +409,7 @@ const styles = StyleSheet.create({
   topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },
   notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
-  walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 24, lineHeight: 31 },
+  walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 22, lineHeight: 29 },
   balanceBlock: { minHeight: 132, alignItems: "center", justifyContent: "center", gap: 7 },
   balanceLabel: { color: "rgba(255,255,255,0.85)", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16, lineHeight: 22, marginBottom: 0 },
   balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 84, letterSpacing: -1.5, includeFontPadding: false },
