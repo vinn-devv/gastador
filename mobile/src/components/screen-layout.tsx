@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SymbolView } from "expo-symbols";
+import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { SHEET_GAP } from "@/constants/layout";
@@ -17,6 +18,7 @@ export function ScreenLayout({ title, subtitle, children, onBack }: ScreenLayout
 
   return (
     <View style={styles.screen}>
+      <StatusBar style="light" />
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <View style={styles.headerText}>
           {onBack ? (
