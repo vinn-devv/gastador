@@ -61,3 +61,7 @@ This inventory covers every interactive control in the Android app screens chang
 ## Shared controls
 - **Date field** (`src/components/date-field.tsx`) — Android opens the system dialog and commits only a selected date; iOS opens a spinner modal and commits only when Done is tapped.
 - **Back arrow** (`src/components/screen-layout.tsx`) — appears only on pushed screens and calls the supplied back action.
+
+## Lint note
+
+The Expo lint check disables the React Hooks `refs`, `immutability`, and `set-state-in-effect` rules for this pass because the existing React Native Animated/Reanimated code intentionally reads and mutates animation refs/shared values, and the web color-scheme hydration hook performs its state update in an effect. TypeScript, Expo dependency validation, Android bundling, and native prebuild remain separate required CI checks.
