@@ -3,9 +3,10 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { navBarSpace } from "@/constants/layout";
+import { SHEET_GAP } from "@/constants/layout";
+import { ScreenLayout } from "@/components/screen-layout";
+import { DateField } from "@/components/date-field";
 import { SymbolView } from "expo-symbols";
-import { StatusBar } from "expo-status-bar";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
@@ -35,6 +36,7 @@ export default function NewExpenseScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [dateError, setDateError] = useState("");
   useFocusEffect(
     useCallback(() => {
       let active = true;
@@ -81,7 +83,8 @@ export default function NewExpenseScreen() {
     const cents = parseMoney(amount);
     if (cents === null || cents <= 0) { setError("Enter an amount greater than zero."); return; }
     if (!categoryId) { setError("Choose a category."); return; }
-    if (!isValidDate(date)) { setError("Enter a valid date in YYYY-MM-DD format."); return; }
+    if (!isValidDate(date) || date > manilaToday()) { setDateError("Expense date cannot be in the future."); setError("Review the expense date."); return; }
+    setDateError("");
 
     setSaving(true);
     setError("");
@@ -100,20 +103,10 @@ export default function NewExpenseScreen() {
   const formattedAmount = amount ? amount : "0.00";
 
   return (
-    <>
-      <StatusBar style="light" />
+    <ScreenLayout title="Add expense" subtitle="Record what you spent and keep your allowance up to date." onBack={() => router.back()} stackScreen>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={[styles.scrollContent, { paddingBottom: navBarSpace(insets.bottom) }]} keyboardShouldPersistTaps="handled">
-        <View style={[styles.orangeHeader, { paddingTop: insets.top + 16 }]}>
-          <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Go back" style={styles.back}>
-            <SymbolView name={{ ios: "chevron.left", android: "arrow_back", web: "arrow_back" }} tintColor="#FFFFFF" size={21} />
-          </Pressable>
-          <ThemedText style={styles.headerTitle}>Add expense</ThemedText>
-          <View style={styles.headerSpacer} />
-        </View>
-
+      <ScrollView style={styles.screen} contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + SHEET_GAP + 24 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View style={styles.sheet}>
-          <View style={styles.sheetHandle} />
           <View style={styles.balancePanel}>
             <View style={{ flex: 1 }}>
               <ThemedText style={styles.balanceLabel}>Current allowance balance</ThemedText>
@@ -175,8 +168,7 @@ export default function NewExpenseScreen() {
           </View>
 
           <View style={styles.field}>
-            <ThemedText style={styles.label}>Date</ThemedText>
-            <TextInput value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" placeholderTextColor={theme.muted} accessibilityLabel="Expense date" style={fieldStyle} />
+            <DateField label="Date" value={date} onChange={(value) => { setDate(value); setDateError(""); }} maximumDate={manilaToday()} error={dateError} />
           </View>
           <View style={styles.field}>
             <ThemedText style={styles.label}>Note (optional)</ThemedText>
@@ -190,19 +182,14 @@ export default function NewExpenseScreen() {
         </View>
       </ScrollView>
       </KeyboardAvoidingView>
-    </>
+    </ScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  scrollContent: { paddingBottom: 35 },
-  orangeHeader: { minHeight: 106, paddingHorizontal: 21, paddingTop: 16, paddingBottom: 23, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  back: { width: 42, height: 42, alignItems: "center", justifyContent: "center" },
-  headerTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 17 },
-  headerSpacer: { width: 42 },
-  sheet: { backgroundColor: "#FFFFFF", borderTopLeftRadius: 31, borderTopRightRadius: 31, paddingHorizontal: 20, paddingTop: 13, paddingBottom: 35 },
-  sheetHandle: { width: 35, height: 4, borderRadius: 2, backgroundColor: "#D9DEE2", alignSelf: "center", marginBottom: 18 },
+  scrollContent: { flexGrow: 1 },
+  sheet: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 24 },
   balancePanel: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#F3F5F6", borderRadius: 15, padding: 14, marginBottom: 18 },
   balanceLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
   balanceValue: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 19, marginTop: 3 },
@@ -215,7 +202,7 @@ const styles = StyleSheet.create({
   keyText: { color: "#202A35", fontFamily: "IBMPlexSans_500Medium", fontSize: 20 },
   field: { marginBottom: 18, gap: 8 },
   label: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  input: { minHeight: 48, borderWidth: 1, borderRadius: 9, paddingHorizontal: 13, fontFamily: "IBMPlexSans_400Regular", fontSize: 14 },
+  input: { minHeight: 48, borderWidth: 1, borderRadius: 12, paddingHorizontal: 15, fontFamily: "IBMPlexSans_400Regular", fontSize: 14 },
   optionGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   option: { minHeight: 43, borderWidth: 1, borderRadius: 9, paddingHorizontal: 13, justifyContent: "center" },
   optionText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 12 },
