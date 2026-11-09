@@ -174,7 +174,7 @@ export default function HomeScreen() {
         />
       </View>
 
-      <View style={[styles.balanceSection, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+      <View style={[styles.balanceSection, { backgroundColor: theme.surface, borderColor: theme.line, borderLeftColor: theme.primary }]}>
         <View style={styles.balanceTop}>
           <ThemedText style={[styles.balanceLabel, { color: theme.muted }]}>
             AVAILABLE BALANCE
@@ -187,8 +187,8 @@ export default function HomeScreen() {
                   {
                     backgroundColor:
                       summary.pace === "on_track"
-                        ? "#62E0C2"
-                        : "#FFD08A",
+                        ? "#3F8D78"
+                        : "#A66B2C",
                   },
                 ]}
               />
@@ -467,7 +467,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderLeftWidth: 3,
-    padding: 20,
     overflow: "hidden",
   },
   balanceTop: {
