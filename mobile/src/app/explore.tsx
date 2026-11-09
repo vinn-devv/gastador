@@ -124,7 +124,7 @@ export default function ActivityScreen() {
         ]}
       >
         <View>
-          <ThemedText type="small" themeColor="muted">
+          <ThemedText type="small" style={{ color: "#EAF2FF" }}>
             Showing {filtered.length}{" "}
             {filtered.length === 1 ? "expense" : "expenses"}
           </ThemedText>
@@ -132,7 +132,7 @@ export default function ActivityScreen() {
             {formatMoney(total, currency)}
           </ThemedText>
         </View>
-        <ThemedText type="small" themeColor="muted">
+        <ThemedText type="small" style={{ color: "#EAF2FF" }}>
           Total shown
         </ThemedText>
       </View>
