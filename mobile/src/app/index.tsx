@@ -423,6 +423,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  transactionRule: { width: 3, height: 30, borderRadius: 2 },
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   header: {
@@ -461,7 +462,7 @@ const styles = StyleSheet.create({
   balanceLabel: {
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 11,
-    letterSpacing: 1.15,
+    letterSpacing: 0,
   },
   status: { flexDirection: "row", alignItems: "center", gap: 6 },
   statusDot: { width: 7, height: 7, borderRadius: 4 },
