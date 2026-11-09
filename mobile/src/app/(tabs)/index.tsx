@@ -384,7 +384,10 @@ export default function HomeScreen() {
   const hasAllowance = Boolean(summary);
   const insightSpent = summary?.spentCentavos ?? 0;
   const insightLeft = summary?.remainingCentavos ?? 0;
-  const insightDailyLimit = summary?.plannedDailyCentavos ?? 0;
+  const insightDailyLimit = summary?.dailySafeLimitCentavos ?? summary?.plannedDailyCentavos ?? 0;
+  const budgetMethod = settings?.budgetMethod ?? "daily_pace";
+  const insightBudgetValue = budgetMethod === "simple_total" ? insightLeft : budgetMethod === "category_limits" ? insightSpent : insightDailyLimit;
+  const insightBudgetLabel = budgetMethod === "simple_total" ? "Remaining" : budgetMethod === "category_limits" ? "Category spending" : "Daily safe amount";
   const insightStatus =
     rawSpentPercent > 100
       ? "You’ve gone over your allowance."
@@ -815,10 +818,10 @@ export default function HomeScreen() {
                           >
                             <View style={styles.insightStatChip}>
                               <ThemedText style={styles.insightStatValue}>
-                                {formatMoney(insightDailyLimit, currency)}
+                                {formatMoney(insightBudgetValue, currency)}
                               </ThemedText>
                               <ThemedText style={styles.insightStatLabel}>
-                                Daily limit
+                                {insightBudgetLabel}
                               </ThemedText>
                             </View>
                           </Reanimated.View>
