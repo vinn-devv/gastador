@@ -237,7 +237,7 @@ export default function NewExpenseScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 44 },
+  content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 124 },
   back: { alignSelf: "flex-start", marginBottom: 22 },
   backText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   title: { fontFamily: "IBMPlexSans_700Bold", fontSize: 29, lineHeight: 36, marginTop: 2 },
