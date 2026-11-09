@@ -1,7 +1,7 @@
 import { Tabs, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { SymbolView } from "expo-symbols";
-import { Animated, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Animated, Keyboard, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import Svg, { Path } from "react-native-svg";
@@ -48,10 +48,17 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const overlayProgress = useRef(new Animated.Value(0)).current;
   const menuItemProgress = [useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current];
   const buttonRotation = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", () => { setKeyboardVisible(true); setMenuOpen(false); });
+    const hide = Keyboard.addListener("keyboardDidHide", () => setKeyboardVisible(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
+
   const safeBottom = Math.max(insets.bottom, SHEET_GAP);
   const safeExtra = safeBottom - SHEET_GAP;
   const dockHeight = 72 + safeExtra;
@@ -91,6 +98,7 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
   }, [closeMenu, router]);
 
   const visibleRoutes = state.routes.filter((route) => VISIBLE_TABS.includes(route.name as (typeof VISIBLE_TABS)[number]));
+  if (keyboardVisible) return null;
   const barWidth = width - SHEET_GAP * 2;
   const centerX = barWidth / 2;
   const notchPath = `M 0 0 L ${centerX - 52} 0 C ${centerX - 34} 0 ${centerX - 34} 25 ${centerX} 25 C ${centerX + 34} 25 ${centerX + 34} 0 ${centerX + 52} 0 L ${barWidth} 0 L ${barWidth} ${dockHeight} L 0 ${dockHeight} Z`;
