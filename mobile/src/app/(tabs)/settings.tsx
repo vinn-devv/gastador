@@ -102,6 +102,7 @@ export default function SettingsScreen() {
     <ScreenLayout title="Settings" subtitle="Your preferences are saved locally on this device.">
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
     <ScrollView
+      style={{ flex: 1 }}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]}
     >
