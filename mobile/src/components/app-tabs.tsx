@@ -1,5 +1,5 @@
 import { Tabs, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { SymbolView } from "expo-symbols";
 import { Animated, Keyboard, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -51,7 +51,7 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
   const [menuOpen, setMenuOpen] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const overlayProgress = useRef(new Animated.Value(0)).current;
-  const menuItemProgress = [useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current];
+  const menuItemProgress = useMemo(() => [new Animated.Value(0), new Animated.Value(0)], []);
   const buttonRotation = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
   useEffect(() => {
