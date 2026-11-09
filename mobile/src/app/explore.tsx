@@ -1,14 +1,30 @@
 import { useCallback, useMemo, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
-import { getAllTransactions, getCategories, getSettings } from "@/data/repository";
+import {
+  getAllTransactions,
+  getCategories,
+  getSettings,
+} from "@/data/repository";
 import { formatDate, formatTime } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
-import { methodLabel, type Category, type CurrencyCode, type Transaction } from "@/domain/types";
+import {
+  methodLabel,
+  type Category,
+  type CurrencyCode,
+  type Transaction,
+} from "@/domain/types";
+import { onTabBarScroll } from "@/components/tab-bar-visibility";
 
 export default function ActivityScreen() {
   const db = useSQLiteContext();
@@ -44,7 +60,9 @@ export default function ActivityScreen() {
         }
       }
       void load();
-      return () => { active = false; };
+      return () => {
+        active = false;
+      };
     }, [db]),
   );
 
@@ -67,15 +85,18 @@ export default function ActivityScreen() {
 
   return (
     <ScrollView
-      style={styles.screen}
       contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
+      onScroll={onTabBarScroll}
+      scrollEventThrottle={16}
     >
       <View style={styles.header}>
-        <ThemedText type="small" themeColor="muted">YOUR SPENDING HISTORY</ThemedText>
+        <ThemedText type="small" themeColor="muted">
+          YOUR SPENDING HISTORY
+        </ThemedText>
         <ThemedText style={styles.title}>Activity</ThemedText>
         <ThemedText type="small" themeColor="muted">
-          {transactions.length} {transactions.length === 1 ? "expense" : "expenses"} recorded
+          {transactions.length}{" "}
+          {transactions.length === 1 ? "expense" : "expenses"} recorded
         </ThemedText>
       </View>
 
@@ -87,27 +108,49 @@ export default function ActivityScreen() {
         returnKeyType="search"
         style={[
           styles.search,
-          { backgroundColor: theme.surface, borderColor: theme.line, color: theme.text },
+          {
+            backgroundColor: theme.surface,
+            borderColor: theme.line,
+            color: theme.text,
+          },
         ]}
         accessibilityLabel="Search expenses"
       />
 
-      <View style={[styles.summary, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
+      <View
+        style={[
+          styles.summary,
+          { backgroundColor: theme.primary, borderColor: theme.primary },
+        ]}
+      >
         <View>
-          <ThemedText type="small" themeColor="muted">Showing {filtered.length} {filtered.length === 1 ? "expense" : "expenses"}</ThemedText>
-          <ThemedText style={styles.total}>{formatMoney(total, currency)}</ThemedText>
+          <ThemedText type="small" themeColor="muted">
+            Showing {filtered.length}{" "}
+            {filtered.length === 1 ? "expense" : "expenses"}
+          </ThemedText>
+          <ThemedText style={styles.total}>
+            {formatMoney(total, currency)}
+          </ThemedText>
         </View>
-        <ThemedText type="small" themeColor="muted">Total shown</ThemedText>
+        <ThemedText type="small" themeColor="muted">
+          Total shown
+        </ThemedText>
       </View>
 
       {loadError ? (
-        <ThemedText type="small" themeColor="muted">We couldn't load your expenses. Please try again.</ThemedText>
+        <ThemedText type="small" themeColor="muted">
+          We couldn't load your expenses. Please try again.
+        </ThemedText>
       ) : loading ? (
-        <ThemedText type="small" themeColor="muted">Loading expenses…</ThemedText>
+        <ThemedText type="small" themeColor="muted">
+          Loading expenses…
+        </ThemedText>
       ) : filtered.length === 0 ? (
         <View style={styles.empty}>
           <ThemedText style={styles.emptyTitle}>
-            {transactions.length === 0 ? "No expenses yet" : "No matching expenses"}
+            {transactions.length === 0
+              ? "No expenses yet"
+              : "No matching expenses"}
           </ThemedText>
           <ThemedText type="small" themeColor="muted">
             {transactions.length === 0
@@ -116,7 +159,9 @@ export default function ActivityScreen() {
           </ThemedText>
           {query.length > 0 && (
             <Pressable onPress={() => setQuery("")} hitSlop={8}>
-              <ThemedText style={[styles.clear, { color: theme.primary }]}>Clear search</ThemedText>
+              <ThemedText style={[styles.clear, { color: theme.primary }]}>
+                Clear search
+              </ThemedText>
             </Pressable>
           )}
         </View>
@@ -133,9 +178,15 @@ export default function ActivityScreen() {
                 },
               ]}
             >
-              <View style={[styles.icon, { backgroundColor: theme.primarySoft }]}>
-                <ThemedText style={[styles.initial, { color: theme.onPrimary }]}>
-                  {(item.merchant || categoryNames.get(item.categoryId) || "E").charAt(0).toUpperCase()}
+              <View
+                style={[styles.icon, { backgroundColor: theme.primarySoft }]}
+              >
+                <ThemedText
+                  style={[styles.initial, { color: theme.onPrimary }]}
+                >
+                  {(item.merchant || categoryNames.get(item.categoryId) || "E")
+                    .charAt(0)
+                    .toUpperCase()}
                 </ThemedText>
               </View>
               <View style={styles.info}>
@@ -143,7 +194,8 @@ export default function ActivityScreen() {
                   {item.merchant || "Untitled expense"}
                 </ThemedText>
                 <ThemedText type="small" themeColor="muted" numberOfLines={1}>
-                  {categoryNames.get(item.categoryId) ?? "Unknown category"} · {formatDate(item.date, false)} · {formatTime(item.occurredAt)}
+                  {categoryNames.get(item.categoryId) ?? "Unknown category"} ·{" "}
+                  {formatDate(item.date, false)} · {formatTime(item.occurredAt)}
                 </ThemedText>
                 <ThemedText type="small" themeColor="muted">
                   {methodLabel(item.paymentMethod)}
@@ -165,14 +217,48 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 36 },
   header: { gap: 3, marginBottom: 20 },
   title: { fontFamily: "IBMPlexSans_700Bold", fontSize: 29, lineHeight: 36 },
-  search: { minHeight: 48, borderWidth: 1, borderRadius: 13, paddingHorizontal: 14, fontFamily: "IBMPlexSans_400Regular", fontSize: 14, marginBottom: 16 },
-  summary: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderWidth: 1, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 16, marginBottom: 12 },
-  total: { fontFamily: "IBMPlexSans_700Bold", fontSize: 22, marginTop: 2, color: "#FFFFFF" },
+  search: {
+    minHeight: 48,
+    borderWidth: 1,
+    borderRadius: 13,
+    paddingHorizontal: 14,
+    fontFamily: "IBMPlexSans_400Regular",
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  summary: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginBottom: 12,
+  },
+  total: {
+    fontFamily: "IBMPlexSans_700Bold",
+    fontSize: 22,
+    marginTop: 2,
+    color: "#FFFFFF",
+  },
   empty: { paddingVertical: 34, alignItems: "center", gap: 6 },
   emptyTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
   clear: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13, marginTop: 8 },
-  transaction: { minHeight: 78, flexDirection: "row", alignItems: "center", paddingVertical: 12, gap: 11 },
-  icon: { width: 40, height: 40, borderRadius: 13, alignItems: "center", justifyContent: "center" },
+  transaction: {
+    minHeight: 78,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    gap: 11,
+  },
+  icon: {
+    width: 40,
+    height: 40,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   initial: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
   info: { flex: 1, gap: 2 },
   merchant: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },

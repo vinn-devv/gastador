@@ -4,17 +4,15 @@ import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "@expo-google-fonts/ibm-plex-sans";
 import { View, useColorScheme } from "react-native";
 
-import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { HalftoneBackground } from "@/components/halftone-background";
 import AppTabs from "@/components/app-tabs";
 import { DB_NAME, initializeDatabase } from "@/data/database";
-import { useTheme } from "@/hooks/use-theme";
+import { IntroOverlay } from "@/components/intro-overlay";
 
 void SplashScreen.preventAutoHideAsync();
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const theme = useTheme();
 
   const [fontsLoaded] = useFonts({
     IBMPlexSans_400Regular: require("@expo-google-fonts/ibm-plex-sans/400Regular/IBMPlexSans_400Regular.ttf"),
@@ -37,7 +35,7 @@ export default function TabLayout() {
         <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
           <AppTabs />
         </SQLiteProvider>
-        <AnimatedSplashOverlay />
+        <IntroOverlay />
       </View>
     </ThemeProvider>
   );
