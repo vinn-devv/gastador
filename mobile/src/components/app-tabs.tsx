@@ -41,8 +41,8 @@ function WalletTabBar({ state, descriptors }: { state: TabState; descriptors: Ta
   const theme = useTheme();
 
   return (
-    <View style={[styles.host, { paddingBottom: Math.max(insets.bottom, 7), backgroundColor: theme.surface }]}>
-      <View style={[styles.bar, { borderTopColor: theme.line, backgroundColor: theme.surface }]}>
+    <View style={[styles.host, { paddingBottom: Math.max(insets.bottom, 7), backgroundColor: "#FFFFFF" }]}>
+      <View style={[styles.bar, { borderTopColor: theme.line, backgroundColor: "#FFFFFF" }]}>
         {state.routes.filter((route) => VISIBLE_TABS.includes(route.name as (typeof VISIBLE_TABS)[number])).map((route) => {
           const focused = state.routes[state.index]?.key === route.key;
           const options = descriptors[route.key]?.options;
