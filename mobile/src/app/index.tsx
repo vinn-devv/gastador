@@ -244,7 +244,7 @@ export default function HomeScreen() {
       : rawSpentPercent >= 1
         ? `${rawSpentPercent.toFixed(1)}%`
         : `${rawSpentPercent.toFixed(2)}%`;
-  const ringColor = rawSpentPercent > 100 ? "#F87171" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
+  const ringColor = rawSpentPercent > 80 ? "#F87171" : "#2563EB";
 
   return (
     <>
@@ -440,8 +440,6 @@ const styles = StyleSheet.create({
   insightStatusPill: { width: "100%", minHeight: 48, borderRadius: 999, backgroundColor: "#EAF3FF", paddingHorizontal: 16, paddingVertical: 12, flexDirection: "row", alignItems: "center", gap: 10 },
   insightStatusText: { flex: 1, color: "#1E40AF", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 20 },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 17 },
-  sectionHeaderActions: { flexDirection: "row", alignItems: "center", gap: 12 },
-  addExpenseButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   sectionTitle: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 22, lineHeight: 30 },
   sectionSubtitle: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 15, lineHeight: 21, marginTop: 4 },
   link: { fontFamily: "IBMPlexSans_700Bold", fontSize: 15, lineHeight: 21 },
@@ -455,7 +453,6 @@ const styles = StyleSheet.create({
   transactionMeta: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 13, lineHeight: 18 },
   transactionAmount: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 16, lineHeight: 22 },
   emptyState: { flexGrow: 1, minHeight: 240, alignItems: "center", justifyContent: "center", paddingVertical: 22, gap: 7 },
-  emptyIcon: { width: 96, height: 96, borderRadius: 48, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center", marginBottom: 4 },
   emptyTitle: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 20, lineHeight: 27 },
   emptyText: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 15, lineHeight: 21, textAlign: "center" },
   emptyButton: { minHeight: 48, paddingHorizontal: 28, borderRadius: 999, backgroundColor: "#2563EB", alignItems: "center", justifyContent: "center", marginTop: 8 },
