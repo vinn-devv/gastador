@@ -105,7 +105,7 @@ export default function HomeScreen() {
   const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#EAF3FF", "#1E40AF"]) }));
   const sheetEntrance = useRef(new RNAnimated.Value(0)).current;
 
-  const balanceProgress = useRef(new Animated.Value(0)).current;
+  const balanceProgress = useRef(new RNAnimated.Value(0)).current;
   const [animatedRemaining, setAnimatedRemaining] = useState(0);
 
   useEffect(() => {
