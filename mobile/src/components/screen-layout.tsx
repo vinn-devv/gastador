@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { SHEET_GAP } from "@/constants/layout";
+import { useTheme } from "@/hooks/use-theme";
 
 type ScreenLayoutProps = {
   title: string;
@@ -16,16 +17,17 @@ type ScreenLayoutProps = {
 
 export function ScreenLayout({ title, subtitle, children, onBack, stackScreen = false }: ScreenLayoutProps) {
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { backgroundColor: theme.primary }]}>
       <StatusBar style="light" />
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <View style={styles.headerText}>
           {onBack ? (
             <View style={styles.titleRow}>
               <Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Go back" hitSlop={10} style={styles.backButton}>
-                <SymbolView name={{ ios: "chevron.left", android: "arrow_back", web: "arrow_back" }} tintColor="#FFFFFF" size={20} />
+                <SymbolView name={{ ios: "chevron.left", android: "arrow_back", web: "arrow_back" }} tintColor={theme.onPrimary} size={20} />
               </Pressable>
               <ScreenTitle>{title}</ScreenTitle>
             </View>
@@ -51,7 +53,7 @@ function TextBase({ children, kind }: { children: string; kind: "title" | "subti
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#2563EB", overflow: "hidden" },
+  screen: { flex: 1, overflow: "hidden" },
   header: { paddingHorizontal: 24, paddingBottom: 18 },
   headerText: { gap: 4 },
   titleRow: { minHeight: 34, flexDirection: "row", alignItems: "center", gap: 10 },
