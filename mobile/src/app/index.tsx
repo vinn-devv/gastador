@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
@@ -42,6 +42,19 @@ function categorySymbol(category: string) {
   if (value.includes("bill")) return { ios: "receipt", android: "receipt_long", web: "receipt_long" };
   if (value.includes("personal")) return { ios: "person", android: "person", web: "person" };
   return { ios: "wallet", android: "account_balance_wallet", web: "account_balance_wallet" };
+}
+
+function StaggeredRow({ index, children }: { index: number; children: ReactNode }) {
+  const progress = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(progress, { toValue: 1, duration: 240, delay: index * 50, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+    return () => progress.stopAnimation();
+  }, [index, progress]);
+  return (
+    <Animated.View style={{ opacity: progress, transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
+      {children}
+    </Animated.View>
+  );
 }
 
 export default function HomeScreen() {
@@ -216,7 +229,7 @@ export default function HomeScreen() {
         ) : (
           <View style={styles.transactionList}>
             {transactions.map((item, index) => (
-              <View key={item.id} style={[styles.transactionRow, index < transactions.length - 1 && styles.rowDivider]}>
+              <StaggeredRow key={item.id} index={index}><View style={[styles.transactionRow, index < transactions.length - 1 && styles.rowDivider]}>
                 <View style={styles.categoryIcon}>
                   <SymbolView name={categorySymbol(item.categoryName)} tintColor="#2563EB" size={19} />
                 </View>
@@ -225,7 +238,7 @@ export default function HomeScreen() {
                   <ThemedText style={styles.transactionMeta} numberOfLines={1}>{item.categoryName} · {formatDate(item.date, false)}, {formatTime(item.occurredAt)}</ThemedText>
                 </View>
                 <ThemedText style={styles.transactionAmount}>−{formatMoney(item.amountCentavos, currency)}</ThemedText>
-              </View>
+              </View></StaggeredRow>
             ))}
           </View>
         )}
