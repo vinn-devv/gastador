@@ -5,7 +5,6 @@ import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenLayout } from "@/components/screen-layout";
 import { navBarSpace } from "@/constants/layout";
-import { onTabBarScroll } from "@/components/tab-bar-visibility";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
@@ -92,8 +91,6 @@ export default function InsightsScreen() {
     <ScreenLayout title="Insights" subtitle="A simple view of where your allowance goes.">
     <ScrollView
       contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]}
-      onScroll={onTabBarScroll}
-      scrollEventThrottle={16}
     >
 
       {loading ? (
