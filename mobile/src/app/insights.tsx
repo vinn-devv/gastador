@@ -1,7 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ScreenLayout } from "@/components/screen-layout";
+import { navBarSpace } from "@/constants/layout";
 import { onTabBarScroll } from "@/components/tab-bar-visibility";
 
 import { ThemedText } from "@/components/themed-text";
@@ -19,7 +22,9 @@ import type { Category, CurrencyCode, Transaction } from "@/domain/types";
 
 export default function InsightsScreen() {
   const db = useSQLiteContext();
+  const router = useRouter();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [currency, setCurrency] = useState<CurrencyCode>("PHP");
@@ -84,18 +89,12 @@ export default function InsightsScreen() {
   const largest = breakdown[0];
 
   return (
+    <ScreenLayout title="Insights" subtitle="A simple view of where your allowance goes.">
     <ScrollView
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]}
       onScroll={onTabBarScroll}
       scrollEventThrottle={16}
     >
-      <ThemedText type="small" themeColor="muted">
-        Your spending
-      </ThemedText>
-      <ThemedText style={styles.title}>Insights</ThemedText>
-      <ThemedText type="small" themeColor="muted" style={styles.subtitle}>
-        A simple view of where your allowance goes.
-      </ThemedText>
 
       {loading ? (
         <ThemedText type="small" themeColor="muted">
@@ -179,6 +178,9 @@ export default function InsightsScreen() {
                 Set up a cycle to see your available balance and daily safe
                 amount.
               </ThemedText>
+              <Pressable onPress={() => router.push("/new-cycle")} style={styles.setupButton} accessibilityRole="button" accessibilityLabel="Set up allowance">
+                <ThemedText style={styles.setupButtonText}>Set up allowance</ThemedText>
+              </Pressable>
             </View>
           )}
 
@@ -241,19 +243,15 @@ export default function InsightsScreen() {
         </>
       )}
     </ScrollView>
+    </ScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
-  title: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 30,
-    lineHeight: 36,
-    marginTop: 2,
-  },
-  subtitle: { marginTop: 3, marginBottom: 22 },
+  content: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 24 },
+  setupButton: { minHeight: 48, paddingHorizontal: 20, borderRadius: 14, backgroundColor: "#2563EB", alignItems: "center", justifyContent: "center", alignSelf: "flex-start", marginTop: 12 },
+  setupButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 14 },
   summary: {
     flexDirection: "row",
     alignItems: "center",
