@@ -91,7 +91,7 @@ export default function ActivityScreen() {
     >
       <View style={styles.header}>
         <ThemedText type="small" themeColor="muted">
-          YOUR SPENDING HISTORY
+          Your spending history
         </ThemedText>
         <ThemedText style={styles.title}>Activity</ThemedText>
         <ThemedText type="small" themeColor="muted">
@@ -182,7 +182,7 @@ export default function ActivityScreen() {
                 style={[styles.icon, { backgroundColor: "#E9EEF5" }]}
               >
                 <ThemedText
-                  style={[styles.initial, { color: theme.onPrimary }]}
+                  style={[styles.initial, { color: theme.primary }]}
                 >
                   {(item.merchant || categoryNames.get(item.categoryId) || "E")
                     .charAt(0)
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   header: { gap: 3, marginBottom: 20 },
-  title: { fontFamily: "serif", fontSize: 31, lineHeight: 36 },
+  title: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 30, lineHeight: 36 },
   search: {
     minHeight: 48,
     borderWidth: 1,
@@ -231,16 +231,16 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 6,
     paddingHorizontal: 16,
     paddingVertical: 16,
     marginBottom: 12,
   },
   total: {
     fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 22,
+    fontSize: 25,
     marginTop: 2,
-    color: "#FFFFFF",
+    color: "#202A35",
   },
   empty: { paddingVertical: 34, alignItems: "center", gap: 6 },
   emptyTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 40,
     height: 40,
-    borderRadius: 13,
+    borderRadius: 6,
     alignItems: "center",
     justifyContent: "center",
   },
