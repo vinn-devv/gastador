@@ -90,7 +90,6 @@ export default function HomeScreen() {
   );
 
   const currency = settings?.currency ?? "PHP";
-  const firstName = settings?.displayName.trim().split(/\s+/)[0] ?? "";
   const summary = dashboard?.summary;
   const remaining = summary?.remainingCentavos ?? 0;
   const spendable = summary?.spendableCentavos ?? 0;
@@ -160,20 +159,6 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        {summary && (
-          <View style={styles.quickStats}>
-            <View style={styles.statBlock}>
-              <ThemedText style={styles.statLabel}>Safe per day</ThemedText>
-              <ThemedText style={styles.statValue}>{summary.dailySafeLimitCentavos === null ? "—" : formatMoney(summary.dailySafeLimitCentavos, currency)}</ThemedText>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statBlock}>
-              <ThemedText style={styles.statLabel}>Days left</ThemedText>
-              <ThemedText style={styles.statValue}>{summary.daysRemaining}</ThemedText>
-            </View>
-          </View>
-        )}
-
         {loadError ? (
           <ThemedText style={styles.emptyText}>We couldn't load your expenses. Please try again.</ThemedText>
         ) : loading ? (
@@ -238,11 +223,6 @@ const styles = StyleSheet.create({
   sectionTitle: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
   sectionSubtitle: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, marginTop: 2 },
   link: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
-  quickStats: { flexDirection: "row", backgroundColor: "#F3F5F6", borderRadius: 14, paddingVertical: 13, paddingHorizontal: 15, marginBottom: 12 },
-  statBlock: { flex: 1, gap: 3 },
-  statLabel: { color: "#68747D", fontFamily: "IBMPlexSans_500Medium", fontSize: 10 },
-  statValue: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
-  statDivider: { width: 1, backgroundColor: "#D9DEE2", marginHorizontal: 14 },
   transactionList: { marginTop: 2 },
   transactionRow: { minHeight: 67, flexDirection: "row", alignItems: "center", gap: 11, paddingVertical: 10 },
   rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#D9DEE2" },
