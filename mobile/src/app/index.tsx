@@ -703,7 +703,7 @@ export default function HomeScreen() {
                     ]}
                   >
                     <StaggeredRow index={0}>
-                      <View style={[styles.ringWrap, { transform: [{ translateX: 8 }] }]}>
+                      <View style={styles.ringWrap}>
                         <Svg
                           width={RING_SIZE}
                           height={RING_SIZE}
