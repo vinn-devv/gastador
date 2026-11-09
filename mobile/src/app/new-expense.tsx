@@ -113,7 +113,7 @@ export default function NewExpenseScreen() {
           placeholderTextColor={theme.muted}
           keyboardType="decimal-pad"
           style={[...fieldStyle, styles.amountInput]}
-          accessibilityLabel="Expense amount"
+          accessibilityLabel="Expense amount in selected currency"
         />
       </View>
 
@@ -123,6 +123,7 @@ export default function NewExpenseScreen() {
           value={merchant}
           onChangeText={setMerchant}
           placeholder="e.g. Lunch, Jeepney fare"
+          accessibilityLabel="Merchant or expense description"
           placeholderTextColor={theme.muted}
           style={fieldStyle}
           maxLength={100}
@@ -193,6 +194,7 @@ export default function NewExpenseScreen() {
           value={date}
           onChangeText={setDate}
           placeholder="YYYY-MM-DD"
+          accessibilityLabel="Expense date"
           placeholderTextColor={theme.muted}
           style={fieldStyle}
           autoCapitalize="none"
@@ -206,6 +208,7 @@ export default function NewExpenseScreen() {
           value={description}
           onChangeText={setDescription}
           placeholder="Add a short note"
+          accessibilityLabel="Optional expense note"
           placeholderTextColor={theme.muted}
           style={[...fieldStyle, styles.noteInput]}
           multiline
