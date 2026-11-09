@@ -4,7 +4,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Animated as RNAnimated, Easing as RNEasing, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Animated as RNAnimated, Easing as RNEasing, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import Reanimated, { Easing, FadeInDown, FadeInLeft, FadeInRight, FadeOutLeft, FadeOutRight, interpolateColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
 
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   balanceTapTarget: { minHeight: 76, minWidth: 180, alignItems: "center", justifyContent: "center" },
   balanceAmount: { color: "#EAF3FF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 72, letterSpacing: -2, includeFontPadding: false },
   balanceSign: { color: "#EAF3FF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
-  pesoSign: { color: "#EAF3FF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
+  pesoSign: { color: "#EAF3FF", fontFamily: Platform.select({ android: "sans-serif", ios: "System", default: "Arial" }), fontWeight: "800", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
   shapeHeader: { height: SHAPE_HEIGHT, backgroundColor: "#2563EB", marginBottom: -1 },
   shapeTabLabels: { position: "absolute", top: 0, left: 0, right: 0, height: TAB_HEIGHT, flexDirection: "row" },
   sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
