@@ -103,8 +103,8 @@ export default function HomeScreen() {
 
   return (
     <>
-    <StatusBar style="light" backgroundColor={theme.orange} />
-    <ScrollView style={[styles.screen, { backgroundColor: theme.orange }]} contentContainerStyle={styles.scrollContent}>
+    <StatusBar style="light" backgroundColor={#315D8A} />
+    <ScrollView style={[styles.screen, { backgroundColor: #315D8A }]} contentContainerStyle={styles.scrollContent}>
       <View style={styles.orangeHeader}>
         <View style={styles.topLine}>
           <View>
@@ -143,7 +143,7 @@ export default function HomeScreen() {
           {ACTIONS.map((action) => (
             <Pressable key={action.label} onPress={() => router.push(action.route)} accessibilityRole="button" accessibilityLabel={action.label} style={styles.action}>
               <View style={styles.actionCircle}>
-                <SymbolView name={action.icon} tintColor={theme.onAccent} size={22} />
+                <SymbolView name={action.icon} tintColor={#202A35} size={22} />
               </View>
               <ThemedText style={styles.actionLabel}>{action.label}</ThemedText>
             </Pressable>
@@ -159,7 +159,7 @@ export default function HomeScreen() {
             <ThemedText style={styles.sectionSubtitle}>Your latest spending activity</ThemedText>
           </View>
           <Pressable onPress={() => router.push("/explore")} accessibilityRole="button" accessibilityLabel="View all activity" hitSlop={10}>
-            <ThemedText style={[styles.link, { color: theme.primary }]}>See all ↗</ThemedText>
+            <ThemedText style={[styles.link, { color: #315D8A }]}>See all ↗</ThemedText>
           </Pressable>
         </View>
 
@@ -183,7 +183,7 @@ export default function HomeScreen() {
           <ThemedText style={styles.emptyText}>Loading expenses…</ThemedText>
         ) : transactions.length === 0 ? (
           <View style={styles.emptyState}>
-            <View style={styles.emptyIcon}><SymbolView name={{ ios: "receipt", android: "receipt_long", web: "receipt_long" }} tintColor={theme.primary} size={22} /></View>
+            <View style={styles.emptyIcon}><SymbolView name={{ ios: "receipt", android: "receipt_long", web: "receipt_long" }} tintColor={#315D8A} size={22} /></View>
             <ThemedText style={styles.emptyTitle}>No expenses yet</ThemedText>
             <ThemedText style={styles.emptyText}>Add an expense or scan a receipt to see it here.</ThemedText>
             <Pressable onPress={() => router.push("/new-expense")} style={styles.emptyButton}>
@@ -195,7 +195,7 @@ export default function HomeScreen() {
             {transactions.map((item, index) => (
               <View key={item.id} style={[styles.transactionRow, index < transactions.length - 1 && styles.rowDivider]}>
                 <View style={styles.categoryIcon}>
-                  <SymbolView name={categorySymbol(item.categoryName)} tintColor={theme.primary} size={19} />
+                  <SymbolView name={categorySymbol(item.categoryName)} tintColor={#315D8A} size={19} />
                 </View>
                 <View style={styles.transactionInfo}>
                   <ThemedText style={styles.transactionName} numberOfLines={1}>{item.merchant || "Expense"}</ThemedText>
@@ -218,47 +218,47 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 100 },
   orangeHeader: { paddingHorizontal: 23, paddingTop: 18, paddingBottom: 27 },
   topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
-  walletTitle: { color: "#FFF8EF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
+  walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
   greeting: { color: "rgba(255,248,239,0.78)", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, marginTop: 2 },
   profileButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#FFF3E5", alignItems: "center", justifyContent: "center" },
   profileMark: { width: 27, height: 27 },
   balanceLabel: { color: "rgba(255,248,239,0.82)", textAlign: "center", fontFamily: "IBMPlexSans_500Medium", fontSize: 12, marginTop: 2 },
-  balanceAmount: { color: "#FFF8EF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 43, lineHeight: 54, letterSpacing: -1.5, marginTop: 3 },
-  balanceSetup: { color: "#FFF8EF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 24, marginTop: 12 },
-  balanceArrow: { color: "#F5D77A" },
+  balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 43, lineHeight: 54, letterSpacing: -1.5, marginTop: 3 },
+  balanceSetup: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 24, marginTop: 12 },
+  balanceArrow: { color: "#C8D8E7" },
   balanceMeta: { flexDirection: "row", justifyContent: "space-between", marginTop: 6 },
   balanceMetaText: { color: "rgba(255,248,239,0.88)", fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
   progressTrack: { height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.24)", overflow: "hidden", marginTop: 7 },
-  progressFill: { height: "100%", borderRadius: 3, backgroundColor: "#F5D77A" },
+  progressFill: { height: "100%", borderRadius: 3, backgroundColor: "#C8D8E7" },
   cycleText: { color: "rgba(255,248,239,0.78)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, marginTop: 8 },
   actionRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 25, gap: 5 },
   action: { flex: 1, alignItems: "center", gap: 7, minWidth: 0 },
-  actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#F5D77A", alignItems: "center", justifyContent: "center" },
-  actionLabel: { color: "#FFF8EF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
+  actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#C8D8E7", alignItems: "center", justifyContent: "center" },
+  actionLabel: { color: "#FFFFFF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
   whiteSheet: { backgroundColor: "#FFFFFF", borderTopLeftRadius: 34, borderTopRightRadius: 34, marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 30, minHeight: 390 },
-  sheetHandle: { width: 34, height: 4, borderRadius: 2, backgroundColor: "#EADFD8", alignSelf: "center", marginBottom: 19 },
+  sheetHandle: { width: 34, height: 4, borderRadius: 2, backgroundColor: "#D9DEE2", alignSelf: "center", marginBottom: 19 },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 17 },
-  sectionTitle: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
-  sectionSubtitle: { color: "#9A8A80", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, marginTop: 2 },
+  sectionTitle: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
+  sectionSubtitle: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, marginTop: 2 },
   link: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
-  quickStats: { flexDirection: "row", backgroundColor: "#FFF8F2", borderRadius: 14, paddingVertical: 13, paddingHorizontal: 15, marginBottom: 12 },
+  quickStats: { flexDirection: "row", backgroundColor: "#F3F5F6", borderRadius: 14, paddingVertical: 13, paddingHorizontal: 15, marginBottom: 12 },
   statBlock: { flex: 1, gap: 3 },
-  statLabel: { color: "#9A8A80", fontFamily: "IBMPlexSans_500Medium", fontSize: 10 },
-  statValue: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
-  statDivider: { width: 1, backgroundColor: "#F0E2D8", marginHorizontal: 14 },
+  statLabel: { color: "#68747D", fontFamily: "IBMPlexSans_500Medium", fontSize: 10 },
+  statValue: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
+  statDivider: { width: 1, backgroundColor: "#D9DEE2", marginHorizontal: 14 },
   transactionList: { marginTop: 2 },
   transactionRow: { minHeight: 67, flexDirection: "row", alignItems: "center", gap: 11, paddingVertical: 10 },
-  rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#F0E2D8" },
-  categoryIcon: { width: 39, height: 39, borderRadius: 20, backgroundColor: "#FCE9DF", alignItems: "center", justifyContent: "center" },
+  rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#D9DEE2" },
+  categoryIcon: { width: 39, height: 39, borderRadius: 20, backgroundColor: "#E7EDF3", alignItems: "center", justifyContent: "center" },
   transactionInfo: { flex: 1, gap: 3 },
-  transactionName: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  transactionMeta: { color: "#9A8A80", fontFamily: "IBMPlexSans_400Regular", fontSize: 10 },
-  transactionAmount: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
+  transactionName: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  transactionMeta: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 10 },
+  transactionAmount: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
   emptyState: { alignItems: "center", paddingVertical: 22, gap: 7 },
-  emptyIcon: { width: 46, height: 46, borderRadius: 23, backgroundColor: "#FCE9DF", alignItems: "center", justifyContent: "center", marginBottom: 2 },
-  emptyTitle: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
-  emptyText: { color: "#9A8A80", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, textAlign: "center" },
-  emptyButton: { minHeight: 43, paddingHorizontal: 18, borderRadius: 22, backgroundColor: "#D96E4C", alignItems: "center", justifyContent: "center", marginTop: 6 },
+  emptyIcon: { width: 46, height: 46, borderRadius: 23, backgroundColor: "#E7EDF3", alignItems: "center", justifyContent: "center", marginBottom: 2 },
+  emptyTitle: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
+  emptyText: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, textAlign: "center" },
+  emptyButton: { minHeight: 43, paddingHorizontal: 18, borderRadius: 22, backgroundColor: "#315D8A", alignItems: "center", justifyContent: "center", marginTop: 6 },
   emptyButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
-  privacyNote: { color: "#B0A39B", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, textAlign: "center", marginTop: 22 },
+  privacyNote: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, textAlign: "center", marginTop: 22 },
 });
