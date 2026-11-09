@@ -207,17 +207,9 @@ export default function NewExpenseScreen() {
           </View>
 
           {!!error && <View style={[styles.error, { backgroundColor: theme.dangerSoft }]}><ThemedText style={[styles.errorText, { color: theme.danger }]}>{error}</ThemedText></View>}
-          <View
-            onLayout={(event) => setSwipeTrackWidth(event.nativeEvent.layout.width)}
-            style={[styles.swipeTrack, { backgroundColor: theme.primary, opacity: saving || loading ? 0.55 : 1 }]}
-            {...swipeResponder.panHandlers}
-          >
-            <Animated.View style={[styles.swipeFill, { width: swipeX.interpolate({ inputRange: [0, Math.max(1, maxSwipe)], outputRange: [54, Math.max(54, swipeTrackWidth)], extrapolate: "clamp" }) , backgroundColor: "#1E40AF" }]} />
-            <ThemedText style={styles.swipeLabel}>{saving ? "Saving expense…" : "Swipe to save expense"}</ThemedText>
-            <Animated.View style={[styles.swipeHandle, { transform: [{ translateX: swipeX }], backgroundColor: "#FFFFFF" }]}>
-              <SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_forward" }} tintColor={theme.primary} size={19} />
-            </Animated.View>
-          </View>
+          <Pressable onPress={() => void save()} disabled={saving || loading} accessibilityRole="button" accessibilityLabel="Save expense" style={[styles.saveButton, { backgroundColor: theme.primary, opacity: saving || loading ? 0.55 : 1 }]}>
+            <ThemedText style={styles.saveButtonText}>{saving ? "Saving expense…" : "Save expense"}</ThemedText>
+          </Pressable>
         </View>
       </ScrollView>
     </>
@@ -253,8 +245,6 @@ const styles = StyleSheet.create({
   noteInput: { minHeight: 78, paddingTop: 11, textAlignVertical: "top" },
   error: { padding: 12, borderRadius: 10, marginBottom: 14 },
   errorText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13 },
-  swipeTrack: { height: 58, borderRadius: 29, marginTop: 4, justifyContent: "center", overflow: "hidden" },
-  swipeFill: { position: "absolute", left: 0, top: 0, bottom: 0, borderRadius: 29 },
-  swipeLabel: { position: "absolute", alignSelf: "center", color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  swipeHandle: { position: "absolute", left: 3, top: 3, width: 52, height: 52, borderRadius: 26, alignItems: "center", justifyContent: "center", elevation: 2 },
+  saveButton: { minHeight: 52, borderRadius: 15, marginTop: 4, alignItems: "center", justifyContent: "center" },
+  saveButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 15 },
 });
