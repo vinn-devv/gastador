@@ -179,7 +179,7 @@ export default function HomeScreen() {
     <StatusBar style="light" />
     <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent}>
       <View style={styles.blueHeader}>
-        <View style={styles.topLine}>
+        <View style={[styles.topLine, { paddingTop: insets.top + 8 }]}>
           <ThemedText style={styles.walletTitle}>Wallet</ThemedText>
           <View style={styles.headerActions}>
             <View accessibilityLabel="Notifications" style={styles.notificationButton}>
