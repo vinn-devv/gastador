@@ -10,7 +10,7 @@ export default function ScanScreen() {
   const theme = useTheme();
 
   return (
-    <ScrollView style={[styles.screen, { backgroundColor: theme.background }]} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <ThemedText style={[styles.brand, { color: theme.primary }]}>GastadorApp</ThemedText>
         <ThemedText style={styles.title}>Scan receipt</ThemedText>
