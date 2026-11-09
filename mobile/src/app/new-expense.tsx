@@ -16,8 +16,6 @@ import { manilaToday, isValidDate } from "@/domain/dates";
 import { formatMoney, parseMoney } from "@/domain/money";
 import { PAYMENT_METHODS, type Category, type PaymentMethod } from "@/domain/types";
 
-const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "clear", "0", ".", "delete"] as const;
-
 export default function NewExpenseScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
@@ -63,22 +61,6 @@ export default function NewExpenseScreen() {
     }, [db]),
   );
 
-  function pressKey(key: (typeof KEYS)[number]) {
-    setError("");
-    if (key === "clear") { setAmount(""); return; }
-    if (key === "delete") { setAmount((value) => value.slice(0, -1)); return; }
-    if (key === ".") {
-      setAmount((value) => value.includes(".") ? value : value ? value + "." : "0.");
-      return;
-    }
-    setAmount((value) => {
-      const [whole, decimal] = value.split(".");
-      if (decimal !== undefined) return decimal.length >= 2 ? value : value + key;
-      const next = value === "0" ? key : value + key;
-      return next.length > 9 ? value : next;
-    });
-  }
-
   async function save() {
     const cents = parseMoney(amount);
     if (cents === null || cents <= 0) { setError("Enter an amount greater than zero."); return; }
@@ -100,7 +82,6 @@ export default function NewExpenseScreen() {
   }
 
   const fieldStyle = [styles.input, { backgroundColor: theme.surface, borderColor: theme.line, color: theme.text }];
-  const formattedAmount = amount ? amount : "0.00";
 
   return (
     <ScreenLayout title="Add expense" subtitle="Record what you spent and keep your allowance up to date." onBack={() => router.back()} stackScreen>
@@ -119,21 +100,10 @@ export default function NewExpenseScreen() {
 
           <View style={styles.amountArea}>
             <ThemedText style={styles.amountLabel}>Expense amount</ThemedText>
-            <ThemedText style={styles.amountValue}>{currency === "PHP" ? "₱" : currency + " "}{formattedAmount}</ThemedText>
-          </View>
-
-          <View style={styles.keypad}>
-            {KEYS.map((key) => (
-              <Pressable key={key} onPress={() => pressKey(key)} accessibilityRole="button" accessibilityLabel={key === "clear" ? "Clear amount" : key === "delete" ? "Delete last digit" : key} style={({ pressed }) => [styles.key, { transform: [{ scale: pressed ? 0.94 : 1 }] }]}>
-                {key === "clear" ? (
-                  <SymbolView name={{ ios: "arrow.counterclockwise", android: "refresh", web: "refresh" }} tintColor={theme.textSecondary} size={20} />
-                ) : key === "delete" ? (
-                  <SymbolView name={{ ios: "delete.left", android: "backspace", web: "backspace" }} tintColor={theme.textSecondary} size={20} />
-                ) : (
-                  <ThemedText style={styles.keyText}>{key}</ThemedText>
-                )}
-              </Pressable>
-            ))}
+            <View style={[styles.amountInputWrap, { borderColor: theme.line, backgroundColor: theme.surface }]}>
+              <ThemedText style={styles.currencyPrefix}>{currency === "PHP" ? "₱" : currency}</ThemedText>
+              <TextInput value={amount} onChangeText={(value) => { setAmount(value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1")); setError(""); }} placeholder="0.00" placeholderTextColor={theme.muted} keyboardType="decimal-pad" accessibilityLabel="Expense amount" style={[styles.amountInput, { color: theme.text }]} />
+            </View>
           </View>
 
           <View style={styles.field}>
@@ -194,12 +164,11 @@ const styles = StyleSheet.create({
   balanceLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
   balanceValue: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 19, marginTop: 3 },
   balanceAdd: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
-  amountArea: { alignItems: "center", paddingVertical: 7, marginBottom: 9 },
-  amountLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
-  amountValue: { color: "#2563EB", fontFamily: "IBMPlexSans_700Bold", fontSize: 34, lineHeight: 43, marginTop: 4 },
-  keypad: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", marginBottom: 21, columnGap: 10, rowGap: 8 },
-  key: { width: "30%", maxWidth: 100, aspectRatio: 1.42, borderRadius: 50, borderWidth: 1, borderColor: "#D9DEE2", alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF" },
-  keyText: { color: "#202A35", fontFamily: "IBMPlexSans_500Medium", fontSize: 20 },
+  amountArea: { paddingVertical: 4, marginBottom: 18, gap: 8 },
+  amountLabel: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  amountInputWrap: { minHeight: 60, borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", gap: 10 },
+  currencyPrefix: { color: "#2563EB", fontFamily: "IBMPlexSans_700Bold", fontSize: 24 },
+  amountInput: { flex: 1, minWidth: 0, fontFamily: "IBMPlexSans_700Bold", fontSize: 25, paddingVertical: 8 },
   field: { marginBottom: 18, gap: 8 },
   label: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   input: { minHeight: 48, borderWidth: 1, borderRadius: 12, paddingHorizontal: 15, fontFamily: "IBMPlexSans_400Regular", fontSize: 14 },
