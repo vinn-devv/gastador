@@ -2,8 +2,8 @@ import { Tabs, useRouter, type Href } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { GlassView } from "expo-glass-effect";
 import { Animated, PanResponder, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
-import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { useMemo, useRef } from "react";
+
+import { useMemo, useRef, type ReactNode } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
@@ -11,7 +11,21 @@ import { useTheme } from "@/hooks/use-theme";
 
 const TAB_NAMES = ["index", "explore", "scan", "insights", "settings"] as const;
 
-function LiquidTabBar({ state, descriptors }: BottomTabBarProps) {
+type LiquidTabBarProps = {
+  state: {
+    index: number;
+    routes: Array<{ key: string; name: string }>;
+  };
+  descriptors: Record<string, {
+    options: {
+      title?: string;
+      tabBarAccessibilityLabel?: string;
+      tabBarIcon?: (props: { focused: boolean; color: string; size: number }) => ReactNode;
+    };
+  }>;
+};
+
+function LiquidTabBar({ state, descriptors }: LiquidTabBarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
@@ -251,7 +265,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   activeGlassFill: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     borderRadius: 20,
     overflow: "hidden",
     backgroundColor: "rgba(116,157,192,0.42)",
