@@ -130,9 +130,6 @@ export default function ScanScreen() {
               <Pressable accessibilityRole="button" accessibilityLabel="Capture receipt" disabled={busy} onPress={() => void captureReceipt()} style={[styles.shutter, busy && { opacity: 0.5 }]}>
                 <View style={styles.shutterInner} />
               </Pressable>
-              <View style={styles.roundControl}>
-                <SymbolView name={{ ios: "doc.viewfinder", android: "document_scanner", web: "document_scanner" }} tintColor="#FFFFFF" size={20} />
-              </View>
             </View>
           )}
           {photoUri && (
