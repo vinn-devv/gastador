@@ -627,7 +627,7 @@ export default function HomeScreen() {
 
                     {loadError ? (
                       <ThemedText style={styles.emptyText}>
-                        We couldn't load your expenses. Please try again.
+                        We couldn&apos;t load your expenses. Please try again.
                       </ThemedText>
                     ) : loading ? (
                       <ThemedText style={styles.emptyText}>
