@@ -109,8 +109,8 @@ export default function HomeScreen() {
   const stageWidth = Math.max(0, width - SHEET_GAP * 2);
   const [stageHeight, setStageHeight] = useState(0);
   const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, stageWidth, stageHeight + SHEET_GAP) }));
-  const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#FFE88A"]) }));
-  const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#FFE88A", "#1E40AF"]) }));
+  const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "rgba(255,255,255,0.75)"]) }));
+  const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["rgba(255,255,255,0.75)", "#1E40AF"]) }));
   const sheetEntrance = useRef(new RNAnimated.Value(0)).current;
 
   const balanceProgress = useRef(new RNAnimated.Value(0)).current;
@@ -234,7 +234,7 @@ export default function HomeScreen() {
     const target = next === "insight" ? 1 : 0;
     setContentDirection(next === "insight" ? 1 : -1);
     setSheetTab(next);
-    progress.value = withTiming(target, { duration: 320, easing: Easing.inOut(Easing.cubic) });
+    progress.value = withTiming(target, { duration: 400, easing: Easing.bezier(0.4, 0, 0.2, 1) });
   }, [progress, sheetTab]);
 
   const displayPercent = rawSpentPercent === 0
@@ -293,8 +293,8 @@ export default function HomeScreen() {
         <ScrollView style={styles.contentScroll} contentContainerStyle={[styles.contentScrollInner, { paddingBottom: insets.bottom + 92 }]} showsVerticalScrollIndicator={false}>
         <Reanimated.View
           key={sheetTab}
-          entering={(contentDirection === 1 ? FadeInLeft : FadeInRight).duration(220)}
-          exiting={(contentDirection === 1 ? FadeOutRight : FadeOutLeft).duration(180)}
+          entering={(contentDirection === 1 ? FadeInLeft : FadeInRight).duration(400)}
+          exiting={(contentDirection === 1 ? FadeOutRight : FadeOutLeft).duration(400)}
         >
         {sheetTab === "activity" ? (
         <>
@@ -303,14 +303,9 @@ export default function HomeScreen() {
             <ThemedText style={styles.sectionTitle}>Recent expenses</ThemedText>
             <ThemedText style={styles.sectionSubtitle}>Your latest spending activity</ThemedText>
           </View>
-          <View style={styles.sectionHeaderActions}>
-            <Pressable onPress={() => router.push("/explore")} accessibilityRole="button" accessibilityLabel="View all activity" hitSlop={10}>
-              <ThemedText style={[styles.link, { color: "#2563EB" }]}>See all ↗</ThemedText>
-            </Pressable>
-            <Pressable onPress={() => router.push("/new-expense")} accessibilityRole="button" accessibilityLabel="Add expense" hitSlop={8} style={({ pressed }) => [styles.addExpenseButton, { transform: [{ scale: pressed ? 0.92 : 1 }] }]}>
-              <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor="#2563EB" size={19} />
-            </Pressable>
-          </View>
+          <Pressable onPress={() => router.push("/explore")} accessibilityRole="button" accessibilityLabel="View all activity" hitSlop={8} style={styles.seeAllLink}>
+            <ThemedText style={[styles.link, { color: "#2563EB" }]}>See all</ThemedText>
+          </Pressable>
         </View>
 
         {loadError ? (
@@ -319,7 +314,6 @@ export default function HomeScreen() {
           <ThemedText style={styles.emptyText}>Loading expenses…</ThemedText>
         ) : transactions.length === 0 ? (
           <View style={styles.emptyState}>
-            <View style={styles.emptyIcon}><SymbolView name={{ ios: "receipt", android: "receipt_long", web: "receipt_long" }} tintColor="#2563EB" size={22} /></View>
             <ThemedText style={styles.emptyTitle}>No expenses yet</ThemedText>
             <ThemedText style={styles.emptyText}>Add an expense or scan a receipt to see it here.</ThemedText>
             <Pressable onPress={() => router.push("/new-expense")} style={styles.emptyButton}>
@@ -450,7 +444,8 @@ const styles = StyleSheet.create({
   addExpenseButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   sectionTitle: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 22, lineHeight: 30 },
   sectionSubtitle: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 15, lineHeight: 21, marginTop: 4 },
-  link: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15, lineHeight: 21 },
+  link: { fontFamily: "IBMPlexSans_700Bold", fontSize: 15, lineHeight: 21 },
+  seeAllLink: { minHeight: 44, minWidth: 56, alignItems: "center", justifyContent: "center", paddingHorizontal: 8 },
   transactionList: { marginTop: 2 },
   transactionRow: { minHeight: 76, flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12 },
   rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#D9DEE2" },
@@ -459,7 +454,7 @@ const styles = StyleSheet.create({
   transactionName: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15, lineHeight: 21 },
   transactionMeta: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 13, lineHeight: 18 },
   transactionAmount: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 16, lineHeight: 22 },
-  emptyState: { alignItems: "center", paddingVertical: 22, gap: 7 },
+  emptyState: { flexGrow: 1, minHeight: 240, alignItems: "center", justifyContent: "center", paddingVertical: 22, gap: 7 },
   emptyIcon: { width: 96, height: 96, borderRadius: 48, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center", marginBottom: 4 },
   emptyTitle: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 20, lineHeight: 27 },
   emptyText: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 15, lineHeight: 21, textAlign: "center" },
