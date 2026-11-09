@@ -7,10 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
 
-type TabState = {
-  index: number;
-  routes: Array<{ key: string; name: string }>;
-};
+type TabState = { index: number; routes: Array<{ key: string; name: string }> };
 type TabDescriptors = Record<string, { options: {
   title?: string;
   tabBarAccessibilityLabel?: string;
@@ -19,7 +16,7 @@ type TabDescriptors = Record<string, { options: {
 
 const VISIBLE_TABS = ["index", "explore", "insights", "settings"] as const;
 
-function ReferenceTabBar({ state, descriptors }: { state: TabState; descriptors: TabDescriptors }) {
+function EditorialTabBar({ state, descriptors }: { state: TabState; descriptors: TabDescriptors }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const theme = useTheme();
@@ -32,31 +29,24 @@ function ReferenceTabBar({ state, descriptors }: { state: TabState; descriptors:
     const options = descriptors[route.key]?.options;
     const label = options?.title ?? route.name;
     return (
-      <Pressable
-        key={route.key}
-        accessibilityRole="tab"
-        accessibilityLabel={options?.tabBarAccessibilityLabel ?? label}
+      <Pressable key={route.key} accessibilityRole="tab" accessibilityLabel={options?.tabBarAccessibilityLabel ?? label}
         accessibilityState={focused ? { selected: true } : {}}
         onPress={() => router.navigate((route.name === "index" ? "/" : `/${route.name}`) as Href)}
-        style={styles.tab}
-      >
-        {options?.tabBarIcon?.({ focused, color: focused ? theme.primary : "#7A8798", size: 21 })}
-        <ThemedText style={[styles.tabLabel, { color: focused ? theme.primary : "#687589" }]}>{label}</ThemedText>
+        style={styles.tab}>
+        {options?.tabBarIcon?.({ focused, color: focused ? theme.primary : "#8A8D8B", size: 20 })}
+        <ThemedText style={[styles.tabLabel, { color: focused ? theme.primary : "#777E82" }]}>{label}</ThemedText>
+        <View style={[styles.activeMark, { backgroundColor: focused ? theme.primary : "transparent" }]} />
       </Pressable>
     );
   };
 
   return (
-    <View pointerEvents="box-none" style={[styles.host, { paddingBottom: Math.max(insets.bottom, 8) + 5 }]}>
-      <View style={[styles.bar, { borderColor: "#E6EBF2" }]}>
+    <View style={[styles.host, { paddingBottom: Math.max(insets.bottom, 7) }]}>
+      <View style={[styles.bar, { borderTopColor: theme.line }]}>
         {left.map(renderTab)}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Add expense or scan"
-          onPress={() => router.navigate("/scan" as Href)}
-          style={[styles.addButton, { backgroundColor: theme.primary }]}
-        >
-          <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor="#FFFFFF" size={27} weight="semibold" />
+        <Pressable accessibilityRole="button" accessibilityLabel="Add expense or scan"
+          onPress={() => router.navigate("/scan" as Href)} style={[styles.addButton, { backgroundColor: theme.primary }]}>
+          <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor="#FFFFFF" size={25} weight="medium" />
         </Pressable>
         {right.map(renderTab)}
       </View>
@@ -66,14 +56,11 @@ function ReferenceTabBar({ state, descriptors }: { state: TabState; descriptors:
 
 export default function AppTabs() {
   return (
-    <Tabs
-      tabBar={(props) => <ReferenceTabBar {...props} />}
-      screenOptions={{ headerShown: false }}
-    >
+    <Tabs tabBar={(props) => <EditorialTabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: "Home", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "house", android: "home", web: "home" }} tintColor={color} size={size} /> }} />
-      <Tabs.Screen name="explore" options={{ title: "Transactions", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "list.bullet.rectangle", android: "receipt_long", web: "receipt_long" }} tintColor={color} size={size} /> }} />
-      <Tabs.Screen name="insights" options={{ title: "Budget", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "chart.pie", android: "pie_chart", web: "pie_chart" }} tintColor={color} size={size} /> }} />
-      <Tabs.Screen name="settings" options={{ title: "Profile", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "person.crop.circle", android: "account_circle", web: "account_circle" }} tintColor={color} size={size} /> }} />
+      <Tabs.Screen name="explore" options={{ title: "Activity", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "list.bullet", android: "receipt_long", web: "receipt_long" }} tintColor={color} size={size} /> }} />
+      <Tabs.Screen name="insights" options={{ title: "Insights", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "chart.bar", android: "bar_chart", web: "bar_chart" }} tintColor={color} size={size} /> }} />
+      <Tabs.Screen name="settings" options={{ title: "Settings", tabBarIcon: ({ color, size }) => <SymbolView name={{ ios: "slider.horizontal.3", android: "tune", web: "tune" }} tintColor={color} size={size} /> }} />
       <Tabs.Screen name="scan" options={{ href: null }} />
       <Tabs.Screen name="new-expense" options={{ href: null }} />
       <Tabs.Screen name="new-cycle" options={{ href: null }} />
@@ -82,37 +69,10 @@ export default function AppTabs() {
 }
 
 const styles = StyleSheet.create({
-  host: { position: "absolute", left: 16, right: 16, bottom: 0, alignItems: "center" },
-  bar: {
-    width: "100%",
-    minHeight: 72,
-    backgroundColor: "rgba(255,255,255,0.97)",
-    borderWidth: 1,
-    borderRadius: 26,
-    paddingHorizontal: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    shadowColor: "#24344D",
-    shadowOffset: { width: 0, height: 7 },
-    shadowOpacity: 0.11,
-    shadowRadius: 18,
-    elevation: 10,
-  },
-  tab: { flex: 1, minWidth: 0, minHeight: 60, alignItems: "center", justifyContent: "center", gap: 3 },
-  tabLabel: { fontFamily: "IBMPlexSans_500Medium", fontSize: 10, lineHeight: 13 },
-  addButton: {
-    width: 54,
-    height: 54,
-    borderRadius: 19,
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: 5,
-    marginTop: -15,
-    shadowColor: "#3478F6",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.28,
-    shadowRadius: 9,
-    elevation: 8,
-  },
+  host: { position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: "#FFFFFF" },
+  bar: { minHeight: 65, borderTopWidth: StyleSheet.hairlineWidth, paddingHorizontal: 9, flexDirection: "row", alignItems: "center", justifyContent: "space-around", backgroundColor: "#FFFFFF" },
+  tab: { flex: 1, minWidth: 0, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 2, paddingTop: 5 },
+  tabLabel: { fontFamily: "IBMPlexSans_500Medium", fontSize: 9, lineHeight: 12 },
+  activeMark: { width: 14, height: 2, borderRadius: 2, marginTop: 1 },
+  addButton: { width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center", marginHorizontal: 5 },
 });
