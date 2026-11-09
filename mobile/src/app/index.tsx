@@ -217,7 +217,7 @@ export default function HomeScreen() {
             {formatMoney(Math.abs(remaining), currency)}
           </ThemedText>
         ) : (
-          <ThemedText style={[styles.balanceEmpty, { color: "#202A35" }]}>
+          <ThemedText style={[styles.balanceEmpty, { color: theme.text }]}>
             Give every peso somewhere to go.
           </ThemedText>
         )}
@@ -241,7 +241,7 @@ export default function HomeScreen() {
               <ThemedText style={[styles.balanceCaption, { color: "#596575" }]}>
                 {formatMoney(summary.spentCentavos, currency)} spent
               </ThemedText>
-              <ThemedText style={styles.balanceCaption} themeColor="muted">
+              <ThemedText style={[styles.balanceCaption, { color: theme.muted }]} themeColor="muted">
                 {remainingPercent}% left · of {formatMoney(spendable, currency)}
               </ThemedText>
             </View>
@@ -468,8 +468,7 @@ const styles = StyleSheet.create({
   statusDot: { width: 7, height: 7, borderRadius: 4 },
   statusText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
   balanceAmount: {
-    color: "#202A35",
-    fontFamily: "IBMPlexSans_700Bold",
+        fontFamily: "IBMPlexSans_700Bold",
     fontSize: 40,
     lineHeight: 54,
     letterSpacing: -2.1,
@@ -495,7 +494,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     gap: 8,
   },
-  balanceCaption: { color: "#7A817F", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
+  balanceCaption: { fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
   cycleDate: {
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 11,
@@ -511,7 +510,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   setupActionText: {
-    color: "#FFFFFF",
+    color: theme.onPrimary,
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 14,
   },
@@ -543,7 +542,7 @@ const styles = StyleSheet.create({
   metricDivider: {
     width: StyleSheet.hairlineWidth,
     height: 32,
-    backgroundColor: "#94A3B8",
+    backgroundColor: theme.line,
     opacity: 0.45,
     marginHorizontal: 9,
   },
