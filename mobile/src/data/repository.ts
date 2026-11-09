@@ -7,7 +7,7 @@ import type {
   Transaction,
 } from "../domain/types";
 import { defaultSettings } from "../domain/types";
-import { fromManilaInput, isValidDate, manilaHourMinute } from "../domain/dates";
+import { fromManilaInput, isValidDate, manilaHourMinute, manilaToday } from "../domain/dates";
 
 type SettingsRow = {
   displayName: string;
@@ -159,7 +159,7 @@ export async function createTransaction(
   if (!input.categoryId.trim()) {
     throw new Error("Choose a category before saving.");
   }
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(input.date)) {
+  if (!isValidDate(input.date) || input.date > manilaToday()) {
     throw new Error("Choose a valid expense date.");
   }
 
