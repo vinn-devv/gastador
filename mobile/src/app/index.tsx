@@ -5,8 +5,8 @@ import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Animated as RNAnimated, Easing as RNEasing, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
-import Reanimated, { Easing, FadeInDown, FadeInLeft, FadeInRight, FadeOutLeft, FadeOutRight, interpolateColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import Svg, { Circle, Path } from "react-native-svg";
+import Reanimated, { Easing, FadeInDown, FadeInLeft, FadeInRight, FadeOutLeft, FadeOutRight, interpolateColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from "react-native-reanimated";
+import Svg, { Circle, G, Path } from "react-native-svg";
 
 import { ThemedText } from "@/components/themed-text";
 import {
@@ -33,40 +33,49 @@ type WalletSymbolName = ComponentProps<typeof SymbolView>["name"];
 const AnimatedPath = Reanimated.createAnimatedComponent(Path);
 const AnimatedCircle = Reanimated.createAnimatedComponent(Circle);
 
-const TAB_HEIGHT = 48;
-const FLARE_RADIUS = 24;
-const SHEET_RADIUS = 40;
-const TAB_CORNER = 28;
-const SVG_PADDING_TOP = 16;
-const SHAPE_HEIGHT = SVG_PADDING_TOP + TAB_HEIGHT + SHEET_RADIUS + 24;
+const TH = 56;
+const R = 24;
+const SR = 40;
+const C = 28;
+const SVG_PAD = 16;
+const SHEET_GAP = 12;
+const RING_SIZE = 240;
+const RING_STROKE = 14;
+const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
-function buildPath(p: number, W: number) {
+function buildPath(p: number, W: number, H: number) {
   "worklet";
   const q = Math.min(1, Math.max(0, p));
-  const top = SVG_PADDING_TOP;
-  const tabBottom = top + TAB_HEIGHT;
-  const Hs = top + TAB_HEIGHT + SHEET_RADIUS + 24;
-  const w = W / 2;
-  const x = q * w;
-  const rl = FLARE_RADIUS * q;
-  const rr = FLARE_RADIUS * (1 - q);
-  const sl = SHEET_RADIUS * q;
-  const sr = SHEET_RADIUS * (1 - q);
+  const top = SVG_PAD;
+  const tabBottom = top + TH;
+  const half = W / 2;
+  const x = q * half;
+  const flareLeft = R * q;
+  const flareRight = R * (1 - q);
+  const sheetLeft = SR * q;
+  const sheetRight = SR * (1 - q);
+  const bottom = Math.max(tabBottom + 80, H - SHEET_GAP);
+  const corner = 12;
   return [
-    "M 0 " + Hs,
-    "L 0 " + (tabBottom + sl),
-    "Q 0 " + (tabBottom + sl * 0.45) + " " + sl + " " + tabBottom,
-    "L " + (x - rl) + " " + tabBottom,
-    "Q " + (x - rl) + " " + tabBottom + " " + x + " " + (tabBottom - rl),
-    "L " + x + " " + (top + TAB_CORNER),
-    "Q " + x + " " + top + " " + (x + TAB_CORNER) + " " + top,
-    "L " + (x + w - TAB_CORNER) + " " + top,
-    "Q " + (x + w) + " " + top + " " + (x + w) + " " + (top + TAB_CORNER),
-    "L " + (x + w) + " " + (tabBottom - rr),
-    "Q " + (x + w + rr) + " " + tabBottom + " " + (x + w) + " " + tabBottom,
-    "L " + (W - sr) + " " + tabBottom,
-    "Q " + W + " " + (tabBottom + sr * 0.45) + " " + W + " " + (tabBottom + sr),
-    "L " + W + " " + Hs, "Z",
+    "M 0 " + (bottom - corner),
+    "L 0 " + (tabBottom + sheetLeft),
+    "Q 0 " + (tabBottom + sheetLeft * 0.45) + " " + sheetLeft + " " + tabBottom,
+    "L " + (x - flareLeft) + " " + tabBottom,
+    "Q " + (x - flareLeft) + " " + tabBottom + " " + x + " " + (tabBottom - flareLeft),
+    "L " + x + " " + (top + C),
+    "Q " + x + " " + top + " " + (x + C) + " " + top,
+    "L " + (x + half - C) + " " + top,
+    "Q " + (x + half) + " " + top + " " + (x + half) + " " + (top + C),
+    "L " + (x + half) + " " + (tabBottom - flareRight),
+    "Q " + (x + half + flareRight) + " " + tabBottom + " " + (x + half) + " " + tabBottom,
+    "L " + (W - sheetRight) + " " + tabBottom,
+    "Q " + W + " " + (tabBottom + sheetRight * 0.45) + " " + W + " " + (tabBottom + sheetRight),
+    "L " + W + " " + (bottom - corner),
+    "Q " + W + " " + bottom + " " + (W - corner) + " " + bottom,
+    "L " + corner + " " + bottom,
+    "Q 0 " + bottom + " 0 " + (bottom - corner),
+    "Z",
   ].join(" ");
 }
 function categorySymbol(category: string): WalletSymbolName {
@@ -87,7 +96,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const db = useSQLiteContext();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [transactions, setTransactions] = useState<RecentTransaction[]>([]);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [settings, setSettings] = useState<AppSettings | null>(null);
@@ -96,7 +105,9 @@ export default function HomeScreen() {
   const [sheetTab, setSheetTab] = useState<"activity" | "insight">("activity");
   const [contentDirection, setContentDirection] = useState<1 | -1>(1);
   const progress = useSharedValue(0);
-  const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, width) }));
+  const stageWidth = Math.max(0, width - SHEET_GAP * 2);
+  const stageHeight = Math.max(360, height - insets.top - 212 - 72 - insets.bottom - SHEET_GAP);
+  const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, stageWidth, stageHeight + 40) }));
   const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#FFE88A"]) }));
   const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#FFE88A", "#1E40AF"]) }));
   const sheetEntrance = useRef(new RNAnimated.Value(0)).current;
@@ -104,11 +115,35 @@ export default function HomeScreen() {
   const balanceProgress = useRef(new RNAnimated.Value(0)).current;
   const balanceLabelOpacity = useRef(new RNAnimated.Value(0)).current;
   const [animatedRemaining, setAnimatedRemaining] = useState(0);
-  const donutProgress = useSharedValue(0);
-  const donutCircumference = 2 * Math.PI * 74;
-  const donutAnimatedProps = useAnimatedProps(() => ({
-    strokeDashoffset: donutCircumference * (1 - donutProgress.value),
-  }));
+  const ringProgress = useSharedValue(0);
+  const shimmerProgress = useSharedValue(0);
+  const ringHeadPulse = useSharedValue(1);
+  const ringAnimatedProps = useAnimatedProps(() => {
+    const raw = ringProgress.value;
+    const visible = raw > 0 && raw < 0.012 ? 0.012 : raw;
+    return { strokeDashoffset: RING_CIRCUMFERENCE * (1 - visible) };
+  });
+  const shimmerAnimatedProps = useAnimatedProps(() => {
+    const raw = ringProgress.value;
+    const visible = raw > 0 && raw < 0.012 ? 0.012 : raw;
+    const segment = Math.min(RING_CIRCUMFERENCE * 0.1, RING_CIRCUMFERENCE * visible);
+    const travel = Math.max(0, RING_CIRCUMFERENCE * visible - segment);
+    return {
+      strokeDasharray: [segment, RING_CIRCUMFERENCE],
+      strokeDashoffset: RING_CIRCUMFERENCE * (1 - visible) - travel * shimmerProgress.value,
+      opacity: raw > 0 ? 0.8 : 0,
+    };
+  });
+  const ringHeadProps = useAnimatedProps(() => {
+    const angle = ringProgress.value * Math.PI * 2 - Math.PI / 2;
+    const radius = RING_RADIUS;
+    return {
+      cx: RING_SIZE / 2 + Math.cos(angle) * radius,
+      cy: RING_SIZE / 2 + Math.sin(angle) * radius,
+      r: 5.5 * ringHeadPulse.value,
+      opacity: ringProgress.value > 0 ? 1 : 0,
+    };
+  });
 
   useEffect(() => {
     RNAnimated.spring(sheetEntrance, { toValue: 1, damping: 19, stiffness: 115, mass: 0.9, useNativeDriver: true }).start();
@@ -186,13 +221,13 @@ export default function HomeScreen() {
   }, [balanceProgress, loading, remaining]);
 
   useEffect(() => {
-    if (sheetTab !== "insight") return;
-    donutProgress.value = 0;
-    donutProgress.value = withTiming(hasAllowance ? spentPercent / 100 : 0, {
-      duration: 700,
-      easing: Easing.out(Easing.cubic),
-    });
-  }, [donutProgress, hasAllowance, sheetTab, spentPercent]);
+    ringProgress.value = withSpring(hasAllowance ? spentPercent / 100 : 0, { damping: 16, stiffness: 90, mass: 0.8 });
+  }, [hasAllowance, ringProgress, spentPercent]);
+
+  useEffect(() => {
+    shimmerProgress.value = withRepeat(withTiming(1, { duration: 3000, easing: Easing.linear }), -1, false);
+    ringHeadPulse.value = withRepeat(withTiming(1.2, { duration: 1000, easing: Easing.inOut(Easing.ease) }), -1, true);
+  }, [ringHeadPulse, shimmerProgress]);
 
   const switchSheetTab = useCallback((next: "activity" | "insight") => {
     if (next === sheetTab) return;
@@ -202,10 +237,17 @@ export default function HomeScreen() {
     progress.value = withTiming(target, { duration: 320, easing: Easing.inOut(Easing.cubic) });
   }, [progress, sheetTab]);
 
+  const displayPercent = rawSpentPercent >= 10
+    ? `${Math.round(rawSpentPercent)}%`
+    : rawSpentPercent >= 1
+      ? `${rawSpentPercent.toFixed(1)}%`
+      : `${rawSpentPercent.toFixed(2)}%`;
+  const ringColor = rawSpentPercent > 100 ? "#F87171" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
+
   return (
     <>
     <StatusBar style="light" />
-    <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent}>
+    <View style={styles.screen}>
       <View style={styles.blueHeader}>
         <View style={[styles.topLine, { paddingTop: insets.top + 8 }]}>
           <ThemedText style={styles.walletTitle}>Wallet</ThemedText>
@@ -225,14 +267,11 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <View style={styles.shapeHeader}>
-        <View pointerEvents="none" style={styles.whiteBase} />
-        <Svg width={width} height={SHAPE_HEIGHT} style={styles.shapeSvg}>
-          <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.06)" transform="translate(0 -14)" />
-          <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.12)" transform="translate(0 -6)" />
-          <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.22)" transform="translate(0 -2)" />
+      <View style={styles.sheetStage}>
+        <Svg width={stageWidth} height={stageHeight + 40} style={styles.shapeSvg}>
+          <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.05)" transform="translate(0 -8)" />
+          <AnimatedPath animatedProps={animatedPathProps} fill="rgba(30,64,175,0.10)" transform="translate(0 -3)" />
           <AnimatedPath animatedProps={animatedPathProps} fill="#FFFFFF" />
-          <AnimatedPath animatedProps={animatedPathProps} fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth={1} />
         </Svg>
         <View style={styles.shapeTabLabels}>
           <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => switchSheetTab("activity")} style={styles.sheetTab}>
@@ -242,9 +281,8 @@ export default function HomeScreen() {
             <Reanimated.Text style={[styles.sheetTabText, insightLabelStyle]}>Insight</Reanimated.Text>
           </Pressable>
         </View>
-      </View>
-      <RNAnimated.View style={[styles.sheetShadow, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
-        <View style={[styles.whiteSheet, { paddingBottom: insets.bottom + 88 }]}>
+        <RNAnimated.View style={[styles.sheetContentHost, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }] }]}>
+        <ScrollView style={styles.contentScroll} contentContainerStyle={[styles.contentScrollInner, { paddingBottom: insets.bottom + 92 }]} showsVerticalScrollIndicator={false}>
         <Reanimated.View
           key={sheetTab}
           entering={(contentDirection === 1 ? FadeInLeft : FadeInRight).duration(180).delay(50)}
@@ -300,32 +338,29 @@ export default function HomeScreen() {
         ) : (
           <View style={styles.insightContent}>
             <StaggeredRow index={0}>
-              <View style={styles.donutWrap}>
-                <Svg width={180} height={180} viewBox="0 0 180 180">
-                  <Circle cx={90} cy={90} r={82} stroke="#BFDBFE" strokeWidth={1} fill="none" />
-                  <Circle cx={90} cy={90} r={74} stroke="#DBEAFE" strokeWidth={16} fill="none" />
-                  {!hasAllowance || insightPercent === 0 ? (
-                    <Path d="M 90 16 A 74 74 0 0 1 126.5 25.6" stroke="#2563EB" strokeOpacity={0.4} strokeWidth={2.5} strokeLinecap="round" strokeDasharray="2 5" fill="none" />
-                  ) : null}
-                  <AnimatedCircle
-                    cx={90}
-                    cy={90}
-                    r={74}
-                    stroke="#2563EB"
-                    strokeWidth={16}
-                    strokeLinecap="round"
-                    fill="none"
-                    strokeDasharray={`${donutCircumference} ${donutCircumference}`}
-                    animatedProps={donutAnimatedProps}
-                    transform="rotate(-90 90 90)"
-                  />
+              <View style={styles.ringWrap}>
+                <Svg width={RING_SIZE} height={RING_SIZE} viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}>
+                  <G rotation={-90} origin={`${RING_SIZE / 2}, ${RING_SIZE / 2}`}>
+                    <Circle cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_RADIUS} stroke="#BFDBFE" strokeWidth={RING_STROKE} fill="none" />
+                    {hasAllowance && rawSpentPercent > 0 ? (
+                      <>
+                        <AnimatedCircle cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_RADIUS} stroke={ringColor} strokeWidth={RING_STROKE} strokeLinecap="round" fill="none" strokeDasharray={`${RING_CIRCUMFERENCE} ${RING_CIRCUMFERENCE}`} animatedProps={ringAnimatedProps} />
+                        <AnimatedCircle cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_RADIUS} stroke="#93C5FD" strokeWidth={RING_STROKE} strokeLinecap="round" fill="none" animatedProps={shimmerAnimatedProps} />
+                        <AnimatedCircle cx={RING_SIZE / 2} cy={RING_SIZE / 2} fill="#FFFFFF" stroke={ringColor} strokeWidth={3} animatedProps={ringHeadProps} />
+                      </>
+                    ) : null}
+                  </G>
                 </Svg>
-                {hasAllowance ? (
-                  <View pointerEvents="none" style={styles.donutCenter}>
-                    <ThemedText style={styles.donutPercent}>{insightPercent}%</ThemedText>
-                    <ThemedText style={styles.donutLabel}>of allowance spent</ThemedText>
-                  </View>
-                ) : null}
+                <View pointerEvents="none" style={styles.ringCenter}>
+                  {hasAllowance ? (
+                    <>
+                      <ThemedText style={[styles.ringPercent, { color: ringColor }]}>{displayPercent}</ThemedText>
+                      <ThemedText style={styles.ringLabel}>of allowance spent</ThemedText>
+                    </>
+                  ) : (
+                    <ThemedText style={styles.noAllowanceText}>No allowance tracked.</ThemedText>
+                  )}
+                </View>
               </View>
             </StaggeredRow>
             {hasAllowance ? (
@@ -357,71 +392,69 @@ export default function HomeScreen() {
               </View>
             </StaggeredRow>
             </>
-            ) : (
-              <ThemedText style={styles.noAllowanceText}>No allowance tracked.</ThemedText>
-            )}
+            ) : null}
           </View>
         )}
         </Reanimated.View>
-        </View>
-      </RNAnimated.View>
-    </ScrollView>
+        </ScrollView>
+        </RNAnimated.View>
+      </View>
+    </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  scrollContent: { paddingBottom: 0, flexGrow: 1 },
+  screen: { flex: 1, backgroundColor: "#2563EB" },
   blueHeader: { paddingHorizontal: 24, paddingTop: 0, paddingBottom: 16 },
   topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },
   notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 24, lineHeight: 31 },
-  balanceBlock: { minHeight: 150, alignItems: "center", justifyContent: "center", gap: 8 },
-  balanceLabel: { color: "rgba(255,255,255,0.85)", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18, lineHeight: 24, marginBottom: 0 },
-  balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 80, lineHeight: 96, letterSpacing: -2, includeFontPadding: false },
-  balanceSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 44, lineHeight: 96, includeFontPadding: false, verticalAlign: "top" },
-  pesoSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 44, lineHeight: 96, includeFontPadding: false, verticalAlign: "top" },
-  shapeHeader: { height: SHAPE_HEIGHT, backgroundColor: "#2563EB", marginBottom: -2, zIndex: 2 },
-  whiteBase: { position: "absolute", top: SVG_PADDING_TOP + TAB_HEIGHT - 2, left: 0, right: 0, bottom: -24, backgroundColor: "#FFFFFF" },
-  shapeSvg: { position: "absolute", top: 0, left: 0, overflow: "visible" },
-  shapeTabLabels: { position: "absolute", top: 0, left: 0, right: 0, height: TAB_HEIGHT, flexDirection: "row" },
-  sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#1E40AF", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 0, zIndex: 1 },
-  whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", paddingHorizontal: 24, paddingTop: 16, paddingBottom: 100, minHeight: 390 },
-  sheetTab: { flex: 1, height: TAB_HEIGHT, alignItems: "center", justifyContent: "center" },
-  sheetTabText: { fontFamily: "IBMPlexSans_700Bold", fontSize: 18, lineHeight: 24 },
-  insightContent: { flexGrow: 1, width: "100%", alignItems: "center", justifyContent: "center", paddingTop: 24, paddingBottom: 24, gap: 24 },
-  noAllowanceText: { color: "#6B7280", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18, lineHeight: 24, textAlign: "center" },
-  donutWrap: { width: 180, height: 180, alignItems: "center", justifyContent: "center", marginBottom: 0 },
-  donutCenter: { position: "absolute", alignItems: "center", justifyContent: "center" },
-  donutPercent: { color: "#1E40AF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 32, lineHeight: 38 },
-  donutLabel: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, lineHeight: 16 },
+  balanceBlock: { minHeight: 132, alignItems: "center", justifyContent: "center", gap: 7 },
+  balanceLabel: { color: "rgba(255,255,255,0.85)", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16, lineHeight: 22, marginBottom: 0 },
+  balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 84, letterSpacing: -1.5, includeFontPadding: false },
+  balanceSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 35, lineHeight: 84, includeFontPadding: false, verticalAlign: "top" },
+  pesoSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 35, lineHeight: 84, includeFontPadding: false, verticalAlign: "top" },
+  sheetStage: { flex: 1, minHeight: 360, marginHorizontal: SHEET_GAP, marginBottom: SHEET_GAP, backgroundColor: "#2563EB", borderRadius: 12, overflow: "hidden" },
+  shapeSvg: { position: "absolute", top: 0, left: 0, zIndex: 0 },
+  shapeTabLabels: { position: "absolute", top: SVG_PAD, left: 0, right: 0, height: TH, flexDirection: "row", zIndex: 2 },
+  sheetContentHost: { position: "absolute", top: SVG_PAD + TH + 24, left: 0, right: 0, bottom: 0, zIndex: 1 },
+  contentScroll: { flex: 1, backgroundColor: "transparent" },
+  contentScrollInner: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 0 },
+  sheetTab: { flex: 1, height: TH, alignItems: "center", justifyContent: "center" },
+  sheetTabText: { fontFamily: "IBMPlexSans_700Bold", fontSize: 16, lineHeight: 22 },
+  insightContent: { flexGrow: 1, width: "100%", alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 24, gap: 18 },
+  noAllowanceText: { color: "#6B7280", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18, lineHeight: 25, textAlign: "center", maxWidth: 150 },
+  ringWrap: { width: RING_SIZE, height: RING_SIZE, alignItems: "center", justifyContent: "center" },
+  ringCenter: { position: "absolute", width: RING_SIZE - 52, minHeight: 92, alignItems: "center", justifyContent: "center" },
+  ringPercent: { fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 54, textAlign: "center" },
+  ringLabel: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 13, lineHeight: 18, textAlign: "center" },
   insightStatsRow: { width: "100%", flexDirection: "row", gap: 12 },
   insightStatSlot: { flex: 1, minWidth: 0 },
-  insightStatChip: { flex: 1, minWidth: 0, minHeight: 88, borderRadius: 24, backgroundColor: "#F3F7FF", alignItems: "center", justifyContent: "center", paddingHorizontal: 5, paddingVertical: 12, gap: 4 },
-  insightStatValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 22, lineHeight: 29 },
-  insightStatLabel: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 19 },
-  insightStatusPill: { width: "100%", minHeight: 54, borderRadius: 999, backgroundColor: "#EAF3FF", paddingHorizontal: 18, paddingVertical: 14, flexDirection: "row", alignItems: "center", gap: 12 },
-  insightStatusText: { flex: 1, color: "#1E40AF", fontFamily: "IBMPlexSans_400Regular", fontSize: 16, lineHeight: 21 },
+  insightStatChip: { flex: 1, minWidth: 0, minHeight: 72, borderRadius: 16, backgroundColor: "#F3F7FF", alignItems: "center", justifyContent: "center", paddingHorizontal: 5, paddingVertical: 10, gap: 3 },
+  insightStatValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 17, lineHeight: 23, textAlign: "center" },
+  insightStatLabel: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, lineHeight: 17 },
+  insightStatusPill: { width: "100%", minHeight: 48, borderRadius: 999, backgroundColor: "#EAF3FF", paddingHorizontal: 16, paddingVertical: 12, flexDirection: "row", alignItems: "center", gap: 10 },
+  insightStatusText: { flex: 1, color: "#1E40AF", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 20 },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 17 },
   sectionHeaderActions: { flexDirection: "row", alignItems: "center", gap: 12 },
   addExpenseButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
-  sectionTitle: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 26, lineHeight: 34 },
-  sectionSubtitle: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 16, lineHeight: 21, marginTop: 4 },
-  link: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
+  sectionTitle: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 22, lineHeight: 30 },
+  sectionSubtitle: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 15, lineHeight: 21, marginTop: 4 },
+  link: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15, lineHeight: 21 },
   transactionList: { marginTop: 2 },
   transactionRow: { minHeight: 76, flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12 },
   rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#D9DEE2" },
   categoryIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   transactionInfo: { flex: 1, gap: 3 },
-  transactionName: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 17, lineHeight: 22 },
-  transactionMeta: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 18 },
-  transactionAmount: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 18, lineHeight: 24 },
+  transactionName: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15, lineHeight: 21 },
+  transactionMeta: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 13, lineHeight: 18 },
+  transactionAmount: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 16, lineHeight: 22 },
   emptyState: { alignItems: "center", paddingVertical: 22, gap: 7 },
   emptyIcon: { width: 96, height: 96, borderRadius: 48, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center", marginBottom: 4 },
-  emptyTitle: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 22, lineHeight: 29 },
-  emptyText: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 16, lineHeight: 21, textAlign: "center" },
-  emptyButton: { minHeight: 56, paddingHorizontal: 32, borderRadius: 999, backgroundColor: "#2563EB", alignItems: "center", justifyContent: "center", marginTop: 8 },
-  emptyButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16, lineHeight: 21 },
+  emptyTitle: { color: "#202A35", fontFamily: "IBMPlexSans_700Bold", fontSize: 20, lineHeight: 27 },
+  emptyText: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 15, lineHeight: 21, textAlign: "center" },
+  emptyButton: { minHeight: 48, paddingHorizontal: 28, borderRadius: 999, backgroundColor: "#2563EB", alignItems: "center", justifyContent: "center", marginTop: 8 },
+  emptyButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15, lineHeight: 21 },
 });
