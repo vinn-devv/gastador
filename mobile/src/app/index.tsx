@@ -103,8 +103,8 @@ export default function HomeScreen() {
 
   return (
     <>
-    <StatusBar style="light" backgroundColor={#315D8A} />
-    <ScrollView style={[styles.screen, { backgroundColor: #315D8A }]} contentContainerStyle={styles.scrollContent}>
+    <StatusBar style="light" backgroundColor="#315D8A" />
+    <ScrollView style={[styles.screen, { backgroundColor: "#315D8A" }]} contentContainerStyle={styles.scrollContent}>
       <View style={styles.orangeHeader}>
         <View style={styles.topLine}>
           <View>
@@ -143,7 +143,7 @@ export default function HomeScreen() {
           {ACTIONS.map((action) => (
             <Pressable key={action.label} onPress={() => router.push(action.route)} accessibilityRole="button" accessibilityLabel={action.label} style={styles.action}>
               <View style={styles.actionCircle}>
-                <SymbolView name={action.icon} tintColor={#202A35} size={22} />
+                <SymbolView name={action.icon} tintColor="#202A35" size={22} />
               </View>
               <ThemedText style={styles.actionLabel}>{action.label}</ThemedText>
             </Pressable>
@@ -159,7 +159,7 @@ export default function HomeScreen() {
             <ThemedText style={styles.sectionSubtitle}>Your latest spending activity</ThemedText>
           </View>
           <Pressable onPress={() => router.push("/explore")} accessibilityRole="button" accessibilityLabel="View all activity" hitSlop={10}>
-            <ThemedText style={[styles.link, { color: #315D8A }]}>See all ↗</ThemedText>
+            <ThemedText style={[styles.link, { color: "#315D8A" }]}>See all ↗</ThemedText>
           </Pressable>
         </View>
 
@@ -183,7 +183,7 @@ export default function HomeScreen() {
           <ThemedText style={styles.emptyText}>Loading expenses…</ThemedText>
         ) : transactions.length === 0 ? (
           <View style={styles.emptyState}>
-            <View style={styles.emptyIcon}><SymbolView name={{ ios: "receipt", android: "receipt_long", web: "receipt_long" }} tintColor={#315D8A} size={22} /></View>
+            <View style={styles.emptyIcon}><SymbolView name={{ ios: "receipt", android: "receipt_long", web: "receipt_long" }} tintColor="#315D8A" size={22} /></View>
             <ThemedText style={styles.emptyTitle}>No expenses yet</ThemedText>
             <ThemedText style={styles.emptyText}>Add an expense or scan a receipt to see it here.</ThemedText>
             <Pressable onPress={() => router.push("/new-expense")} style={styles.emptyButton}>
@@ -195,7 +195,7 @@ export default function HomeScreen() {
             {transactions.map((item, index) => (
               <View key={item.id} style={[styles.transactionRow, index < transactions.length - 1 && styles.rowDivider]}>
                 <View style={styles.categoryIcon}>
-                  <SymbolView name={categorySymbol(item.categoryName)} tintColor={#315D8A} size={19} />
+                  <SymbolView name={categorySymbol(item.categoryName)} tintColor="#315D8A" size={19} />
                 </View>
                 <View style={styles.transactionInfo}>
                   <ThemedText style={styles.transactionName} numberOfLines={1}>{item.merchant || "Expense"}</ThemedText>
@@ -219,18 +219,18 @@ const styles = StyleSheet.create({
   orangeHeader: { paddingHorizontal: 23, paddingTop: 18, paddingBottom: 27 },
   topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
   walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
-  greeting: { color: "rgba(255,248,239,0.78)", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, marginTop: 2 },
-  profileButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#FFF3E5", alignItems: "center", justifyContent: "center" },
+  greeting: { color: "rgba(255,255,255,0.78)", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, marginTop: 2 },
+  profileButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#E7EDF3", alignItems: "center", justifyContent: "center" },
   profileMark: { width: 27, height: 27 },
-  balanceLabel: { color: "rgba(255,248,239,0.82)", textAlign: "center", fontFamily: "IBMPlexSans_500Medium", fontSize: 12, marginTop: 2 },
+  balanceLabel: { color: "rgba(255,255,255,0.82)", textAlign: "center", fontFamily: "IBMPlexSans_500Medium", fontSize: 12, marginTop: 2 },
   balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 43, lineHeight: 54, letterSpacing: -1.5, marginTop: 3 },
   balanceSetup: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 24, marginTop: 12 },
   balanceArrow: { color: "#C8D8E7" },
   balanceMeta: { flexDirection: "row", justifyContent: "space-between", marginTop: 6 },
-  balanceMetaText: { color: "rgba(255,248,239,0.88)", fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
+  balanceMetaText: { color: "rgba(255,255,255,0.88)", fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
   progressTrack: { height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.24)", overflow: "hidden", marginTop: 7 },
   progressFill: { height: "100%", borderRadius: 3, backgroundColor: "#C8D8E7" },
-  cycleText: { color: "rgba(255,248,239,0.78)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, marginTop: 8 },
+  cycleText: { color: "rgba(255,255,255,0.78)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, marginTop: 8 },
   actionRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 25, gap: 5 },
   action: { flex: 1, alignItems: "center", gap: 7, minWidth: 0 },
   actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#C8D8E7", alignItems: "center", justifyContent: "center" },
