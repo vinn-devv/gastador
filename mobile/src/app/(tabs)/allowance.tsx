@@ -12,6 +12,7 @@ import { getCycles, getSettings } from "@/data/repository";
 import { formatDate } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
 import { cycleStatus } from "@/domain/allowance";
+import { manilaToday } from "@/domain/dates";
 import type { Cycle, CurrencyCode } from "@/domain/types";
 
 const frequencyLabel: Record<Cycle["frequency"], string> = {
@@ -55,7 +56,7 @@ export default function AllowanceScreen() {
               <ThemedText type="small" themeColor="muted">Set up your first cycle to see how much you can safely spend.</ThemedText>
             </View>
           ) : cycles.map((cycle) => {
-            const status = cycleStatus(cycle, new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10));
+            const status = cycleStatus(cycle, manilaToday());
             return (
               <View key={cycle.id} style={[styles.cycle, { borderBottomColor: theme.line }]}>
                 <View style={styles.cycleTop}>
