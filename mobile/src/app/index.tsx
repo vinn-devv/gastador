@@ -34,39 +34,37 @@ const AnimatedPath = Reanimated.createAnimatedComponent(Path);
 const AnimatedCircle = Reanimated.createAnimatedComponent(Circle);
 
 const TAB_HEIGHT = 48;
-const FLARE_RADIUS = 16;
-const SHEET_RADIUS = 32;
-const TAB_CORNER = 20;
+const FLARE_RADIUS = 24;
+const SHEET_RADIUS = 40;
+const TAB_CORNER = 28;
 const SHAPE_HEIGHT = TAB_HEIGHT + SHEET_RADIUS;
 
 function buildPath(p: number, W: number, Hs: number) {
   "worklet";
+  const q = Math.min(1, Math.max(0, p));
   const w = W / 2;
-  const x = p * w;
-  const rl = FLARE_RADIUS * p;
-  const rr = FLARE_RADIUS * (1 - p);
-  const sl = SHEET_RADIUS * p;
-  const sr = SHEET_RADIUS * (1 - p);
-
+  const x = q * w;
+  const rl = FLARE_RADIUS * q;
+  const rr = FLARE_RADIUS * (1 - q);
+  const sl = SHEET_RADIUS * q;
+  const sr = SHEET_RADIUS * (1 - q);
   return [
-    `M 0 ${Hs}`,
-    `L 0 ${TAB_HEIGHT + sl}`,
-    `A ${sl} ${sl} 0 0 1 ${sl} ${TAB_HEIGHT}`,
-    `L ${x - rl} ${TAB_HEIGHT}`,
-    `A ${rl} ${rl} 0 0 0 ${x} ${TAB_HEIGHT - rl}`,
-    `L ${x} ${TAB_CORNER}`,
-    `A ${TAB_CORNER} ${TAB_CORNER} 0 0 1 ${x + TAB_CORNER} 0`,
-    `L ${x + w - TAB_CORNER} 0`,
-    `A ${TAB_CORNER} ${TAB_CORNER} 0 0 1 ${x + w} ${TAB_CORNER}`,
-    `L ${x + w} ${TAB_HEIGHT - rr}`,
-    `A ${rr} ${rr} 0 0 0 ${x + w + rr} ${TAB_HEIGHT}`,
-    `L ${W - sr} ${TAB_HEIGHT}`,
-    `A ${sr} ${sr} 0 0 1 ${W} ${TAB_HEIGHT + sr}`,
-    `L ${W} ${Hs}`,
-    "Z",
+    "M 0 " + Hs,
+    "L 0 " + (TAB_HEIGHT + sl),
+    "Q 0 " + (TAB_HEIGHT + sl * 0.45) + " " + sl + " " + TAB_HEIGHT,
+    "L " + (x - rl) + " " + TAB_HEIGHT,
+    "Q " + (x - rl) + " " + TAB_HEIGHT + " " + x + " " + (TAB_HEIGHT - rl),
+    "L " + x + " " + TAB_CORNER,
+    "Q " + x + " 0 " + (x + TAB_CORNER) + " 0",
+    "L " + (x + w - TAB_CORNER) + " 0",
+    "Q " + (x + w) + " 0 " + (x + w) + " " + TAB_CORNER,
+    "L " + (x + w) + " " + (TAB_HEIGHT - rr),
+    "Q " + (x + w + rr) + " " + TAB_HEIGHT + " " + (x + w) + " " + TAB_HEIGHT,
+    "L " + (W - sr) + " " + TAB_HEIGHT,
+    "Q " + W + " " + (TAB_HEIGHT + sr * 0.45) + " " + W + " " + (TAB_HEIGHT + sr),
+    "L " + W + " " + Hs, "Z",
   ].join(" ");
 }
-
 function categorySymbol(category: string): WalletSymbolName {
   const value = category.toLowerCase();
   if (value.includes("food")) return { ios: "fork.knife", android: "restaurant", web: "restaurant" };
@@ -199,7 +197,7 @@ export default function HomeScreen() {
     const target = next === "insight" ? 1 : 0;
     setContentDirection(next === "insight" ? 1 : -1);
     setSheetTab(next);
-    progress.value = withTiming(target, { duration: 300, easing: Easing.inOut(Easing.ease) });
+    progress.value = withTiming(target, { duration: 320, easing: Easing.inOut(Easing.cubic) });
   }, [progress, sheetTab]);
 
   return (
