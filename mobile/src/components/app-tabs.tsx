@@ -106,9 +106,9 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
           <Pressable accessibilityRole="button" accessibilityLabel="Close add expense menu" onPress={() => closeMenu()} style={[styles.dismissLayer, { top: -height + dockHeight, bottom: -dockHeight }]} />
           <View pointerEvents="box-none" style={[styles.menuStack, { bottom: insets.bottom + 104 }]}>
             <Animated.View style={{ opacity: menuItemProgress[0], transform: [{ translateY: menuItemProgress[0].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }, { scale: menuItemProgress[0].interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Scan receipt" onPress={() => chooseAction("/scan")} style={styles.menuPill}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Scan QR" onPress={() => chooseAction("/scan")} style={styles.menuPill}>
                 <SymbolView name={{ ios: "viewfinder", android: "qr_code_scanner", web: "qr_code_scanner" }} tintColor="#2563EB" size={20} />
-                <ThemedText style={styles.menuText}>Scan receipt</ThemedText>
+                <ThemedText style={styles.menuText}>Scan QR</ThemedText>
               </Pressable>
             </Animated.View>
             <Animated.View style={{ opacity: menuItemProgress[1], transform: [{ translateY: menuItemProgress[1].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }, { scale: menuItemProgress[1].interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
