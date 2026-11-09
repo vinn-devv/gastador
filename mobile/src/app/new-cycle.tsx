@@ -121,6 +121,7 @@ export default function NewCycleScreen() {
     <ScreenLayout title="New allowance cycle" subtitle="Set up the amount and schedule of your next allowance." onBack={() => router.back()} stackScreen>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"
       >
