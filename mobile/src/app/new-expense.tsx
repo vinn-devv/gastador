@@ -15,11 +15,12 @@ import { pickCurrentCycle, summarizeCycle } from "@/domain/allowance";
 import { manilaToday, isValidDate } from "@/domain/dates";
 import { formatMoney, parseMoney } from "@/domain/money";
 import { PAYMENT_METHODS, type Category, type PaymentMethod } from "@/domain/types";
+import type { RootStackParamList } from "@/types/navigation";
 
 export default function NewExpenseScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
-  const params = useLocalSearchParams<{ amount?: string; merchant?: string }>();
+  const params = useLocalSearchParams<NonNullable<RootStackParamList["new-expense"]>>();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
