@@ -175,7 +175,7 @@ export default function InsightsScreen() {
                 Set up a cycle to see your available balance and daily safe
                 amount.
               </ThemedText>
-              <Pressable onPress={() => router.push("/new-cycle")} style={styles.setupButton} accessibilityRole="button" accessibilityLabel="Set up allowance">
+              <Pressable onPress={() => router.push("/new-cycle")} style={[styles.setupButton, { backgroundColor: theme.primary }]} accessibilityRole="button" accessibilityLabel="Set up allowance">
                 <ThemedText style={styles.setupButtonText}>Set up allowance</ThemedText>
               </Pressable>
             </View>
@@ -256,15 +256,13 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 24 },
   viewExpenses: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", marginTop: 4 },
-  setupButton: { minHeight: 48, paddingHorizontal: 20, borderRadius: 14, backgroundColor: "#2563EB", alignItems: "center", justifyContent: "center", alignSelf: "flex-start", marginTop: 12 },
+  setupButton: { minHeight: 48, paddingHorizontal: 20, borderRadius: 14, alignItems: "center", justifyContent: "center", alignSelf: "flex-start", marginTop: 12 },
   setupButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 14 },
   summary: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 18,
+    paddingHorizontal: 0,
+    paddingVertical: 14,
   },
   summaryItem: { flex: 1, gap: 4 },
   summaryValue: {
@@ -279,14 +277,12 @@ const styles = StyleSheet.create({
   section: { marginTop: 26 },
   sectionTitle: {
     fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 17,
+    fontSize: 18,
     marginBottom: 12,
   },
   cyclePanel: {
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 15,
-    paddingVertical: 6,
+    paddingHorizontal: 0,
+    paddingVertical: 2,
   },
   cycleRow: {
     minHeight: 48,
