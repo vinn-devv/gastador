@@ -44,7 +44,7 @@ export default function AllowanceScreen() {
 
   return (
     <ScreenLayout title="Allowance" subtitle="Manage your allowance schedule and available budget.">
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]} showsVerticalScrollIndicator={false}>
         <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" style={[styles.primary, { backgroundColor: theme.primary }]}>
           <ThemedText style={styles.primaryText}>Set up a new allowance</ThemedText>
         </Pressable>
