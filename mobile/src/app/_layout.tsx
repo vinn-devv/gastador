@@ -24,7 +24,7 @@ export default function TabLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
       <View
-        style={{ flex: 1, backgroundColor: "#F7F9FC" }}
+        style={{ flex: 1, backgroundColor: "#F7F6F2" }}
         onLayout={() => {
           void SplashScreen.hideAsync();
         }}
