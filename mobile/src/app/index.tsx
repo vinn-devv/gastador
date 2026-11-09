@@ -4,7 +4,6 @@ import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { Image } from "expo-image";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { onTabBarScroll } from "@/components/tab-bar-visibility";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
@@ -15,17 +14,8 @@ import {
   getSettings,
   type RecentTransaction,
 } from "@/data/repository";
-import {
-  pickCurrentCycle,
-  summarizeCycle,
-  type CycleSummary,
-} from "@/domain/allowance";
-import {
-  formatDate,
-  formatTime,
-  manilaHour,
-  manilaToday,
-} from "@/domain/dates";
+import { pickCurrentCycle, summarizeCycle, type CycleSummary } from "@/domain/allowance";
+import { formatDate, formatTime, manilaHour, manilaToday } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
 import type { AppSettings } from "@/domain/types";
 
@@ -36,39 +26,27 @@ type Dashboard = {
   endDate: string;
 };
 
+const ACTIONS = [
+  { label: "Allowance", sub: "Set or update", icon: { ios: "wallet.pass", android: "account_balance_wallet", web: "account_balance_wallet" }, route: "/new-cycle" as const },
+  { label: "Add expense", sub: "Record spending", icon: { ios: "plus", android: "add", web: "add" }, route: "/new-expense" as const },
+  { label: "Scan receipt", sub: "Use camera", icon: { ios: "viewfinder", android: "qr_code_scanner", web: "qr_code_scanner" }, route: "/scan" as const },
+  { label: "Insights", sub: "See your habits", icon: { ios: "chart.pie", android: "pie_chart", web: "pie_chart" }, route: "/insights" as const },
+];
+
 function greeting() {
   const hour = manilaHour();
-  return hour < 12
-    ? "Good morning"
-    : hour < 18
-      ? "Good afternoon"
-      : "Good evening";
+  return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 }
 
-function formatTransactionDate(date: string, occurredAt: string) {
-  return `${formatDate(date, false)}, ${formatTime(occurredAt)}`;
+function categorySymbol(category: string) {
+  const value = category.toLowerCase();
+  if (value.includes("food")) return { ios: "fork.knife", android: "restaurant", web: "restaurant" };
+  if (value.includes("transport")) return { ios: "bus", android: "directions_bus", web: "directions_bus" };
+  if (value.includes("school")) return { ios: "book", android: "school", web: "school" };
+  if (value.includes("bill")) return { ios: "receipt", android: "receipt_long", web: "receipt_long" };
+  if (value.includes("personal")) return { ios: "person", android: "person", web: "person" };
+  return { ios: "wallet", android: "account_balance_wallet", web: "account_balance_wallet" };
 }
-
-const QUICK_ACTIONS = [
-  {
-    label: "Add expense",
-    icon: {
-      ios: "plus.circle",
-      android: "add_circle_outline",
-      web: "add_circle_outline",
-    },
-    route: "/new-expense" as const,
-  },
-  {
-    label: "Scan receipt",
-    icon: {
-      ios: "viewfinder",
-      android: "qr_code_scanner",
-      web: "qr_code_scanner",
-    },
-    route: "/scan" as const,
-  },
-] as const;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -87,31 +65,22 @@ export default function HomeScreen() {
         setLoading(true);
         setLoadError(false);
         try {
-          const [recent, cycles, allTransactions, appSettings] =
-            await Promise.all([
-              getRecentTransactions(db),
-              getCycles(db),
-              getAllTransactions(db),
-              getSettings(db),
-            ]);
+          const [recent, cycles, allTransactions, appSettings] = await Promise.all([
+            getRecentTransactions(db),
+            getCycles(db),
+            getAllTransactions(db),
+            getSettings(db),
+          ]);
           const current = pickCurrentCycle(cycles, manilaToday());
           if (!active) return;
           setTransactions(recent);
           setSettings(appSettings);
-          setDashboard(
-            current
-              ? {
-                  summary: summarizeCycle(
-                    current.cycle,
-                    allTransactions,
-                    manilaToday(),
-                  ),
-                  cycleName: current.cycle.name,
-                  startDate: current.cycle.startDate,
-                  endDate: current.cycle.endDate,
-                }
-              : null,
-          );
+          setDashboard(current ? {
+            summary: summarizeCycle(current.cycle, allTransactions, manilaToday()),
+            cycleName: current.cycle.name,
+            startDate: current.cycle.startDate,
+            endDate: current.cycle.endDate,
+          } : null);
         } catch (error) {
           console.error("Failed to load Gastador dashboard:", error);
           if (active) setLoadError(true);
@@ -120,9 +89,7 @@ export default function HomeScreen() {
         }
       }
       void load();
-      return () => {
-        active = false;
-      };
+      return () => { active = false; };
     }, [db]),
   );
 
@@ -131,433 +98,163 @@ export default function HomeScreen() {
   const summary = dashboard?.summary;
   const remaining = summary?.remainingCentavos ?? 0;
   const spendable = summary?.spendableCentavos ?? 0;
-  const spentPercent =
-    spendable > 0
-      ? Math.max(0, Math.min(100, (summary!.spentCentavos / spendable) * 100))
-      : 0;
-  const remainingPercent = Math.round(100 - spentPercent);
+  const spentPercent = spendable > 0 ? Math.max(0, Math.min(100, (summary!.spentCentavos / spendable) * 100)) : 0;
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.content}
-      onScroll={onTabBarScroll}
-      scrollEventThrottle={16}
-    >
-      <View style={styles.header}>
-        <View style={styles.headerCopy}>
-          <ThemedText style={styles.greeting}>
-            {greeting()}
-            {firstName ? `, ${firstName}` : ""}
-          </ThemedText>
-        </View>
-        <Image
-          source={require("@/assets/images/icon-512.png")}
-          style={styles.brandMark}
-          contentFit="contain"
-        />
-      </View>
-
-      <View style={[styles.balanceSection, { backgroundColor: theme.surface, borderColor: theme.line, borderLeftColor: theme.primary }]}>
-        <View style={styles.balanceTop}>
-          <ThemedText style={[styles.balanceLabel, { color: theme.muted }]}>
-            Available to spend
-          </ThemedText>
-          {summary && (
-            <View style={styles.status}>
-              <View
-                style={[
-                  styles.statusDot,
-                  {
-                    backgroundColor:
-                      summary.pace === "on_track"
-                        ? theme.mint
-                        : theme.warning,
-                  },
-                ]}
-              />
-              <ThemedText style={[styles.statusText, { color: theme.muted }]}>
-                {summary.pace === "on_track"
-                  ? "On track"
-                  : summary.pace === "above_pace"
-                    ? "Above pace"
-                    : summary.pace === "over_budget"
-                      ? "Over allowance"
-                      : summary.pace === "ended"
-                        ? "Cycle ended"
-                        : "Not started"}
-              </ThemedText>
-            </View>
-          )}
+    <ScrollView style={[styles.screen, { backgroundColor: theme.orange }]} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.orangeHeader}>
+        <View style={styles.topLine}>
+          <View>
+            <ThemedText style={styles.walletTitle}>Wallet</ThemedText>
+            <ThemedText style={styles.greeting}>{greeting()}{firstName ? `, ${firstName}` : ""}</ThemedText>
+          </View>
+          <Pressable onPress={() => router.push("/settings")} accessibilityRole="button" accessibilityLabel="Open settings" style={styles.profileButton}>
+            <Image source={require("@/assets/images/icon-512.png")} style={styles.profileMark} contentFit="contain" />
+          </Pressable>
         </View>
 
+        <ThemedText style={styles.balanceLabel}>Available to spend</ThemedText>
         {loading ? (
-          <ThemedText style={[styles.balanceAmount, { color: theme.text }]}>
-            ••••••
-          </ThemedText>
+          <ThemedText style={styles.balanceAmount}>••••••</ThemedText>
         ) : summary ? (
-          <ThemedText style={styles.balanceAmount}>
-            {remaining < 0 ? "−" : ""}
-            {formatMoney(Math.abs(remaining), currency)}
-          </ThemedText>
+          <ThemedText style={styles.balanceAmount}>{remaining < 0 ? "−" : ""}{formatMoney(Math.abs(remaining), currency)}</ThemedText>
         ) : (
-          <ThemedText style={[styles.balanceEmpty, { color: theme.text }]}>
-            No allowance set yet
-          </ThemedText>
+          <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Set up allowance">
+            <ThemedText style={styles.balanceSetup}>Set up your allowance <ThemedText style={styles.balanceArrow}>↗</ThemedText></ThemedText>
+          </Pressable>
         )}
-
         {summary ? (
           <>
-            <View
-              style={[
-                styles.progressTrack,
-                { backgroundColor: theme.sunken },
-              ]}
-            >
-              <View
-                style={[
-                  styles.progressFill,
-                  { width: `${spentPercent}%`, backgroundColor: theme.primary },
-                ]}
-              />
+            <View style={styles.balanceMeta}>
+              <ThemedText style={styles.balanceMetaText}>{formatMoney(summary.spentCentavos, currency)} spent</ThemedText>
+              <ThemedText style={styles.balanceMetaText}>{Math.max(0, Math.round(100 - spentPercent))}% left</ThemedText>
             </View>
-            <View style={styles.balanceFooter}>
-              <ThemedText style={[styles.balanceCaption, { color: theme.muted }]}>
-                {formatMoney(summary.spentCentavos, currency)} spent
-              </ThemedText>
-              <ThemedText style={[styles.balanceCaption, { color: theme.muted }]} themeColor="muted">
-                {remainingPercent}% left, of {formatMoney(spendable, currency)}
-              </ThemedText>
-            </View>
+            <View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${spentPercent}%` }]} /></View>
+            <ThemedText style={styles.cycleText}>{dashboard?.cycleName} · {formatDate(dashboard?.startDate ?? "", false)} – {formatDate(dashboard?.endDate ?? "", false)}</ThemedText>
           </>
         ) : (
-          <ThemedText style={styles.balanceCaption} themeColor="muted">
-            Enter your allowance and how often you get it. Gastador then shows what you can spend each day.
-          </ThemedText>
+          <ThemedText style={styles.cycleText}>Track your allowance and know what you can safely spend.</ThemedText>
         )}
-        {dashboard && (
-          <ThemedText style={[styles.cycleDate, { color: theme.muted }]}>
-            {dashboard.cycleName}, {formatDate(dashboard.startDate, false)} –{" "}
-            {formatDate(dashboard.endDate, false)}
-          </ThemedText>
-        )}
-      </View>
 
-      {!summary && !loading ? (
-        <Pressable
-          onPress={() => router.push("/new-cycle")}
-          style={[styles.setupAction, { backgroundColor: theme.primary }]}
-        >
-          <ThemedText style={[styles.setupActionText, { color: theme.onPrimary }]}>
-            Set up allowance
-          </ThemedText>
-          <SymbolView
-            name={{
-              ios: "arrow.up.right",
-              android: "north_east",
-              web: "north_east",
-            }}
-            tintColor={theme.onPrimary}
-            size={17}
-          />
-        </Pressable>
-      ) : null}
-
-      <View
-        style={[
-          styles.quickActions,
-          { borderTopColor: theme.line, borderBottomColor: theme.line },
-        ]}
-      >
-        {QUICK_ACTIONS.map((action) => (
-          <Pressable
-            key={action.label}
-            onPress={() => router.push(action.route)}
-            style={styles.quickAction}
-          >
-            <SymbolView
-              name={action.icon}
-              tintColor={theme.primary}
-              size={21}
-            />
-            <ThemedText style={styles.quickLabel}>{action.label}</ThemedText>
-          </Pressable>
-        ))}
-      </View>
-
-      {summary && (
-        <View style={[styles.metrics, { borderBottomColor: theme.line }]}>
-          <View style={styles.metric}>
-            <ThemedText style={styles.metricLabel} themeColor="muted">
-              Safe per day
-            </ThemedText>
-            <ThemedText style={styles.metricValue}>
-              {summary.dailySafeLimitCentavos === null
-                ? "—"
-                : formatMoney(summary.dailySafeLimitCentavos, currency)}
-            </ThemedText>
-          </View>
-          <View style={[styles.metricDivider, { backgroundColor: theme.line }]} />
-          <View style={styles.metric}>
-            <ThemedText style={styles.metricLabel} themeColor="muted">
-              Days left
-            </ThemedText>
-            <ThemedText style={styles.metricValue}>
-              {summary.daysRemaining}
-            </ThemedText>
-          </View>
-        </View>
-      )}
-
-      <View style={styles.sectionHeading}>
-        <View>
-          <ThemedText style={styles.sectionTitle}>
-            Recent expenses
-          </ThemedText>
-        </View>
-        <Pressable
-          onPress={() => router.push("/explore")}
-          hitSlop={10}
-          style={styles.seeAll}
-        >
-          <ThemedText style={[styles.seeAllText, { color: theme.primary }]}>
-            See all
-          </ThemedText>
-          <SymbolView
-            name={{
-              ios: "arrow.up.right",
-              android: "north_east",
-              web: "north_east",
-            }}
-            tintColor={theme.primary}
-            size={13}
-          />
-        </Pressable>
-      </View>
-
-      {loadError ? (
-        <ThemedText type="small" themeColor="muted">
-          We couldn't load your expenses. Please try again.
-        </ThemedText>
-      ) : loading ? (
-        <ThemedText type="small" themeColor="muted">
-          Loading expenses…
-        </ThemedText>
-      ) : transactions.length === 0 ? (
-        <View style={styles.emptyActivity}>
-          <ThemedText style={styles.emptyTitle}>
-            No expenses yet.
-          </ThemedText>
-          <ThemedText type="small" themeColor="muted">
-            Scan a receipt or add an expense and it will show up here.
-          </ThemedText>
-        </View>
-      ) : (
-        <View>
-          {transactions.map((item, index) => (
-            <View
-              key={item.id}
-              style={[
-                styles.transaction,
-                index < transactions.length - 1 && {
-                  borderBottomColor: theme.line,
-                  borderBottomWidth: StyleSheet.hairlineWidth,
-                },
-              ]}
-            >
-              <View style={[styles.transactionRule, { backgroundColor: theme.primary }]} />
-              <View style={styles.transactionInfo}>
-                <ThemedText style={styles.transactionName} numberOfLines={1}>
-                  {item.merchant || "Untitled expense"}
-                </ThemedText>
-                <ThemedText
-                  style={styles.transactionMeta}
-                  themeColor="muted"
-                  numberOfLines={1}
-                >
-                  {item.categoryName},{" "}
-                  {formatTransactionDate(item.date, item.occurredAt)}
-                </ThemedText>
+        <View style={styles.actionRow}>
+          {ACTIONS.map((action) => (
+            <Pressable key={action.label} onPress={() => router.push(action.route)} accessibilityRole="button" accessibilityLabel={action.label} style={styles.action}>
+              <View style={styles.actionCircle}>
+                <SymbolView name={action.icon} tintColor={theme.onAccent} size={22} />
               </View>
-              <ThemedText style={styles.transactionAmount}>
-                −{formatMoney(item.amountCentavos, currency)}
-              </ThemedText>
-            </View>
+              <ThemedText style={styles.actionLabel}>{action.label}</ThemedText>
+            </Pressable>
           ))}
         </View>
-      )}
+      </View>
 
-      <ThemedText type="small" themeColor="muted" style={styles.privacyNote}>
-        Your financial records stay on this device.
-      </ThemedText>
+      <View style={styles.whiteSheet}>
+        <View style={styles.sheetHandle} />
+        <View style={styles.sectionHeader}>
+          <View>
+            <ThemedText style={styles.sectionTitle}>My expenses</ThemedText>
+            <ThemedText style={styles.sectionSubtitle}>Your latest spending activity</ThemedText>
+          </View>
+          <Pressable onPress={() => router.push("/explore")} accessibilityRole="button" accessibilityLabel="View all activity" hitSlop={10}>
+            <ThemedText style={[styles.link, { color: theme.primary }]}>See all ↗</ThemedText>
+          </Pressable>
+        </View>
+
+        {summary && (
+          <View style={styles.quickStats}>
+            <View style={styles.statBlock}>
+              <ThemedText style={styles.statLabel}>Safe per day</ThemedText>
+              <ThemedText style={styles.statValue}>{summary.dailySafeLimitCentavos === null ? "—" : formatMoney(summary.dailySafeLimitCentavos, currency)}</ThemedText>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statBlock}>
+              <ThemedText style={styles.statLabel}>Days left</ThemedText>
+              <ThemedText style={styles.statValue}>{summary.daysRemaining}</ThemedText>
+            </View>
+          </View>
+        )}
+
+        {loadError ? (
+          <ThemedText style={styles.emptyText}>We couldn't load your expenses. Please try again.</ThemedText>
+        ) : loading ? (
+          <ThemedText style={styles.emptyText}>Loading expenses…</ThemedText>
+        ) : transactions.length === 0 ? (
+          <View style={styles.emptyState}>
+            <View style={styles.emptyIcon}><SymbolView name={{ ios: "receipt", android: "receipt_long", web: "receipt_long" }} tintColor={theme.primary} size={22} /></View>
+            <ThemedText style={styles.emptyTitle}>No expenses yet</ThemedText>
+            <ThemedText style={styles.emptyText}>Add an expense or scan a receipt to see it here.</ThemedText>
+            <Pressable onPress={() => router.push("/new-expense")} style={styles.emptyButton}>
+              <ThemedText style={styles.emptyButtonText}>Add your first expense</ThemedText>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={styles.transactionList}>
+            {transactions.map((item, index) => (
+              <View key={item.id} style={[styles.transactionRow, index < transactions.length - 1 && styles.rowDivider]}>
+                <View style={styles.categoryIcon}>
+                  <SymbolView name={categorySymbol(item.categoryName)} tintColor={theme.primary} size={19} />
+                </View>
+                <View style={styles.transactionInfo}>
+                  <ThemedText style={styles.transactionName} numberOfLines={1}>{item.merchant || "Expense"}</ThemedText>
+                  <ThemedText style={styles.transactionMeta} numberOfLines={1}>{item.categoryName} · {formatDate(item.date, false)}, {formatTime(item.occurredAt)}</ThemedText>
+                </View>
+                <ThemedText style={styles.transactionAmount}>−{formatMoney(item.amountCentavos, currency)}</ThemedText>
+              </View>
+            ))}
+          </View>
+        )}
+        <ThemedText style={styles.privacyNote}>Your financial records stay on this device.</ThemedText>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  transactionRule: { width: 3, height: 30, borderRadius: 2 },
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 25,
-  },
-  headerCopy: { flex: 1, gap: 4 },
-  overline: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 12,
-    letterSpacing: 0,
-  },
-  greeting: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 27,
-    lineHeight: 36,
-    letterSpacing: -0.9,
-  },
-  brandMark: { width: 38, height: 38 },
-  balanceSection: {
-    marginBottom: 20,
-    padding: 20,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderLeftWidth: 4,
-    overflow: "hidden",
-  },
-  balanceTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 10,
-  },
-  balanceLabel: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 11,
-    letterSpacing: 0,
-  },
-  status: { flexDirection: "row", alignItems: "center", gap: 6 },
-  statusDot: { width: 7, height: 7, borderRadius: 4 },
-  statusText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
-  balanceAmount: {
-        fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 40,
-    lineHeight: 54,
-    letterSpacing: -2.1,
-    marginTop: 8,
-  },
-  balanceEmpty: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 22,
-    lineHeight: 30,
-    marginTop: 12,
-    marginBottom: 4,
-  },
-  progressTrack: {
-    height: 6,
-    borderRadius: 99,
-    overflow: "hidden",
-    marginTop: 15,
-  },
-  progressFill: { height: "100%", borderRadius: 99 },
-  balanceFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 8,
-    gap: 8,
-  },
-  balanceCaption: { fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
-  cycleDate: {
-    fontFamily: "IBMPlexSans_400Regular",
-    fontSize: 11,
-    marginTop: 10,
-  },
-  setupAction: {
-    minHeight: 48,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  setupActionText: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 14,
-  },
-  quickActions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingVertical: 14,
-    marginBottom: 19,
-  },
-  quickAction: { flex: 1, alignItems: "center", gap: 7, paddingVertical: 3 },
-
-  quickLabel: {
-    fontFamily: "IBMPlexSans_500Medium",
-    fontSize: 10,
-    textAlign: "center",
-  },
-  metrics: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingBottom: 19,
-    marginBottom: 24,
-  },
-  metric: { flex: 1, gap: 5 },
-  metricLabel: { fontFamily: "IBMPlexSans_400Regular", fontSize: 12 },
-  metricValue: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
-  metricDivider: {
-    width: StyleSheet.hairlineWidth,
-    height: 32,
-    marginHorizontal: 9,
-  },
-  sectionHeading: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  sectionKicker: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 11,
-    letterSpacing: 0,
-    marginBottom: 3,
-  },
-  sectionTitle: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 20,
-    letterSpacing: -0.45,
-  },
-  seeAll: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-    paddingBottom: 3,
-  },
-  seeAllText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
-  emptyActivity: { paddingVertical: 20, gap: 4 },
-  emptyTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
-  transaction: {
-    minHeight: 69,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 11,
-    gap: 11,
-  },
-  transactionIcon: {
-    width: 39,
-    height: 39,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  transactionInitial: { fontFamily: "IBMPlexSans_700Bold", fontSize: 15 },
+  scrollContent: { paddingBottom: 100 },
+  orangeHeader: { paddingHorizontal: 23, paddingTop: 18, paddingBottom: 27 },
+  topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
+  walletTitle: { color: "#FFF8EF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
+  greeting: { color: "rgba(255,248,239,0.78)", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, marginTop: 2 },
+  profileButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#FFF3E5", alignItems: "center", justifyContent: "center" },
+  profileMark: { width: 27, height: 27 },
+  balanceLabel: { color: "rgba(255,248,239,0.82)", textAlign: "center", fontFamily: "IBMPlexSans_500Medium", fontSize: 12, marginTop: 2 },
+  balanceAmount: { color: "#FFF8EF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 43, lineHeight: 54, letterSpacing: -1.5, marginTop: 3 },
+  balanceSetup: { color: "#FFF8EF", textAlign: "center", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 24, marginTop: 12 },
+  balanceArrow: { color: "#F5D77A" },
+  balanceMeta: { flexDirection: "row", justifyContent: "space-between", marginTop: 6 },
+  balanceMetaText: { color: "rgba(255,248,239,0.88)", fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
+  progressTrack: { height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.24)", overflow: "hidden", marginTop: 7 },
+  progressFill: { height: "100%", borderRadius: 3, backgroundColor: "#F5D77A" },
+  cycleText: { color: "rgba(255,248,239,0.78)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, marginTop: 8 },
+  actionRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 25, gap: 5 },
+  action: { flex: 1, alignItems: "center", gap: 7, minWidth: 0 },
+  actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#F5D77A", alignItems: "center", justifyContent: "center" },
+  actionLabel: { color: "#FFF8EF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
+  whiteSheet: { backgroundColor: "#FFFFFF", borderTopLeftRadius: 34, borderTopRightRadius: 34, marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 30, minHeight: 390 },
+  sheetHandle: { width: 34, height: 4, borderRadius: 2, backgroundColor: "#EADFD8", alignSelf: "center", marginBottom: 19 },
+  sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 17 },
+  sectionTitle: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
+  sectionSubtitle: { color: "#9A8A80", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, marginTop: 2 },
+  link: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
+  quickStats: { flexDirection: "row", backgroundColor: "#FFF8F2", borderRadius: 14, paddingVertical: 13, paddingHorizontal: 15, marginBottom: 12 },
+  statBlock: { flex: 1, gap: 3 },
+  statLabel: { color: "#9A8A80", fontFamily: "IBMPlexSans_500Medium", fontSize: 10 },
+  statValue: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
+  statDivider: { width: 1, backgroundColor: "#F0E2D8", marginHorizontal: 14 },
+  transactionList: { marginTop: 2 },
+  transactionRow: { minHeight: 67, flexDirection: "row", alignItems: "center", gap: 11, paddingVertical: 10 },
+  rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#F0E2D8" },
+  categoryIcon: { width: 39, height: 39, borderRadius: 20, backgroundColor: "#FCE9DF", alignItems: "center", justifyContent: "center" },
   transactionInfo: { flex: 1, gap: 3 },
-  transactionName: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  transactionMeta: { fontFamily: "IBMPlexSans_400Regular", fontSize: 10 },
-  transactionAmount: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
-  privacyNote: { textAlign: "center", marginTop: 28, fontSize: 10 },
+  transactionName: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  transactionMeta: { color: "#9A8A80", fontFamily: "IBMPlexSans_400Regular", fontSize: 10 },
+  transactionAmount: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
+  emptyState: { alignItems: "center", paddingVertical: 22, gap: 7 },
+  emptyIcon: { width: 46, height: 46, borderRadius: 23, backgroundColor: "#FCE9DF", alignItems: "center", justifyContent: "center", marginBottom: 2 },
+  emptyTitle: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
+  emptyText: { color: "#9A8A80", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, textAlign: "center" },
+  emptyButton: { minHeight: 43, paddingHorizontal: 18, borderRadius: 22, backgroundColor: "#D96E4C", alignItems: "center", justifyContent: "center", marginTop: 6 },
+  emptyButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
+  privacyNote: { color: "#B0A39B", fontFamily: "IBMPlexSans_400Regular", fontSize: 10, textAlign: "center", marginTop: 22 },
 });
