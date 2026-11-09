@@ -98,11 +98,11 @@ export default function NewExpenseScreen() {
 
   return (
     <>
-      <StatusBar style="light" backgroundColor={theme.orange} />
-      <ScrollView style={[styles.screen, { backgroundColor: theme.orange }]} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <StatusBar style="light" backgroundColor={#315D8A} />
+      <ScrollView style={[styles.screen, { backgroundColor: #315D8A }]} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.orangeHeader}>
           <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Go back" style={styles.back}>
-            <SymbolView name={{ ios: "chevron.left", android: "arrow_back", web: "arrow_back" }} tintColor="#FFF8EF" size={21} />
+            <SymbolView name={{ ios: "chevron.left", android: "arrow_back", web: "arrow_back" }} tintColor="#FFFFFF" size={21} />
           </Pressable>
           <ThemedText style={styles.headerTitle}>Add expense</ThemedText>
           <View style={styles.headerSpacer} />
@@ -195,27 +195,27 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 35 },
   orangeHeader: { minHeight: 106, paddingHorizontal: 21, paddingTop: 16, paddingBottom: 23, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   back: { width: 42, height: 42, alignItems: "center", justifyContent: "center" },
-  headerTitle: { color: "#FFF8EF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 17 },
+  headerTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 17 },
   headerSpacer: { width: 42 },
   sheet: { backgroundColor: "#FFFFFF", borderTopLeftRadius: 31, borderTopRightRadius: 31, paddingHorizontal: 20, paddingTop: 13, paddingBottom: 35 },
-  sheetHandle: { width: 35, height: 4, borderRadius: 2, backgroundColor: "#EADFD8", alignSelf: "center", marginBottom: 18 },
-  balancePanel: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#FFF8F2", borderRadius: 15, padding: 14, marginBottom: 18 },
-  balanceLabel: { color: "#9A8A80", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
-  balanceValue: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 19, marginTop: 3 },
+  sheetHandle: { width: 35, height: 4, borderRadius: 2, backgroundColor: "#D9DEE2", alignSelf: "center", marginBottom: 18 },
+  balancePanel: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#F3F5F6", borderRadius: 15, padding: 14, marginBottom: 18 },
+  balanceLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
+  balanceValue: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 19, marginTop: 3 },
   balanceAdd: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
   amountArea: { alignItems: "center", paddingVertical: 7, marginBottom: 9 },
-  amountLabel: { color: "#9A8A80", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
-  amountValue: { color: "#D96E4C", fontFamily: "IBMPlexSans_700Bold", fontSize: 34, lineHeight: 43, marginTop: 4 },
+  amountLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
+  amountValue: { color: "#315D8A", fontFamily: "IBMPlexSans_700Bold", fontSize: 34, lineHeight: 43, marginTop: 4 },
   keypad: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", marginBottom: 21, columnGap: 10, rowGap: 8 },
-  key: { width: "30%", maxWidth: 100, aspectRatio: 1.42, borderRadius: 50, borderWidth: 1, borderColor: "#F4ECE6", alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF" },
-  keyText: { color: "#292522", fontFamily: "IBMPlexSans_500Medium", fontSize: 20 },
+  key: { width: "30%", maxWidth: 100, aspectRatio: 1.42, borderRadius: 50, borderWidth: 1, borderColor: "#D9DEE2", alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF" },
+  keyText: { color: "#202A35", fontFamily: "IBMPlexSans_500Medium", fontSize: 20 },
   field: { marginBottom: 18, gap: 8 },
-  label: { color: "#292522", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  label: { color: "#202A35", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   input: { minHeight: 48, borderWidth: 1, borderRadius: 9, paddingHorizontal: 13, fontFamily: "IBMPlexSans_400Regular", fontSize: 14 },
   optionGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   option: { minHeight: 43, borderWidth: 1, borderRadius: 9, paddingHorizontal: 13, justifyContent: "center" },
   optionText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 12 },
-  muted: { color: "#9A8A80", fontSize: 12 },
+  muted: { color: "#68747D", fontSize: 12 },
   noteInput: { minHeight: 78, paddingTop: 11, textAlignVertical: "top" },
   error: { padding: 12, borderRadius: 10, marginBottom: 14 },
   errorText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13 },
