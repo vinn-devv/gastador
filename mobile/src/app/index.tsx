@@ -149,7 +149,7 @@ export default function HomeScreen() {
     <StatusBar style="light" />
     <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent}>
       <View style={styles.blueHeader}>
-        <View style={[styles.topLine, { paddingTop: Math.max(insets.top, 8) }]}>
+        <View style={[styles.topLine, { paddingTop: insets.top + 8 }]}>
           <ThemedText style={styles.walletTitle}>Wallet</ThemedText>
           <View style={styles.headerActions}>
             <View accessibilityLabel="Notifications" style={styles.notificationButton}>
@@ -190,21 +190,25 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      <View style={styles.sheetTabs} onLayout={(event) => setSheetTabsWidth(event.nativeEvent.layout.width)}>
+        <Animated.View pointerEvents="none" style={[styles.sheetIndicator, { width: Math.max(0, (sheetTabsWidth - 16) / 2), transform: [{ translateX: tabIndicator.interpolate({ inputRange: [0, 1], outputRange: [0, Math.max(0, (sheetTabsWidth - 16) / 2)] }) }] }]}>
+          <Svg width="100%" height="52" viewBox="0 0 200 52" preserveAspectRatio="none">
+            <Path d="M16 0 H184 Q200 0 200 16 V36 C200 36 184 36 184 52 H16 C16 36 0 36 0 36 V16 Q0 0 16 0 Z" fill="#FFFFFF" />
+          </Svg>
+        </Animated.View>
+        <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => switchSheetTab("activity")} style={styles.sheetTab}>
+          <Animated.Text style={[styles.sheetTabText, { color: tabTextProgress.interpolate({ inputRange: [0, 1], outputRange: ["#1E40AF", "#EAF3FF"] }) }]}>Activity</Animated.Text>
+        </Pressable>
+        <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "insight" }} onPress={() => switchSheetTab("insight")} style={styles.sheetTab}>
+          <Animated.Text style={[styles.sheetTabText, { color: tabTextProgress.interpolate({ inputRange: [0, 1], outputRange: ["#EAF3FF", "#1E40AF"] }) }]}>Insight</Animated.Text>
+        </Pressable>
+      </View>
       <Animated.View style={[styles.sheetShadow, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
-        <View style={[styles.whiteSheet, { paddingBottom: Math.max(insets.bottom + 90, 100) }]}>
-        <View style={styles.sheetTabs} onLayout={(event) => setSheetTabsWidth(event.nativeEvent.layout.width)}>
-          <Animated.View pointerEvents="none" style={[styles.sheetIndicator, { width: Math.max(0, (sheetTabsWidth - 8) / 2), transform: [{ translateX: tabIndicator.interpolate({ inputRange: [0, 1], outputRange: [0, Math.max(0, (sheetTabsWidth - 8) / 2) + 8] }) }] }]}>
-            <Svg width="100%" height="52" viewBox="0 0 200 52" preserveAspectRatio="none">
-              <Path d="M16 0 H184 Q200 0 200 16 V36 C200 36 184 36 184 52 H16 C16 36 0 36 0 36 V16 Q0 0 16 0 Z" fill="#FFFFFF" />
-            </Svg>
-          </Animated.View>
-          <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => switchSheetTab("activity")} style={styles.sheetTab}>
-            <Animated.Text style={[styles.sheetTabText, { color: tabTextProgress.interpolate({ inputRange: [0, 1], outputRange: ["#1E40AF", "#EAF3FF"] }) }]}>Activity</Animated.Text>
-          </Pressable>
-          <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "insight" }} onPress={() => switchSheetTab("insight")} style={styles.sheetTab}>
-            <Animated.Text style={[styles.sheetTabText, { color: tabTextProgress.interpolate({ inputRange: [0, 1], outputRange: ["#EAF3FF", "#1E40AF"] }) }]}>Insight</Animated.Text>
-          </Pressable>
-        </View>
+        <View style={[styles.whiteSheet, {
+          paddingBottom: Math.max(insets.bottom + 90, 100),
+          borderTopLeftRadius: sheetTab === "activity" ? 0 : 32,
+          borderTopRightRadius: sheetTab === "insight" ? 0 : 32,
+        }]}>
         <Animated.View style={{ opacity: tabTransition, transform: [{ translateX: tabTransition.interpolate({ inputRange: [0, 1], outputRange: [sheetTab === "activity" ? 16 : -16, 0] }) }] }}>
         {sheetTab === "activity" ? (
         <>
@@ -328,9 +332,9 @@ const styles = StyleSheet.create({
   actionLabel: { color: "#FFFFFF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
   sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
   whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", borderTopLeftRadius: 32, borderTopRightRadius: 32, overflow: "hidden", marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 100, minHeight: 390 },
-  sheetTabs: { flexDirection: "row", marginBottom: 19, marginHorizontal: -21, marginTop: 0, paddingHorizontal: 4, height: 52, alignItems: "stretch", backgroundColor: "#2563EB", overflow: "hidden" },
+  sheetTabs: { flexDirection: "row", marginTop: 0, paddingHorizontal: 8, height: 52, alignItems: "stretch", backgroundColor: "#2563EB", overflow: "hidden" },
   sheetTab: { flex: 1, minHeight: 52, alignItems: "center", justifyContent: "center", zIndex: 2 },
-  sheetIndicator: { position: "absolute", left: 4, top: 0, bottom: 0, zIndex: 1 },
+  sheetIndicator: { position: "absolute", left: 8, top: 0, bottom: 0, zIndex: 1 },
   sheetTabText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   insightContent: { paddingTop: 2, paddingBottom: 10 },
   insightEmptyState: { minHeight: 210, justifyContent: "center", alignItems: "center", position: "relative", overflow: "hidden", borderRadius: 18 },
