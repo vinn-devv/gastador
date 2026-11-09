@@ -1,10 +1,10 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { Image } from "expo-image";
 import { StatusBar } from "expo-status-bar";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Animated, Easing, Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
@@ -54,6 +54,16 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [sheetTab, setSheetTab] = useState<"activity" | "insight">("activity");
+  const sheetEntrance = useRef(new Animated.Value(0)).current;
+  const tabTransition = useRef(new Animated.Value(1)).current;
+  const tabDirection = useRef(1);
+  const balanceProgress = useRef(new Animated.Value(0)).current;
+  const [animatedRemaining, setAnimatedRemaining] = useState(0);
+
+  useEffect(() => {
+    Animated.spring(sheetEntrance, { toValue: 1, damping: 19, stiffness: 115, mass: 0.9, useNativeDriver: true }).start();
+    return () => { sheetEntrance.stopAnimation(); };
+  }, [sheetEntrance]);
 
   useFocusEffect(
     useCallback(() => {
@@ -96,6 +106,19 @@ export default function HomeScreen() {
   const spendable = summary?.spendableCentavos ?? 0;
   const spentPercent = spendable > 0 ? Math.max(0, Math.min(100, (summary!.spentCentavos / spendable) * 100)) : 0;
 
+  useEffect(() => {
+    if (loading) return;
+    const listener = balanceProgress.addListener(({ value }) => setAnimatedRemaining(Math.round(value)));
+    balanceProgress.setValue(0);
+    Animated.timing(balanceProgress, { toValue: Math.max(0, remaining), duration: 850, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+    return () => { balanceProgress.removeListener(listener); balanceProgress.stopAnimation(); };
+  }, [balanceProgress, loading, remaining]);
+
+  useEffect(() => {
+    tabTransition.setValue(0);
+    Animated.timing(tabTransition, { toValue: 1, duration: 280, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }).start();
+  }, [sheetTab, tabTransition]);
+
   return (
     <>
     <StatusBar style="light" backgroundColor="#2563EB" />
@@ -117,7 +140,7 @@ export default function HomeScreen() {
         {loading ? (
           <ThemedText style={styles.balanceAmount}>••••••</ThemedText>
         ) : summary ? (
-          <ThemedText style={styles.balanceAmount}>{remaining < 0 ? "−" : ""}{formatMoney(Math.abs(remaining), currency)}</ThemedText>
+          <ThemedText style={styles.balanceAmount}>{remaining < 0 ? "−" : ""}{formatMoney(animatedRemaining, currency)}</ThemedText>
         ) : (
           <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Set up allowance">
             <ThemedText style={styles.balanceSetup}>Set up your allowance <ThemedText style={styles.balanceArrow}>↗</ThemedText></ThemedText>
@@ -138,7 +161,7 @@ export default function HomeScreen() {
 
         <View style={styles.actionRow}>
           {ACTIONS.map((action) => (
-            <Pressable key={action.label} onPress={() => router.push(action.route)} accessibilityRole="button" accessibilityLabel={action.label} style={styles.action}>
+            <Pressable key={action.label} onPress={() => router.push(action.route)} accessibilityRole="button" accessibilityLabel={action.label} style={({ pressed }) => [styles.action, { transform: [{ scale: pressed ? 0.95 : 1 }] }]}>
               <View style={styles.actionCircle}>
                 <SymbolView name={action.icon} tintColor="#202A35" size={22} />
               </View>
@@ -148,7 +171,7 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <View style={styles.whiteSheet}>
+      <Animated.View style={[styles.whiteSheet, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
         <View style={styles.sheetHandle} />
         <View style={styles.sheetTabs}>
           <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => setSheetTab("activity")} style={[styles.sheetTab, sheetTab === "activity" && styles.sheetTabActive]}>
@@ -158,6 +181,7 @@ export default function HomeScreen() {
             <ThemedText style={[styles.sheetTabText, sheetTab === "insight" && styles.sheetTabTextActive]}>Insight</ThemedText>
           </Pressable>
         </View>
+        <Animated.View style={{ opacity: tabTransition, transform: [{ translateX: tabTransition.interpolate({ inputRange: [0, 1], outputRange: [sheetTab === "activity" ? -16 : 16, 0] }) }] }}>
         {sheetTab === "activity" ? (
         <>
         <View style={styles.sectionHeader}>
@@ -240,7 +264,8 @@ export default function HomeScreen() {
             </Pressable>
           </View>
         )}
-      </View>
+        </Animated.View>
+      </Animated.View>
     </ScrollView>
     </>
   );
