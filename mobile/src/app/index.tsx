@@ -2,13 +2,11 @@ import { useCallback, useEffect, useRef, useState, type ComponentProps, type Rea
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
-import { Image } from "expo-image";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Animated, Easing, Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
-import { useTheme } from "@/hooks/use-theme";
 import {
   getAllTransactions,
   getCycles,
@@ -63,7 +61,6 @@ function StaggeredRow({ index, children }: { index: number; children: ReactNode 
 export default function HomeScreen() {
   const router = useRouter();
   const db = useSQLiteContext();
-  const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [transactions, setTransactions] = useState<RecentTransaction[]>([]);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
@@ -190,7 +187,7 @@ export default function HomeScreen() {
       <Animated.View style={[styles.whiteSheet, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
         <View style={styles.sheetHandle} />
         <View style={styles.sheetTabs} onLayout={(event) => setSheetTabsWidth(event.nativeEvent.layout.width)}>
-          <Animated.View style={[styles.sheetIndicator, { width: Math.max(0, (sheetTabsWidth - 16) / 2), transform: [{ translateX: tabIndicator.interpolate({ inputRange: [0, 1], outputRange: [0, Math.max(0, (sheetTabsWidth - 16) / 2) + 8] }) }] }]} />
+          <Animated.View style={[styles.sheetIndicator, { width: Math.max(0, (sheetTabsWidth - 50) / 2), transform: [{ translateX: tabIndicator.interpolate({ inputRange: [0, 1], outputRange: [0, Math.max(0, (sheetTabsWidth - 50) / 2) + 8] }) }] }]} />
           <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => setSheetTab("activity")} style={[styles.sheetTab, sheetTab === "activity" && styles.sheetTabActive]}>
             <ThemedText style={[styles.sheetTabText, sheetTab === "activity" && styles.sheetTabTextActive]}>Activity</ThemedText>
           </Pressable>
@@ -316,6 +313,8 @@ const styles = StyleSheet.create({
   sheetTab: { flex: 1, minHeight: 52, alignItems: "center", justifyContent: "center", zIndex: 2 },
   sheetTabActive: { backgroundColor: "transparent" },
   sheetIndicator: { position: "absolute", left: 21, top: 0, bottom: 0, borderTopLeftRadius: 16, borderTopRightRadius: 16, backgroundColor: "#FFFFFF", zIndex: 1 },
+  tabCurveLeft: { position: "absolute", width: 18, height: 18, borderRadius: 9, backgroundColor: "#2563EB", left: -9, bottom: -9 },
+  tabCurveRight: { position: "absolute", width: 18, height: 18, borderRadius: 9, backgroundColor: "#2563EB", right: -9, bottom: -9 },
   sheetTabText: { color: "#EAF3FF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   sheetTabTextActive: { color: "#1E40AF" },
   insightContent: { paddingTop: 2, paddingBottom: 10 },
