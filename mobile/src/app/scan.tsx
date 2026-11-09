@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useIsFocused, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenLayout } from "@/components/screen-layout";
-import { navBarSpace } from "@/constants/layout";
+import { SHEET_GAP } from "@/constants/layout";
 import { Camera, CameraView, useCameraPermissions, type BarcodeScanningResult } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
@@ -95,8 +95,8 @@ export default function ScanScreen() {
   };
 
   return (
-    <ScreenLayout title="Scan QR" subtitle="Scan a payment QR or upload one from your gallery." onBack={() => router.back()}>
-    <ScrollView contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]} keyboardShouldPersistTaps="handled">
+    <ScreenLayout title="Scan QR" subtitle="Scan a payment QR or upload one from your gallery." onBack={() => router.back()} stackScreen>
+    <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + SHEET_GAP + 24 }]} keyboardShouldPersistTaps="handled">
 
       <View style={styles.actions}>
         <Pressable onPress={() => router.push("/new-expense")} style={[styles.action, { backgroundColor: theme.primarySoft, borderColor: theme.primary }]}>
@@ -185,7 +185,7 @@ export default function ScanScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 130, gap: 16 },
+  content: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 24, gap: 16 },
   header: { gap: 4 },
   title: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 30, lineHeight: 36 },
   actions: { flexDirection: "row", gap: 10 },
