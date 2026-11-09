@@ -271,7 +271,7 @@ export default function HomeScreen() {
       </View>
 
       <View
-        style={styles.sheetStage}
+        style={[styles.sheetStage, { width: stageWidth }]}
         onLayout={(event) => {
           const nextHeight = Math.round(event.nativeEvent.layout.height);
           setStageHeight((current) => current === nextHeight ? current : nextHeight);
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   balanceAmount: { color: "#FFFFFF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 84, letterSpacing: -1.5, includeFontPadding: false },
   balanceSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 35, lineHeight: 84, includeFontPadding: false, verticalAlign: "top" },
   pesoSign: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 35, lineHeight: 84, includeFontPadding: false, verticalAlign: "top" },
-  sheetStage: { flex: 1, minHeight: 320, width: "100%", maxWidth: "100%", alignSelf: "center", marginHorizontal: SHEET_GAP, marginBottom: SHEET_GAP, backgroundColor: "#2563EB", borderRadius: 24, overflow: "hidden" },
+  sheetStage: { flex: 1, minHeight: 320, alignSelf: "center", marginBottom: SHEET_GAP, backgroundColor: "#2563EB", borderRadius: 24, overflow: "hidden" },
   shapeSvg: { position: "absolute", top: 0, left: 0, zIndex: 0 },
   shapeTabLabels: { position: "absolute", top: SVG_PAD, left: 0, right: 0, height: TH, flexDirection: "row", zIndex: 2 },
   sheetContentHost: { position: "absolute", top: SVG_PAD + TH + 24, left: 0, right: 0, bottom: 0, zIndex: 1 },
