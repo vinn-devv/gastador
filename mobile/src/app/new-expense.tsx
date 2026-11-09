@@ -1,7 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { Animated, PanResponder, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 
@@ -31,6 +31,9 @@ export default function NewExpenseScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [swipeTrackWidth, setSwipeTrackWidth] = useState(0);
+  const swipeTrackWidthRef = useRef(0);
+  const swipeX = useRef(new Animated.Value(0)).current;
 
   useFocusEffect(
     useCallback(() => {
@@ -93,6 +96,30 @@ export default function NewExpenseScreen() {
     }
   }
 
+  const saveRef = useRef(save);
+  saveRef.current = save;
+  const maxSwipe = Math.max(0, swipeTrackWidth - 54);
+  swipeTrackWidthRef.current = swipeTrackWidth;
+  const swipeResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 3,
+    onPanResponderMove: (_, gesture) => {
+      const limit = Math.max(0, swipeTrackWidthRef.current - 54);
+      swipeX.setValue(Math.max(0, Math.min(limit, gesture.dx)));
+    },
+    onPanResponderRelease: async (_, gesture) => {
+      const limit = Math.max(0, swipeTrackWidthRef.current - 54);
+      if (limit > 0 && gesture.dx >= limit * 0.78) {
+        Animated.timing(swipeX, { toValue: limit, duration: 110, useNativeDriver: true }).start(async () => {
+          await saveRef.current();
+          Animated.spring(swipeX, { toValue: 0, damping: 18, stiffness: 180, useNativeDriver: true }).start();
+        });
+      } else {
+        Animated.spring(swipeX, { toValue: 0, damping: 16, stiffness: 190, useNativeDriver: true }).start();
+      }
+    },
+    onPanResponderTerminate: () => Animated.spring(swipeX, { toValue: 0, useNativeDriver: true }).start(),
+  }), [swipeX]);
   const fieldStyle = [styles.input, { backgroundColor: theme.surface, borderColor: theme.line, color: theme.text }];
   const formattedAmount = amount ? amount : "0.00";
 
@@ -180,10 +207,17 @@ export default function NewExpenseScreen() {
           </View>
 
           {!!error && <View style={[styles.error, { backgroundColor: theme.dangerSoft }]}><ThemedText style={[styles.errorText, { color: theme.danger }]}>{error}</ThemedText></View>}
-          <Pressable onPress={() => void save()} disabled={saving || loading} style={[styles.saveButton, { backgroundColor: theme.primary, opacity: saving || loading ? 0.55 : 1 }]}>
-            <ThemedText style={styles.saveText}>{saving ? "Saving…" : "Save expense"}</ThemedText>
-            <SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_forward" }} tintColor="#FFFFFF" size={18} />
-          </Pressable>
+          <View
+            onLayout={(event) => setSwipeTrackWidth(event.nativeEvent.layout.width)}
+            style={[styles.swipeTrack, { backgroundColor: theme.primarySoft, opacity: saving || loading ? 0.55 : 1 }]}
+            {...swipeResponder.panHandlers}
+          >
+            <Animated.View style={[styles.swipeFill, { width: swipeX.interpolate({ inputRange: [0, Math.max(1, maxSwipe)], outputRange: [54, Math.max(54, swipeTrackWidth)], extrapolate: "clamp" }) , backgroundColor: theme.primary }]} />
+            <ThemedText style={styles.swipeLabel}>{saving ? "Saving expense…" : "Swipe to save expense"}</ThemedText>
+            <Animated.View style={[styles.swipeHandle, { transform: [{ translateX: swipeX }], backgroundColor: theme.primary }]}>
+              <SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_forward" }} tintColor="#FFFFFF" size={19} />
+            </Animated.View>
+          </View>
         </View>
       </ScrollView>
     </>
@@ -219,6 +253,8 @@ const styles = StyleSheet.create({
   noteInput: { minHeight: 78, paddingTop: 11, textAlignVertical: "top" },
   error: { padding: 12, borderRadius: 10, marginBottom: 14 },
   errorText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13 },
-  saveButton: { minHeight: 54, borderRadius: 27, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 4 },
-  saveText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  swipeTrack: { height: 58, borderRadius: 29, marginTop: 4, justifyContent: "center", overflow: "hidden" },
+  swipeFill: { position: "absolute", left: 0, top: 0, bottom: 0, borderRadius: 29 },
+  swipeLabel: { position: "absolute", alignSelf: "center", color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  swipeHandle: { position: "absolute", left: 3, top: 3, width: 52, height: 52, borderRadius: 26, alignItems: "center", justifyContent: "center", elevation: 2 },
 });
