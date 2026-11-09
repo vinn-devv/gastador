@@ -147,7 +147,7 @@ export default function SettingsScreen() {
             </Pressable>
           </View>
 
-          <View style={styles.section}>
+          <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.line }]}>
             <ThemedText style={styles.sectionTitle}>
               Display currency
             </ThemedText>
@@ -167,6 +167,8 @@ export default function SettingsScreen() {
                     key={currency}
                     onPress={() => void update({ currency })}
                     disabled={saving || selected}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
                     style={[
                       styles.choice,
                       {
@@ -191,7 +193,7 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          <View style={styles.section}>
+          <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.line }]}>
             <ThemedText style={styles.sectionTitle}>Budget method</ThemedText>
             <View style={styles.methodList}>
               {BUDGET_METHODS.map((method) => {
@@ -201,6 +203,8 @@ export default function SettingsScreen() {
                     key={method.value}
                     onPress={() => void update({ budgetMethod: method.value })}
                     disabled={saving || selected}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
                     style={[
                       styles.method,
                       {
@@ -222,7 +226,7 @@ export default function SettingsScreen() {
                     <ThemedText
                       type="small"
                       style={{
-                        color: selected ? theme.primary : theme.muted,
+                        color: theme.textSecondary,
                       }}
                     >
                       {method.detail}
@@ -256,7 +260,7 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
+  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 150 },
   title: {
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 30,
@@ -264,7 +268,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   subtitle: { marginTop: 3, marginBottom: 24 },
-  section: { marginBottom: 18, padding: 15, borderRadius: 0, borderWidth: 0, borderBottomWidth: StyleSheet.hairlineWidth },
+  section: { marginBottom: 16, padding: 15, borderRadius: 12, borderWidth: 1, gap: 2 },
   sectionTitle: {
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 19,
@@ -302,7 +306,7 @@ const styles = StyleSheet.create({
   },
   choiceText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   methodList: { gap: 9 },
-  method: { borderWidth: 1, borderRadius: 8, padding: 14, gap: 3 },
+  method: { minHeight: 68, borderWidth: 1, borderRadius: 9, padding: 13, gap: 4, justifyContent: "center" },
   methodTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   message: { marginTop: -12, marginBottom: 20 },
   privacy: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 17, gap: 5 },
