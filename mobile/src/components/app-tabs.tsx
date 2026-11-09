@@ -55,10 +55,16 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
   const buttonRotation = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
   useEffect(() => {
-    const show = Keyboard.addListener("keyboardDidShow", () => { setKeyboardVisible(true); setMenuOpen(false); });
+    const show = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardVisible(true);
+      setMenuOpen(false);
+      overlayProgress.setValue(0);
+      buttonRotation.setValue(0);
+      menuItemProgress.forEach((value) => value.setValue(0));
+    });
     const hide = Keyboard.addListener("keyboardDidHide", () => setKeyboardVisible(false));
     return () => { show.remove(); hide.remove(); };
-  }, []);
+  }, [overlayProgress, buttonRotation, menuItemProgress]);
 
   const safeBottom = Math.max(insets.bottom, SHEET_GAP);
   const safeExtra = safeBottom - SHEET_GAP;
