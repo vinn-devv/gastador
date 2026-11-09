@@ -187,7 +187,10 @@ export default function HomeScreen() {
       <Animated.View style={[styles.whiteSheet, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
         <View style={styles.sheetHandle} />
         <View style={styles.sheetTabs} onLayout={(event) => setSheetTabsWidth(event.nativeEvent.layout.width)}>
-          <Animated.View style={[styles.sheetIndicator, { width: Math.max(0, (sheetTabsWidth - 50) / 2), transform: [{ translateX: tabIndicator.interpolate({ inputRange: [0, 1], outputRange: [0, Math.max(0, (sheetTabsWidth - 50) / 2) + 8] }) }] }]} />
+          <Animated.View style={[styles.sheetIndicator, { width: Math.max(0, (sheetTabsWidth - 50) / 2), transform: [{ translateX: tabIndicator.interpolate({ inputRange: [0, 1], outputRange: [0, Math.max(0, (sheetTabsWidth - 50) / 2) + 8] }) }] }]}>
+            <View style={styles.tabCurveLeft} />
+            <View style={styles.tabCurveRight} />
+          </Animated.View>
           <Pressable accessibilityRole="tab" accessibilityState={{ selected: sheetTab === "activity" }} onPress={() => setSheetTab("activity")} style={[styles.sheetTab, sheetTab === "activity" && styles.sheetTabActive]}>
             <ThemedText style={[styles.sheetTabText, sheetTab === "activity" && styles.sheetTabTextActive]}>Activity</ThemedText>
           </Pressable>
@@ -241,10 +244,10 @@ export default function HomeScreen() {
         </>
         ) : (
           <View style={styles.insightContent}>
-            <ThemedText style={styles.insightEyebrow}>ALLOWANCE OVERVIEW</ThemedText>
+            <StaggeredRow index={0}><ThemedText style={styles.insightEyebrow}>ALLOWANCE OVERVIEW</ThemedText></StaggeredRow>
             {summary ? (
               <>
-                <View style={styles.insightMetricRow}>
+                <StaggeredRow index={1}><View style={styles.insightMetricRow}>
                   <View style={styles.insightMetric}>
                     <ThemedText style={styles.insightMetricLabel}>Spent so far</ThemedText>
                     <ThemedText style={styles.insightMetricValue}>{formatMoney(summary.spentCentavos, currency)}</ThemedText>
@@ -253,15 +256,15 @@ export default function HomeScreen() {
                     <ThemedText style={styles.insightMetricLabel}>Still available</ThemedText>
                     <ThemedText style={styles.insightMetricValue}>{formatMoney(summary.remainingCentavos, currency)}</ThemedText>
                   </View>
-                </View>
-                <View style={styles.insightTrack}>
+                </View></StaggeredRow>
+                <StaggeredRow index={2}><View style={styles.insightTrack}>
                   <View style={[styles.insightFill, { width: `${spentPercent}%` }]} />
                 </View>
-                <ThemedText style={styles.insightHint}>{Math.round(spentPercent)}% of your spendable allowance used</ThemedText>
-                <View style={styles.insightDaily}>
+                <ThemedText style={styles.insightHint}>{Math.round(spentPercent)}% of your spendable allowance used</ThemedText></StaggeredRow>
+                <StaggeredRow index={3}><View style={styles.insightDaily}>
                   <ThemedText style={styles.insightMetricLabel}>Safe to spend per day</ThemedText>
                   <ThemedText style={styles.insightDailyValue}>{summary.dailySafeLimitCentavos === null ? "—" : formatMoney(summary.dailySafeLimitCentavos, currency)}</ThemedText>
-                </View>
+                </View></StaggeredRow>
               </>
             ) : (
               <View style={styles.emptyState}>
@@ -272,10 +275,10 @@ export default function HomeScreen() {
                 </Pressable>
               </View>
             )}
-            <Pressable onPress={() => router.push("/insights")} style={styles.fullInsightsLink}>
+            <StaggeredRow index={4}><Pressable onPress={() => router.push("/insights")} style={styles.fullInsightsLink}>
               <ThemedText style={styles.fullInsightsText}>View detailed insights</ThemedText>
               <SymbolView name={{ ios: "arrow.up.right", android: "north_east", web: "north_east" }} tintColor="#2563EB" size={16} />
-            </Pressable>
+            </Pressable></StaggeredRow>
           </View>
         )}
         </Animated.View>
@@ -307,7 +310,7 @@ const styles = StyleSheet.create({
   action: { flex: 1, alignItems: "center", gap: 7, minWidth: 0 },
   actionCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#8EC5FF", alignItems: "center", justifyContent: "center" },
   actionLabel: { color: "#FFFFFF", fontFamily: "IBMPlexSans_500Medium", fontSize: 10, textAlign: "center" },
-  whiteSheet: { backgroundColor: "#FFFFFF", borderTopLeftRadius: 32, borderTopRightRadius: 32, marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 30, minHeight: 390, shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
+  whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", borderTopLeftRadius: 32, borderTopRightRadius: 32, marginTop: 0, paddingHorizontal: 21, paddingTop: 13, paddingBottom: 30, minHeight: 390, shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
   sheetHandle: { width: 34, height: 4, borderRadius: 2, backgroundColor: "#D9DEE2", alignSelf: "center", marginBottom: 19 },
   sheetTabs: { flexDirection: "row", gap: 8, marginBottom: 19, marginHorizontal: -21, marginTop: 0, paddingHorizontal: 21, paddingTop: 0, paddingBottom: 0, height: 52, alignItems: "stretch", backgroundColor: "#2563EB" },
   sheetTab: { flex: 1, minHeight: 52, alignItems: "center", justifyContent: "center", zIndex: 2 },
