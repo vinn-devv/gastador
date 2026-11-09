@@ -23,8 +23,8 @@ export default function TabLayout() {
 
   return (
     <ThemeProvider value={DefaultTheme}>
-      <View style={{ flex: 1, backgroundColor: "#FFF8F2" }} onLayout={() => { void SplashScreen.hideAsync(); }}>
-        <StatusBar style="dark" backgroundColor="#FFF8F2" />
+      <View style={{ flex: 1, backgroundColor: "#F3F5F6" }} onLayout={() => { void SplashScreen.hideAsync(); }}>
+        <StatusBar style="dark" backgroundColor="#F3F5F6" />
         <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
           <AppTabs />
         </SQLiteProvider>
