@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   title: {
-    fontFamily: "Georgia",
+    fontFamily: "serif",
     fontSize: 31,
     lineHeight: 36,
     marginTop: 2,
