@@ -44,7 +44,6 @@ export function IntroOverlay() {
           if (e.nativeEvent.data === "done") finish();
         }}
         onError={finish}
-        onHttpError={finish}
       />
     </Animated.View>
   );
