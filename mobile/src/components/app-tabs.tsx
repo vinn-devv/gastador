@@ -1,4 +1,4 @@
-import { Tabs, useRouter, type Href } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { SymbolView } from "expo-symbols";
 import { Animated, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
@@ -10,6 +10,10 @@ import { ThemedText } from "@/components/themed-text";
 import { SHEET_GAP } from "@/constants/layout";
 
 type TabState = { index: number; routes: Array<{ key: string; name: string }> };
+type TabNavigation = {
+  emit: (event: { type: "tabPress"; target: string; canPreventDefault: true }) => { defaultPrevented: boolean };
+  navigate: (name: string) => void;
+};
 type TabDescriptors = Record<string, { options: {
   title?: string;
   tabBarAccessibilityLabel?: string;
@@ -37,7 +41,7 @@ function WalletTabItem({ focused, label, icon, onPress, accessibilityLabel }: { 
   );
 }
 
-function WalletTabBar({ state, descriptors }: { state: TabState; descriptors: TabDescriptors }) {
+function WalletTabBar({ state, descriptors, navigation }: { state: TabState; descriptors: TabDescriptors; navigation: TabNavigation }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
@@ -130,7 +134,10 @@ function WalletTabBar({ state, descriptors }: { state: TabState; descriptors: Ta
                   label={label}
                   accessibilityLabel={options?.tabBarAccessibilityLabel ?? label}
                   icon={options?.tabBarIcon?.({ focused, color: focused ? "#2563EB" : "#9A9A9A", size: 24 })}
-                  onPress={() => router.navigate((route.name === "index" ? "/" : "/new-cycle") as Href)}
+                  onPress={() => {
+                    const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
+                    if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+                  }}
                 />
               );
             })}
@@ -146,7 +153,10 @@ function WalletTabBar({ state, descriptors }: { state: TabState; descriptors: Ta
                   label={label}
                   accessibilityLabel={options?.tabBarAccessibilityLabel ?? label}
                   icon={options?.tabBarIcon?.({ focused, color: focused ? "#2563EB" : "#9A9A9A", size: 24 })}
-                  onPress={() => router.navigate((`/${route.name}`) as Href)}
+                  onPress={() => {
+                    const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
+                    if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+                  }}
                 />
               );
             })}
