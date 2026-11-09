@@ -5,6 +5,8 @@ import { navBarSpace } from "@/constants/layout";
 import { useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import {
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -99,7 +101,9 @@ export default function SettingsScreen() {
 
   return (
     <ScreenLayout title="Settings" subtitle="Your preferences are saved locally on this device.">
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
     <ScrollView
+      keyboardShouldPersistTaps="handled"
       contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]}
       onScroll={onTabBarScroll}
       scrollEventThrottle={16}
@@ -267,6 +271,7 @@ export default function SettingsScreen() {
         </ThemedText>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
     </ScreenLayout>
   );
 }
