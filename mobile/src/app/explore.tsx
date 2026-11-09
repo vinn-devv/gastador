@@ -91,7 +91,7 @@ export default function ActivityScreen() {
     >
       <View style={styles.header}>
         <ThemedText type="small" themeColor="muted">
-          YOUR SPENDING HISTORY
+          Your spending history
         </ThemedText>
         <ThemedText style={styles.title}>Activity</ThemedText>
         <ThemedText type="small" themeColor="muted">
@@ -120,7 +120,7 @@ export default function ActivityScreen() {
       <View
         style={[
           styles.summary,
-          { backgroundColor: theme.primary, borderColor: theme.primary },
+          { backgroundColor: theme.surface, borderColor: theme.line },
         ]}
       >
         <View>
@@ -128,7 +128,7 @@ export default function ActivityScreen() {
             Showing {filtered.length}{" "}
             {filtered.length === 1 ? "expense" : "expenses"}
           </ThemedText>
-          <ThemedText style={styles.total}>
+          <ThemedText style={[styles.total, { color: theme.text }]}>
             {formatMoney(total, currency)}
           </ThemedText>
         </View>
@@ -178,24 +178,14 @@ export default function ActivityScreen() {
                 },
               ]}
             >
-              <View
-                style={[styles.icon, { backgroundColor: theme.primarySoft }]}
-              >
-                <ThemedText
-                  style={[styles.initial, { color: theme.onPrimary }]}
-                >
-                  {(item.merchant || categoryNames.get(item.categoryId) || "E")
-                    .charAt(0)
-                    .toUpperCase()}
-                </ThemedText>
-              </View>
+              <View style={[styles.rowRule, { backgroundColor: theme.primary }]} />
               <View style={styles.info}>
                 <ThemedText style={styles.merchant} numberOfLines={1}>
                   {item.merchant || "Untitled expense"}
                 </ThemedText>
                 <ThemedText type="small" themeColor="muted" numberOfLines={1}>
                   {categoryNames.get(item.categoryId) ?? "Unknown category"} ·{" "}
-                  {formatDate(item.date, false)} · {formatTime(item.occurredAt)}
+                  {formatDate(item.date, false)}, {formatTime(item.occurredAt)}
                 </ThemedText>
                 <ThemedText type="small" themeColor="muted">
                   {methodLabel(item.paymentMethod)}
@@ -213,14 +203,15 @@ export default function ActivityScreen() {
 }
 
 const styles = StyleSheet.create({
+  rowRule: { width: 3, height: 34, borderRadius: 2 },
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 36 },
+  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   header: { gap: 3, marginBottom: 20 },
-  title: { fontFamily: "IBMPlexSans_700Bold", fontSize: 29, lineHeight: 36 },
+  title: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 30, lineHeight: 36 },
   search: {
     minHeight: 48,
     borderWidth: 1,
-    borderRadius: 13,
+    borderRadius: 6,
     paddingHorizontal: 14,
     fontFamily: "IBMPlexSans_400Regular",
     fontSize: 14,
@@ -231,16 +222,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 6,
     paddingHorizontal: 16,
     paddingVertical: 16,
     marginBottom: 12,
   },
   total: {
     fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 22,
+    fontSize: 25,
     marginTop: 2,
-    color: "#FFFFFF",
   },
   empty: { paddingVertical: 34, alignItems: "center", gap: 6 },
   emptyTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
@@ -255,7 +245,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 40,
     height: 40,
-    borderRadius: 13,
+    borderRadius: 6,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -46,7 +46,7 @@ function greeting() {
 }
 
 function formatTransactionDate(date: string, occurredAt: string) {
-  return `${formatDate(date, false)} · ${formatTime(occurredAt)}`;
+  return `${formatDate(date, false)}, ${formatTime(occurredAt)}`;
 }
 
 const QUICK_ACTIONS = [
@@ -67,20 +67,6 @@ const QUICK_ACTIONS = [
       web: "qr_code_scanner",
     },
     route: "/scan" as const,
-  },
-  {
-    label: "Insights",
-    icon: {
-      ios: "chart.bar.xaxis",
-      android: "query_stats",
-      web: "query_stats",
-    },
-    route: "/insights" as const,
-  },
-  {
-    label: "Settings",
-    icon: { ios: "slider.horizontal.3", android: "tune", web: "tune" },
-    route: "/settings" as const,
   },
 ] as const;
 
@@ -159,9 +145,6 @@ export default function HomeScreen() {
     >
       <View style={styles.header}>
         <View style={styles.headerCopy}>
-          <ThemedText style={styles.overline} themeColor="muted">
-            YOUR MONEY, IN VIEW
-          </ThemedText>
           <ThemedText style={styles.greeting}>
             {greeting()}
             {firstName ? `, ${firstName}` : ""}
@@ -174,10 +157,10 @@ export default function HomeScreen() {
         />
       </View>
 
-      <View style={[styles.balanceSection, { backgroundColor: theme.primary }]}>
+      <View style={[styles.balanceSection, { backgroundColor: theme.surface, borderColor: theme.line, borderLeftColor: theme.primary }]}>
         <View style={styles.balanceTop}>
-          <ThemedText style={[styles.balanceLabel, { color: "#EAF4FC" }]}>
-            AVAILABLE BALANCE
+          <ThemedText style={[styles.balanceLabel, { color: theme.muted }]}>
+            Available to spend
           </ThemedText>
           {summary && (
             <View style={styles.status}>
@@ -187,12 +170,12 @@ export default function HomeScreen() {
                   {
                     backgroundColor:
                       summary.pace === "on_track"
-                        ? theme.primary
+                        ? theme.mint
                         : theme.warning,
                   },
                 ]}
               />
-              <ThemedText style={[styles.statusText, { color: "#D8EAF8" }]}>
+              <ThemedText style={[styles.statusText, { color: theme.muted }]}>
                 {summary.pace === "on_track"
                   ? "On track"
                   : summary.pace === "above_pace"
@@ -208,7 +191,7 @@ export default function HomeScreen() {
         </View>
 
         {loading ? (
-          <ThemedText style={[styles.balanceAmount, { color: "#FFFFFF" }]}>
+          <ThemedText style={[styles.balanceAmount, { color: theme.text }]}>
             ••••••
           </ThemedText>
         ) : summary ? (
@@ -217,8 +200,8 @@ export default function HomeScreen() {
             {formatMoney(Math.abs(remaining), currency)}
           </ThemedText>
         ) : (
-          <ThemedText style={[styles.balanceEmpty, { color: "#FFFFFF" }]}>
-            Give every peso somewhere to go.
+          <ThemedText style={[styles.balanceEmpty, { color: theme.text }]}>
+            No allowance set yet
           </ThemedText>
         )}
 
@@ -227,33 +210,33 @@ export default function HomeScreen() {
             <View
               style={[
                 styles.progressTrack,
-                { backgroundColor: "rgba(255,255,255,0.24)" },
+                { backgroundColor: theme.sunken },
               ]}
             >
               <View
                 style={[
                   styles.progressFill,
-                  { width: `${spentPercent}%`, backgroundColor: "#FFC20E" },
+                  { width: `${spentPercent}%`, backgroundColor: theme.primary },
                 ]}
               />
             </View>
             <View style={styles.balanceFooter}>
-              <ThemedText style={[styles.balanceCaption, { color: "#D8EAF8" }]}>
+              <ThemedText style={[styles.balanceCaption, { color: theme.muted }]}>
                 {formatMoney(summary.spentCentavos, currency)} spent
               </ThemedText>
-              <ThemedText style={styles.balanceCaption} themeColor="muted">
-                {remainingPercent}% left · of {formatMoney(spendable, currency)}
+              <ThemedText style={[styles.balanceCaption, { color: theme.muted }]} themeColor="muted">
+                {remainingPercent}% left, of {formatMoney(spendable, currency)}
               </ThemedText>
             </View>
           </>
         ) : (
           <ThemedText style={styles.balanceCaption} themeColor="muted">
-            Set up your allowance once to see what is available.
+            Enter your allowance and how often you get it. Gastador then shows what you can spend each day.
           </ThemedText>
         )}
         {dashboard && (
-          <ThemedText style={[styles.cycleDate, { color: "#D8EAF8" }]}>
-            {dashboard.cycleName} · {formatDate(dashboard.startDate, false)} –{" "}
+          <ThemedText style={[styles.cycleDate, { color: theme.muted }]}>
+            {dashboard.cycleName}, {formatDate(dashboard.startDate, false)} –{" "}
             {formatDate(dashboard.endDate, false)}
           </ThemedText>
         )}
@@ -264,7 +247,7 @@ export default function HomeScreen() {
           onPress={() => router.push("/new-cycle")}
           style={[styles.setupAction, { backgroundColor: theme.primary }]}
         >
-          <ThemedText style={styles.setupActionText}>
+          <ThemedText style={[styles.setupActionText, { color: theme.onPrimary }]}>
             Set up allowance
           </ThemedText>
           <SymbolView
@@ -273,7 +256,7 @@ export default function HomeScreen() {
               android: "north_east",
               web: "north_east",
             }}
-            tintColor="#FFFFFF"
+            tintColor={theme.onPrimary}
             size={17}
           />
         </Pressable>
@@ -291,15 +274,11 @@ export default function HomeScreen() {
             onPress={() => router.push(action.route)}
             style={styles.quickAction}
           >
-            <View
-              style={[styles.quickIcon, { backgroundColor: theme.primarySoft }]}
-            >
-              <SymbolView
-                name={action.icon}
-                tintColor={theme.primary}
-                size={21}
-              />
-            </View>
+            <SymbolView
+              name={action.icon}
+              tintColor={theme.primary}
+              size={21}
+            />
             <ThemedText style={styles.quickLabel}>{action.label}</ThemedText>
           </Pressable>
         ))}
@@ -307,15 +286,6 @@ export default function HomeScreen() {
 
       {summary && (
         <View style={[styles.metrics, { borderBottomColor: theme.line }]}>
-          <View style={styles.metric}>
-            <ThemedText style={styles.metricLabel} themeColor="muted">
-              Allowance
-            </ThemedText>
-            <ThemedText style={styles.metricValue}>
-              {formatMoney(spendable, currency)}
-            </ThemedText>
-          </View>
-          <View style={styles.metricDivider} />
           <View style={styles.metric}>
             <ThemedText style={styles.metricLabel} themeColor="muted">
               Safe per day
@@ -326,7 +296,7 @@ export default function HomeScreen() {
                 : formatMoney(summary.dailySafeLimitCentavos, currency)}
             </ThemedText>
           </View>
-          <View style={styles.metricDivider} />
+          <View style={[styles.metricDivider, { backgroundColor: theme.line }]} />
           <View style={styles.metric}>
             <ThemedText style={styles.metricLabel} themeColor="muted">
               Days left
@@ -340,11 +310,8 @@ export default function HomeScreen() {
 
       <View style={styles.sectionHeading}>
         <View>
-          <ThemedText style={styles.sectionKicker} themeColor="muted">
-            YOUR LATEST SPENDING
-          </ThemedText>
           <ThemedText style={styles.sectionTitle}>
-            Recent transactions
+            Recent expenses
           </ThemedText>
         </View>
         <Pressable
@@ -369,19 +336,19 @@ export default function HomeScreen() {
 
       {loadError ? (
         <ThemedText type="small" themeColor="muted">
-          We couldn't load your activity. Please try again.
+          We couldn't load your expenses. Please try again.
         </ThemedText>
       ) : loading ? (
         <ThemedText type="small" themeColor="muted">
-          Loading activity…
+          Loading expenses…
         </ThemedText>
       ) : transactions.length === 0 ? (
         <View style={styles.emptyActivity}>
           <ThemedText style={styles.emptyTitle}>
-            No transactions yet.
+            No expenses yet.
           </ThemedText>
           <ThemedText type="small" themeColor="muted">
-            Your latest expenses will appear here after your first entry.
+            Scan a receipt or add an expense and it will show up here.
           </ThemedText>
         </View>
       ) : (
@@ -397,20 +364,7 @@ export default function HomeScreen() {
                 },
               ]}
             >
-              <View
-                style={[
-                  styles.transactionIcon,
-                  { backgroundColor: theme.primarySoft },
-                ]}
-              >
-                <ThemedText
-                  style={[styles.transactionInitial, { color: theme.primary }]}
-                >
-                  {(item.merchant || item.categoryName || "E")
-                    .charAt(0)
-                    .toUpperCase()}
-                </ThemedText>
-              </View>
+              <View style={[styles.transactionRule, { backgroundColor: theme.primary }]} />
               <View style={styles.transactionInfo}>
                 <ThemedText style={styles.transactionName} numberOfLines={1}>
                   {item.merchant || "Untitled expense"}
@@ -420,7 +374,7 @@ export default function HomeScreen() {
                   themeColor="muted"
                   numberOfLines={1}
                 >
-                  {item.categoryName} ·{" "}
+                  {item.categoryName},{" "}
                   {formatTransactionDate(item.date, item.occurredAt)}
                 </ThemedText>
               </View>
@@ -440,8 +394,9 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  transactionRule: { width: 3, height: 30, borderRadius: 2 },
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 38 },
+  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -451,20 +406,22 @@ const styles = StyleSheet.create({
   headerCopy: { flex: 1, gap: 4 },
   overline: {
     fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 10,
-    letterSpacing: 1.5,
+    fontSize: 12,
+    letterSpacing: 0,
   },
   greeting: {
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 26,
-    lineHeight: 34,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 27,
+    lineHeight: 36,
     letterSpacing: -0.9,
   },
   brandMark: { width: 38, height: 38 },
   balanceSection: {
     marginBottom: 20,
-    padding: 18,
-    borderRadius: 18,
+    padding: 20,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderLeftWidth: 4,
     overflow: "hidden",
   },
   balanceTop: {
@@ -476,14 +433,14 @@ const styles = StyleSheet.create({
   balanceLabel: {
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 11,
-    letterSpacing: 1.15,
+    letterSpacing: 0,
   },
   status: { flexDirection: "row", alignItems: "center", gap: 6 },
   statusDot: { width: 7, height: 7, borderRadius: 4 },
   statusText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
   balanceAmount: {
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 43,
+        fontFamily: "IBMPlexSans_700Bold",
+    fontSize: 40,
     lineHeight: 54,
     letterSpacing: -2.1,
     marginTop: 8,
@@ -524,7 +481,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   setupActionText: {
-    color: "#FFFFFF",
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 14,
   },
@@ -537,13 +493,7 @@ const styles = StyleSheet.create({
     marginBottom: 19,
   },
   quickAction: { flex: 1, alignItems: "center", gap: 7, paddingVertical: 3 },
-  quickIcon: {
-    width: 43,
-    height: 43,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+
   quickLabel: {
     fontFamily: "IBMPlexSans_500Medium",
     fontSize: 10,
@@ -557,13 +507,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   metric: { flex: 1, gap: 5 },
-  metricLabel: { fontFamily: "IBMPlexSans_400Regular", fontSize: 10 },
-  metricValue: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  metricLabel: { fontFamily: "IBMPlexSans_400Regular", fontSize: 12 },
+  metricValue: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
   metricDivider: {
     width: StyleSheet.hairlineWidth,
     height: 32,
-    backgroundColor: "#94A3B8",
-    opacity: 0.45,
     marginHorizontal: 9,
   },
   sectionHeading: {
@@ -574,13 +522,13 @@ const styles = StyleSheet.create({
   },
   sectionKicker: {
     fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 9,
-    letterSpacing: 1.25,
+    fontSize: 11,
+    letterSpacing: 0,
     marginBottom: 3,
   },
   sectionTitle: {
     fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 19,
+    fontSize: 20,
     letterSpacing: -0.45,
   },
   seeAll: {
