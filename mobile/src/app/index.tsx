@@ -205,7 +205,7 @@ export default function HomeScreen() {
             <Animated.Text style={[styles.sheetTabText, { color: tabTextProgress.interpolate({ inputRange: [0, 1], outputRange: ["#EAF3FF", "#1E40AF"] }) }]}>Insight</Animated.Text>
           </Pressable>
         </View>
-        <Animated.View style={{ opacity: tabTransition, transform: [{ translateX: tabTransition.interpolate({ inputRange: [0, 1], outputRange: [sheetTab === "activity" ? -16 : 16, 0] }) }] }}>
+        <Animated.View style={{ opacity: tabTransition, transform: [{ translateX: tabTransition.interpolate({ inputRange: [0, 1], outputRange: [sheetTab === "activity" ? 16 : -16, 0] }) }] }}>
         {sheetTab === "activity" ? (
         <>
         <View style={styles.sectionHeader}>
