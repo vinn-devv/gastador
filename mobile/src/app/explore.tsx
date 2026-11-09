@@ -128,7 +128,7 @@ export default function ActivityScreen() {
             Showing {filtered.length}{" "}
             {filtered.length === 1 ? "expense" : "expenses"}
           </ThemedText>
-          <ThemedText style={styles.total}>
+          <ThemedText style={[styles.total, { color: theme.text }]}>
             {formatMoney(total, currency)}
           </ThemedText>
         </View>
@@ -231,7 +231,6 @@ const styles = StyleSheet.create({
     fontFamily: "IBMPlexSans_700Bold",
     fontSize: 25,
     marginTop: 2,
-    color: "#202A35",
   },
   empty: { paddingVertical: 34, alignItems: "center", gap: 6 },
   emptyTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
