@@ -20,6 +20,7 @@ export default function ScanScreen() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [torch, setTorch] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
   const [lastCode, setLastCode] = useState("");
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export default function ScanScreen() {
   }, [lastCode]);
 
   async function captureReceipt() {
-    if (!cameraRef.current || busy) return;
+    if (!cameraRef.current || busy || !cameraReady) return;
     setBusy(true);
     setError("");
     try {
@@ -77,6 +78,7 @@ export default function ScanScreen() {
 
   const clearCapture = () => {
     setPhotoUri(null);
+    setCameraReady(false);
     setQrValue("");
     setLastCode("");
     setError("");
@@ -112,6 +114,7 @@ export default function ScanScreen() {
               active={focused}
               enableTorch={torch}
               barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+              onCameraReady={() => setCameraReady(true)}
               onBarcodeScanned={onBarcodeScanned}
               onMountError={() => setError("The camera couldn't start. Check camera access in your phone settings and try again.")}
             />
@@ -127,7 +130,7 @@ export default function ScanScreen() {
               <Pressable accessibilityRole="button" accessibilityLabel={torch ? "Turn flash off" : "Turn flash on"} onPress={() => setTorch((value) => !value)} style={styles.roundControl}>
                 <SymbolView name={{ ios: torch ? "bolt.fill" : "bolt.slash", android: "flash_on", web: "flash_on" }} tintColor="#FFFFFF" size={20} />
               </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Capture receipt" disabled={busy} onPress={() => void captureReceipt()} style={[styles.shutter, busy && { opacity: 0.5 }]}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Capture receipt" disabled={busy || !cameraReady} onPress={() => void captureReceipt()} style={[styles.shutter, busy && { opacity: 0.5 }]}>
                 <View style={styles.shutterInner} />
               </Pressable>
             </View>
