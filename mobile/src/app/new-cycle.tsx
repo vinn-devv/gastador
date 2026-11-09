@@ -167,7 +167,7 @@ export default function NewCycleScreen() {
                 <ThemedText
                   style={[
                     styles.optionText,
-                    { color: selected ? theme.onPrimary : theme.text },
+                    { color: selected ? theme.primary : theme.text },
                   ]}
                 >
                   {item.label}
