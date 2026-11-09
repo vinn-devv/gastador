@@ -98,7 +98,7 @@ export default function NewExpenseScreen() {
         <ThemedText style={[styles.backText, { color: theme.primary }]}>‹ Back</ThemedText>
       </Pressable>
 
-      <ThemedText type="small" themeColor="muted">RECORD A PURCHASE</ThemedText>
+      <ThemedText type="small" themeColor="muted">New transaction</ThemedText>
       <ThemedText style={styles.title}>Add expense</ThemedText>
       <ThemedText type="small" themeColor="muted" style={styles.intro}>
         Add the details now. Your record stays on this device.
@@ -240,12 +240,12 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 124 },
   back: { alignSelf: "flex-start", marginBottom: 22 },
   backText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
-  title: { fontFamily: "serif", fontSize: 31, lineHeight: 36, marginTop: 2 },
+  title: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 30, lineHeight: 36, marginTop: 2 },
   intro: { marginTop: 3, marginBottom: 25 },
   field: { marginBottom: 19, gap: 8 },
   label: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
-  input: { minHeight: 48, borderWidth: 1, borderRadius: 8, paddingHorizontal: 13, fontFamily: "IBMPlexSans_400Regular", fontSize: 15 },
-  amountInput: { minHeight: 58, fontFamily: "Georgia", fontSize: 25 },
+  input: { minHeight: 48, borderWidth: 1, borderRadius: 6, paddingHorizontal: 13, fontFamily: "IBMPlexSans_400Regular", fontSize: 15 },
+  amountInput: { minHeight: 58, fontFamily: "IBMPlexSans_700Bold", fontSize: 26 },
   optionGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   option: { minHeight: 42, borderWidth: 1, borderRadius: 8, paddingHorizontal: 14, justifyContent: "center" },
   optionText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13 },
