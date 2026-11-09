@@ -156,8 +156,8 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
                   accessibilityLabel={options?.tabBarAccessibilityLabel ?? label}
                   icon={options?.tabBarIcon?.({ focused, color: focused ? "#2563EB" : "#9A9A9A", size: 24 })}
                   onPress={() => {
-                    const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-                    if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+                    const event = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
+                    if (!focused && !event.defaultPrevented) navigateToTab(route.key);
                   }}
                 />
               );
