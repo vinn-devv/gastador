@@ -43,7 +43,7 @@ Keep light mode as the deliberate visual direction.
 - Keep equal horizontal page insets and safe-area/keyboard clearance.
 - The bottom navigation must remain legible over every page and must not cover scroll content.
 - Use real category/product icons from the existing icon system; do not invent emoji or initial-letter icon tiles.
-- Maintain typography using the bundled IBM Plex Sans family. Monetary figures may be larger/bolder but must remain legible and tabular where appropriate.
+- Maintain typography using the Nunito family loaded at the app root (Regular, SemiBold, Bold, and ExtraBold). Monetary figures may be larger/bolder but must remain legible and tabular where appropriate.
 - Keep labels in sentence case. Use plain, task-oriented wording.
 
 ## Implementation rules
