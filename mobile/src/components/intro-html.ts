@@ -4,10 +4,10 @@ export const INTRO_HTML = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#F7F9FC">
+<meta name="theme-color" content="#F7F6F2">
 <title>Gastador Intro</title>
 <style>
-:root{--bg:#F7F9FC;--ink:#3478F6;--sub:#66758A;--glow:rgba(52,120,246,.16);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#F7F6F2;--ink:#315D8A;--sub:#7A817F;--glow:rgba(52,120,246,.16);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 
 
 *,*::before,*::after{box-sizing:border-box}
@@ -17,7 +17,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);overflow:hi
 .markwrap::before{content:"";position:absolute;inset:-45%;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 65%)}
 .mark{position:relative;width:100%;height:100%;display:block;overflow:visible}
 .tile{transform-box:fill-box;transform-origin:center}
-.c{fill:none;stroke:#3478F6;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;transform-origin:60px 60px}
+.c{fill:none;stroke:#315D8A;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;transform-origin:60px 60px}
 .p{fill:none;stroke:#EFEDE4;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 2;stroke-dashoffset:0}
 .b{fill:none;stroke:#EFEDE4;stroke-width:5.5;stroke-linecap:round;transform-origin:62px 58px}
 .flash{fill:#fff;opacity:0}
