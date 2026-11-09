@@ -1,5 +1,5 @@
 import AppTabs from "@/components/app-tabs";
 
-export default function MainTabsLayout() {
+export default function MainTabs() {
   return <AppTabs />;
 }
