@@ -4,9 +4,9 @@ import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Animated as RNAnimated, Easing as RNEasing, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Animated as RNAnimated, Easing as RNEasing, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import Reanimated, { Easing, FadeInDown, FadeInLeft, FadeInRight, FadeOutLeft, FadeOutRight, interpolateColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import Svg, { Path } from "react-native-svg";
+import Svg, { Circle, Path } from "react-native-svg";
 
 import { ThemedText } from "@/components/themed-text";
 import {
@@ -31,6 +31,7 @@ type Dashboard = {
 type WalletSymbolName = ComponentProps<typeof SymbolView>["name"];
 
 const AnimatedPath = Reanimated.createAnimatedComponent(Path);
+const AnimatedCircle = Reanimated.createAnimatedComponent(Circle);
 
 const TAB_HEIGHT = 48;
 const FLARE_RADIUS = 16;
@@ -60,7 +61,7 @@ function buildPath(p: number, W: number, Hs: number) {
     `L ${x + w} ${TAB_HEIGHT - rr}`,
     `A ${rr} ${rr} 0 0 0 ${x + w + rr} ${TAB_HEIGHT}`,
     `L ${W - sr} ${TAB_HEIGHT}`,
-    `C ${W - sr * 0.4477} ${TAB_HEIGHT} ${W} ${TAB_HEIGHT + sr * 0.4477} ${W} ${TAB_HEIGHT + sr}`,
+    `A ${sr} ${sr} 0 0 1 ${W} ${TAB_HEIGHT + sr}`,
     `L ${W} ${Hs}`,
     "Z",
   ].join(" ");
@@ -94,13 +95,18 @@ export default function HomeScreen() {
   const [contentDirection, setContentDirection] = useState<1 | -1>(1);
   const progress = useSharedValue(0);
   const animatedPathProps = useAnimatedProps(() => ({ d: buildPath(progress.value, width, SHAPE_HEIGHT) }));
-  const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#EAF3FF"]) }));
-  const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#EAF3FF", "#1E40AF"]) }));
+  const activityLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#1E40AF", "#FFE88A"]) }));
+  const insightLabelStyle = useAnimatedStyle(() => ({ color: interpolateColor(progress.value, [0, 1], ["#FFE88A", "#1E40AF"]) }));
   const sheetEntrance = useRef(new RNAnimated.Value(0)).current;
 
   const balanceProgress = useRef(new RNAnimated.Value(0)).current;
   const balanceLabelOpacity = useRef(new RNAnimated.Value(0)).current;
   const [animatedRemaining, setAnimatedRemaining] = useState(0);
+  const donutProgress = useSharedValue(0);
+  const donutCircumference = 2 * Math.PI * 66;
+  const donutAnimatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: donutCircumference * (1 - donutProgress.value),
+  }));
 
   useEffect(() => {
     RNAnimated.spring(sheetEntrance, { toValue: 1, damping: 19, stiffness: 115, mass: 0.9, useNativeDriver: true }).start();
@@ -153,6 +159,11 @@ export default function HomeScreen() {
   const balanceDigits = balanceFirstDigit >= 0 ? formattedBalance.slice(balanceFirstDigit) : formattedBalance;
   const balanceSign = /^[−-]/.test(balancePrefix.trim()) ? balancePrefix.trim().slice(0, 1) : "";
   const balanceCurrencySymbol = balancePrefix.replace(balanceSign, "").trim();
+  const hasInsightExpenses = Boolean(summary && summary.spentCentavos > 0);
+  const insightPercent = hasInsightExpenses ? Math.round(spentPercent) : 0;
+  const insightSpent = summary?.spentCentavos ?? 0;
+  const insightLeft = summary?.remainingCentavos ?? 0;
+  const insightDaysLeft = summary?.daysRemaining ?? 0;
 
   useEffect(() => {
     if (loading) return;
@@ -165,6 +176,15 @@ export default function HomeScreen() {
     ]).start();
     return () => { balanceProgress.removeListener(listener); balanceProgress.stopAnimation(); balanceLabelOpacity.stopAnimation(); };
   }, [balanceProgress, loading, remaining]);
+
+  useEffect(() => {
+    if (sheetTab !== "insight") return;
+    donutProgress.value = 0;
+    donutProgress.value = withTiming(hasInsightExpenses ? spentPercent / 100 : 0, {
+      duration: 700,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [donutProgress, hasInsightExpenses, sheetTab, spentPercent]);
 
   const switchSheetTab = useCallback((next: "activity" | "insight") => {
     if (next === sheetTab) return;
@@ -189,13 +209,11 @@ export default function HomeScreen() {
         </View>
         <View style={styles.balanceBlock}>
           <RNAnimated.Text style={[styles.balanceLabel, { opacity: balanceLabelOpacity }]}>Available to spend</RNAnimated.Text>
-          <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel={`Available to spend ${formattedBalance}. Open allowance setup.`} style={styles.balanceTapTarget}>
-            <RNAnimated.Text style={styles.balanceAmount}>
-              {balanceSign ? <Text style={styles.balanceSign}>{balanceSign}</Text> : null}
-              {balanceCurrencySymbol ? <Text style={styles.pesoSign}>{balanceCurrencySymbol}</Text> : null}
-              {balanceDigits}
-            </RNAnimated.Text>
-          </Pressable>
+          <RNAnimated.Text style={styles.balanceAmount}>
+            {balanceSign ? <Text style={styles.balanceSign}>{balanceSign}</Text> : null}
+            {balanceCurrencySymbol ? <Text style={styles.pesoSign}>{balanceCurrencySymbol}</Text> : null}
+            {balanceDigits}
+          </RNAnimated.Text>
         </View>
       </View>
 
@@ -269,49 +287,54 @@ export default function HomeScreen() {
         </>
         ) : (
           <View style={styles.insightContent}>
-            <StaggeredRow index={0}><ThemedText style={styles.insightEyebrow}>ALLOWANCE OVERVIEW</ThemedText></StaggeredRow>
-            {summary ? (
-              <>
-                <StaggeredRow index={1}><View style={styles.insightMetricRow}>
-                  <View style={styles.insightMetric}>
-                    <ThemedText style={styles.insightMetricLabel}>Spent so far</ThemedText>
-                    <ThemedText style={styles.insightMetricValue}>{formatMoney(summary.spentCentavos, currency)}</ThemedText>
-                  </View>
-                  <View style={styles.insightMetric}>
-                    <ThemedText style={styles.insightMetricLabel}>Still available</ThemedText>
-                    <ThemedText style={styles.insightMetricValue}>{formatMoney(summary.remainingCentavos, currency)}</ThemedText>
-                  </View>
-                </View></StaggeredRow>
-                <StaggeredRow index={2}><View style={styles.insightTrack}>
-                  <View style={[styles.insightFill, { width: `${spentPercent}%` }]} />
-                </View>
-                <ThemedText style={styles.insightHint}>{Math.round(spentPercent)}% of your spendable allowance used</ThemedText></StaggeredRow>
-                <StaggeredRow index={3}><View style={styles.insightDaily}>
-                  <ThemedText style={styles.insightMetricLabel}>Safe to spend per day</ThemedText>
-                  <ThemedText style={styles.insightDailyValue}>{summary.dailySafeLimitCentavos === null ? "—" : formatMoney(summary.dailySafeLimitCentavos, currency)}</ThemedText>
-                </View></StaggeredRow>
-              </>
-            ) : (
-              <View style={styles.insightEmptyState}>
-                <View pointerEvents="none" style={styles.ghostPreview}>
-                  <View style={styles.ghostRing}><View style={styles.ghostRingInner} /></View>
-                  <View style={styles.ghostChart}>
-                    {[26, 42, 32, 55, 38, 48, 30].map((height, index) => <View key={index} style={[styles.ghostBar, { height }]} />)}
-                  </View>
-                </View>
-                <View style={styles.insightEmptyCopy}>
-                  <ThemedText style={styles.emptyTitle}>Start with an allowance</ThemedText>
-                  <ThemedText style={styles.emptyText}>Set up your allowance cycle to see spending insights.</ThemedText>
-                  <Pressable onPress={() => router.push("/new-cycle")} style={styles.emptyButton}>
-                    <ThemedText style={styles.emptyButtonText}>Set up allowance</ThemedText>
-                  </Pressable>
+            <StaggeredRow index={0}>
+              <View style={styles.donutWrap}>
+                <Svg width={160} height={160} viewBox="0 0 160 160">
+                  <Circle cx={80} cy={80} r={66} stroke="#EAF3FF" strokeWidth={14} fill="none" />
+                  <AnimatedCircle
+                    cx={80}
+                    cy={80}
+                    r={66}
+                    stroke="#2563EB"
+                    strokeWidth={14}
+                    strokeLinecap="round"
+                    fill="none"
+                    strokeDasharray={`${donutCircumference} ${donutCircumference}`}
+                    animatedProps={donutAnimatedProps}
+                    transform="rotate(-90 80 80)"
+                  />
+                </Svg>
+                <View pointerEvents="none" style={styles.donutCenter}>
+                  <ThemedText style={styles.donutPercent}>{insightPercent}%</ThemedText>
+                  <ThemedText style={styles.donutLabel}>spent</ThemedText>
                 </View>
               </View>
-            )}
-            <StaggeredRow index={4}><Pressable onPress={() => router.push("/insights")} style={styles.fullInsightsLink}>
-              <ThemedText style={styles.fullInsightsText}>View detailed insights</ThemedText>
-              <SymbolView name={{ ios: "arrow.up.right", android: "north_east", web: "north_east" }} tintColor="#2563EB" size={16} />
-            </Pressable></StaggeredRow>
+            </StaggeredRow>
+            <View style={styles.insightStatsRow}>
+              <StaggeredRow index={1}>
+                <View style={styles.insightStatChip}>
+                  <ThemedText style={styles.insightStatValue}>{formatMoney(insightSpent, currency)}</ThemedText>
+                  <ThemedText style={styles.insightStatLabel}>Spent</ThemedText>
+                </View>
+              </StaggeredRow>
+              <StaggeredRow index={2}>
+                <View style={styles.insightStatChip}>
+                  <ThemedText style={styles.insightStatValue}>{formatMoney(insightLeft, currency)}</ThemedText>
+                  <ThemedText style={styles.insightStatLabel}>Left</ThemedText>
+                </View>
+              </StaggeredRow>
+              <StaggeredRow index={3}>
+                <View style={styles.insightStatChip}>
+                  <ThemedText style={styles.insightStatValue}>{insightDaysLeft}</ThemedText>
+                  <ThemedText style={styles.insightStatLabel}>Days left</ThemedText>
+                </View>
+              </StaggeredRow>
+            </View>
+            {!hasInsightExpenses ? (
+              <StaggeredRow index={4}>
+                <ThemedText style={styles.insightEmptyCaption}>Add expenses to see your summary.</ThemedText>
+              </StaggeredRow>
+            ) : null}
           </View>
         )}
         </Reanimated.View>
@@ -331,37 +354,26 @@ const styles = StyleSheet.create({
   notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 18 },
   balanceBlock: { minHeight: 122, alignItems: "center", justifyContent: "center" },
-  balanceLabel: { color: "rgba(234,243,255,0.8)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 20, marginBottom: 1 },
-  balanceTapTarget: { minHeight: 76, minWidth: 180, alignItems: "center", justifyContent: "center" },
-  balanceAmount: { color: "#EAF3FF", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 72, letterSpacing: -2, includeFontPadding: false },
-  balanceSign: { color: "#EAF3FF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
-  pesoSign: { color: "#EAF3FF", fontFamily: Platform.select({ android: "sans-serif", ios: "System", default: "Arial" }), fontWeight: "800", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
+  balanceLabel: { color: "rgba(255,232,138,0.9)", textAlign: "center", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 20, marginBottom: 1 },
+  balanceAmount: { color: "#FFD54A", textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 64, lineHeight: 72, letterSpacing: -2, includeFontPadding: false },
+  balanceSign: { color: "#FFD54A", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top" },
+  pesoSign: { color: "#FFD54A", fontFamily: "IBMPlexSans_800ExtraBold", fontWeight: "800", fontSize: 38, lineHeight: 64, includeFontPadding: false, verticalAlign: "top", textShadowColor: "transparent", textShadowRadius: 0 },
   shapeHeader: { height: SHAPE_HEIGHT, backgroundColor: "#2563EB", marginBottom: -1 },
   shapeTabLabels: { position: "absolute", top: 0, left: 0, right: 0, height: TAB_HEIGHT, flexDirection: "row" },
   sheetShadow: { flexGrow: 1, backgroundColor: "transparent", shadowColor: "#000000", shadowOffset: { width: 0, height: -8 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10, zIndex: 1 },
   whiteSheet: { flexGrow: 1, backgroundColor: "#FFFFFF", paddingHorizontal: 20, paddingTop: 13, paddingBottom: 100, minHeight: 390 },
   sheetTab: { flex: 1, height: TAB_HEIGHT, alignItems: "center", justifyContent: "center" },
   sheetTabText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  insightContent: { paddingTop: 2, paddingBottom: 10 },
-  insightEmptyState: { minHeight: 250, justifyContent: "center", alignItems: "center", gap: 16, paddingVertical: 16 },
-  ghostPreview: { width: "100%", height: 112, opacity: 0.3, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 28 },
-  ghostRing: { width: 92, height: 92, borderRadius: 46, borderWidth: 12, borderColor: "#8EC5FF", alignItems: "center", justifyContent: "center" },
-  ghostRingInner: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#EAF3FF" },
-  ghostChart: { height: 74, flexDirection: "row", alignItems: "flex-end", gap: 6 },
-  ghostBar: { width: 10, borderTopLeftRadius: 5, borderTopRightRadius: 5, backgroundColor: "#2563EB" },
-  insightEmptyCopy: { alignItems: "center", gap: 7, paddingHorizontal: 4 },
-  insightEyebrow: { color: "#64748B", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 10, letterSpacing: 1, marginBottom: 15 },
-  insightMetricRow: { flexDirection: "row", gap: 12 },
-  insightMetric: { flex: 1, backgroundColor: "#F4F8FF", borderRadius: 14, padding: 13, gap: 6 },
-  insightMetricLabel: { color: "#64748B", fontFamily: "IBMPlexSans_500Medium", fontSize: 11 },
-  insightMetricValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 18 },
-  insightTrack: { height: 8, borderRadius: 4, backgroundColor: "#EAF3FF", overflow: "hidden", marginTop: 18 },
-  insightFill: { height: "100%", backgroundColor: "#2563EB", borderRadius: 4 },
-  insightHint: { color: "#64748B", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, marginTop: 7 },
-  insightDaily: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "#DCE7F5", marginTop: 17, paddingTop: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  insightDailyValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 18 },
-  fullInsightsLink: { flexDirection: "row", alignItems: "center", gap: 7, alignSelf: "flex-start", marginTop: 20, minHeight: 40 },
-  fullInsightsText: { color: "#2563EB", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
+  insightContent: { alignItems: "center", paddingTop: 8, paddingBottom: 12, gap: 18 },
+  donutWrap: { width: 160, height: 160, alignItems: "center", justifyContent: "center" },
+  donutCenter: { position: "absolute", alignItems: "center", justifyContent: "center" },
+  donutPercent: { color: "#1E40AF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 28, lineHeight: 34 },
+  donutLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11, lineHeight: 15 },
+  insightStatsRow: { width: "100%", flexDirection: "row", gap: 12 },
+  insightStatChip: { flex: 1, minWidth: 0, minHeight: 68, borderRadius: 16, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center", paddingHorizontal: 5, paddingVertical: 9, gap: 3 },
+  insightStatValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 16, lineHeight: 21 },
+  insightStatLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, lineHeight: 16 },
+  insightEmptyCaption: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, textAlign: "center", marginTop: -4 },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 17 },
   sectionHeaderActions: { flexDirection: "row", alignItems: "center", gap: 12 },
   addExpenseButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
