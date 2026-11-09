@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   back: { alignSelf: "flex-start", marginBottom: 22 },
   backText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   title: {
-    fontFamily: "Georgia",
+    fontFamily: "serif",
     fontSize: 31,
     lineHeight: 36,
     marginTop: 2,
