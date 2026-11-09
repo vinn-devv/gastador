@@ -90,7 +90,7 @@ export default function InsightsScreen() {
       scrollEventThrottle={16}
     >
       <ThemedText type="small" themeColor="muted">
-        UNDERSTAND YOUR SPENDING
+        Your spending
       </ThemedText>
       <ThemedText style={styles.title}>Insights</ThemedText>
       <ThemedText type="small" themeColor="muted" style={styles.subtitle}>
@@ -233,7 +233,7 @@ export default function InsightsScreen() {
               >
                 Largest category
               </ThemedText>
-              <ThemedText style={[styles.noteText, { color: theme.onPrimary }]}>
+              <ThemedText style={[styles.noteText, { color: theme.text }]}>
                 {largest.name} · {formatMoney(largest.amount, currency)}
               </ThemedText>
             </View>
@@ -248,8 +248,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   title: {
-    fontFamily: "serif",
-    fontSize: 31,
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 30,
     lineHeight: 36,
     marginTop: 2,
   },
@@ -258,14 +258,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 6,
     paddingHorizontal: 16,
     paddingVertical: 18,
   },
   summaryItem: { flex: 1, gap: 4 },
   summaryValue: {
-    fontFamily: "Georgia",
-    fontSize: 24,
+    fontFamily: "IBMPlexSans_700Bold",
+    fontSize: 25,
     color: "#202A35",
   },
   divider: {
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   cyclePanel: {
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 6,
     paddingHorizontal: 15,
     paddingVertical: 6,
   },
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   categoryAmount: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   track: { height: 7, borderRadius: 8, overflow: "hidden" },
   fill: { height: "100%", borderRadius: 8 },
-  note: { borderRadius: 13, padding: 15, marginTop: 10 },
+  note: { borderRadius: 6, padding: 15, marginTop: 10 },
   noteTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   noteText: { fontFamily: "IBMPlexSans_500Medium", fontSize: 14, marginTop: 3 },
 });
