@@ -11,9 +11,10 @@ type ScreenLayoutProps = {
   subtitle: string;
   children: ReactNode;
   onBack?: () => void;
+  stackScreen?: boolean;
 };
 
-export function ScreenLayout({ title, subtitle, children, onBack }: ScreenLayoutProps) {
+export function ScreenLayout({ title, subtitle, children, onBack, stackScreen = false }: ScreenLayoutProps) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -32,7 +33,7 @@ export function ScreenLayout({ title, subtitle, children, onBack }: ScreenLayout
           <ScreenSubtitle>{subtitle}</ScreenSubtitle>
         </View>
       </View>
-      <View style={styles.sheet}>{children}</View>
+      <View style={[styles.sheet, { marginBottom: SHEET_GAP + (stackScreen ? insets.bottom : 0) }]}>{children}</View>
     </View>
   );
 }
