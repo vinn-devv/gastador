@@ -119,7 +119,7 @@ export default function InsightsScreen() {
             </View>
             <View style={[styles.divider, { backgroundColor: theme.line }]} />
             <View style={styles.summaryItem}>
-              <ThemedText type="small" style={{ color: "#EAF2FF" }}>
+              <ThemedText type="small" themeColor="muted">
                 Transactions
               </ThemedText>
               <ThemedText style={styles.summaryValue}>
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   title: {
-    fontFamily: "Georgia",
+    fontFamily: "serif",
     fontSize: 31,
     lineHeight: 36,
     marginTop: 2,
