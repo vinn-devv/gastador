@@ -132,7 +132,7 @@ export default function ActivityScreen() {
             {formatMoney(total, currency)}
           </ThemedText>
         </View>
-        <ThemedText type="small" style={{ color: "#EAF2FF" }}>
+        <ThemedText type="small" themeColor="muted">
           Total shown
         </ThemedText>
       </View>
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   header: { gap: 3, marginBottom: 20 },
-  title: { fontFamily: "Georgia", fontSize: 31, lineHeight: 36 },
+  title: { fontFamily: "serif", fontSize: 31, lineHeight: 36 },
   search: {
     minHeight: 48,
     borderWidth: 1,
