@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   options: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   option: {
-    minHeight: 42,
+    minHeight: 44,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 13,
