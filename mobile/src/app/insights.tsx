@@ -113,7 +113,7 @@ export default function InsightsScreen() {
               <ThemedText type="small" themeColor="muted">
                 All expenses
               </ThemedText>
-              <ThemedText style={styles.summaryValue}>
+              <ThemedText style={[styles.summaryValue, { color: theme.text }]}>
                 {formatMoney(totalSpent, currency)}
               </ThemedText>
             </View>
@@ -227,7 +227,7 @@ export default function InsightsScreen() {
           </View>
 
           {largest && (
-            <View style={[styles.note, { backgroundColor: "#E9EEF5" }]}>
+            <View style={[styles.note, { backgroundColor: theme.primarySoft }]}>
               <ThemedText
                 style={[styles.noteTitle, { color: theme.primary }]}
               >
@@ -266,7 +266,6 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontFamily: "IBMPlexSans_700Bold",
     fontSize: 25,
-    color: "#202A35",
   },
   divider: {
     width: StyleSheet.hairlineWidth,
