@@ -246,7 +246,7 @@ export default function InsightsScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 38 },
+  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   title: {
     fontFamily: "IBMPlexSans_700Bold",
     fontSize: 29,
