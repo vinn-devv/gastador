@@ -98,8 +98,8 @@ export default function NewExpenseScreen() {
 
   return (
     <>
-      <StatusBar style="light" backgroundColor={#315D8A} />
-      <ScrollView style={[styles.screen, { backgroundColor: #315D8A }]} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <StatusBar style="light" backgroundColor="#315D8A" />
+      <ScrollView style={[styles.screen, { backgroundColor: "#315D8A" }]} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.orangeHeader}>
           <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Go back" style={styles.back}>
             <SymbolView name={{ ios: "chevron.left", android: "arrow_back", web: "arrow_back" }} tintColor="#FFFFFF" size={21} />
