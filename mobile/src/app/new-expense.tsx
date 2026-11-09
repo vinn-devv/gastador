@@ -125,7 +125,7 @@ export default function NewExpenseScreen() {
 
   return (
     <>
-      <StatusBar style="light" backgroundColor="#2563EB" />
+      <StatusBar style="light" />
       <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.orangeHeader}>
           <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Go back" style={styles.back}>
