@@ -148,6 +148,7 @@ export default function AppTabs() {
       tabBar={(props) => <LiquidTabBar {...props} />}
       screenOptions={{
         headerShown: false,
+        sceneStyle: { backgroundColor: "transparent" },
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.muted,
         tabBarStyle: { position: "absolute", backgroundColor: "transparent", borderTopWidth: 0 },
