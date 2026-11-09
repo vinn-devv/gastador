@@ -66,7 +66,11 @@ The repository includes an EAS production profile that outputs an installable AP
    npx eas-cli login
    ```
 
-2. Link this app to your Expo project on the first setup (EAS will prompt during the first build if it is not linked yet).
+2. Create or link the EAS project (this adds its project ID to `app.json`):
+
+   ```bash
+   npx eas-cli init
+   ```
 
 3. Build the standalone APK:
 

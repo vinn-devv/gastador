@@ -35,3 +35,7 @@ jobs:
         run: npx expo config --type public
       - name: Type-check mobile app
         run: npx tsc --noEmit
+      - name: Bundle Android JavaScript and assets
+        run: npx expo export --platform android
+      - name: Generate Android native project
+        run: npx expo prebuild --platform android --no-install
