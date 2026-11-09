@@ -10,9 +10,11 @@ import { ThemedText } from "@/components/themed-text";
 import { SHEET_GAP } from "@/constants/layout";
 
 type TabState = { index: number; routes: Array<{ key: string; name: string }> };
-type TabNavigation = {
-  emit: (event: { type: "tabPress"; target: string; canPreventDefault: true }) => { defaultPrevented: boolean };
-  navigate: (name: string) => void;
+type TabBarNavigation = {
+  emitter: {
+    emit: (event: { type: "tabPress"; target: string; canPreventDefault: true }) => { defaultPrevented: boolean };
+  };
+  navigateToTab: (routeKey: string) => void;
 };
 type TabDescriptors = Record<string, { options: {
   title?: string;
@@ -41,7 +43,7 @@ function WalletTabItem({ focused, label, icon, onPress, accessibilityLabel }: { 
   );
 }
 
-function WalletTabBar({ state, descriptors, navigation }: { state: TabState; descriptors: TabDescriptors; navigation: TabNavigation }) {
+function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: TabState; descriptors: TabDescriptors } & TabBarNavigation) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
@@ -135,8 +137,8 @@ function WalletTabBar({ state, descriptors, navigation }: { state: TabState; des
                   accessibilityLabel={options?.tabBarAccessibilityLabel ?? label}
                   icon={options?.tabBarIcon?.({ focused, color: focused ? "#2563EB" : "#9A9A9A", size: 24 })}
                   onPress={() => {
-                    const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-                    if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+                    const event = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
+                    if (!focused && !event.defaultPrevented) navigateToTab(route.key);
                   }}
                 />
               );
