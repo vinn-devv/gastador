@@ -291,15 +291,11 @@ export default function HomeScreen() {
             onPress={() => router.push(action.route)}
             style={styles.quickAction}
           >
-            <View
-              style={[styles.quickIcon, { backgroundColor: "#EEF1F3" }]}
-            >
-              <SymbolView
-                name={action.icon}
-                tintColor={theme.primary}
-                size={21}
-              />
-            </View>
+            <SymbolView
+              name={action.icon}
+              tintColor={theme.primary}
+              size={21}
+            />
             <ThemedText style={styles.quickLabel}>{action.label}</ThemedText>
           </Pressable>
         ))}
@@ -397,20 +393,7 @@ export default function HomeScreen() {
                 },
               ]}
             >
-              <View
-                style={[
-                  styles.transactionIcon,
-                  { backgroundColor: theme.primarySoft },
-                ]}
-              >
-                <ThemedText
-                  style={[styles.transactionInitial, { color: theme.primary }]}
-                >
-                  {(item.merchant || item.categoryName || "E")
-                    .charAt(0)
-                    .toUpperCase()}
-                </ThemedText>
-              </View>
+              <View style={[styles.transactionRule, { backgroundColor: theme.primary }]} />
               <View style={styles.transactionInfo}>
                 <ThemedText style={styles.transactionName} numberOfLines={1}>
                   {item.merchant || "Untitled expense"}
@@ -451,8 +434,8 @@ const styles = StyleSheet.create({
   headerCopy: { flex: 1, gap: 4 },
   overline: {
     fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 10,
-    letterSpacing: 1.5,
+    fontSize: 12,
+    letterSpacing: 0,
   },
   greeting: {
     fontFamily: "IBMPlexSans_600SemiBold",
@@ -540,13 +523,7 @@ const styles = StyleSheet.create({
     marginBottom: 19,
   },
   quickAction: { flex: 1, alignItems: "center", gap: 7, paddingVertical: 3 },
-  quickIcon: {
-    width: 43,
-    height: 43,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+
   quickLabel: {
     fontFamily: "IBMPlexSans_500Medium",
     fontSize: 10,
