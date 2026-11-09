@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 124 },
   back: { alignSelf: "flex-start", marginBottom: 22 },
   backText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
-  title: { fontFamily: "Georgia", fontSize: 31, lineHeight: 36, marginTop: 2 },
+  title: { fontFamily: "serif", fontSize: 31, lineHeight: 36, marginTop: 2 },
   intro: { marginTop: 3, marginBottom: 25 },
   field: { marginBottom: 19, gap: 8 },
   label: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
