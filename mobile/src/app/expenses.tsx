@@ -90,6 +90,7 @@ export default function ActivityScreen() {
   return (
     <ScreenLayout title="Expenses" subtitle="Your complete spending history." onBack={() => router.back()} stackScreen>
     <ScrollView
+      style={{ flex: 1 }}
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + SHEET_GAP + 24 }]}
       showsVerticalScrollIndicator={false}
     >
@@ -206,7 +207,7 @@ export default function ActivityScreen() {
 const styles = StyleSheet.create({
   rowRule: { width: 3, height: 34, borderRadius: 2 },
   screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
+  content: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 24 },
   header: { gap: 3, marginBottom: 20 },
   title: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 30, lineHeight: 36 },
   search: {
