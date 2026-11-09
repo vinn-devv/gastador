@@ -192,6 +192,9 @@ export default function InsightsScreen() {
               <ThemedText type="small" themeColor="muted">
                 Your category breakdown will appear after you record an expense.
               </ThemedText>
+              <Pressable onPress={() => router.push("/new-expense")} style={styles.setupButton} accessibilityRole="button" accessibilityLabel="Add an expense">
+                <ThemedText style={styles.setupButtonText}>Add an expense</ThemedText>
+              </Pressable>
             ) : (
               breakdown.map((item) => {
                 const percent =
@@ -226,6 +229,9 @@ export default function InsightsScreen() {
                 );
               })
             )}
+            <Pressable onPress={() => router.push("/expenses")} style={styles.viewExpenses} accessibilityRole="button" accessibilityLabel="View all expenses">
+              <ThemedText style={{ color: theme.primary, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 }}>View all expenses</ThemedText>
+            </Pressable>
           </View>
 
           {largest && (
@@ -250,6 +256,7 @@ export default function InsightsScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 24 },
+  viewExpenses: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", marginTop: 4 },
   setupButton: { minHeight: 48, paddingHorizontal: 20, borderRadius: 14, backgroundColor: "#2563EB", alignItems: "center", justifyContent: "center", alignSelf: "flex-start", marginTop: 12 },
   setupButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 14 },
   summary: {
