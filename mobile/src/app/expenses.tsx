@@ -135,7 +135,7 @@ export default function ActivityScreen() {
 
       {loadError ? (
         <ThemedText type="small" themeColor="muted">
-          We couldn't load your expenses. Please try again.
+          We couldn&apos;t load your expenses. Please try again.
         </ThemedText>
       ) : loading ? (
         <ThemedText type="small" themeColor="muted">
