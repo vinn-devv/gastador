@@ -239,7 +239,7 @@ export default function HomeScreen() {
         </View>
       </View>
       <RNAnimated.View style={[styles.sheetShadow, { opacity: sheetEntrance, transform: [{ translateY: sheetEntrance.interpolate({ inputRange: [0, 1], outputRange: [34, 0] }) }] }]}>
-        <View style={[styles.whiteSheet, { paddingBottom: insets.bottom + 138 }]}>
+        <View style={[styles.whiteSheet, { paddingBottom: insets.bottom + 88 }]}>
         <Reanimated.View
           key={sheetTab}
           entering={(contentDirection === 1 ? FadeInLeft : FadeInRight).duration(180).delay(50)}
@@ -384,7 +384,6 @@ const styles = StyleSheet.create({
   donutLabel: { color: "#6B7280", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, lineHeight: 16 },
   insightStatsRow: { width: "100%", flexDirection: "row", gap: 12 },
   insightStatSlot: { flex: 1, minWidth: 0 },
-  donutGhost: { opacity: 0.42 },
   insightStatChip: { flex: 1, minWidth: 0, minHeight: 68, borderRadius: 16, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center", paddingHorizontal: 5, paddingVertical: 9, gap: 3 },
   insightStatValue: { color: "#1E40AF", fontFamily: "IBMPlexSans_700Bold", fontSize: 18, lineHeight: 23 },
   insightStatLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, lineHeight: 16 },
