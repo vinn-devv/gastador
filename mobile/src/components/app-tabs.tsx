@@ -1,4 +1,5 @@
 import { Tabs, useRouter, type Href } from "expo-router";
+import type { ReactNode } from "react";
 import { SymbolView } from "expo-symbols";
 import { Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,7 +14,7 @@ type TabState = {
 type TabDescriptors = Record<string, { options: {
   title?: string;
   tabBarAccessibilityLabel?: string;
-  tabBarIcon?: (props: { focused: boolean; color: string; size: number }) => React.ReactNode;
+  tabBarIcon?: (props: { focused: boolean; color: string; size: number }) => ReactNode;
 } }>;
 
 const VISIBLE_TABS = ["index", "explore", "insights", "settings"] as const;
