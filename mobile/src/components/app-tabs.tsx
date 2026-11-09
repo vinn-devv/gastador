@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   barSurface: { height: 72, width: "100%", backgroundColor: "transparent" },
   tabsRow: { height: 72, flexDirection: "row", alignItems: "center", justifyContent: "space-around" },
   tab: { flex: 1, minWidth: 0, minHeight: 52, alignItems: "center", justifyContent: "center", paddingTop: 3 },
-  tabLabel: { fontFamily: "IBMPlexSans_700Bold", fontSize: 10, lineHeight: 14, marginTop: 1 },
+  tabLabel: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 11, lineHeight: 15, marginTop: 1 },
   centerSlot: { flex: 1, minWidth: 0, height: 52 },
   scanButtonWrap: { position: "absolute", alignSelf: "center", left: "50%", marginLeft: -32, width: 64, height: 64, zIndex: 5, elevation: 15 },
   scanButton: { width: 64, height: 64, borderRadius: 32, borderWidth: 4, borderColor: "#FFFFFF", backgroundColor: "#2563EB", alignItems: "center", justifyContent: "center", shadowColor: "#2563EB", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 8, elevation: 12 },
