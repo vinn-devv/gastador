@@ -610,7 +610,7 @@ export default function HomeScreen() {
                         </ThemedText>
                       </View>
                       <Pressable
-                        onPress={() => router.push("/explore")}
+                        onPress={() => router.push("/expenses")}
                         accessibilityRole="button"
                         accessibilityLabel="View all activity"
                         hitSlop={8}
