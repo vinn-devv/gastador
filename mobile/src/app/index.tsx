@@ -105,15 +105,17 @@ export default function HomeScreen() {
     <>
     <StatusBar style="light" backgroundColor="#315D8A" />
     <ScrollView style={[styles.screen, { backgroundColor: "#315D8A" }]} contentContainerStyle={styles.scrollContent}>
-      <View style={styles.orangeHeader}>
+      <View style={styles.blueHeader}>
         <View style={styles.topLine}>
-          <View>
-            <ThemedText style={styles.walletTitle}>Wallet</ThemedText>
-            <ThemedText style={styles.greeting}>{greeting()}{firstName ? `, ${firstName}` : ""}</ThemedText>
+          <ThemedText style={styles.walletTitle}>Wallet</ThemedText>
+          <View style={styles.headerActions}>
+            <View accessibilityLabel="Notifications" style={styles.notificationButton}>
+              <SymbolView name={{ ios: "bell.badge", android: "notifications", web: "notifications" }} tintColor="#315D8A" size={19} />
+            </View>
+            <Pressable onPress={() => router.push("/settings")} accessibilityRole="button" accessibilityLabel="Open profile and settings" style={styles.profileButton}>
+              <Image source={require("@/assets/images/icon-512.png")} style={styles.profileMark} contentFit="contain" />
+            </Pressable>
           </View>
-          <Pressable onPress={() => router.push("/settings")} accessibilityRole="button" accessibilityLabel="Open settings" style={styles.profileButton}>
-            <Image source={require("@/assets/images/icon-512.png")} style={styles.profileMark} contentFit="contain" />
-          </Pressable>
         </View>
 
         <ThemedText style={styles.balanceLabel}>Available to spend</ThemedText>
@@ -216,8 +218,8 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   scrollContent: { paddingBottom: 100 },
-  orangeHeader: { paddingHorizontal: 23, paddingTop: 18, paddingBottom: 27 },
-  topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
+  blueHeader: { paddingHorizontal: 23, paddingTop: 18, paddingBottom: 27 },
+  topLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },\n  headerActions: { flexDirection: "row", alignItems: "center", gap: 10 },\n  notificationButton: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#E7EDF3", alignItems: "center", justifyContent: "center" },
   walletTitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
   greeting: { color: "rgba(255,255,255,0.78)", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, marginTop: 2 },
   profileButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#E7EDF3", alignItems: "center", justifyContent: "center" },
