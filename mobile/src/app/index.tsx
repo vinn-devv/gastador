@@ -43,7 +43,7 @@ function categorySymbol(category: string): WalletSymbolName {
   if (value.includes("school")) return { ios: "book", android: "school", web: "school" };
   if (value.includes("bill")) return { ios: "receipt", android: "receipt_long", web: "receipt_long" };
   if (value.includes("personal")) return { ios: "person", android: "person", web: "person" };
-  return { ios: "wallet", android: "account_balance_wallet", web: "account_balance_wallet" };
+  return { ios: "wallet.pass", android: "account_balance_wallet", web: "account_balance_wallet" };
 }
 
 function StaggeredRow({ index, children }: { index: number; children: ReactNode }) {
