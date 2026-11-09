@@ -98,8 +98,8 @@ export default function NewExpenseScreen() {
 
   return (
     <>
-      <StatusBar style="light" backgroundColor="#315D8A" />
-      <ScrollView style={[styles.screen, { backgroundColor: "#315D8A" }]} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <StatusBar style="light" backgroundColor="#2563EB" />
+      <ScrollView style={[styles.screen, { backgroundColor: "#2563EB" }]} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.orangeHeader}>
           <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Go back" style={styles.back}>
             <SymbolView name={{ ios: "chevron.left", android: "arrow_back", web: "arrow_back" }} tintColor="#FFFFFF" size={21} />
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   balanceAdd: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
   amountArea: { alignItems: "center", paddingVertical: 7, marginBottom: 9 },
   amountLabel: { color: "#68747D", fontFamily: "IBMPlexSans_400Regular", fontSize: 11 },
-  amountValue: { color: "#315D8A", fontFamily: "IBMPlexSans_700Bold", fontSize: 34, lineHeight: 43, marginTop: 4 },
+  amountValue: { color: "#2563EB", fontFamily: "IBMPlexSans_700Bold", fontSize: 34, lineHeight: 43, marginTop: 4 },
   keypad: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", marginBottom: 21, columnGap: 10, rowGap: 8 },
   key: { width: "30%", maxWidth: 100, aspectRatio: 1.42, borderRadius: 50, borderWidth: 1, borderColor: "#D9DEE2", alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF" },
   keyText: { color: "#202A35", fontFamily: "IBMPlexSans_500Medium", fontSize: 20 },
