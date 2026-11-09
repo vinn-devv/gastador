@@ -1,10 +1,10 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from "expo-router";
+import { DefaultTheme, ThemeProvider } from "expo-router";
 import { SQLiteProvider } from "expo-sqlite";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "@expo-google-fonts/ibm-plex-sans";
-import { View, useColorScheme } from "react-native";
+import { View } from "react-native";
+import { StatusBar } from "expo-status-bar";
 
-import { HalftoneBackground } from "@/components/halftone-background";
 import AppTabs from "@/components/app-tabs";
 import { DB_NAME, initializeDatabase } from "@/data/database";
 import { IntroOverlay } from "@/components/intro-overlay";
@@ -12,8 +12,6 @@ import { IntroOverlay } from "@/components/intro-overlay";
 void SplashScreen.preventAutoHideAsync();
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   const [fontsLoaded] = useFonts({
     IBMPlexSans_400Regular: require("@expo-google-fonts/ibm-plex-sans/400Regular/IBMPlexSans_400Regular.ttf"),
     IBMPlexSans_500Medium: require("@expo-google-fonts/ibm-plex-sans/500Medium/IBMPlexSans_500Medium.ttf"),
@@ -24,14 +22,14 @@ export default function TabLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={DefaultTheme}>
       <View
-        style={{ flex: 1, backgroundColor: "#050B14" }}
+        style={{ flex: 1, backgroundColor: "#F7F9FC" }}
         onLayout={() => {
           void SplashScreen.hideAsync();
         }}
       >
-        <HalftoneBackground />
+        <StatusBar style="dark" />
         <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
           <AppTabs />
         </SQLiteProvider>
