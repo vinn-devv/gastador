@@ -106,11 +106,11 @@ export default function InsightsScreen() {
           <View
             style={[
               styles.summary,
-              { borderColor: theme.primary, backgroundColor: theme.primary },
+              { borderColor: theme.line, backgroundColor: theme.surface },
             ]}
           >
             <View style={styles.summaryItem}>
-              <ThemedText type="small" style={{ color: "#EAF2FF" }}>
+              <ThemedText type="small" themeColor="muted">
                 All expenses
               </ThemedText>
               <ThemedText style={styles.summaryValue}>
@@ -227,9 +227,9 @@ export default function InsightsScreen() {
           </View>
 
           {largest && (
-            <View style={[styles.note, { backgroundColor: theme.primarySoft }]}>
+            <View style={[styles.note, { backgroundColor: "#E9EEF5" }]}>
               <ThemedText
-                style={[styles.noteTitle, { color: theme.onPrimary }]}
+                style={[styles.noteTitle, { color: theme.primary }]}
               >
                 Largest category
               </ThemedText>
@@ -248,8 +248,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 124 },
   title: {
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 29,
+    fontFamily: "Georgia",
+    fontSize: 31,
     lineHeight: 36,
     marginTop: 2,
   },
@@ -258,21 +258,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 18,
   },
   summaryItem: { flex: 1, gap: 4 },
   summaryValue: {
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 21,
-    color: "#FFFFFF",
+    fontFamily: "Georgia",
+    fontSize: 24,
+    color: "#202A35",
   },
   divider: {
     width: StyleSheet.hairlineWidth,
     height: 36,
     marginHorizontal: 14,
-    backgroundColor: "rgba(255,255,255,0.35)",
+    backgroundColor: theme.line,
   },
   section: { marginTop: 26 },
   sectionTitle: {
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   cyclePanel: {
     borderWidth: 1,
-    borderRadius: 14,
+    borderRadius: 8,
     paddingHorizontal: 15,
     paddingVertical: 6,
   },
