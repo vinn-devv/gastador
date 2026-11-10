@@ -21,7 +21,6 @@ import { SymbolView } from "expo-symbols";
 import Reanimated, {
   Easing,
   FadeInUp,
-  interpolate,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -318,7 +317,7 @@ export default function OnboardingScreen() {
                   { label: "Private on-device", icon: { ios: "lock.fill", android: "lock", web: "lock" } },
                 ].map((item) => (
                   <View key={item.label} style={styles.chip}>
-                    {Platform.OS === "android" ? <Text maxFontSizeMultiplier={1.2} style={styles.materialIcon}>{item.icon.android}</Text> : <SymbolView name={item.icon as ComponentProps<typeof SymbolView>["name"]} tintColor={WHITE} size={12} />}
+                    {Platform.OS === "android" ? <Text maxFontSizeMultiplier={1.2} style={styles.materialIcon}>{item.icon.android}</Text> : <SymbolView name={item.icon as never} tintColor={WHITE} size={12} />}
                     <Text maxFontSizeMultiplier={1.2} style={styles.chipText}>{item.label}</Text>
                   </View>
                 ))}
@@ -520,13 +519,7 @@ const styles = StyleSheet.create({
   confetti: { position: "absolute", top: 0, width: 220, height: 220, alignItems: "center", justifyContent: "center" },
   confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
   welcomeContactShadow: { position: "absolute", bottom: 0, width: "70%", height: 16 },
-  welcomeStack: { width: "100%", alignItems: "center", justifyContent: "center" },
-  welcomeVisual: { width: 230, height: 252, alignItems: "center", justifyContent: "flex-start", overflow: "hidden" },
-  welcomeCoin: { width: 220, height: 220, alignItems: "center", justifyContent: "center" },
-  ring: { position: "absolute", top: 22, width: 176, height: 176, borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
-  confetti: { position: "absolute", top: 0, width: 220, height: 220, alignItems: "center", justifyContent: "center" },
-  confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
-  welcomeContactShadow: { position: "absolute", bottom: 0, width: "70%", height: 16 },
+
   welcomeCopy: { width: "100%", alignItems: "center", paddingHorizontal: 8, marginTop: 32 },
   welcomeHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 42, lineHeight: 49, textAlign: "center" },
   welcomeBrand: { color: "#CFE6FF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 52, lineHeight: 58, textAlign: "center" },
