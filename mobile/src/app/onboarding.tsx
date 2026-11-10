@@ -327,8 +327,8 @@ export default function OnboardingScreen() {
   const amountFontSize = formattedAmount.length > 11 ? 42 : formattedAmount.length > 9 ? 52 : formattedAmount.length > 7 ? 62 : keyboardVisible ? 56 : 72;
   const availableHeight = height - (Platform.OS === "ios" && keyboardVisible ? keyboardHeight : 0);
   const showSubtitle = availableHeight >= 700;
-  const showQuickAmounts = availableHeight >= 620 && !keyboardVisible;
-  const showHelperDetail = availableHeight >= 640;
+  const showQuickAmounts = availableHeight >= 640 && !keyboardVisible;
+  const showHelperDetail = availableHeight >= 600;
   const compactHeaderCoin = availableHeight < 480;
   const onCoinSlotLayout = useCallback((index: number, offsetX = 0, offsetY = 0) => (event: { nativeEvent: { layout: { x: number; y: number; width: number; height: number } } }) => {
     const layout = event.nativeEvent.layout;
@@ -428,7 +428,7 @@ export default function OnboardingScreen() {
               <View style={[styles.allowanceCard, keyboardVisible && styles.allowanceCardKeyboard]}>
                 <Pressable style={[styles.amountLine, keyboardVisible && styles.amountLineCompact]} onPress={() => amountInput.current?.focus()}>
                   <Text maxFontSizeMultiplier={1.2} style={[styles.currencySign, keyboardVisible && styles.currencySignCompact]}>₱</Text>
-                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 160, Math.max(48, formattedAmount.length * amountFontSize * 0.58 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
+                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
                 </Pressable>
                 <View style={[styles.periodPill, keyboardVisible && styles.periodPillCompact]} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
                   <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   allowancePageKeyboard: { paddingTop: 0 },
   allowanceBody: { flex: 1, justifyContent: "center", gap: 12, minHeight: 0 },
   allowanceCard: { backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 28, padding: 20, borderWidth: 0, gap: 8 },
-  allowanceCardKeyboard: { paddingVertical: 12, gap: 4 },
+  allowanceCardKeyboard: { paddingVertical: 8, gap: 2 },
   allowanceHeading: { height: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
   allowanceHeadingCompact: { height: 48 },
   allowanceHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 34, lineHeight: 40, flex: 1 },
@@ -554,11 +554,11 @@ const styles = StyleSheet.create({
   headerCoinSlotCompact: { width: 48, height: 48 },
   allowanceSubtitle: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 16 },
   dateRow: { minHeight: 36, flexDirection: "row", alignItems: "center", gap: 10 },
-  dateRowCompact: { minHeight: 30 },
+  dateRowCompact: { minHeight: 26 },
   dateLabel: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 78 },
   dateControl: { flex: 1, alignSelf: "center" },
   amountLine: { flexDirection: "row", alignItems: "flex-start", justifyContent: "center", minHeight: 96, marginTop: 24, marginBottom: 24 },
-  amountLineCompact: { minHeight: 60, marginTop: 0, marginBottom: 2 },
+  amountLineCompact: { minHeight: 52, marginTop: 0, marginBottom: 0 },
   currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 44, marginTop: 2, marginRight: 6 },
   amountInput: { flexGrow: 0, flexShrink: 1, minWidth: 42, color: WHITE, textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 72, lineHeight: 80, includeFontPadding: false, padding: 0 },
   allowancePageKeyboardAmount: { fontSize: 48, lineHeight: 52 },
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
   periodPill: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 999, padding: 4, gap: 2 },
   periodPillCompact: { padding: 2 },
   periodOption: { flex: 1, minHeight: 34, borderRadius: 999, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
-  periodOptionCompact: { minHeight: 28 },
+  periodOptionCompact: { minHeight: 26 },
   periodIndicator: { position: "absolute", top: 4, bottom: 4, left: 4, backgroundColor: WHITE, borderRadius: 999 },
   periodText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 11 },
   periodTextActive: { color: BLUE },
