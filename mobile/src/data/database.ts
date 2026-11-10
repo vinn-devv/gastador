@@ -201,7 +201,7 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
           "SELECT id, startDate, endDate FROM cycles ORDER BY startDate, id",
         );
         await db.runAsync("UPDATE cycles SET needsReview = 0");
-        const conflicts: Array<[string, string]> = [];
+        const conflicts: [string, string][] = [];
         for (let i = 0; i < normalized.length; i += 1) {
           for (let j = i + 1; j < normalized.length; j += 1) {
             if (rangesOverlapInclusive(normalized[i], normalized[j])) {
