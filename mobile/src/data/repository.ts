@@ -15,6 +15,7 @@ type SettingsRow = {
   theme: AppSettings["theme"];
   budgetMethod: AppSettings["budgetMethod"];
   onboardingCompleted: number;
+  hasOnboarded: number;
   alertsJson: string;
   createdAt: string;
 };
@@ -35,6 +36,7 @@ export async function getSettings(db: SQLiteDatabase): Promise<AppSettings> {
     theme: row.theme,
     budgetMethod: row.budgetMethod,
     onboardingCompleted: Boolean(row.onboardingCompleted),
+    hasOnboarded: Boolean(row.hasOnboarded || row.onboardingCompleted),
     alerts: {
       ...defaults.alerts,
       ...JSON.parse(row.alertsJson),
@@ -62,6 +64,7 @@ export async function saveSettings(
       theme = ?,
       budgetMethod = ?,
       onboardingCompleted = ?,
+      hasOnboarded = ?,
       alertsJson = ?
      WHERE id = 1`,
     settings.displayName,
@@ -69,6 +72,7 @@ export async function saveSettings(
     settings.theme,
     settings.budgetMethod,
     Number(settings.onboardingCompleted),
+    Number(settings.hasOnboarded),
     JSON.stringify(settings.alerts),
   );
 }
