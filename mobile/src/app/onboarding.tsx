@@ -269,7 +269,7 @@ export default function OnboardingScreen() {
   const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.get() }] }));
   const sharedCoinStyle = useAnimatedStyle(() => {
     const slots = coinSlots.get();
-    const points = slots.map((slot, index) => ({ x: slot.x + (index * width) + slot.width / 2, y: slot.y + slot.height / 2, size: index === 0 ? Math.min(width * 0.7, 280, slot.height - 48) : index === 1 ? 64 : Math.min(220, slot.width, slot.height - 16) }));
+    const points = slots.map((slot, index) => ({ x: slot.x + (index * width) + slot.width / 2, y: slot.y + slot.height / 2, size: index === 0 ? Math.min(width * 0.7, 280, slot.height - 48) : index === 1 ? Math.min(64, slot.width, slot.height) : Math.min(220, slot.width, slot.height - 16) }));
     const p = Math.max(0, Math.min(2, pageProgress.get()));
     const x = interpolate(p, [0, 1, 2], points.map((point) => point.x)) - p * width;
     const y = interpolate(p, [0, 1, 2], points.map((point) => point.y));
@@ -305,9 +305,11 @@ export default function OnboardingScreen() {
 
   const formattedAmount = formatAllowanceInput(amount);
   const amountFontSize = formattedAmount.length > 11 ? 34 : formattedAmount.length > 9 ? 40 : formattedAmount.length > 7 ? 48 : keyboardVisible ? 48 : 56;
-  const showQuickAmounts = height >= 720 && !keyboardVisible;
-  const showSubtitle = height >= 700 && !keyboardVisible;
-  const showHelperDetail = height >= 620 && !keyboardVisible;
+  const availableHeight = height - (Platform.OS === "ios" && keyboardVisible ? keyboardHeight : 0);
+  const showSubtitle = availableHeight >= 700;
+  const showQuickAmounts = availableHeight >= 760;
+  const showHelperDetail = availableHeight >= 640;
+  const compactHeaderCoin = availableHeight < 480;
   const onCoinSlotLayout = useCallback((index: number, offsetX = 0, offsetY = 0) => (event: { nativeEvent: { layout: { x: number; y: number; width: number; height: number } } }) => {
     const layout = event.nativeEvent.layout;
     const next = coinSlots.get().map((slot, i) => i === index ? { ...layout, x: layout.x + offsetX, y: layout.y + offsetY } : slot);
@@ -398,7 +400,7 @@ export default function OnboardingScreen() {
             <Pressable pointerEvents="box-only" onPress={Keyboard.dismiss} style={StyleSheet.absoluteFill} />
             <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
-              <View style={styles.headerCoinSlot} onLayout={onCoinSlotLayout(1, 24, 0)} />
+              <View style={[styles.headerCoinSlot, compactHeaderCoin && styles.headerCoinSlotCompact]} onLayout={onCoinSlotLayout(1, 24, 0)} />
             </View>
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
             <Pressable style={styles.amountLine} onPress={() => amountInput.current?.focus()}>
@@ -519,6 +521,7 @@ const styles = StyleSheet.create({
   allowanceHeading: { height: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
   allowanceHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 34, lineHeight: 40, flex: 1 },
   headerCoinSlot: { width: 64, height: 64, flexShrink: 0 },
+  headerCoinSlotCompact: { width: 48, height: 48 },
   allowanceSubtitle: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 16 },
   dateRow: { minHeight: 36, flexDirection: "row", alignItems: "center", gap: 10 },
   dateLabel: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 78 },
