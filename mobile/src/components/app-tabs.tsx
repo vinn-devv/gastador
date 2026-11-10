@@ -31,7 +31,7 @@ function WalletTabItem({ focused, label, icon, onPress, accessibilityLabel }: { 
     Animated.spring(progress, { toValue: focused ? 1 : 0, damping: 16, stiffness: 190, mass: 0.7, useNativeDriver: true }).start();
   }, [focused, progress]);
 
-  const color = focused ? "#2563EB" : "#9A9A9A";
+  const color = focused ? "#2563EB" : "#64748B";
   return (
     <Pressable accessibilityRole="tab" accessibilityLabel={accessibilityLabel} accessibilityState={focused ? { selected: true } : {}} onPress={onPress} style={styles.tab}>
       <Animated.View style={{ alignItems: "center", justifyContent: "center", transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -2] }) }] }}>
@@ -150,7 +150,7 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
                   focused={focused}
                   label={label}
                   accessibilityLabel={options?.tabBarAccessibilityLabel ?? label}
-                  icon={options?.tabBarIcon?.({ focused, color: focused ? "#2563EB" : "#9A9A9A", size: 24 })}
+                  icon={options?.tabBarIcon?.({ focused, color: focused ? "#2563EB" : "#64748B", size: 24 })}
                   onPress={() => {
                     const event = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
                     if (!focused && !event.defaultPrevented) navigateToTab(route.key);
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   barSurface: { width: "100%", backgroundColor: "#FFFFFF", borderBottomLeftRadius: 24, borderBottomRightRadius: 24, overflow: "hidden" },
   tabsRow: { position: "absolute", left: 0, right: 0, height: 72, flexDirection: "row", alignItems: "center", justifyContent: "space-around" },
   tab: { flex: 1, minWidth: 0, minHeight: 52, alignItems: "center", justifyContent: "center", paddingTop: 3 },
-  tabLabel: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 11, lineHeight: 15, marginTop: 1 },
+  tabLabel: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12, lineHeight: 16, marginTop: 1 },
   centerSlot: { flex: 1, minWidth: 0, height: 52 },
   scanButtonWrap: { position: "absolute", alignSelf: "center", left: "50%", marginLeft: -32, width: 64, height: 64, zIndex: 5, elevation: 15 },
   scanButton: { width: 64, height: 64, borderRadius: 32, borderWidth: 4, borderColor: "#FFFFFF", backgroundColor: "#2563EB", alignItems: "center", justifyContent: "center", shadowColor: "#2563EB", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 8, elevation: 12 },
