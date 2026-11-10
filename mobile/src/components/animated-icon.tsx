@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Animated,
   Easing,
@@ -41,17 +41,17 @@ function CornerMarks({ opacity }: { opacity: Animated.Value }) {
 export function AnimatedSplashOverlay() {
   const [visible, setVisible] = useState(true);
   const { width } = useWindowDimensions();
-  const tileScale = useRef(new Animated.Value(0.72)).current;
-  const tileOpacity = useRef(new Animated.Value(0)).current;
-  const borderOpacity = useRef(new Animated.Value(1)).current;
-  const markOpacity = useRef(new Animated.Value(0)).current;
-  const markScale = useRef(new Animated.Value(0.72)).current;
-  const cornersOpacity = useRef(new Animated.Value(0)).current;
-  const wordOpacity = useRef(new Animated.Value(0)).current;
-  const wordY = useRef(new Animated.Value(12)).current;
-  const taglineOpacity = useRef(new Animated.Value(0)).current;
-  const taglineY = useRef(new Animated.Value(7)).current;
-  const overlayOpacity = useRef(new Animated.Value(1)).current;
+  const [tileScale] = useState(() => new Animated.Value(0.72));
+  const [tileOpacity] = useState(() => new Animated.Value(0));
+  const [borderOpacity] = useState(() => new Animated.Value(1));
+  const [markOpacity] = useState(() => new Animated.Value(0));
+  const [markScale] = useState(() => new Animated.Value(0.72));
+  const [cornersOpacity] = useState(() => new Animated.Value(0));
+  const [wordOpacity] = useState(() => new Animated.Value(0));
+  const [wordY] = useState(() => new Animated.Value(12));
+  const [taglineOpacity] = useState(() => new Animated.Value(0));
+  const [taglineY] = useState(() => new Animated.Value(7));
+  const [overlayOpacity] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
     const intro = Animated.sequence([
