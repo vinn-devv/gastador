@@ -1,6 +1,5 @@
 export type ParsedQrExpense = { amount: string; merchant: string };
 
-/** Extracts an amount and merchant from common JSON, query-string, or EMVCo QR payloads. */
 export function parseQrExpense(payload: string): ParsedQrExpense | null {
   const value = payload.trim();
   if (!value) return null;
@@ -11,7 +10,6 @@ export function parseQrExpense(payload: string): ParsedQrExpense | null {
     const merchant = String(json.merchantName ?? json.merchant ?? json.name ?? "QR expense");
     if (/^\d+(?:\.\d{1,2})?$/.test(amount) && Number(amount) > 0) return { amount, merchant };
   } catch {
-    // Not JSON; continue with the common text and EMVCo formats.
   }
 
   const amountMatch = value.match(/(?:amount|total|am)[=:]\s*(\d+(?:\.\d{1,2})?)/i);

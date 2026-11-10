@@ -518,7 +518,6 @@ export async function archiveCategory(db: SQLiteDatabase, id: string): Promise<v
     await db.runAsync("UPDATE categories SET archivedAt = ? WHERE id = ?", new Date().toISOString(), id);
     return;
   }
-  // Archive instead of deleting so references and backups remain stable.
   await db.runAsync("UPDATE categories SET archivedAt = ? WHERE id = ?", new Date().toISOString(), id);
 }
 
@@ -571,6 +570,5 @@ export async function renameCustomPaymentMethod(db: SQLiteDatabase, id: string, 
 export async function deleteCustomPaymentMethod(db: SQLiteDatabase, id: string): Promise<void> {
   const method = await db.getFirstAsync<{ id: string }>("SELECT id FROM payment_methods WHERE id = ?", id);
   if (!method) return;
-  // Existing expenses retain their payment method string and history.
   await db.runAsync("DELETE FROM payment_methods WHERE id = ?", id);
 }

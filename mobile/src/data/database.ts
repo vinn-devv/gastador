@@ -135,7 +135,6 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
     await db.execAsync("ALTER TABLE cycles ADD COLUMN needsReview INTEGER NOT NULL DEFAULT 0");
   }
 
-  // Seed default settings only when the app has no settings yet.
   const now = new Date().toISOString();
   const settings = defaultSettings(new Date(now));
 
@@ -164,8 +163,6 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
   );
 
 
-  // One-time cycle date normalization. All row backups, conversions, conflict flags,
-  // and both schema-version markers are committed atomically.
   const migrationState = await db.getFirstAsync<{ cycleDateMigrationVersion: number }>(
     "SELECT cycleDateMigrationVersion FROM settings WHERE id = 1",
   );
@@ -233,11 +230,9 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
       });
     } catch (error) {
       console.error("[cycle-date-migration] rolled back; failed cycle:", failedCycleId, error);
-      // Keep launch available; the migration version remains unchanged for a safe retry.
     }
   }
 
-    // Seed standard categories without duplicating them.
   for (const [index, category] of STANDARD_CATEGORIES.entries()) {
     await db.runAsync(
       `INSERT OR IGNORE INTO categories (

@@ -12,7 +12,6 @@ export type CsvExportOptions = {
   includeNotes?: boolean;
 };
 
-/** Quote every field and neutralise spreadsheet formula injection. */
 export function csvCell(value: unknown): string {
   let text = String(value ?? "");
   const isNumeric =
@@ -63,6 +62,5 @@ export function transactionsToCsv(
     ].map(csvCell).join(",");
   });
 
-  // UTF-8 BOM helps spreadsheet apps recognise the file's encoding.
   return "\uFEFF" + [columns.map(csvCell).join(","), ...rows].join("\r\n");
 }

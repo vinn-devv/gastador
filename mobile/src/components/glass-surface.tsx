@@ -8,21 +8,13 @@ const glassOk = isLiquidGlassAvailable();
 
 type Props = {
   radius?: number;
-  /** Strength of the white fill, 0 to 1. */
   fill?: number;
-  /** Backdrop blur for the fallback (iOS < 26, Android). */
   blur?: number;
-  /** Lets real Liquid Glass react to touch (iOS 26+). */
   interactive?: boolean;
   style?: StyleProp<ViewStyle>;
   children?: ReactNode;
 };
 
-/**
- * Shared glass material: translucent fill, light blur, 1px rim,
- * inset top/bottom highlights and gradient edge lines.
- * On iOS 26+ it sits on real Liquid Glass (true refraction).
- */
 export function GlassSurface({
   radius = 24,
   fill,

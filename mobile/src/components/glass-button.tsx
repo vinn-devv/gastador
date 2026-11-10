@@ -19,11 +19,6 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
-/**
- * Pill-shaped glass button that squishes slightly when pressed.
- *
- *   <GlassButton label="Scan receipt" onPress={...} />
- */
 export function GlassButton({ label, onPress, icon, disabled, style }: Props) {
   const [scale] = useState(() => new Animated.Value(1));
 

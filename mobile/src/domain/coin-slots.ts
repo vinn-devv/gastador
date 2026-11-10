@@ -2,11 +2,6 @@ import type { EdgeInsets } from "react-native-safe-area-context";
 
 export type CoinSlot = { x: number; y: number; size: number };
 
-/**
- * Coordinates are in the horizontally paged ScrollView's content space.
- * The shared coin overlay subtracts pageProgress * width to place each slot
- * in the visible screen viewport.
- */
 export function getCoinSlots(width: number, height: number, insets: Pick<EdgeInsets, "top" | "bottom">): [CoinSlot, CoinSlot, CoinSlot] {
   const safeWidth = Math.max(80, Number.isFinite(width) ? width : 360);
   const safeHeight = Math.max(120, Number.isFinite(height) ? height : 640);

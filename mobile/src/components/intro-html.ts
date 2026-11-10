@@ -1,4 +1,3 @@
-// Auto-generated from Gastador Intro.html
 export const INTRO_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
