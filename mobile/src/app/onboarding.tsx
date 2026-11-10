@@ -37,6 +37,7 @@ const ACCENT = "#EAF3FF";
 const SKY = "#8EC5FF";
 const WHITE = "#FFFFFF";
 const COIN = require("@/assets/images/peso-coin.png");
+const AnimatedPressable = Reanimated.createAnimatedComponent(Pressable);
 
 type Period = "weekly" | "biweekly" | "monthly";
 
@@ -61,6 +62,7 @@ export default function OnboardingScreen() {
   const pageProgress = useSharedValue(0);
   const float = useSharedValue(0);
   const pulse = useSharedValue(0);
+  const buttonScale = useSharedValue(1);
   const [page, setPage] = useState(0);
   const [amount, setAmount] = useState("");
   const [period, setPeriod] = useState<Period>("monthly");
@@ -172,6 +174,8 @@ export default function OnboardingScreen() {
     };
   });
 
+  const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.value }] }));
+
   const ringStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 0.8 + pulse.value * 0.6 }],
     opacity: reducedMotion ? 0.24 : 0.35 * (1 - pulse.value),
@@ -182,8 +186,8 @@ export default function OnboardingScreen() {
     opacity: 0.85 - float.value * 0.12,
   }));
 
-  const page2Top = page === 1 ? 0 : page === 2 ? height * 0.12 : height * 0.30;
-  const coinSize = Math.min(width * 0.78, height * 0.34, 310);
+  const page2Top = page === 1 ? 0 : height * 0.30;
+  const coinSize = Math.min(width, height * 0.48, 380);
 
   return (
     <RNAnimated.View style={[styles.root, { opacity: fade }]}>
@@ -311,12 +315,12 @@ export default function OnboardingScreen() {
 
       <View style={[styles.bottom, { paddingBottom: insets.bottom + 16 }]}>
         {page === 1 ? (
-          <Pressable onPress={() => void saveAllowance()} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel="Set allowance and continue" style={[styles.cta, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
+          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); void saveAllowance(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel="Set allowance and continue" style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{saving ? "Saving…" : "Set Allowance"}</Text>
             <Text maxFontSizeMultiplier={1.2} style={styles.arrow}>→</Text>
           </Pressable>
         ) : (
-          <Pressable onPress={() => page === 0 ? moveTo(1) : void finish()} accessibilityRole="button" accessibilityLabel={page === 0 ? "Get started" : "Start tracking"} style={styles.cta}>
+          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); page === 0 ? moveTo(1) : void finish(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} accessibilityRole="button" accessibilityLabel={page === 0 ? "Get started" : "Start tracking"} style={[styles.cta, buttonAnimatedStyle]}>
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{page === 0 ? "Get Started" : "Start Tracking"}</Text>
             <Text maxFontSizeMultiplier={1.2} style={styles.arrow}>→</Text>
           </Pressable>
