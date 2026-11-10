@@ -1,5 +1,5 @@
 import { Tabs, useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { SymbolView } from "expo-symbols";
 import { Animated, Keyboard, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,7 +10,7 @@ import { ThemedText } from "@/components/themed-text";
 import { SHEET_GAP } from "@/constants/layout";
 import type { TabParamList } from "@/types/navigation";
 
-type TabState = { index: number; routes: Array<{ key: string; name: string }> };
+type TabState = { index: number; routes: { key: string; name: string }[] };
 type TabBarNavigation = {
   emitter: {
     emit: (event: { type: "tabPress"; target: string; canPreventDefault: true }) => { defaultPrevented: boolean };
@@ -26,7 +26,7 @@ type TabDescriptors = Record<string, { options: {
 const VISIBLE_TABS: (keyof TabParamList)[] = ["index", "allowance", "insights", "settings"];
 
 function WalletTabItem({ focused, label, icon, onPress, accessibilityLabel }: { focused: boolean; label: string; icon: ReactNode; onPress: () => void; accessibilityLabel: string }) {
-  const progress = useRef(new Animated.Value(focused ? 1 : 0)).current;
+  const [progress] = useState(() => new Animated.Value(focused ? 1 : 0));
   useEffect(() => {
     Animated.spring(progress, { toValue: focused ? 1 : 0, damping: 16, stiffness: 190, mass: 0.7, useNativeDriver: true }).start();
   }, [focused, progress]);
@@ -50,10 +50,10 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
   const { width, height } = useWindowDimensions();
   const [menuOpen, setMenuOpen] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const overlayProgress = useRef(new Animated.Value(0)).current;
-  const menuItemProgress = useMemo(() => [new Animated.Value(0), new Animated.Value(0)], []);
-  const buttonRotation = useRef(new Animated.Value(0)).current;
-  const buttonScale = useRef(new Animated.Value(1)).current;
+  const [overlayProgress] = useState(() => new Animated.Value(0));
+  const [menuItemProgress] = useState(() => [new Animated.Value(0), new Animated.Value(0)]);
+  const [buttonRotation] = useState(() => new Animated.Value(0));
+  const [buttonScale] = useState(() => new Animated.Value(1));
   useEffect(() => {
     const show = Keyboard.addListener("keyboardDidShow", () => {
       setKeyboardVisible(true);
