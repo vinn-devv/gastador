@@ -146,7 +146,6 @@ export default function OnboardingScreen() {
 
   useEffect(() => {
     if (!keyboardVisible) {
-      setHeightBeforeKeyboard(rootHeight);
       keyboardOffset.set(withTiming(0, { duration: 180 }));
       setKeyboardNeedsManualOffset(false);
       return;
@@ -349,7 +348,7 @@ export default function OnboardingScreen() {
 
   const formattedAmount = formatAllowanceInput(amount);
   const amountFontSize = keyboardVisible ? 56 : formattedAmount.length > 11 ? 42 : formattedAmount.length > 9 ? 52 : formattedAmount.length > 7 ? 62 : 72;
-  const availableHeight = height - (Platform.OS === "ios" && keyboardVisible ? keyboardHeight : 0);
+  const availableHeight = height - (keyboardVisible && keyboardNeedsManualOffset ? keyboardHeight : 0);
   const showSubtitle = availableHeight >= 700;
   const showQuickAmounts = availableHeight >= 640 && !keyboardVisible;
 
@@ -384,7 +383,7 @@ export default function OnboardingScreen() {
         {page < 2 ? <Pressable onPress={skip} accessibilityRole="button" accessibilityLabel={page === 1 ? "Skip allowance" : "Skip onboarding"} hitSlop={8} style={styles.skip}>
           <Text maxFontSizeMultiplier={1.2} style={styles.skipText}>Skip</Text>
         </Pressable> : <View style={styles.skipPlaceholder} />}
-      </Reanimated.View>
+      </View>
 
       <View style={styles.pagerHost}>
         <Reanimated.ScrollView
@@ -452,7 +451,7 @@ export default function OnboardingScreen() {
               <View style={[styles.allowanceCard, keyboardVisible && styles.allowanceCardKeyboard]}>
                 <Pressable style={[styles.amountLine, keyboardVisible && styles.amountLineCompact]} onPress={() => amountInput.current?.focus()}>
                   <Text maxFontSizeMultiplier={1.2} style={[styles.currencySign, keyboardVisible && styles.currencySignCompact]}>₱</Text>
-                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const formatted = formatAllowanceInput(raw); setAmount(raw); setAmountSelection({ start: formatted.length, end: formatted.length }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
+                  <TextInput ref={amountInput} onFocus={() => setHeightBeforeKeyboard(rootHeight)} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const formatted = formatAllowanceInput(raw); setAmount(raw); setAmountSelection({ start: formatted.length, end: formatted.length }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
                 </Pressable>
                 <View style={[styles.periodPill, keyboardVisible && styles.periodPillCompact]} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
                   <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
