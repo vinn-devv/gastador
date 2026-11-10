@@ -385,7 +385,7 @@ export default function OnboardingScreen() {
         </Pressable> : <View style={styles.skipPlaceholder} />}
       </View>
 
-      <View style={styles.pagerHost}>
+      <Reanimated.View layout={LinearTransition.duration(200)} style={[styles.pagerHost, page === 1 && keyboardVisible && keyboardNeedsManualOffset && { marginBottom: Math.max(0, keyboardHeight - insets.bottom + 12) }]}>
         <Reanimated.ScrollView
           ref={pager}
           horizontal
@@ -500,7 +500,7 @@ export default function OnboardingScreen() {
           <Image source={COIN} contentFit="contain" style={styles.sharedCoinImage} accessibilityLabel="3D peso coin" />
           <Reanimated.View style={[styles.confetti, confettiStyle]}>{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>
         </Reanimated.View>
-      </View>
+      </Reanimated.View>
 
       <Reanimated.View style={[styles.bottom, { paddingBottom: page === 1 && keyboardVisible ? (keyboardNeedsManualOffset ? insets.bottom : 12) : insets.bottom + 16 }, page === 1 && keyboardVisible && bottomKeyboardStyle]}>
         {page === 0 ? <View style={styles.noLogin}>
