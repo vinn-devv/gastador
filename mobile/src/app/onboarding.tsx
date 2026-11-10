@@ -62,6 +62,7 @@ export default function OnboardingScreen() {
   const pageProgress = useSharedValue(0);
   const float = useSharedValue(0);
   const pulse = useSharedValue(0);
+  const coinEntry = useSharedValue(0);
   const buttonScale = useSharedValue(1);
   const [page, setPage] = useState(0);
   const [amount, setAmount] = useState("");
@@ -78,6 +79,10 @@ export default function OnboardingScreen() {
   const perDay = days > 0 ? Math.floor((numericAmount * 100) / days) : 0;
 
   useEffect(() => {
+    coinEntry.value = withTiming(1, { duration: reducedMotion ? 180 : 700 });
+  }, [coinEntry, reducedMotion]);
+
+  useEffect(() => {
     if (!reducedMotion) {
       float.value = withRepeat(
         withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.sin) }),
@@ -86,6 +91,10 @@ export default function OnboardingScreen() {
       );
     }
   }, [float, reducedMotion]);
+
+  useEffect(() => {
+    if (page === 2 && allowanceSaved) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, [page, allowanceSaved]);
 
   useEffect(() => {
     if (page === 2 && !reducedMotion) pulse.value = withRepeat(withTiming(1, { duration: 1200 }), -1, true);
@@ -146,7 +155,6 @@ export default function OnboardingScreen() {
       setAllowanceSaved(true);
       setSavedAmount(numericAmount * 100);
       moveTo(2);
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Couldn't save your allowance. Please try again.");
     } finally {
@@ -162,7 +170,7 @@ export default function OnboardingScreen() {
     const tilt = reducedMotion ? 0 : interpolate(progress, [0, 1, 2], [-8, 0, 0]);
     const bob = reducedMotion ? 0 : Math.sin(float.value * Math.PI * 2) * 10;
     return {
-      opacity: withTiming(progress === 0 ? 1 : 1, { duration: 300 }),
+      opacity: coinEntry.value,
       transform: [
         { perspective: 800 },
         { translateX: x },
@@ -172,7 +180,7 @@ export default function OnboardingScreen() {
         { rotateY: reducedMotion ? "0deg" : `${interpolate(progress, [0, 1, 2], [0, 360, 720])}deg` },
       ],
     };
-  });
+  }, [coinEntry]);
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.value }] }));
 
@@ -228,7 +236,7 @@ export default function OnboardingScreen() {
             if (next !== page) {
               setPage(next);
               pageProgress.value = withTiming(next, { duration: reducedMotion ? 180 : 420 });
-              if (next === 2 && allowanceSaved) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
             }
           }}
           style={{ flex: 1 }}
