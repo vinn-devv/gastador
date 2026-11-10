@@ -1,4 +1,4 @@
-import { useState, type ComponentProps } from "react";
+import { useState, type ComponentProps, type ReactNode } from "react";
 import { useRouter, type Href } from "expo-router";
 import Constants from "expo-constants";
 import { SymbolView } from "expo-symbols";
@@ -19,7 +19,7 @@ const METHODS: { value: BudgetMethod; label: string }[] = [
   { value: "simple_total", label: "Remaining" },
 ];
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return <View style={styles.section}>
     <ThemedText style={styles.sectionHeading}>{title.toUpperCase()}</ThemedText>
     {children}
