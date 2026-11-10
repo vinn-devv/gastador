@@ -8,7 +8,6 @@
     "scheme": "gastador",
     "userInterfaceStyle": "light",
     "android": {
-      "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "backgroundColor": "#F3F5F6",
         "foregroundImage": "./assets/images/icon.png"
