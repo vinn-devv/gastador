@@ -167,7 +167,8 @@ export default function SettingsScreen() {
             <ThemedText style={styles.rowTitle}>Version</ThemedText><ThemedText style={styles.rowValue}>{version}</ThemedText>
           </View>
         </Section>
-      </>}    </ScrollView>
+      </>}
+    </ScrollView>
 
     <Modal visible={methodsOpen} animationType="slide" transparent onRequestClose={() => setMethodsOpen(false)}>
       <View style={styles.modalBackdrop}><View style={styles.modalCard}>
