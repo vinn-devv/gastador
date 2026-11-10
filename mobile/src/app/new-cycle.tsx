@@ -17,7 +17,7 @@ import {
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
 import { CycleOverlapError, getCycles, saveAllowance } from "@/data/repository";
-import { addDays, diffDays, isValidDate, manilaToday } from "@/domain/dates";
+import { addDays, diffDays, formatDate, isValidDate, manilaToday } from "@/domain/dates";
 import { cycleForDate, nextAllowanceDate } from "@/domain/allowance";
 import { parseMoney } from "@/domain/money";
 import type { Cycle, Frequency } from "@/domain/types";
@@ -188,7 +188,7 @@ export default function NewCycleScreen() {
             {mode === "edit_current" && currentCycle
               ? <View style={{ gap: 7 }}>
                   <ThemedText style={styles.label}>Current cycle starts on</ThemedText>
-                  <ThemedText type="small" themeColor="muted">{currentCycle.startDate}</ThemedText>
+                  <ThemedText type="small" themeColor="muted">{formatDate(currentCycle.startDate)}</ThemedText>
                 </View>
               : <DateField label="Allowance starts on" value={startDate} onChange={changeStart} />}
           </View>
