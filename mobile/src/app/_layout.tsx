@@ -71,6 +71,7 @@ export default function TabLayout() {
     IBMPlexSans_600SemiBold: require("@expo-google-fonts/nunito/600SemiBold/Nunito_600SemiBold.ttf"),
     IBMPlexSans_700Bold: require("@expo-google-fonts/nunito/700Bold/Nunito_700Bold.ttf"),
     IBMPlexSans_800ExtraBold: require("@expo-google-fonts/nunito/800ExtraBold/Nunito_800ExtraBold.ttf"),
+    MaterialSymbols_400Regular: require("@expo-google-fonts/material-symbols/400Regular/MaterialSymbols_400Regular.ttf"),
   });
 
   if (!fontsLoaded) return null;
