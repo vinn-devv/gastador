@@ -53,11 +53,18 @@ function fakeDatabase(cycles: Cycle[]) {
   db = {
     withExclusiveTransactionAsync: async (task: (txn: SQLiteDatabase) => Promise<void>) => task(db),
     getAllAsync: async <T,>() => cycles as T[],
-    getFirstAsync: async <T,>(_sql: string, startDate: string, endDate: string) => ({
-      spentCentavos: saved
-        .filter((item) => item.date >= startDate && item.date <= endDate)
-        .reduce((sum, item) => sum + item.amountCentavos, 0),
-    }) as T,
+    getFirstAsync: async <T,>(sql: string, ...params: string[]) => {
+      if (sql.includes("FROM categories")) return { id: params[0] } as T;
+      if (sql.includes("SUM(amountCentavos)")) {
+        const [startDate, endDate] = params;
+        return {
+          spentCentavos: saved
+            .filter((item) => item.date >= startDate && item.date <= endDate)
+            .reduce((sum, item) => sum + item.amountCentavos, 0),
+        } as T;
+      }
+      return null;
+    },
     runAsync: async (_sql: string, ...params: (string | number | null)[]) => {
       saved.push({ amountCentavos: Number(params[1]), date: String(params[3]) });
       return { changes: 1, lastInsertRowId: 1 };
