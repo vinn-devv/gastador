@@ -185,7 +185,12 @@ export default function NewCycleScreen() {
           </View>
 
           <View style={styles.field}>
-            <DateField label="Allowance starts on" value={startDate} onChange={changeStart} />
+            {mode === "edit_current" && currentCycle
+              ? <View style={{ gap: 7 }}>
+                  <ThemedText style={styles.label}>Current cycle starts on</ThemedText>
+                  <ThemedText type="small" themeColor="muted">{currentCycle.startDate}</ThemedText>
+                </View>
+              : <DateField label="Allowance starts on" value={startDate} onChange={changeStart} />}
           </View>
 
           <View style={styles.field}>
