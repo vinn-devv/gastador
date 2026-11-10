@@ -54,7 +54,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "tsx --test src/domain/csv.test.ts src/domain/cycle-dates.test.ts src/domain/spending-limit.test.ts"
+    "test": "tsx --test src/domain/csv.test.ts src/domain/cycle-dates.test.ts src/domain/spending-limit.test.ts src/domain/coin-slots.test.ts"
   },
   "private": true
 }
