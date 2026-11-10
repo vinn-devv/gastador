@@ -25,6 +25,7 @@ import Reanimated, {
   withRepeat,
   withSpring,
   withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DateField } from "@/components/date-field";
@@ -40,6 +41,13 @@ const COIN = require("@/assets/images/peso-coin.png");
 const AnimatedPressable = Reanimated.createAnimatedComponent(Pressable);
 
 type Period = "weekly" | "biweekly" | "monthly";
+
+function ProgressSegment({ index, progress }: { index: number; progress: SharedValue<number> }) {
+  const fillStyle = useAnimatedStyle(() => ({
+    width: `${Math.max(0, Math.min(1, progress.value - index)) * 100}%`,
+  }));
+  return <View style={styles.segmentTrack}><Reanimated.View style={[styles.segmentFill, fillStyle]} /></View>;
+}
 
 function endFor(start: string, period: Period): string {
   if (period === "weekly") return addDays(start, 6);
@@ -60,6 +68,7 @@ export default function OnboardingScreen() {
   const pager = useRef<ScrollView>(null);
   const fade = useRef(new RNAnimated.Value(1)).current;
   const pageProgress = useSharedValue(0);
+  const progressValue = useSharedValue(0);
   const float = useSharedValue(0);
   const pulse = useSharedValue(0);
   const coinEntry = useSharedValue(0);
@@ -77,6 +86,10 @@ export default function OnboardingScreen() {
   const endDate = useMemo(() => endFor(startDate, period), [startDate, period]);
   const days = daysInclusive(startDate, endDate);
   const perDay = days > 0 ? Math.floor((numericAmount * 100) / days) : 0;
+
+  useEffect(() => {
+    progressValue.value = withTiming(page + 1, { duration: reducedMotion ? 180 : 400 });
+  }, [page, progressValue, reducedMotion]);
 
   useEffect(() => {
     coinEntry.value = withTiming(1, { duration: reducedMotion ? 180 : 700 });
