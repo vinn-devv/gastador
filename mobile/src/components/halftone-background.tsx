@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AccessibilityInfo, Animated, Easing, StyleSheet, View } from "react-native";
 import { Image } from "expo-image";
 
 export function HalftoneBackground() {
   const [reduceMotion, setReduceMotion] = useState(false);
-  const drift = useRef(new Animated.Value(0)).current;
+  const [drift] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     let active = true;
