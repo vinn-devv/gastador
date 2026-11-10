@@ -188,7 +188,12 @@ async function assertExpenseWithinCycle(
   txn: SQLiteDatabase,
   input: NewTransactionInput,
   replacing?: { amountCentavos: number; date: string },
-): Promise<void> {
+ ): Promise<void> {
+  const category = await txn.getFirstAsync<{ id: string }>(
+    "SELECT id FROM categories WHERE id = ?",
+    input.categoryId,
+  );
+  if (!category) throw new Error("Choose a valid category before saving.");
   const cycles = await txn.getAllAsync<Cycle>(
     "SELECT * FROM cycles ORDER BY startDate ASC",
   );
