@@ -536,3 +536,41 @@ export async function reorderCategory(db: SQLiteDatabase, id: string, direction:
     await db.runAsync("UPDATE categories SET sortOrder = ? WHERE id = ?", current.sortOrder, neighbor.id);
   });
 }
+
+
+export async function getCustomPaymentMethods(db: SQLiteDatabase): Promise<import("../domain/types").CustomPaymentMethod[]> {
+  return db.getAllAsync<import("../domain/types").CustomPaymentMethod>(
+    "SELECT id, name, createdAt FROM payment_methods ORDER BY name COLLATE NOCASE",
+  );
+}
+
+export async function createCustomPaymentMethod(db: SQLiteDatabase, name: string): Promise<void> {
+  const normalized = name.trim().replace(/\s+/g, " ");
+  if (!normalized) throw new Error("Enter a payment method name.");
+  const duplicate = await db.getFirstAsync<{ id: string }>(
+    "SELECT id FROM payment_methods WHERE name = ? COLLATE NOCASE", normalized,
+  );
+  if (duplicate) throw new Error("That payment method already exists.");
+  await db.runAsync(
+    "INSERT INTO payment_methods (id, name, createdAt) VALUES (?, ?, ?)",
+    "payment-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8),
+    normalized, new Date().toISOString(),
+  );
+}
+
+export async function renameCustomPaymentMethod(db: SQLiteDatabase, id: string, name: string): Promise<void> {
+  const normalized = name.trim().replace(/\s+/g, " ");
+  if (!normalized) throw new Error("Enter a payment method name.");
+  const duplicate = await db.getFirstAsync<{ id: string }>(
+    "SELECT id FROM payment_methods WHERE name = ? COLLATE NOCASE AND id != ?", normalized, id,
+  );
+  if (duplicate) throw new Error("That payment method already exists.");
+  await db.runAsync("UPDATE payment_methods SET name = ? WHERE id = ?", normalized, id);
+}
+
+export async function deleteCustomPaymentMethod(db: SQLiteDatabase, id: string): Promise<void> {
+  const method = await db.getFirstAsync<{ id: string }>("SELECT id FROM payment_methods WHERE id = ?", id);
+  if (!method) return;
+  // Existing expenses retain their payment method string and history.
+  await db.runAsync("DELETE FROM payment_methods WHERE id = ?", id);
+}
