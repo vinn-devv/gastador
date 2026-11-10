@@ -40,9 +40,10 @@
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
-    "@types/node": "^22.15.30",
-    "tsx": "^4.19.4",
-    "typescript": "~6.0.3"
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "eslint": "^9.0.0"
   },
   "scripts": {
     "start": "expo start",
