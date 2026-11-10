@@ -5,7 +5,6 @@ import {
   Pressable,
   TextInput,
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -86,7 +85,7 @@ export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const reducedMotion = useReducedMotion();
-  const pager = useRef<ComponentRef<typeof ScrollView>>(null);
+  const pager = useRef<ComponentRef<typeof Reanimated.ScrollView>>(null);
   const [fade] = useState(() => new RNAnimated.Value(1));
   const progressValue = useSharedValue(0);
   const float = useSharedValue(0);
@@ -286,7 +285,7 @@ export default function OnboardingScreen() {
   const periodIndicatorStyle = useAnimatedStyle(() => {
     const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
     return { width: segmentWidth, transform: [{ translateX: withTiming(periodIndex * (segmentWidth + 2), { duration: 250 }) }] };
-  }, [periodIndex, periodWidth]);
+  });
 
   const ringStyle = useAnimatedStyle(() => {
     const p = pageProgress.get();
@@ -345,7 +344,7 @@ export default function OnboardingScreen() {
       </View>
 
       <View style={styles.pagerHost}>
-        <ScrollView
+        <Reanimated.ScrollView
           ref={pager}
           horizontal
           pagingEnabled
@@ -445,7 +444,7 @@ export default function OnboardingScreen() {
               </View>
             </View>
           </View>
-        </ScrollView>
+        </Reanimated.ScrollView>
 
 
         <Reanimated.View pointerEvents="none" style={[styles.sharedCoin, sharedCoinStyle]}>
@@ -467,25 +466,26 @@ export default function OnboardingScreen() {
             <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
         ) : (
-          <AnimatedPressable
-            onPress={() => {
-              void Haptics.selectionAsync();
-              if (page === 0) {
-                moveTo(1);
-              } else {
-                void finish();
-              }
-            }}
-            onPressIn={() => { buttonScale.set(withSpring(0.96)); }}
-            onPressOut={() => { buttonScale.set(withSpring(1)); }}
-            accessibilityRole="button"
-            accessibilityLabel={page === 0 ? "Get started" : "Start tracking"}
-            entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined}
-            style={[styles.cta, buttonAnimatedStyle]}
-          >
-            <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{page === 0 ? "Get Started" : "Start Tracking"}</Text>
-            <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
-          </AnimatedPressable>
+          <Reanimated.View entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined}>
+            <AnimatedPressable
+              onPress={() => {
+                void Haptics.selectionAsync();
+                if (page === 0) {
+                  moveTo(1);
+                } else {
+                  void finish();
+                }
+              }}
+              onPressIn={() => { buttonScale.set(withSpring(0.96)); }}
+              onPressOut={() => { buttonScale.set(withSpring(1)); }}
+              accessibilityRole="button"
+              accessibilityLabel={page === 0 ? "Get started" : "Start tracking"}
+              style={[styles.cta, buttonAnimatedStyle]}
+            >
+              <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{page === 0 ? "Get Started" : "Start Tracking"}</Text>
+              <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
+            </AnimatedPressable>
+          </Reanimated.View>
         )}
       </View>
     </RNAnimated.View>
