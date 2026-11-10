@@ -45,6 +45,7 @@ export function DateField({ label, value, onChange, maximumDate, minimumDate, er
         onValueChange: (_event, chosen) => {
           onChange(isoFromDate(chosen));
         },
+        onDismiss: () => setIosVisible(false),
       });
       return;
     }
