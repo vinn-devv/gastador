@@ -326,10 +326,10 @@ export default function OnboardingScreen() {
           </View>
         </ScrollView>
 
-        <View pointerEvents="none" accessibilityElementsHidden style={[styles.coinStage, { top: page === 0 ? height * 0.34 : page === 1 ? 0 : height * 0.04, height: coinSize, width: coinSize, left: (width - coinSize) / 2 }]}>
+        <View pointerEvents="none" style={[styles.coinStage, { top: page === 0 ? height * 0.34 : page === 1 ? 0 : height * 0.04, height: coinSize, width: coinSize, left: (width - coinSize) / 2 }]}>
           {page === 2 && <Reanimated.View style={[styles.ring, ringStyle]} />}
           {page === 2 && <Reanimated.View entering={reducedMotion ? undefined : FadeInUp.duration(1200)} style={styles.confetti} importantForAccessibility="no-hide-descendants">{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>}
-          <Reanimated.View style={[styles.pedestal, shadowStyle]} />
+          <View style={styles.pedestal} />\n          <Reanimated.View style={[styles.contactShadow, shadowStyle]} />
           <Reanimated.View style={[styles.coinWrap, coinStyle]}>
             <Image source={COIN} contentFit="contain" style={{ width: coinSize, height: coinSize }} accessibilityLabel="Peso coin" />
           </Reanimated.View>
@@ -338,12 +338,12 @@ export default function OnboardingScreen() {
 
       <View style={[styles.bottom, { paddingBottom: insets.bottom + 16 }]}>
         {page === 1 ? (
-          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); void saveAllowance(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel="Set allowance and continue" style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
+          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); void saveAllowance(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel="Set allowance and continue" entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined} style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{saving ? "Saving…" : "Set Allowance"}</Text>
             <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow-forward", web: "arrow-right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
         ) : (
-          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); page === 0 ? moveTo(1) : void finish(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} accessibilityRole="button" accessibilityLabel={page === 0 ? "Get started" : "Start tracking"} style={[styles.cta, buttonAnimatedStyle]}>
+          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); page === 0 ? moveTo(1) : void finish(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} accessibilityRole="button" accessibilityLabel={page === 0 ? "Get started" : "Start tracking"} entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined} style={[styles.cta, buttonAnimatedStyle]}>
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{page === 0 ? "Get Started" : "Start Tracking"}</Text>
             <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow-forward", web: "arrow-right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   ring: { position: "absolute", width: "76%", height: "76%", borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
   confetti: { position: "absolute", width: "100%", height: "100%", alignItems: "center", justifyContent: "center" },
   confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
-  pedestal: { position: "absolute", width: "68%", height: "16%", bottom: "8%", borderRadius: 999, backgroundColor: "rgba(5,15,50,0.45)", shadowColor: "#050F32", shadowOpacity: 0.35, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
+  pedestal: { position: "absolute", width: "88%", height: "24%", bottom: "6%", borderRadius: 999, backgroundColor: "rgba(11,31,92,0.6)" },\n  contactShadow: { position: "absolute", width: "68%", height: "16%", bottom: "8%", borderRadius: 999, backgroundColor: "rgba(5,15,50,0.45)", shadowColor: "#050F32", shadowOpacity: 0.35, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
   welcomePage: { alignItems: "center" },
   welcomeCopy: { width: "100%", alignItems: "center", paddingHorizontal: 8, marginTop: 20 },
   welcomeHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 42, lineHeight: 49, textAlign: "center" },
