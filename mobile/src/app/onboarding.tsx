@@ -32,7 +32,7 @@ import Reanimated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DateField } from "@/components/date-field";
-import { saveSettings, getSettings, saveAllowance, CycleOverlapError } from "@/data/repository";
+import { saveSettings, getSettings, getCycles, saveAllowance, CycleOverlapError } from "@/data/repository";
 import { addDays, addMonths, daysInclusive, formatDate, manilaToday } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
 
@@ -143,6 +143,26 @@ export default function OnboardingScreen() {
     pager.current?.scrollTo({ x: safe * width, animated: true });
     void Haptics.selectionAsync();
   };
+
+  useEffect(() => {
+    if (page !== 1) return;
+    let active = true;
+    void getCycles(db).then((cycles) => {
+      if (!active || cycles.length === 0) return;
+      const today = manilaToday();
+      const current = cycles.find((cycle) => cycle.startDate <= today && today <= cycle.endDate);
+      if (current) {
+        setAllowanceSaved(true);
+        setSavedAmount(current.allowanceCentavos);
+      }
+      setPage(2);
+      pageProgress.set(withTiming(2, { duration: reducedMotion ? 180 : 420 }));
+      pager.current?.scrollTo({ x: width * 2, animated: true });
+    }).catch((loadError) => {
+      console.error("Could not check existing allowance:", loadError);
+    });
+    return () => { active = false; };
+  }, [db, page, pageProgress, reducedMotion, width]);
 
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
