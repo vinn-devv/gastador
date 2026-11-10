@@ -239,6 +239,9 @@ export async function saveAllowance(db: SQLiteDatabase, input: SaveAllowanceInpu
     const cycles = await db.getAllAsync<Pick<Cycle, "id" | "name" | "frequency" | "startDate" | "endDate" | "allowanceCentavos" | "carryoverCentavos" | "plannedSavingsCentavos" | "createdAt">>("SELECT * FROM cycles ORDER BY startDate ASC");
     const current = cycles.find((cycle) => cycleContainsDate(cycle, today));
     const now = new Date().toISOString();
+    if (!current && requestedMode === "edit_current" && cycles.length > 0) {
+      throw new CycleOverlapError();
+    }
     if (current && requestedMode === "edit_current") {
       const endDate = addDays(current.startDate, lengthDays - 1);
       const conflict = cycles.find((cycle) => cycle.id !== current.id &&
