@@ -26,6 +26,7 @@ export interface Cycle {
   carryoverCentavos: Centavos;
   plannedSavingsCentavos: Centavos;
   createdAt: string;
+  needsReview?: number;
 }
 
 export interface CycleCategoryLimit {
