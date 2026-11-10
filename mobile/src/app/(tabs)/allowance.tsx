@@ -37,7 +37,7 @@ export default function AllowanceScreen() {
       setCycles(items);
       setCurrency(settings.currency);
       const reviewNotice = await consumeCycleReviewNotice(db);
-      if (active && reviewNotice) Alert.alert("Allowance cycles need review", "Some allowance dates overlap after date normalization. Please review them in Allowance management.");
+      if (active && reviewNotice) Alert.alert("Allowance cycles need review", "Some allowance dates overlap after date normalization. Flagged cycles below are marked “Needs review.”");
     }).catch((error) => console.error("Could not load allowance cycles:", error))
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
