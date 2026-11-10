@@ -72,7 +72,7 @@ const R = 24;
 const SR = 40;
 const C = 28;
 const SVG_PAD = 16;
-const RING_SIZE = 260;
+const RING_SIZE = 220;
 const RING_STROKE = 16;
 const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
@@ -88,7 +88,7 @@ function buildPath(p: number, W: number, H: number) {
   const rightFlare = R * (1 - q);
   const leftShoulder = SR * q;
   const rightShoulder = SR * (1 - q);
-  const bottom = Math.max(tabBottom + 80, H - SHEET_GAP);
+  const bottom = Math.max(tabBottom + 80, H);
   const bottomRadius = 24;
   const tabRadius = C;
   return [
@@ -240,7 +240,7 @@ export default function HomeScreen() {
   const [sheetTab, setSheetTab] = useState<"activity" | "insight">("activity");
   const [contentDirection, setContentDirection] = useState<1 | -1>(1);
   const progress = useSharedValue(0);
-  const stageWidth = Math.max(0, width - SHEET_GAP * 2);
+  const stageWidth = width;
   const [stageHeight, setStageHeight] = useState(0);
   const [insightViewportHeight, setInsightViewportHeight] = useState(0);
   const animatedPathProps = useAnimatedProps(() => ({
@@ -250,14 +250,14 @@ export default function HomeScreen() {
     color: interpolateColor(
       progress.value,
       [0, 1],
-      ["#1E40AF", "rgba(255,255,255,0.75)"],
+      ["#1E3A8A", "#FFFFFF"],
     ),
   }));
   const insightLabelStyle = useAnimatedStyle(() => ({
     color: interpolateColor(
       progress.value,
       [0, 1],
-      ["rgba(255,255,255,0.75)", "#1E40AF"],
+      ["#FFFFFF", "#1E3A8A"],
     ),
   }));
   const [sheetEntrance] = useState(() => new RNAnimated.Value(0));
@@ -274,18 +274,17 @@ export default function HomeScreen() {
     return { strokeDashoffset: RING_CIRCUMFERENCE * (1 - visible) };
   });
   const shimmerAnimatedProps = useAnimatedProps(() => {
-    const raw = ringProgress.value;
-    const visible = raw > 0 && raw < 0.012 ? 0.012 : raw;
-    const segment = Math.min(
-      RING_CIRCUMFERENCE * 0.1,
-      RING_CIRCUMFERENCE * visible,
-    );
-    const travel = Math.max(0, RING_CIRCUMFERENCE * visible - segment);
+    const raw = Math.max(0, Math.min(1, ringProgress.value));
+    const arcLength = RING_CIRCUMFERENCE * raw;
+    const segment = RING_CIRCUMFERENCE * 0.06;
+    if (raw < 0.06) {
+      return { strokeDasharray: [0, RING_CIRCUMFERENCE], strokeDashoffset: 0, opacity: 0 };
+    }
+    const travel = Math.max(0, arcLength - segment);
     return {
-      strokeDasharray: [segment, RING_CIRCUMFERENCE],
-      strokeDashoffset:
-        RING_CIRCUMFERENCE * (1 - visible) - travel * shimmerProgress.value,
-      opacity: raw > 0 ? 0.8 : 0,
+      strokeDasharray: [segment, RING_CIRCUMFERENCE - segment],
+      strokeDashoffset: RING_CIRCUMFERENCE * (1 - raw) - travel * shimmerProgress.value,
+      opacity: 0.7,
     };
   });
   const ringHeadProps = useAnimatedProps(() => {
@@ -386,7 +385,7 @@ export default function HomeScreen() {
   const insightDailyLimit = summary?.dailySafeLimitCentavos ?? summary?.plannedDailyCentavos ?? 0;
   const budgetMethod = settings?.budgetMethod ?? "daily_pace";
   const insightBudgetValue = budgetMethod === "simple_total" ? insightLeft : budgetMethod === "category_limits" ? insightSpent : insightDailyLimit;
-  const insightBudgetLabel = budgetMethod === "simple_total" ? "Remaining" : budgetMethod === "category_limits" ? "Category spending" : "Daily safe amount";
+  const insightBudgetLabel = "Safe per day";
   const insightStatus =
     rawSpentPercent > 100
       ? "You’ve gone over your allowance."
@@ -437,7 +436,7 @@ export default function HomeScreen() {
       false,
     ));
     ringHeadPulse.set(withRepeat(
-      withTiming(1.2, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(1.15, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true,
     ));
@@ -465,7 +464,7 @@ export default function HomeScreen() {
         : rawSpentPercent >= 1
           ? `${rawSpentPercent.toFixed(1)}%`
           : `${rawSpentPercent.toFixed(2)}%`;
-  const ringColor = rawSpentPercent > 80 ? "#F87171" : "#2563EB";
+  const ringColor = rawSpentPercent > 100 ? "#EF4444" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
 
   return (
     <>
@@ -585,7 +584,7 @@ export default function HomeScreen() {
               }}
               contentContainerStyle={[
                 styles.contentScrollInner,
-                { paddingBottom: navBarSpace(insets.bottom) },
+                { paddingBottom: navBarSpace(insets.bottom) + 24 },
               ]}
               showsVerticalScrollIndicator={false}
             >
@@ -721,7 +720,7 @@ export default function HomeScreen() {
                               cx={RING_SIZE / 2}
                               cy={RING_SIZE / 2}
                               r={RING_RADIUS}
-                              stroke="#93C5FD"
+                              stroke="#E3EDFF"
                               strokeWidth={RING_STROKE}
                               fill="none"
                             />
@@ -924,10 +923,11 @@ const styles = StyleSheet.create({
   sheetStage: {
     flex: 1,
     minHeight: 320,
-    alignSelf: "center",
-    marginBottom: SHEET_GAP,
+    alignSelf: "stretch",
+    width: "100%",
+    marginBottom: 0,
     backgroundColor: "#2563EB",
-    borderRadius: 24,
+    borderRadius: 0,
     overflow: "hidden",
   },
   shapeSvg: { position: "absolute", top: 0, left: 0, zIndex: 0 },
@@ -958,8 +958,8 @@ const styles = StyleSheet.create({
   },
   sheetTabText: {
     fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 16,
-    lineHeight: 22,
+    fontSize: 17,
+    lineHeight: 23,
   },
   insightContent: {
     flexGrow: 1,
@@ -993,14 +993,14 @@ const styles = StyleSheet.create({
   },
   ringPercent: {
     fontFamily: "IBMPlexSans_800ExtraBold",
-    fontSize: 44,
-    lineHeight: 58,
+    fontSize: 56,
+    lineHeight: 66,
     textAlign: "center",
   },
   ringLabel: {
-    color: "#56616B",
+    color: "#475569",
     fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 14,
+    fontSize: 16,
     lineHeight: 20,
     textAlign: "center",
   },
@@ -1009,9 +1009,10 @@ const styles = StyleSheet.create({
   insightStatChip: {
     flex: 1,
     minWidth: 0,
-    minHeight: 72,
-    borderRadius: 16,
-    backgroundColor: "#F3F7FF",
+    height: 92,
+    minHeight: 92,
+    borderRadius: 24,
+    backgroundColor: "#EEF4FF",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 5,
@@ -1019,17 +1020,17 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   insightStatValue: {
-    color: "#1E40AF",
-    fontFamily: "IBMPlexSans_700Bold",
-    fontSize: 17,
-    lineHeight: 23,
+    color: "#1E3A8A",
+    fontFamily: "IBMPlexSans_800ExtraBold",
+    fontSize: 20,
+    lineHeight: 26,
     textAlign: "center",
   },
   insightStatLabel: {
-    color: "#6B7280",
-    fontFamily: "IBMPlexSans_400Regular",
-    fontSize: 12,
-    lineHeight: 17,
+    color: "#475569",
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 14,
+    lineHeight: 19,
   },
   insightStatusPill: {
     width: "100%",
