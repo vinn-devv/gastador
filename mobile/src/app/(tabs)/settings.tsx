@@ -1,4 +1,4 @@
-import { useState, type ComponentProps, type ReactNode } from "react";
+import { useEffect, useState, type ComponentProps, type ReactNode } from "react";
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -75,7 +75,7 @@ export default function SettingsScreen() {
   const [methods, setMethods] = useState<CustomPaymentMethod[]>([]);
   const [methodName, setMethodName] = useState("");
   const [editingMethod, setEditingMethod] = useState<string | null>(null);
-  const version = Constants.expoConfig?.version ?? "1.0.0";
+  const version = Constants.expoConfig?.version ?? "1.0.0";\n  useEffect(() => { void getCustomPaymentMethods(db).then(setMethods).catch((error) => console.error("Could not load payment methods:", error)); }, [db]);
 
   const choose = (key: PrefKey, title: string, values: string[]) => {
     if (!settings) return;
