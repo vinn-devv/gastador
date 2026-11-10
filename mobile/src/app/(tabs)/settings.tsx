@@ -1,340 +1,204 @@
-import { useCallback, useState } from "react";
+import { useState, type ComponentProps } from "react";
+import { useRouter, type Href } from "expo-router";
+import Constants from "expo-constants";
+import { SymbolView } from "expo-symbols";
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenLayout } from "@/components/screen-layout";
-import { navBarSpace } from "@/constants/layout";
-import { useFocusEffect, useRouter, type Href } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native";
-
 import { ThemedText } from "@/components/themed-text";
-import { useTheme } from "@/hooks/use-theme";
-import { getSettings, saveSettings } from "@/data/repository";
-import type { AppSettings, BudgetMethod, CurrencyCode } from "@/domain/types";
+import { navBarSpace } from "@/constants/layout";
+import { FEATURES } from "@/constants/features";
+import { useSettings } from "@/hooks/use-settings";
+import type { CurrencyCode, BudgetMethod } from "@/domain/types";
 
+type SettingIcon = ComponentProps<typeof SymbolView>["name"];
 const CURRENCIES: CurrencyCode[] = ["PHP", "USD", "EUR", "SGD"];
-const BUDGET_METHODS: { value: BudgetMethod; label: string; detail: string }[] =
-  [
-    {
-      value: "daily_pace",
-      label: "Daily safe amount",
-      detail: "See a suggested amount for each remaining day.",
-    },
-    {
-      value: "category_limits",
-      label: "Category limits",
-      detail: "Organise spending around category budgets.",
-    },
-    {
-      value: "simple_total",
-      label: "Just what is left",
-      detail: "Keep the focus on your remaining balance.",
-    },
-  ];
+const METHODS: { value: BudgetMethod; label: string }[] = [
+  { value: "daily_pace", label: "Daily pace" },
+  { value: "category_limits", label: "Category limits" },
+  { value: "simple_total", label: "Remaining" },
+];
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return <View style={styles.section}>
+    <ThemedText style={styles.sectionHeading}>{title.toUpperCase()}</ThemedText>
+    {children}
+  </View>;
+}
+
+function Row({ icon, title, subtitle, value, onPress }: {
+  icon: SettingIcon; title: string; subtitle?: string; value?: string; onPress?: () => void;
+}) {
+  return <Pressable
+    disabled={!onPress}
+    onPress={onPress}
+    accessibilityRole={onPress ? "button" : "text"}
+    accessibilityLabel={value ? title + ", " + value : title}
+    style={({ pressed }) => [styles.row, pressed && onPress ? styles.pressed : null]}
+  >
+    <View style={styles.iconCircle}><SymbolView name={icon} tintColor="#2563EB" size={20} /></View>
+    <View style={styles.rowText}>
+      <ThemedText style={styles.rowTitle}>{title}</ThemedText>
+      {subtitle ? <ThemedText style={styles.rowSubtitle}>{subtitle}</ThemedText> : null}
+    </View>
+    {value ? <ThemedText style={styles.rowValue}>{value}</ThemedText> : null}
+    {onPress ? <SymbolView name={{ ios: "chevron.right", android: "chevron_right", web: "chevron_right" }} tintColor="#64748B" size={17} /> : null}
+  </Pressable>;
+}
 
 export default function SettingsScreen() {
-  const db = useSQLiteContext();
   const router = useRouter();
-  const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const [settings, setSettings] = useState<AppSettings | null>(null);
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
+  const { settings, loading, saving, saved, update } = useSettings();
+  const [nickname, setNickname] = useState("");
+  const [versionTaps, setVersionTaps] = useState(0);
+  const [developerVisible, setDeveloperVisible] = useState(__DEV__);
+  const displayName = settings?.displayName.trim() || "Gastador";
 
-  useFocusEffect(
-    useCallback(() => {
-      let active = true;
-      async function load() {
-        setLoading(true);
-        try {
-          const current = await getSettings(db);
-          if (!active) return;
-          setSettings(current);
-          setName(current.displayName);
-        } catch (error) {
-          console.error("Failed to load settings:", error);
-        } finally {
-          if (active) setLoading(false);
-        }
-      }
-      void load();
-      return () => {
-        active = false;
-      };
-    }, [db]),
-  );
-
-  async function update(patch: Partial<AppSettings>) {
-    if (!settings) return;
-    setSaving(true);
-    setMessage("");
-    const next = { ...settings, ...patch };
-    try {
-      await saveSettings(db, next);
-      setSettings(next);
-      setMessage("Saved on this device.");
-    } catch (error) {
-      console.error("Failed to save settings:", error);
-      setMessage("Couldn't save that change. Please try again.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  const fieldStyle = [
-    styles.input,
-    {
-      backgroundColor: theme.surface,
-      borderColor: theme.line,
-      color: theme.text,
-    },
-  ];
-
-  return (
-    <ScreenLayout title="Settings" subtitle="Your preferences are saved locally on this device.">
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+  return <ScreenLayout title="Settings" subtitle="Your preferences stay on this device.">
     <ScrollView
-      style={{ flex: 1 }}
+      style={styles.scroll}
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) + 24 }]}
     >
-
-      {loading || !settings ? (
-        <ThemedText type="small" themeColor="muted">
-          Loading settings…
-        </ThemedText>
-      ) : (
-        <>
-          <View
-            style={[
-              styles.section,
-              { backgroundColor: theme.surface, borderColor: theme.line },
-            ]}
-          >
-            <ThemedText style={styles.sectionTitle}>Profile</ThemedText>
-            <ThemedText style={styles.label}>Your name</ThemedText>
+      {loading || !settings ? <ThemedText style={styles.rowSubtitle}>Loading settings…</ThemedText> : <>
+        <View style={styles.profileCard}>
+          <View style={styles.avatar}><ThemedText style={styles.avatarText}>{displayName.slice(0, 1).toUpperCase()}</ThemedText></View>
+          <View style={styles.profileText}>
             <TextInput
-              value={name}
-              onChangeText={setName}
-              accessibilityLabel="Your name"
-              placeholder="Name for your greeting"
-              placeholderTextColor={theme.muted}
-              maxLength={80}
-              style={fieldStyle}
+              value={nickname || displayName}
+              onChangeText={setNickname}
+              onEndEditing={() => {
+                const next = nickname.trim() || "Gastador";
+                if (next !== displayName) void update({ displayName: next });
+                setNickname("");
+              }}
+              accessibilityLabel="Nickname"
+              placeholder="Gastador"
+              placeholderTextColor="#64748B"
+              maxLength={40}
+              maxFontSizeMultiplier={1.3}
+              style={styles.nickname}
             />
-            <Pressable
-              disabled={saving || name.trim() === settings.displayName}
-              accessibilityRole="button"
-              accessibilityLabel="Save name"
-              onPress={() => void update({ displayName: name.trim() })}
-              style={[
-                styles.saveButton,
-                {
-                  backgroundColor:
-                    saving || name.trim() === settings.displayName
-                      ? theme.sunken
-                      : theme.primary,
-                },
-              ]}
-            >
-              <ThemedText
-                style={[
-                  styles.saveText,
-                  {
-                    color:
-                      saving || name.trim() === settings.displayName
-                        ? theme.textSecondary
-                        : theme.onPrimary,
-                  },
-                ]}
+            <ThemedText style={styles.rowSubtitle}>Stored on this device</ThemedText>
+          </View>
+          {saving ? <ThemedText style={styles.rowSubtitle}>Saving…</ThemedText> : saved ? <ThemedText style={styles.saved}>Saved</ThemedText> : null}
+        </View>
+
+        <Section title="Allowance">
+          <Row
+            icon={{ ios: "wallet.pass", android: "account_balance_wallet", web: "account_balance_wallet" }}
+            title="Manage allowance"
+            subtitle="View and manage your allowance cycles"
+            onPress={() => router.navigate("/allowance" as Href)}
+          />
+        </Section>
+
+        <Section title="Budget">
+          <ThemedText style={styles.helper}>Overview style</ThemedText>
+          <View style={styles.methodChoices}>
+            {METHODS.map((method) => {
+              const selected = settings.budgetMethod === method.value;
+              return <Pressable
+                key={method.value}
+                onPress={() => void update({ budgetMethod: method.value })}
+                accessibilityRole="radio"
+                accessibilityLabel={"Budget method, " + method.label}
+                accessibilityState={{ selected }}
+                style={[styles.methodChip, selected && styles.methodChipSelected]}
               >
-                Save name
-              </ThemedText>
-            </Pressable>
+                <ThemedText style={[styles.methodText, selected && styles.methodTextSelected]}>{method.label}</ThemedText>
+              </Pressable>;
+            })}
           </View>
+          {FEATURES.goals ? <Row icon={{ ios: "target", android: "track_changes", web: "track_changes" }} title="Savings goals" onPress={() => router.push("/goals" as Href)} /> : null}
+          {FEATURES.limits ? <Row icon={{ ios: "slider.horizontal.3", android: "tune", web: "tune" }} title="Category limits" onPress={() => router.push("/category-limits" as Href)} /> : null}
+        </Section>
 
-          <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-            <ThemedText style={styles.sectionTitle}>
-              Display currency
-            </ThemedText>
-            <ThemedText
-              type="small"
-              themeColor="muted"
-              style={styles.sectionHint}
-            >
-              This changes how amounts are shown, not the value of existing
-              records.
-            </ThemedText>
-            <View style={styles.choices}>
-              {CURRENCIES.map((currency) => {
-                const selected = settings.currency === currency;
-                return (
-                  <Pressable
-                    key={currency}
-                    onPress={() => void update({ currency })}
-                    disabled={saving || selected}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected }}
-                    style={[
-                      styles.choice,
-                      {
-                        backgroundColor: selected
-                          ? theme.primarySoft
-                          : theme.surface,
-                        borderColor: selected ? theme.primary : theme.line,
-                      },
-                    ]}
-                  >
-                    <ThemedText
-                      style={[
-                        styles.choiceText,
-                        { color: selected ? theme.primary : theme.text },
-                      ]}
-                    >
-                      {currency}
-                    </ThemedText>
-                  </Pressable>
-                );
-              })}
-            </View>
+        <Section title="Currency and format">
+          <View style={styles.currencyChoices}>
+            {CURRENCIES.map((currency) => {
+              const selected = settings.currency === currency;
+              return <Pressable
+                key={currency}
+                onPress={() => void update({ currency })}
+                accessibilityRole="radio"
+                accessibilityLabel={"Currency, " + currency}
+                accessibilityState={{ selected }}
+                style={[styles.currencyChip, selected && styles.currencyChipSelected]}
+              >
+                <ThemedText style={[styles.currencyText, selected && styles.currencyTextSelected]}>{currency}</ThemedText>
+              </Pressable>;
+            })}
           </View>
+          <ThemedText style={styles.helper}>Changes how amounts are displayed, not the stored value.</ThemedText>
+        </Section>
 
-          <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-            <ThemedText style={styles.sectionTitle}>Budget method</ThemedText>
-            <View style={styles.methodList}>
-              {BUDGET_METHODS.map((method) => {
-                const selected = settings.budgetMethod === method.value;
-                return (
-                  <Pressable
-                    key={method.value}
-                    onPress={() => void update({ budgetMethod: method.value })}
-                    disabled={saving || selected}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected }}
-                    style={[
-                      styles.method,
-                      {
-                        backgroundColor: selected
-                          ? theme.primarySoft
-                          : theme.surface,
-                        borderColor: selected ? theme.primary : theme.line,
-                      },
-                    ]}
-                  >
-                    <ThemedText
-                      style={[
-                        styles.methodTitle,
-                        { color: selected ? theme.primary : theme.text },
-                      ]}
-                    >
-                      {method.label}
-                    </ThemedText>
-                    <ThemedText
-                      type="small"
-                      style={{
-                        color: theme.textSecondary,
-                      }}
-                    >
-                      {method.detail}
-                    </ThemedText>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
+        {FEATURES.notifications ? <Section title="Notifications">
+          <Row icon={{ ios: "bell", android: "notifications", web: "notifications" }} title="Notification settings" onPress={() => router.push("/notifications" as Href)} />
+        </Section> : null}
 
-          {!!message && (
-            <ThemedText type="small" themeColor="muted" style={styles.message}>
-              {message}
-            </ThemedText>
-          )}
-        </>
-      )}
+        {FEATURES.backup || FEATURES.restore || FEATURES.exportCsv || FEATURES.importCsv ? <Section title="Data">
+          {FEATURES.backup ? <Row icon={{ ios: "icloud.and.arrow.up", android: "cloud_upload", web: "cloud_upload" }} title="Back up my data" /> : null}
+          {FEATURES.restore ? <Row icon={{ ios: "icloud.and.arrow.down", android: "cloud_download", web: "cloud_download" }} title="Restore from backup" /> : null}
+          {FEATURES.exportCsv ? <Row icon={{ ios: "tablecells", android: "table_view", web: "table_view" }} title="Export to CSV" /> : null}
+          {FEATURES.importCsv ? <Row icon={{ ios: "doc.badge.plus", android: "upload_file", web: "upload_file" }} title="Import from CSV" /> : null}
+        </Section> : null}
 
-      {__DEV__ && !loading && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Replay welcome onboarding"
-          onPress={() => router.push("/onboarding" as Href)}
-          style={[styles.replayRow, { borderColor: theme.line }]}
-        >
-          <View style={{ flex: 1 }}>
-            <ThemedText style={styles.privacyTitle}>Replay welcome</ThemedText>
-            <ThemedText type="small" themeColor="muted">Preview the first-launch introduction.</ThemedText>
-          </View>
-          <ThemedText style={{ color: theme.primary, fontFamily: "IBMPlexSans_700Bold" }}>›</ThemedText>
-        </Pressable>
-      )}
+        <Section title="Help and about">
+          <Row icon={{ ios: "book", android: "menu_book", web: "menu_book" }} title="How it works" subtitle="Replay the welcome walkthrough" onPress={() => router.push("/onboarding" as Href)} />
+          <Pressable
+            onPress={() => {
+              const count = versionTaps + 1;
+              setVersionTaps(count);
+              if (count >= 7) setDeveloperVisible(true);
+            }}
+            accessibilityRole="button"
+            accessibilityLabel={"Version " + (Constants.expoConfig?.version ?? "1.0.0")}
+            style={styles.versionRow}
+          >
+            <ThemedText style={styles.rowTitle}>Version</ThemedText>
+            <ThemedText style={styles.rowValue}>{Constants.expoConfig?.version ?? "1.0.0"}</ThemedText>
+          </Pressable>
+        </Section>
 
-      <View style={[styles.privacy, { borderColor: theme.line }]}>
-        <ThemedText style={styles.privacyTitle}>
-          Your data stays on this device
-        </ThemedText>
-        <ThemedText type="small" themeColor="muted">
-          Gastador stores your expenses and preferences locally. Back up your
-          data regularly so you can restore it if you change or lose your phone.
-        </ThemedText>
-      </View>
+        {developerVisible ? <Section title="Developer">
+          <Row icon={{ ios: "arrow.counterclockwise", android: "replay", web: "replay" }} title="Replay onboarding" onPress={() => router.push("/onboarding" as Href)} />
+        </Section> : null}
+      </>}
     </ScrollView>
-    </KeyboardAvoidingView>
-    </ScreenLayout>
-  );
+  </ScreenLayout>;
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  content: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 24 },
-  section: { marginBottom: 22, paddingVertical: 8, borderRadius: 0, borderWidth: 0, gap: 2 },
-  sectionTitle: {
-    fontFamily: "IBMPlexSans_600SemiBold",
-    fontSize: 19,
-    marginBottom: 12,
-  },
-  sectionHint: { marginTop: -6, marginBottom: 12 },
-  label: { fontFamily: "IBMPlexSans_500Medium", fontSize: 13, marginBottom: 7 },
-  input: {
-    minHeight: 48,
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    fontFamily: "IBMPlexSans_400Regular",
-    fontSize: 15,
-  },
-  saveButton: {
-    alignSelf: "flex-start",
-    minHeight: 44,
-    paddingHorizontal: 18,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 10,
-  },
-  saveText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  choices: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
-  choice: {
-    minWidth: 68,
-    minHeight: 44,
-    borderWidth: 1,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 15,
-  },
-  choiceText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  methodList: { gap: 9 },
-  method: { minHeight: 68, borderWidth: 1, borderRadius: 9, padding: 13, gap: 4, justifyContent: "center" },
-  methodTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
-  message: { marginTop: -12, marginBottom: 20 },
-  replayRow: { minHeight: 58, borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: 10, flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 18 },
-  privacy: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 17, gap: 5 },
-  privacyTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  scroll: { flex: 1 },
+  content: { paddingHorizontal: 24, paddingTop: 10, gap: 12 },
+  profileCard: { minHeight: 100, borderRadius: 24, backgroundColor: "#F3F7FF", padding: 18, flexDirection: "row", alignItems: "center", gap: 14 },
+  avatar: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#DBEAFE", alignItems: "center", justifyContent: "center" },
+  avatarText: { color: "#1E3A8A", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 22 },
+  profileText: { flex: 1, gap: 3 },
+  nickname: { minHeight: 30, padding: 0, color: "#0F172A", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 20 },
+  section: { borderRadius: 24, backgroundColor: "#F3F7FF", paddingHorizontal: 20, paddingVertical: 16, gap: 8 },
+  sectionHeading: { color: "#475569", fontFamily: "IBMPlexSans_700Bold", fontSize: 13, letterSpacing: 0.6 },
+  row: { minHeight: 64, flexDirection: "row", alignItems: "center", gap: 12 },
+  pressed: { transform: [{ scale: 0.98 }] },
+  iconCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#E3EDFF", alignItems: "center", justifyContent: "center" },
+  rowText: { flex: 1, gap: 2 },
+  rowTitle: { color: "#0F172A", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 17 },
+  rowSubtitle: { color: "#475569", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  rowValue: { color: "#475569", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  helper: { color: "#64748B", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  methodChoices: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  methodChip: { minHeight: 44, paddingHorizontal: 14, borderRadius: 14, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
+  methodChipSelected: { backgroundColor: "#DBEAFE" },
+  methodText: { color: "#475569", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  methodTextSelected: { color: "#1E3A8A" },
+  currencyChoices: { flexDirection: "row", gap: 8 },
+  currencyChip: { flex: 1, minHeight: 48, borderRadius: 14, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
+  currencyChipSelected: { backgroundColor: "#DBEAFE" },
+  currencyText: { color: "#475569", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  currencyTextSelected: { color: "#1E3A8A" },
+  saved: { color: "#2563EB", fontFamily: "IBMPlexSans_700Bold", fontSize: 12 },
+  versionRow: { minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
 });
