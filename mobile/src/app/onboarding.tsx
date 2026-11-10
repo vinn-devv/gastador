@@ -69,7 +69,7 @@ export default function OnboardingScreen() {
   const { width, height } = useWindowDimensions();
   const reducedMotion = useReducedMotion();
   const pager = useRef<ComponentRef<typeof ScrollView>>(null);
-  const fade = useRef(new RNAnimated.Value(1)).current;
+  const [fade] = useState(() => new RNAnimated.Value(1));
   const pageProgress = useSharedValue(0);
   const progressValue = useSharedValue(0);
   const float = useSharedValue(0);
@@ -97,26 +97,26 @@ export default function OnboardingScreen() {
   const perDay = days > 0 ? Math.floor((numericAmount * 100) / days) : 0;
 
   useEffect(() => {
-    progressValue.value = withTiming(page + 1, { duration: reducedMotion ? 180 : 400 });
+    progressValue.set(withTiming(page + 1, { duration: reducedMotion ? 180 : 400 }));
   }, [page, progressValue, reducedMotion]);
 
   useEffect(() => {
-    coinEntry.value = withTiming(1, { duration: reducedMotion ? 180 : 700 });
-    entryScale.value = withSpring(1, { damping: 14, stiffness: 100 });
+    coinEntry.set(withTiming(1, { duration: reducedMotion ? 180 : 700 }));
+    entryScale.set(withSpring(1, { damping: 14, stiffness: 100 }));
   }, [coinEntry, entryScale, reducedMotion]);
 
   useEffect(() => {
     if (!reducedMotion) {
-      float.value = withRepeat(
+      float.set(withRepeat(
         withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.sin) }),
         -1,
         true,
-      );
+      ));
     }
   }, [float, reducedMotion]);
 
   useEffect(() => {
-    if (!reducedMotion) tiltMotion.value = withRepeat(withTiming(1, { duration: 2500, easing: Easing.inOut(Easing.sin) }), -1, true);
+    if (!reducedMotion) tiltMotion.set(withRepeat(withTiming(1, { duration: 2500, easing: Easing.inOut(Easing.sin) }), -1, true));
   }, [reducedMotion, tiltMotion]);
 
   useEffect(() => {
@@ -126,14 +126,22 @@ export default function OnboardingScreen() {
   useEffect(() => {
     if (page === 2 && !confettiPlayed.current && !reducedMotion) {
       confettiPlayed.current = true;
-      confettiProgress.value = withSequence(withTiming(1, { duration: 1200 }), withTiming(0, { duration: 500 }));
+      confettiProgress.set(withSequence(withTiming(1, { duration: 1200 }), withTiming(0, { duration: 500 })));
     }
   }, [page, confettiProgress, reducedMotion]);
 
   useEffect(() => {
-    if (page === 2 && !reducedMotion) pulse.value = withRepeat(withTiming(1, { duration: 1200 }), -1, true);
-    else pulse.value = 0;
+    if (page === 2 && !reducedMotion) pulse.set(withRepeat(withTiming(1, { duration: 1200 }), -1, true));
+    else pulse.set(0);
   }, [page, pulse, reducedMotion]);
+
+  const moveTo = (next: number) => {
+    const safe = Math.max(0, Math.min(2, next));
+    setPage(safe);
+    pageProgress.set(withTiming(safe, { duration: reducedMotion ? 180 : 420 }));
+    pager.current?.scrollTo({ x: safe * width, animated: true });
+    void Haptics.selectionAsync();
+  };
 
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
@@ -145,14 +153,6 @@ export default function OnboardingScreen() {
     });
     return () => sub.remove();
   });
-
-  const moveTo = useCallback((next: number) => {
-    const safe = Math.max(0, Math.min(2, next));
-    setPage(safe);
-    pageProgress.value = withTiming(safe, { duration: reducedMotion ? 180 : 420 });
-    pager.current?.scrollTo({ x: safe * width, animated: true });
-    void Haptics.selectionAsync();
-  }, [pageProgress, reducedMotion, width]);
 
   const finish = useCallback(async () => {
     try {
@@ -276,7 +276,7 @@ export default function OnboardingScreen() {
             }
             if (next !== page) {
               setPage(next);
-              pageProgress.value = withTiming(next, { duration: reducedMotion ? 180 : 420 });
+              pageProgress.set(withTiming(next, { duration: reducedMotion ? 180 : 420 }));
 
             }
           }}
@@ -380,12 +380,16 @@ export default function OnboardingScreen() {
 
       <View style={[styles.bottom, { paddingBottom: insets.bottom + 16 }]}>
         {page === 1 ? (
-          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); void saveAllowance(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel="Set allowance and continue" style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
+          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); void saveAllowance(); }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel="Set allowance and continue" style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{saving ? "Saving…" : "Set Allowance"}</Text>
             <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
         ) : (
-          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); page === 0 ? moveTo(1) : void finish(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} accessibilityRole="button" accessibilityLabel={page === 0 ? "Get started" : "Start tracking"} entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined} style={[styles.cta, buttonAnimatedStyle]}>
+          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); if (page === 0) {
+              moveTo(1);
+            } else {
+              void finish();
+            } }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} accessibilityRole="button" accessibilityLabel={page === 0 ? "Get started" : "Start tracking"} entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined} style={[styles.cta, buttonAnimatedStyle]}>
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{page === 0 ? "Get Started" : "Start Tracking"}</Text>
             <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
