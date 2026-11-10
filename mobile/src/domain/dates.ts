@@ -145,3 +145,17 @@ export function legacyDateToManila(value: string): string | null {
   if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0) return fromUtcMs(ms);
   return manilaDateOf(d);
 }
+
+export type DateDisplayFormat = "DMY" | "MDY" | "YMD" | "DMMM";
+
+export function formatDateWithPreference(date: string, format: DateDisplayFormat): string {
+  const match = DATE_RE.exec(date);
+  if (!match) return date;
+  const year = match[1];
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (format === "DMY") return `${pad(day)}/${pad(month)}/${year}`;
+  if (format === "MDY") return `${pad(month)}/${pad(day)}/${year}`;
+  if (format === "YMD") return `${year}-${pad(month)}-${pad(day)}`;
+  return `${day} ${MONTHS[month - 1]} ${year}`;
+}
