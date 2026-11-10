@@ -856,20 +856,7 @@ export default function HomeScreen() {
                             </View>
                           </Reanimated.View>
                         </View>
-                        <StaggeredRow index={4}>
-                          <View style={styles.insightStatusPill}>
-                            <SymbolView
-                              name={{
-                                ios: "info.circle",
-                                android: "info",
-                                web: "info",
-                              }}
-                              tintColor="#2563EB"
-                              size={16}
-                            />
-                      
-                          </View>
-                        </StaggeredRow>
+
                       </>
                     ) : null}
                   </View>
@@ -1059,24 +1046,6 @@ const styles = StyleSheet.create({
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 14,
     lineHeight: 19,
-  },
-  insightStatusPill: {
-    width: "100%",
-    minHeight: 48,
-    borderRadius: 999,
-    backgroundColor: "#EAF3FF",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  insightStatusText: {
-    flex: 1,
-    color: "#1E40AF",
-    fontFamily: "IBMPlexSans_400Regular",
-    fontSize: 14,
-    lineHeight: 20,
   },
   sectionHeader: {
     flexDirection: "row",
