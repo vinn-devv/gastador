@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { csvCell } from "./csv.ts";
+import { csvCell } from "./csv";
 
 test("keeps negative numeric amounts plain", () => {
   assert.equal(csvCell(-125.5), '"-125.5"');
