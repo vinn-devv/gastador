@@ -16,12 +16,12 @@
 
 ## About Gastador
 
-Gastador helps you make your allowance last. Set your budget, record everyday expenses, understand your spending, and keep an eye on your savings goals—all in one place.
+Gastador helps you make your allowance last. Set your budget, record everyday expenses, review your spending, and keep track of your remaining balance.
 
 **Designed around three ideas:**
 - **Know your balance** — see how much allowance remains.
 - **Track your spending** — keep your expenses organized.
-- **Build better habits** — use insights and savings goals to stay on track.
+- **Understand your habits** — use activity history and insights to make informed decisions.
 
 > **Local-first:** Your Gastador data is stored on your device. Each installation has its own data.
 
@@ -29,10 +29,11 @@ Gastador helps you make your allowance last. Set your budget, record everyday ex
 
 | Feature | What it does |
 |:--|:--|
-| Allowance tracking | Manage your allowance and budget cycle. |
+| Allowance tracking | Manage weekly, biweekly, monthly, or custom allowance cycles. |
 | Expense tracking | Record and organize everyday expenses. |
-| Spending insights | Review spending summaries and patterns. |
-| Savings goals | Set goals and track your progress. |
+| Spending insights | Review spending summaries and category breakdowns. |
+| QR scanning | Scan supported payment QR codes or select a QR image. |
+| Customization | Manage expense categories, payment methods, and display preferences. |
 | On-device storage | Keep app data locally with SQLite. |
 
 ## Tech stack
@@ -85,14 +86,17 @@ gastador/
     ├── src/
     │   ├── app/         Screens and routes
     │   ├── components/  Reusable interface components
+    │   ├── constants/   App constants and feature settings
     │   ├── data/        SQLite database and repositories
-    │   └── domain/      Allowance, expense, and app logic
+    │   ├── domain/      Allowance, expense, and app logic
+    │   ├── hooks/
+    │   └── types/
     ├── app.json         Expo app configuration
     ├── eas.json         Android build profiles
     └── package.json     Dependencies and scripts
 ```
 
-## Data & backups
+## Data and backups
 
 Gastador stores information locally on each device. Data is not automatically shared between installations. Back up your data before uninstalling the app, clearing its storage, or moving to another device.
 
