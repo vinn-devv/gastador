@@ -74,6 +74,8 @@ export default function OnboardingScreen() {
   const float = useSharedValue(0);
   const pulse = useSharedValue(0);
   const coinEntry = useSharedValue(0);
+  const entryScale = useSharedValue(0.85);
+  const tiltMotion = useSharedValue(0);
   const confettiProgress = useSharedValue(0);
   const confettiPlayed = useRef(false);
   const buttonScale = useSharedValue(1);
@@ -97,7 +99,8 @@ export default function OnboardingScreen() {
 
   useEffect(() => {
     coinEntry.value = withTiming(1, { duration: reducedMotion ? 180 : 700 });
-  }, [coinEntry, reducedMotion]);
+    entryScale.value = withSpring(1, { damping: 14, stiffness: 100 });
+  }, [coinEntry, entryScale, reducedMotion]);
 
   useEffect(() => {
     if (!reducedMotion) {
@@ -118,7 +121,7 @@ export default function OnboardingScreen() {
       confettiPlayed.current = true;
       confettiProgress.value = withSequence(withTiming(1, { duration: 1200 }), withTiming(0, { duration: 500 }));
     }
-  }, [page, confettiProgress]);
+  }, [page, confettiProgress, reducedMotion]);
 
   useEffect(() => {
     if (page === 2 && !reducedMotion) pulse.value = withRepeat(withTiming(1, { duration: 1200 }), -1, true);
@@ -188,7 +191,7 @@ export default function OnboardingScreen() {
 
   const coinStyle = useAnimatedStyle(() => {
     const progress = pageProgress.value;
-    const size = interpolate(progress, [0, 1, 2], [0.85, 0.55, 0.9]);
+    const size = interpolate(progress, [0, 1, 2], [1, 0.55, 0.9]);
     const x = interpolate(progress, [0, 1, 2], [0, width * 0.23, 0]);
     const y = interpolate(progress, [0, 1, 2], [0, -height * 0.14, 0]);
     const tilt = reducedMotion ? 0 : interpolate(progress, [0, 1, 2], [-8, 0, 0]);
@@ -204,7 +207,7 @@ export default function OnboardingScreen() {
         { rotateY: reducedMotion ? "0deg" : `${interpolate(progress, [0, 1, 2], [0, 360, 720])}deg` },
       ],
     };
-  }, [coinEntry]);
+  }, [coinEntry, entryScale, tiltMotion]);
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.value }] }));
 
@@ -223,7 +226,7 @@ export default function OnboardingScreen() {
     opacity: 0.85 - float.value * 0.12,
   }));
 
-  const coinSize = Math.min(width * 0.92, height * 0.48, 380);
+  const coinSize = Math.min(width * 0.78, height * 0.4, 320);
 
   return (
     <RNAnimated.View style={[styles.root, { opacity: fade }]}>
