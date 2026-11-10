@@ -9,7 +9,7 @@ import {
   useWindowDimensions,
   Animated as RNAnimated,
 } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -17,6 +17,7 @@ import * as Haptics from "expo-haptics";
 import { StatusBar } from "expo-status-bar";
 import Reanimated, {
   Easing,
+  FadeInUp,
   interpolate,
   useAnimatedStyle,
   useReducedMotion,
@@ -30,7 +31,6 @@ import { DateField } from "@/components/date-field";
 import { saveSettings, getSettings, createCycle } from "@/data/repository";
 import { addDays, addMonths, daysInclusive, formatDate, manilaToday } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
-import { getCycles, getAllTransactions } from "@/data/repository";
 
 const BLUE = "#1E40AF";
 const ACCENT = "#EAF3FF";
@@ -53,7 +53,6 @@ function moneyDigits(value: string): string {
 export default function OnboardingScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
-  const params = useLocalSearchParams<{ replay?: string }>();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const reducedMotion = useReducedMotion();
@@ -61,6 +60,7 @@ export default function OnboardingScreen() {
   const fade = useRef(new RNAnimated.Value(1)).current;
   const pageProgress = useSharedValue(0);
   const float = useSharedValue(0);
+  const pulse = useSharedValue(0);
   const [page, setPage] = useState(0);
   const [amount, setAmount] = useState("");
   const [period, setPeriod] = useState<Period>("monthly");
@@ -84,6 +84,11 @@ export default function OnboardingScreen() {
       );
     }
   }, [float, reducedMotion]);
+
+  useEffect(() => {
+    if (page === 2 && !reducedMotion) pulse.value = withRepeat(withTiming(1, { duration: 1200 }), -1, true);
+    else pulse.value = 0;
+  }, [page, pulse, reducedMotion]);
 
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
@@ -139,6 +144,7 @@ export default function OnboardingScreen() {
       setAllowanceSaved(true);
       setSavedAmount(numericAmount * 100);
       moveTo(2);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Couldn't save your allowance. Please try again.");
     } finally {
@@ -166,12 +172,17 @@ export default function OnboardingScreen() {
     };
   });
 
+  const ringStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 0.8 + pulse.value * 0.6 }],
+    opacity: reducedMotion ? 0.24 : 0.35 * (1 - pulse.value),
+  }));
+
   const shadowStyle = useAnimatedStyle(() => ({
     transform: [{ scaleX: 1 - float.value * 0.08 }, { scaleY: 1 - float.value * 0.06 }],
     opacity: 0.85 - float.value * 0.12,
   }));
 
-  const page2Top = Math.max(insets.top + 86, height * 0.16);
+  const page2Top = page === 1 ? 0 : page === 2 ? height * 0.12 : height * 0.30;
   const coinSize = Math.min(width * 0.78, height * 0.34, 310);
 
   return (
@@ -202,14 +213,19 @@ export default function OnboardingScreen() {
           ref={pager}
           horizontal
           pagingEnabled
-          scrollEnabled={page !== 1 || numericAmount > 0}
+          scrollEnabled={true}
           showsHorizontalScrollIndicator={false}
           bounces={false}
           onMomentumScrollEnd={(event) => {
             const next = Math.round(event.nativeEvent.contentOffset.x / width);
+            if (next > 1 && page === 1 && numericAmount <= 0) {
+              pager.current?.scrollTo({ x: width, animated: true });
+              return;
+            }
             if (next !== page) {
               setPage(next);
               pageProgress.value = withTiming(next, { duration: reducedMotion ? 180 : 420 });
+              if (next === 2 && allowanceSaved) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
           }}
           style={{ flex: 1 }}
@@ -353,6 +369,9 @@ const styles = StyleSheet.create({
   error: { color: "#FFE0E0", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   coinStage: { position: "absolute", zIndex: 0, alignItems: "center", justifyContent: "center" },
   coinWrap: { alignItems: "center", justifyContent: "center" },
+  ring: { position: "absolute", width: "76%", height: "76%", borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
+  confetti: { position: "absolute", width: "100%", height: "100%", alignItems: "center", justifyContent: "center" },
+  confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
   pedestal: { position: "absolute", width: "68%", height: "16%", bottom: "8%", borderRadius: 999, backgroundColor: "rgba(5,15,50,0.45)", shadowColor: "#050F32", shadowOpacity: 0.35, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
   welcomePage: { alignItems: "center" },
   welcomeCopy: { width: "100%", alignItems: "center", paddingHorizontal: 8, marginTop: 20 },
