@@ -22,7 +22,7 @@ export type LegacyDateConversion =
   | { ok: false; date: null; changed: false };
 
 export function convertLegacyCycleDate(value: string): LegacyDateConversion {
-  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return isValidDate(value)
       ? { ok: true, date: value, changed: false }
       : { ok: false, date: null, changed: false };
