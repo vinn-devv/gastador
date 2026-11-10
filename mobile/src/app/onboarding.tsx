@@ -178,7 +178,7 @@ export default function OnboardingScreen() {
 
   const coinStyle = useAnimatedStyle(() => {
     const progress = pageProgress.value;
-    const size = interpolate(progress, [0, 1, 2], [0.78, 0.55, 0.9]);
+    const size = interpolate(progress, [0, 1, 2], [0.85, 0.55, 0.9]);
     const x = interpolate(progress, [0, 1, 2], [0, width * 0.23, 0]);
     const y = interpolate(progress, [0, 1, 2], [0, -height * 0.14, 0]);
     const tilt = reducedMotion ? 0 : interpolate(progress, [0, 1, 2], [-8, 0, 0]);
@@ -208,7 +208,7 @@ export default function OnboardingScreen() {
     opacity: 0.85 - float.value * 0.12,
   }));
 
-  const coinSize = Math.min(width, height * 0.48, 380);
+  const coinSize = Math.min(width * 0.92, height * 0.48, 380);
 
   return (
     <RNAnimated.View style={[styles.root, { opacity: fade }]}>
