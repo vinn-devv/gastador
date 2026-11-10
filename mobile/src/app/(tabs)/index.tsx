@@ -979,6 +979,7 @@ const styles = StyleSheet.create({
   insightContent: {
     flexGrow: 1,
     width: "100%",
+    marginTop: -8,
     alignItems: "center",
     justifyContent: "flex-start",
     paddingTop: 0,
