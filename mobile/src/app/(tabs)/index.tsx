@@ -52,9 +52,9 @@ import {
   summarizeCycle,
   type CycleSummary,
 } from "@/domain/allowance";
-import { formatDate, formatTime, manilaToday } from "@/domain/dates";
-import { formatMoney } from "@/domain/money";
-import type { AppSettings } from "@/domain/types";
+import { formatDateWithPreference, formatTime, manilaToday } from "@/domain/dates";
+import { formatMoneyWithPreferences } from "@/domain/money";
+import { DEFAULT_PREFERENCES, type AppSettings } from "@/domain/types";
 import { SHEET_GAP, navBarSpace } from "@/constants/layout";
 
 type Dashboard = {
@@ -365,7 +365,7 @@ export default function HomeScreen() {
     }, [db, router]),
   );
 
-  const currency = settings?.currency ?? "PHP";
+  const currency = settings?.currency ?? "PHP";\n  const displayMoney = (amount: number) => formatMoneyWithPreferences(amount, currency, settings?.preferences ?? DEFAULT_PREFERENCES);\n  const displayDate = (date: string) => formatDateWithPreference(date, settings?.preferences.dateFormat ?? "DMMM");
   const summary = dashboard?.summary;
   const remaining = summary?.remainingCentavos ?? 0;
   const displayRemaining = Math.max(0, remaining);
@@ -374,7 +374,7 @@ export default function HomeScreen() {
     spendable > 0 ? Math.max(0, (summary!.spentCentavos / spendable) * 100) : 0;
   const isOverspent = remaining < 0;
   const spentPercent = isOverspent ? 100 : Math.min(100, rawSpentPercent);
-  const formattedBalance = formatMoney(summary ? animatedRemaining : 0, currency);
+  const formattedBalance = displayMoney(summary ? animatedRemaining : 0, currency);
   const balanceFirstDigit = formattedBalance.search(/\d/);
   const balancePrefix =
     balanceFirstDigit >= 0 ? formattedBalance.slice(0, balanceFirstDigit) : "";
@@ -394,7 +394,7 @@ export default function HomeScreen() {
   const insightBudgetLabel = "Safe per day";
   const insightStatus =
     remaining < 0
-      ? `You’ve gone over your allowance by ${formatMoney(Math.abs(remaining), currency)}.`
+      ? `You’ve gone over your allowance by ${displayMoney(Math.abs(remaining), currency)}.`
       : rawSpentPercent > 80
         ? "Careful, you’ve used most of your allowance."
         : "You’re on track. Keep it up!";
@@ -693,12 +693,12 @@ export default function HomeScreen() {
                                   numberOfLines={1}
                                 >
                                   {item.categoryName} ·{" "}
-                                  {formatDate(item.date, false)},{" "}
+                                  {displayDate(item.date)},{" "}
                                   {formatTime(item.occurredAt)}
                                 </ThemedText>
                               </View>
                               <ThemedText style={styles.transactionAmount}>
-                                −{formatMoney(item.amountCentavos, currency)}
+                                −{displayMoney(item.amountCentavos, currency)}
                               </ThemedText>
                             </View>
                           </StaggeredRow>
@@ -823,7 +823,7 @@ export default function HomeScreen() {
                           >
                             <View style={styles.insightStatChip}>
                               <ThemedText maxFontSizeMultiplier={1.3} adjustsFontSizeToFit numberOfLines={1} style={styles.insightStatValue}>
-                                {formatMoney(insightSpent, currency)}
+                                {displayMoney(insightSpent, currency)}
                               </ThemedText>
                               <ThemedText maxFontSizeMultiplier={1.3} style={styles.insightStatLabel}>
                                 Spent
@@ -836,7 +836,7 @@ export default function HomeScreen() {
                           >
                             <View style={styles.insightStatChip}>
                               <ThemedText style={styles.insightStatValue}>
-                                {formatMoney(insightLeft, currency)}
+                                {displayMoney(insightLeft, currency)}
                               </ThemedText>
                               <ThemedText style={styles.insightStatLabel}>
                                 Left
@@ -849,7 +849,7 @@ export default function HomeScreen() {
                           >
                             <View style={styles.insightStatChip}>
                               <ThemedText style={styles.insightStatValue}>
-                                {formatMoney(insightBudgetValue, currency)}
+                                {displayMoney(insightBudgetValue, currency)}
                               </ThemedText>
                               <ThemedText style={styles.insightStatLabel}>
                                 {insightBudgetLabel}
