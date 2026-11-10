@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Modal, Platform, Pressable, StyleSheet, View } from "react-native";
-import DateTimePicker, { DateTimePickerAndroid, type DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import DateTimePicker, { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { ThemedText } from "@/components/themed-text";
 import { formatDate, isValidDate } from "@/domain/dates";
 import { useTheme } from "@/hooks/use-theme";
@@ -45,8 +45,7 @@ export function DateField({ label, value, onChange, maximumDate, minimumDate, er
         display: "calendar",
         minimumDate: min,
         maximumDate: max,
-        onChange: (event: DateTimePickerEvent, chosen?: Date) => {
-          if (event.type !== "set" || !chosen) return;
+        onValueChange: (_event, chosen) => {
           onChange(isoFromDate(chosen));
         },
       });
@@ -85,7 +84,8 @@ export function DateField({ label, value, onChange, maximumDate, minimumDate, er
                 display="spinner"
                 minimumDate={min}
                 maximumDate={max}
-                onChange={(_event, chosen) => { if (chosen) setDraft(chosen); }}
+                onValueChange={(_event, chosen) => setDraft(chosen)}
+                onDismiss={() => setIosVisible(false)}
                 themeVariant="light"
                 accentColor={theme.primary}
               />
