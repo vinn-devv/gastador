@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type ComponentRef } from "react";
 import {
   BackHandler,
   Pressable,
@@ -68,7 +68,7 @@ export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const reducedMotion = useReducedMotion();
-  const pager = useRef<ScrollView>(null);
+  const pager = useRef<ComponentRef<typeof ScrollView>>(null);
   const fade = useRef(new RNAnimated.Value(1)).current;
   const pageProgress = useSharedValue(0);
   const progressValue = useSharedValue(0);
@@ -380,14 +380,14 @@ export default function OnboardingScreen() {
 
       <View style={[styles.bottom, { paddingBottom: insets.bottom + 16 }]}>
         {page === 1 ? (
-          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); void saveAllowance(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel="Set allowance and continue" entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined} style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
+          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); void saveAllowance(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel="Set allowance and continue" style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{saving ? "Saving…" : "Set Allowance"}</Text>
-            <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow-forward", web: "arrow-right" }} tintColor={BLUE} size={17} /></View>
+            <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
         ) : (
           <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); page === 0 ? moveTo(1) : void finish(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} accessibilityRole="button" accessibilityLabel={page === 0 ? "Get started" : "Start tracking"} entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined} style={[styles.cta, buttonAnimatedStyle]}>
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{page === 0 ? "Get Started" : "Start Tracking"}</Text>
-            <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow-forward", web: "arrow-right" }} tintColor={BLUE} size={17} /></View>
+            <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
         )}
       </View>

@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenLayout } from "@/components/screen-layout";
 import { navBarSpace } from "@/constants/layout";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useRouter, type Href } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import {
   KeyboardAvoidingView,
@@ -264,7 +264,7 @@ export default function SettingsScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Replay welcome onboarding"
-          onPress={() => router.push("/onboarding")}
+          onPress={() => router.push("/onboarding" as Href)}
           style={[styles.replayRow, { borderColor: theme.line }]}
         >
           <View style={{ flex: 1 }}>

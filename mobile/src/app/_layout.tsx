@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { DefaultTheme, Stack, ThemeProvider, useRouter } from "expo-router";
+import { DefaultTheme, Stack, ThemeProvider, useRouter, type Href } from "expo-router";
 import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "@expo-google-fonts/nunito";
@@ -36,7 +36,7 @@ function AppNavigator() {
           console.warn("Peso coin preload failed; continuing to onboarding:", prefetchError);
         }
       }
-      router.replace("/onboarding");
+      router.replace("/onboarding" as Href);
     } catch (error) {
       console.error("Could not determine first-launch onboarding state:", error);
     }
