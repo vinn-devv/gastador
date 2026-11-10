@@ -107,6 +107,10 @@ export default function NewExpenseScreen() {
   async function save() {
     const cents = parsedAmount;
     if (cents === null || cents <= 0) { setError("Enter an amount greater than zero."); return; }
+    if (selectedCycle && cents !== null && cents > 0 && insufficientFunds) {
+      Alert.alert("Expense not allowed", `This expense exceeds your available allowance of ${displayMoney(selectedCycleRemaining ?? 0)}. Reduce the amount to continue.`, [{ text: "OK" }]);
+      return;
+    }
     if (!categoryId) { setError("Choose a category."); return; }
     if (!isValidDate(date) || date > manilaToday()) { setDateError("Expense date cannot be in the future."); setError("Review the expense date."); return; }
     setDateError("");
@@ -197,7 +201,7 @@ export default function NewExpenseScreen() {
           </View>
 
           {!!error && <View style={[styles.error, { backgroundColor: theme.dangerSoft }]}><ThemedText style={[styles.errorText, { color: theme.danger }]}>{error}</ThemedText></View>}
-          <Pressable onPress={() => void save()} disabled={saving || loading || amountIsInvalid || insufficientFunds || !categoryId || !isValidDate(date) || date > manilaToday()} accessibilityRole="button" accessibilityLabel="Save expense" style={[styles.saveButton, { backgroundColor: theme.primary, opacity: saving || loading || amountIsInvalid || insufficientFunds || !categoryId || !isValidDate(date) || date > manilaToday() ? 0.55 : 1 }]}>
+          <Pressable onPress={() => void save()} disabled={saving || loading || amountIsInvalid || !categoryId || !isValidDate(date) || date > manilaToday()} accessibilityRole="button" accessibilityLabel="Save expense" style={[styles.saveButton, { backgroundColor: theme.primary, opacity: saving || loading || amountIsInvalid || !categoryId || !isValidDate(date) || date > manilaToday() ? 0.55 : 1 }]}>
             <ThemedText style={styles.saveButtonText}>{saving ? "Saving expense…" : "Save expense"}</ThemedText>
           </Pressable>
         </View>
