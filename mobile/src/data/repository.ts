@@ -9,6 +9,7 @@ import type {
 import { defaultSettings } from "../domain/types";
 import { addDays, addMonths, diffDays, fromManilaInput, isValidDate, manilaHourMinute, manilaToday } from "../domain/dates";
 import { cycleContainsDate, rangesOverlapInclusive } from "../domain/cycle-dates";
+import { remainingCentavos, validateExpense } from "../domain/spending-limit";
 
 type SettingsRow = {
   displayName: string;
@@ -155,13 +156,58 @@ export type NewTransactionInput = {
   description?: string | null;
 };
 
+export class InsufficientFundsError extends Error {
+  readonly code = "INSUFFICIENT_FUNDS";
+  constructor(readonly remainingCentavos: number) {
+    super(
+      remainingCentavos === 0
+        ? "You have no allowance left."
+        : `Not enough allowance. You only have ${remainingCentavos} centavos left.`,
+    );
+    this.name = "InsufficientFundsError";
+  }
+}
+
+async function assertExpenseWithinCycle(
+  txn: SQLiteDatabase,
+  input: NewTransactionInput,
+  replacing?: { amountCentavos: number; date: string },
+): Promise<void> {
+  const cycles = await txn.getAllAsync<Cycle>(
+    "SELECT * FROM cycles ORDER BY startDate ASC",
+  );
+  const targetCycle = cycles.find((cycle) => cycleContainsDate(cycle, input.date));
+  if (!targetCycle) {
+    const validation = validateExpense({
+      amountCentavos: input.amountCentavos,
+      remainingCentavos: Number.MAX_SAFE_INTEGER,
+    });
+    if (!validation.ok) throw new InsufficientFundsError(validation.remainingCentavos);
+    return;
+  }
+
+  const spentRow = await txn.getFirstAsync<{ spentCentavos: number }>(
+    "SELECT COALESCE(SUM(amountCentavos), 0) AS spentCentavos FROM transactions WHERE date >= ? AND date <= ?",
+    targetCycle.startDate,
+    targetCycle.endDate,
+  );
+  const spent = spentRow?.spentCentavos ?? 0;
+  const replacingCentavos =
+    replacing && cycleContainsDate(targetCycle, replacing.date)
+      ? replacing.amountCentavos
+      : 0;
+  const validation = validateExpense({
+    amountCentavos: input.amountCentavos,
+    remainingCentavos: remainingCentavos(targetCycle, spent),
+    replacingCentavos,
+  });
+  if (!validation.ok) throw new InsufficientFundsError(validation.remainingCentavos);
+}
+
 export async function createTransaction(
   db: SQLiteDatabase,
   input: NewTransactionInput,
 ): Promise<void> {
-  if (!Number.isSafeInteger(input.amountCentavos) || input.amountCentavos <= 0) {
-    throw new RangeError("Expense amount must be greater than zero.");
-  }
   if (!input.categoryId.trim()) {
     throw new Error("Choose a category before saving.");
   }
@@ -173,23 +219,65 @@ export async function createTransaction(
   const occurredAt = fromManilaInput(`${input.date}T${manilaHourMinute()}`) ?? now;
   const id = `tx-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
-  await db.runAsync(
-    `INSERT INTO transactions (
-      id, amountCentavos, occurredAt, date, merchant, categoryId,
-      paymentMethod, description, source, ocrStatus, externalReference,
-      isSplurge, receiptHashesJson, createdAt, updatedAt
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'not_applicable', NULL, 0, '[]', ?, ?)`,
-    id,
-    input.amountCentavos,
-    occurredAt,
-    input.date,
-    input.merchant.trim() || "Expense",
-    input.categoryId,
-    input.paymentMethod,
-    input.description?.trim() || null,
-    now,
-    now,
-  );
+  await db.withExclusiveTransactionAsync(async (txn) => {
+    await assertExpenseWithinCycle(txn, input);
+    await txn.runAsync(
+      `INSERT INTO transactions (
+        id, amountCentavos, occurredAt, date, merchant, categoryId,
+        paymentMethod, description, source, ocrStatus, externalReference,
+        isSplurge, receiptHashesJson, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'not_applicable', NULL, 0, '[]', ?, ?)`,
+      id,
+      input.amountCentavos,
+      occurredAt,
+      input.date,
+      input.merchant.trim() || "Expense",
+      input.categoryId,
+      input.paymentMethod,
+      input.description?.trim() || null,
+      now,
+      now,
+    );
+  });
+}
+
+export async function updateTransaction(
+  db: SQLiteDatabase,
+  id: string,
+  input: NewTransactionInput,
+): Promise<void> {
+  if (!input.categoryId.trim()) {
+    throw new Error("Choose a category before saving.");
+  }
+  if (!isValidDate(input.date) || input.date > manilaToday()) {
+    throw new Error("Choose a valid expense date.");
+  }
+
+  const now = new Date().toISOString();
+  const occurredAt = fromManilaInput(`${input.date}T${manilaHourMinute()}`) ?? now;
+  await db.withExclusiveTransactionAsync(async (txn) => {
+    const existing = await txn.getFirstAsync<Pick<Transaction, "id" | "amountCentavos" | "date">>(
+      "SELECT id, amountCentavos, date FROM transactions WHERE id = ?",
+      id,
+    );
+    if (!existing) throw new Error("This expense could not be found.");
+    await assertExpenseWithinCycle(txn, input, existing);
+    await txn.runAsync(
+      `UPDATE transactions SET
+        amountCentavos = ?, occurredAt = ?, date = ?, merchant = ?,
+        categoryId = ?, paymentMethod = ?, description = ?, updatedAt = ?
+       WHERE id = ?`,
+      input.amountCentavos,
+      occurredAt,
+      input.date,
+      input.merchant.trim() || "Expense",
+      input.categoryId,
+      input.paymentMethod,
+      input.description?.trim() || null,
+      now,
+      id,
+    );
+  });
 }
 
 
