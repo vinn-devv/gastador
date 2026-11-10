@@ -326,7 +326,9 @@ export default function OnboardingScreen() {
           </View>
         </ScrollView>
 
-        <View pointerEvents="none" style={[styles.coinStage, { top: page === 0 ? height * 0.38 : page === 1 ? page2Top : height * 0.27, height: coinSize, width: coinSize, left: (width - coinSize) / 2 }]}>
+        <View pointerEvents="none" accessibilityElementsHidden style={[styles.coinStage, { top: page === 0 ? height * 0.34 : page === 1 ? 0 : height * 0.04, height: coinSize, width: coinSize, left: (width - coinSize) / 2 }]}>
+          {page === 2 && <Reanimated.View style={[styles.ring, ringStyle]} />}
+          {page === 2 && <Reanimated.View entering={reducedMotion ? undefined : FadeInUp.duration(1200)} style={styles.confetti} importantForAccessibility="no-hide-descendants">{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>}
           <Reanimated.View style={[styles.pedestal, shadowStyle]} />
           <Reanimated.View style={[styles.coinWrap, coinStyle]}>
             <Image source={COIN} contentFit="contain" style={{ width: coinSize, height: coinSize }} accessibilityLabel="Peso coin" />
