@@ -36,7 +36,7 @@ export default function ScanScreen() {
     const parsed = parseQrExpense(result.data);
     if (!parsed) {
       setQrValue(result.data);
-      setError("This QR code has no readable amount. You can add the expense manually.");
+      setError("This QR code has no readable amount. You can open Expenses.");
       return;
     }
     router.push({ pathname: "/new-expense", params: parsed });
@@ -60,7 +60,7 @@ export default function ScanScreen() {
         if (parsed) router.push({ pathname: "/new-expense", params: parsed });
         else {
           setQrValue(codes[0].data);
-          setError("This QR code has no readable amount. You can add the expense manually.");
+          setError("This QR code has no readable amount. You can open Expenses.");
         }
       } else {
         setError("No QR code was found in that image. Choose a clearer image with the full code visible.");
@@ -79,7 +79,7 @@ export default function ScanScreen() {
       <View style={styles.actions}>
         <Pressable onPress={() => router.push("/new-expense")} style={[styles.action, { backgroundColor: theme.primarySoft, borderColor: theme.primary }]}>
           <SymbolView name={{ ios: "square.and.pencil", android: "edit", web: "edit" }} tintColor={theme.primary} size={18} />
-          <ThemedText style={[styles.actionText, { color: theme.primary }]}>Add manually</ThemedText>
+          <ThemedText style={[styles.actionText, { color: theme.primary }]}>Expenses</ThemedText>
         </Pressable>
         <Pressable onPress={() => void uploadQR()} disabled={busy} style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.line, opacity: busy ? 0.55 : 1 }]}>
           <SymbolView name={{ ios: "qrcode", android: "qr_code", web: "qr_code" }} tintColor={theme.text} size={18} />
