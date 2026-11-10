@@ -365,7 +365,9 @@ export default function HomeScreen() {
     }, [db, router]),
   );
 
-  const currency = settings?.currency ?? "PHP";\n  const displayMoney = (amount: number) => formatMoneyWithPreferences(amount, currency, settings?.preferences ?? DEFAULT_PREFERENCES);\n  const displayDate = (date: string) => formatDateWithPreference(date, settings?.preferences.dateFormat ?? "DMMM");
+  const currency = settings?.currency ?? "PHP";
+  const displayMoney = (amount: number) => formatMoneyWithPreferences(amount, currency, settings?.preferences ?? DEFAULT_PREFERENCES);
+  const displayDate = (date: string) => formatDateWithPreference(date, settings?.preferences.dateFormat ?? "DMMM");
   const summary = dashboard?.summary;
   const remaining = summary?.remainingCentavos ?? 0;
   const displayRemaining = Math.max(0, remaining);
