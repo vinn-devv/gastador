@@ -1,4 +1,5 @@
 import { addDays, addMonths, compareDates, daysInclusive, diffDays } from './dates';
+import { cycleContainsDate, rangesOverlapInclusive } from './cycle-dates';
 import { divFloor, divRoundHalfUp, ratioPercent, type Centavos } from './money';
 import type { Cycle, Frequency, Transaction } from './types';
 
@@ -28,9 +29,8 @@ export function spendableCentavos(cycle: Cycle): Centavos {
 }
 
 export function cycleStatus(cycle: Pick<Cycle, 'startDate' | 'endDate'>, today: string): CycleStatus {
-  if (today < cycle.startDate) return 'upcoming';
-  if (today > cycle.endDate) return 'ended';
-  return 'active';
+  if (cycleContainsDate(cycle, today)) return 'active';
+  return today < cycle.startDate ? 'upcoming' : 'ended';
 }
 
 export function cycleLengthDays(cycle: Pick<Cycle, 'startDate' | 'endDate'>): number {
@@ -113,7 +113,7 @@ export function pickCurrentCycle(cycles: Cycle[], today: string): CurrentCycle |
 }
 
 export function cyclesOverlap(a: Pick<Cycle, 'startDate' | 'endDate'>, b: Pick<Cycle, 'startDate' | 'endDate'>): boolean {
-  return a.startDate <= b.endDate && b.startDate <= a.endDate;
+  return rangesOverlapInclusive(a, b);
 }
 
 export function findOverlap(cycles: Cycle[], candidate: Pick<Cycle, 'id' | 'startDate' | 'endDate'>): Cycle | null {
@@ -121,7 +121,7 @@ export function findOverlap(cycles: Cycle[], candidate: Pick<Cycle, 'id' | 'star
 }
 
 export function cycleForDate(cycles: Cycle[], date: string): Cycle | null {
-  return cycles.find((c) => date >= c.startDate && date <= c.endDate) ?? null;
+  return cycles.find((c) => cycleContainsDate(c, date)) ?? null;
 }
 
 export function carryoverFrom(previous: Cycle, txs: Transaction[]): Centavos {
