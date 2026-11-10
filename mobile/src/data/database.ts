@@ -107,7 +107,7 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
   const settingColumns = await db.getAllAsync<{ name: string }>("PRAGMA table_info(settings)");
   if (!settingColumns.some((column) => column.name === "hasOnboarded")) {
     await db.execAsync("ALTER TABLE settings ADD COLUMN hasOnboarded INTEGER NOT NULL DEFAULT 0");
-    await db.execAsync("UPDATE settings SET hasOnboarded = onboardingCompleted");
+    await db.execAsync("UPDATE settings SET hasOnboarded = 1");
   }
   await db.execAsync("PRAGMA user_version = 2");
 
