@@ -298,7 +298,7 @@ export default function OnboardingScreen() {
     const rotation = reducedMotion ? 0 : (tilt.get() - 0.5) * (idle ? 6 : 1.2);
     const spin = reducedMotion ? 0 : p * 360;
     const scale = reducedMotion ? 1 : entryScale.get() * (p > 1 && p < 2 ? 1 + Math.sin((p - 1) * Math.PI) * 0.08 : 1);
-    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2 + bob, width: size, height: size, opacity: reducedMotion ? 1 : entryOpacity.get(), transform: [{ perspective: 800 }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }, { scale }] };
+    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2 + bob, width: size, height: size, opacity: 1, transform: [{ perspective: 800 }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }, { scale }] };
   });
   const periodIndicatorStyle = useAnimatedStyle(() => {
     const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
   dateRowCompact: { minHeight: 30 },
   dateLabel: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 78 },
   dateControl: { flex: 1, alignSelf: "center" },
-  amountLine: { flexDirection: "row", alignItems: "flex-start", justifyContent: "center", minHeight: 96, marginTop: 12, marginBottom: 12 },
+  amountLine: { flexDirection: "row", alignItems: "flex-start", justifyContent: "center", minHeight: 96, marginTop: 24, marginBottom: 24 },
   amountLineCompact: { minHeight: 60, marginTop: 0, marginBottom: 2 },
   currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 44, marginTop: 2 },
   amountInput: { flex: 0, minWidth: 0, maxWidth: "88%", color: WHITE, textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 72, lineHeight: 80, includeFontPadding: false, padding: 0 },
