@@ -128,9 +128,8 @@ export default function OnboardingScreen() {
 
   useEffect(() => {
     if (page !== 1) return;
-    const timer = setTimeout(() => amountInput.current?.focus(), reducedMotion ? 120 : 250);
-    return () => clearTimeout(timer);
-  }, [page, reducedMotion]);
+    amountInput.current?.focus();
+  }, [page]);
 
   useEffect(() => {
     if (reducedMotion) return;
