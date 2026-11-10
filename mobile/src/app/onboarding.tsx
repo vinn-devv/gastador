@@ -298,8 +298,11 @@ export default function OnboardingScreen() {
     const hostHeight = Math.max(280, height - insets.top - insets.bottom - 150);
     const points = slots.map((slot, index) => {
       const measured = Number.isFinite(slot.x) && Number.isFinite(slot.y) && Number.isFinite(slot.width) && Number.isFinite(slot.height) && slot.width > 0 && slot.height > 0;
+      const pageOneFallbackSize = Math.max(112, Math.min(width * 0.7, 280, hostHeight * 0.42));
+      const pageOneFallbackY = hostHeight * 0.66;
+      const pageOneFallbackShift = Math.max(0, Math.min(height * 0.06, hostHeight - 20 - pageOneFallbackSize * 0.56 - pageOneFallbackY));
       const fallback = index === 0
-        ? { x: width / 2, y: hostHeight * 0.66, size: Math.max(112, Math.min(width * 0.7, 280, hostHeight * 0.42)) }
+        ? { x: width / 2, y: pageOneFallbackY + pageOneFallbackShift, size: pageOneFallbackSize }
         : index === 1
           ? { x: width - 56, y: 32, size: 64 }
           : { x: width / 2, y: hostHeight * 0.34, size: Math.min(220, width - 48, hostHeight * 0.48) };
@@ -359,9 +362,12 @@ export default function OnboardingScreen() {
   const compactHeaderCoin = availableHeight < 480;
   const onCoinSlotLayout = useCallback((index: number, offsetX = 0, offsetY = 0) => (event: { nativeEvent: { layout: { x: number; y: number; width: number; height: number } } }) => {
     const layout = event.nativeEvent.layout;
-    const next = coinSlots.get().map((slot, i) => i === index ? { ...layout, x: layout.x + offsetX, y: layout.y + offsetY } : slot);
+    const pageOneSize = Math.max(96, Math.min(width * 0.7, 280, layout.height - 24));
+    const pageOneMaxShift = layout.height - 20 - pageOneSize * 0.56 - layout.height / 2;
+    const pageOneShift = index === 0 ? Math.max(0, Math.min(height * 0.06, pageOneMaxShift)) : 0;
+    const next = coinSlots.get().map((slot, i) => i === index ? { ...layout, x: layout.x + offsetX, y: layout.y + offsetY + pageOneShift } : slot);
     coinSlots.set(next);
-  }, [coinSlots]);
+  }, [coinSlots, height, width]);
   const onWelcomeStackLayout = useCallback((event: { nativeEvent: { layout: { x: number; y: number; width: number } } }) => {
     const layout = event.nativeEvent.layout;
     const next = coinSlots.get().map((slot, i) => i === 2 ? { x: layout.x + 24 + (layout.width - 230) / 2, y: layout.y, width: 230, height: 236 } : slot);
