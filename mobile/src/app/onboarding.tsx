@@ -453,7 +453,7 @@ export default function OnboardingScreen() {
           <View style={[styles.page, styles.welcomePage, { width }]}>
             <View style={styles.welcomeStack} onLayout={onWelcomeStackLayout}>
               <View style={styles.welcomeVisual}>
-                <View style={styles.welcomeCoinSlot} onLayout={onCoinSlotLayout(2)} />
+                <View style={styles.welcomeCoinSlot} />
               </View>
               <View style={styles.welcomeCopy}>
                 <Text maxFontSizeMultiplier={1.2} style={styles.welcomeHeadline}>Welcome to</Text>
