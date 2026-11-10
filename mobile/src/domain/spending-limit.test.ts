@@ -5,7 +5,6 @@ import { createTransaction, InsufficientFundsError } from "../data/repository";
 import type { SQLiteDatabase } from "expo-sqlite";
 import type { Cycle } from "./types";
 import { manilaToday } from "./dates";
-import type { Cycle } from "./types";
 
 const cycle: Pick<Cycle, "allowanceCentavos" | "carryoverCentavos" | "plannedSavingsCentavos"> = {
   allowanceCentavos: 10_000,
