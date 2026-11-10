@@ -384,8 +384,8 @@ export default function OnboardingScreen() {
             if (next !== page) {
               Keyboard.dismiss();
               setPage(next);
-              setSettledPage(next);
             }
+            setSettledPage(next);
           }}
           style={{ flex: 1 }}
           contentContainerStyle={{ width: width * 3 }}
