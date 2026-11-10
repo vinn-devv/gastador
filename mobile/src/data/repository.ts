@@ -464,7 +464,7 @@ export async function consumeCycleReviewNotice(db: SQLiteDatabase): Promise<bool
 
 
 export async function createCategory(db: SQLiteDatabase, name: string, color = "#3B82F6"): Promise<void> {
-  const normalized = name.trim().replace(/\\s+/g, " ");
+  const normalized = name.trim().replace(/\s+/g, " ");
   if (!normalized) throw new Error("Enter a category name.");
   const duplicate = await db.getFirstAsync<{ id: string }>(
     "SELECT id FROM categories WHERE lower(name) = lower(?)",
@@ -494,7 +494,7 @@ export async function updateCategory(
     id,
   );
   if (!current) throw new Error("Category not found.");
-  const name = patch.name === undefined ? current.name : patch.name.trim().replace(/\\s+/g, " ");
+  const name = patch.name === undefined ? current.name : patch.name.trim().replace(/\s+/g, " ");
   if (!name) throw new Error("Enter a category name.");
   const duplicate = await db.getFirstAsync<{ id: string }>(
     "SELECT id FROM categories WHERE lower(name) = lower(?) AND id != ?",
