@@ -387,36 +387,39 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={[styles.page, styles.welcomePage, { width }]}>
-            <View style={{ height: Math.min(coinSize, 230) + 28 }} />
-            <View style={styles.welcomeCopy}>
-              <Text maxFontSizeMultiplier={1.2} style={styles.welcomeHeadline}>Welcome to</Text>
-              <Text maxFontSizeMultiplier={1.2} style={styles.welcomeBrand}>Gastador</Text>
-              <Text maxFontSizeMultiplier={1.2} style={styles.welcomeSubtitle}>
-                {allowanceSaved
-                  ? `You have ${formatMoney(savedAmount, "PHP")} to spend this period. Let’s make every peso count.`
-                  : "Your wallet is ready. Add your first expense, or set an allowance later in Settings."}
-              </Text>
+            <View style={styles.welcomeStack}>
+              <View style={styles.welcomeVisual}>
+                <Reanimated.View style={[styles.ring, ringStyle]} />
+                <Reanimated.View style={[styles.confetti, confettiStyle]} importantForAccessibility="no-hide-descendants">
+                  {[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}
+                </Reanimated.View>
+                <Reanimated.View style={[styles.welcomeCoin, welcomeCoinStyle]}>
+                  <Image source={COIN} contentFit="contain" style={{ width: welcomeCoinSize, height: welcomeCoinSize }} accessibilityLabel="3D peso coin" />
+                </Reanimated.View>
+                <Reanimated.View style={[styles.welcomeContactShadow, shadowStyle]}>
+                  <Svg width="100%" height="100%" viewBox="0 0 100 20">
+                    <Defs><RadialGradient id="welcomeCoinContact" cx="50%" cy="50%" rx="50%" ry="50%">
+                      <Stop offset="0" stopColor="#050F32" stopOpacity="0.35" />
+                      <Stop offset="1" stopColor="#050F32" stopOpacity="0" />
+                    </RadialGradient></Defs>
+                    <Ellipse cx="50" cy="10" rx="50" ry="10" fill="url(#welcomeCoinContact)" />
+                  </Svg>
+                </Reanimated.View>
+              </View>
+              <View style={styles.welcomeCopy}>
+                <Text maxFontSizeMultiplier={1.2} style={styles.welcomeHeadline}>Welcome to</Text>
+                <Text maxFontSizeMultiplier={1.2} style={styles.welcomeBrand}>Gastador</Text>
+                <Text maxFontSizeMultiplier={1.2} style={styles.welcomeSubtitle}>
+                  {allowanceSaved
+                    ? `You have ${formatMoney(savedAmount, "PHP")} to spend this period. Let’s make every peso count.`
+                    : "Your wallet is ready. Add your first expense, or set an allowance later in Settings."}
+                </Text>
+              </View>
             </View>
-            <View style={{ flex: 0.75 }} />
           </View>
         </ScrollView>
 
-        {page !== 1 ? <View pointerEvents="none" style={[styles.coinStage, { top: page === 0 ? height * 0.63 : insets.top + 56, height: page === 0 ? firstCoinSize : Math.min(coinSize, 230), width: page === 0 ? firstCoinSize : Math.min(coinSize, 230), left: (width - (page === 0 ? firstCoinSize : Math.min(coinSize, 230))) / 2 }]}>
-          {page === 2 && <Reanimated.View style={[styles.ring, ringStyle]} />}
-          <Reanimated.View style={[styles.confetti, confettiStyle]} importantForAccessibility="no-hide-descendants">{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>
-          <Reanimated.View style={[styles.contactShadow, shadowStyle]}>
-            <Svg width="100%" height="100%" viewBox="0 0 100 20">
-              <Defs><RadialGradient id="coinContact" cx="50%" cy="50%" rx="50%" ry="50%">
-                <Stop offset="0" stopColor="#050F32" stopOpacity="0.35" />
-                <Stop offset="1" stopColor="#050F32" stopOpacity="0" />
-              </RadialGradient></Defs>
-              <Ellipse cx="50" cy="10" rx="50" ry="10" fill="url(#coinContact)" />
-            </Svg>
-          </Reanimated.View>
-          <Reanimated.View style={[styles.coinWrap, coinStyle]}>
-            <Image source={COIN} contentFit="contain" style={{ width: page === 0 ? firstCoinSize : Math.min(coinSize, 230), height: page === 0 ? firstCoinSize : Math.min(coinSize, 230) }} accessibilityLabel="Peso coin" />
-          </Reanimated.View>
-        </View> : null}
+
       </View>
 
       <View style={[styles.bottom, { paddingBottom: insets.bottom + 16 }]}>
@@ -510,6 +513,13 @@ const styles = StyleSheet.create({
   keyText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
   error: { color: "#FFE0E0", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   welcomePage: { alignItems: "center", justifyContent: "center", paddingVertical: 12 },
+  welcomeStack: { width: "100%", alignItems: "center", justifyContent: "center" },
+  welcomeVisual: { width: 230, height: 252, alignItems: "center", justifyContent: "flex-start", overflow: "hidden" },
+  welcomeCoin: { width: 220, height: 220, alignItems: "center", justifyContent: "center" },
+  ring: { position: "absolute", top: 22, width: 176, height: 176, borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
+  confetti: { position: "absolute", top: 0, width: 220, height: 220, alignItems: "center", justifyContent: "center" },
+  confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
+  welcomeContactShadow: { position: "absolute", bottom: 0, width: "70%", height: 16 },
   welcomeStack: { width: "100%", alignItems: "center", justifyContent: "center" },
   welcomeVisual: { width: 230, height: 252, alignItems: "center", justifyContent: "flex-start", overflow: "hidden" },
   welcomeCoin: { width: 220, height: 220, alignItems: "center", justifyContent: "center" },
