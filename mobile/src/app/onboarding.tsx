@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
 import {
   BackHandler,
   Pressable,
@@ -294,7 +294,7 @@ export default function OnboardingScreen() {
                   { label: "Private on-device", icon: { ios: "lock.fill", android: "lock", web: "lock" } },
                 ].map((item) => (
                   <View key={item.label} style={styles.chip}>
-                    <SymbolView name={item.icon} tintColor={WHITE} size={14} />
+                    <SymbolView name={item.icon as ComponentProps<typeof SymbolView>["name"]} tintColor={WHITE} size={14} />
                     <Text maxFontSizeMultiplier={1.2} style={styles.chipText}>{item.label}</Text>
                   </View>
                 ))}
