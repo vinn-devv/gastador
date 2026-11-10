@@ -136,7 +136,7 @@ export default function OnboardingScreen() {
 
   useEffect(() => {
     if (page !== 1) return;
-    const timer = setTimeout(() => amountInput.current?.focus(), reducedMotion ? 180 : 620);
+    const timer = setTimeout(() => amountInput.current?.focus(), reducedMotion ? 180 : 850);
     return () => clearTimeout(timer);
   }, [page, reducedMotion]);
 
@@ -274,7 +274,7 @@ export default function OnboardingScreen() {
     const points = slots.map((slot, index) => {
       const measured = Number.isFinite(slot.x) && Number.isFinite(slot.y) && slot.width > 0 && slot.height > 0;
       const fallback = index === 0
-        ? { x: width * 0.7, y: hostHeight * 0.66, size: Math.max(112, Math.min(width * 0.7, 280, hostHeight * 0.42)) }
+        ? { x: width / 2, y: hostHeight * 0.66, size: Math.max(112, Math.min(width * 0.7, 280, hostHeight * 0.42)) }
         : index === 1
           ? { x: width - 56, y: 32, size: 64 }
           : { x: width / 2, y: hostHeight * 0.34, size: Math.min(220, width - 48, hostHeight * 0.48) };
@@ -295,10 +295,10 @@ export default function OnboardingScreen() {
     const size = Math.max(48, safeInterpolate(points.map((point) => point.size)));
     const idle = p < 0.5 || p > 1.5;
     const bob = reducedMotion ? 0 : Math.sin(float.get() * Math.PI * 2) * (idle ? 10 : 2);
-    const rotation = reducedMotion ? 0 : (tilt.get() - 0.5) * (idle ? 6 : 1.2);
-    const spin = reducedMotion ? 0 : p * 360;
+    const rotation = reducedMotion ? 0 : -8 + (tilt.get() - 0.5) * (idle ? 6 : 1.2);
+    const spin = reducedMotion ? 0 : interpolate(p, [0, 1, 2], [0, 360, 360]);
     const scale = reducedMotion ? 1 : entryScale.get() * (p > 1 && p < 2 ? 1 + Math.sin((p - 1) * Math.PI) * 0.08 : 1);
-    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2 + bob, width: size, height: size, opacity: 1, transform: [{ perspective: 800 }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }, { scale }] };
+    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2, width: size, height: size, opacity: 1, transform: [{ perspective: 800 }, { translateX: 0 }, { translateY: bob }, { scale }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }] };
   });
   const periodIndicatorStyle = useAnimatedStyle(() => {
     const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
@@ -308,7 +308,7 @@ export default function OnboardingScreen() {
   const ringStyle = useAnimatedStyle(() => {
     const p = pageProgress.get();
     const visibility = reducedMotion ? 0 : interpolate(p, [0, 0.5, 1, 1.5, 2], [1, 0, 0, 0, 1]);
-    return { transform: [{ scale: reducedMotion ? 1 : 0.8 + pulse.get() * 0.6 }], opacity: 0.35 * (1 - pulse.get()) * visibility };
+    return { transform: [{ scale: reducedMotion ? 1 : 0.8 + pulse.get() * 0.6 }], opacity: (0.18 + pulse.get() * 0.22) * visibility };
   });
 
   const confettiStyle = useAnimatedStyle(() => ({
@@ -347,6 +347,19 @@ export default function OnboardingScreen() {
       <LinearGradient colors={["#1E40AF", "#2563EB", "#0B1F5C"]} locations={[0, 0.52, 1]} style={StyleSheet.absoluteFill} />
       <View pointerEvents="none" style={[styles.orb, { width: width * 0.9, height: width * 0.9, top: -width * 0.42, right: -width * 0.32 }]} />
       {page === 0 ? <View pointerEvents="none" style={[styles.orb, styles.pageOneOrb, { width: width * 0.75, height: width * 0.75, bottom: height * 0.12, left: -width * 0.42 }]} /> : null}
+
+      <View style={[styles.top, { paddingTop: insets.top + 8 }]}>
+        {page > 0 ? <Pressable onPress={() => moveTo(page - 1)} accessibilityRole="button" accessibilityLabel="Go back" style={styles.backButton}>
+          <SymbolView name={{ ios: "chevron.left", android: "chevron_left", web: "chevron_left" }} tintColor={WHITE} size={18} />
+        </Pressable> : <View style={styles.backPlaceholder} />}
+        <Text maxFontSizeMultiplier={1.2} style={styles.counter}>{String(page + 1).padStart(2, "0")} / 03</Text>
+        <View style={styles.progress} accessibilityRole="progressbar" accessibilityLabel={`Onboarding page ${page + 1} of 3`} accessibilityValue={{ min: 1, max: 3, now: page + 1 }}>
+          {[0, 1, 2].map((item) => <ProgressSegment key={item} index={item} progress={progressValue} active={item <= page} onPress={() => moveTo(item)} />)}
+        </View>
+        {page < 2 ? <Pressable onPress={skip} accessibilityRole="button" accessibilityLabel={page === 1 ? "Skip allowance" : "Skip onboarding"} hitSlop={8} style={styles.skip}>
+          <Text maxFontSizeMultiplier={1.2} style={styles.skipText}>Skip</Text>
+        </Pressable> : <View style={styles.skipPlaceholder} />}
+      </View>
 
       <View style={styles.pagerHost}>
         <Reanimated.ScrollView
@@ -406,14 +419,14 @@ export default function OnboardingScreen() {
             <Pressable pointerEvents="box-only" onPress={Keyboard.dismiss} style={StyleSheet.absoluteFill} />
             <View style={[styles.allowanceHeading, keyboardVisible && styles.allowanceHeadingCompact]}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
-              <View style={[styles.headerCoinSlot, compactHeaderCoin && styles.headerCoinSlotCompact]} onLayout={onCoinSlotLayout(1, 24, 0)} />
+              <View style={[styles.headerCoinSlot, compactHeaderCoin && styles.headerCoinSlotCompact]} onLayout={onCoinSlotLayout(1)} />
             </View>
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
             <View style={styles.allowanceBody}>
               <View style={[styles.allowanceCard, keyboardVisible && styles.allowanceCardKeyboard]}>
                 <Pressable style={[styles.amountLine, keyboardVisible && styles.amountLineCompact]} onPress={() => amountInput.current?.focus()}>
                   <Text maxFontSizeMultiplier={1.2} style={[styles.currencySign, keyboardVisible && styles.currencySignCompact]}>₱</Text>
-                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
+                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 160, Math.max(48, formattedAmount.length * amountFontSize * 0.58 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
                 </Pressable>
                 <View style={[styles.periodPill, keyboardVisible && styles.periodPillCompact]} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
                   <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
@@ -462,19 +475,6 @@ export default function OnboardingScreen() {
           <Reanimated.View style={[styles.sharedShadow, shadowStyle]}><Svg width="100%" height="100%" viewBox="0 0 100 20"><Defs><RadialGradient id="sharedCoinContact" cx="50%" cy="50%" rx="50%" ry="50%"><Stop offset="0" stopColor="#050F32" stopOpacity="0.35" /><Stop offset="1" stopColor="#050F32" stopOpacity="0" /></RadialGradient></Defs><Ellipse cx="50" cy="10" rx="50" ry="10" fill="url(#sharedCoinContact)" /></Svg></Reanimated.View>
           <Reanimated.View style={[styles.confetti, confettiStyle]}>{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>
         </Reanimated.View>
-      </View>
-
-      <View style={[styles.top, { paddingTop: insets.top + 8 }]}>
-        {page > 0 ? <Pressable onPress={() => moveTo(page - 1)} accessibilityRole="button" accessibilityLabel="Go back" style={styles.backButton}>
-          <SymbolView name={{ ios: "chevron.left", android: "chevron_left", web: "chevron_left" }} tintColor={WHITE} size={18} />
-        </Pressable> : <View style={styles.backPlaceholder} />}
-        <Text maxFontSizeMultiplier={1.2} style={styles.counter}>{String(page + 1).padStart(2, "0")} / 03</Text>
-        <View style={styles.progress} accessibilityRole="progressbar" accessibilityLabel={`Onboarding page ${page + 1} of 3`} accessibilityValue={{ min: 1, max: 3, now: page + 1 }}>
-          {[0, 1, 2].map((item) => <ProgressSegment key={item} index={item} progress={progressValue} active={item <= page} onPress={() => moveTo(item)} />)}
-        </View>
-        {page < 2 ? <Pressable onPress={skip} accessibilityRole="button" accessibilityLabel={page === 1 ? "Skip allowance" : "Skip onboarding"} hitSlop={8} style={styles.skip}>
-          <Text maxFontSizeMultiplier={1.2} style={styles.skipText}>Skip</Text>
-        </Pressable> : <View style={styles.skipPlaceholder} />}
       </View>
 
       <View style={[styles.bottom, { paddingBottom: page === 1 && keyboardVisible ? 12 : insets.bottom + 16, marginBottom: keyboardVisible && Platform.OS === "ios" ? Math.max(0, keyboardHeight - insets.bottom) : 0 }]}>
@@ -557,8 +557,8 @@ const styles = StyleSheet.create({
   dateControl: { flex: 1, alignSelf: "center" },
   amountLine: { flexDirection: "row", alignItems: "flex-start", justifyContent: "center", minHeight: 96, marginTop: 24, marginBottom: 24 },
   amountLineCompact: { minHeight: 60, marginTop: 0, marginBottom: 2 },
-  currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 44, marginTop: 2 },
-  amountInput: { flex: 1, minWidth: 0, maxWidth: "88%", color: WHITE, textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 72, lineHeight: 80, includeFontPadding: false, padding: 0 },
+  currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 44, marginTop: 2, marginRight: 6 },
+  amountInput: { flexGrow: 0, flexShrink: 1, minWidth: 42, color: WHITE, textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 72, lineHeight: 80, includeFontPadding: false, padding: 0 },
   allowancePageKeyboardAmount: { fontSize: 48, lineHeight: 52 },
   currencySignCompact: { fontSize: 31, lineHeight: 36, marginTop: 1 },
   periodPill: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 999, padding: 4, gap: 2 },
@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
   ring: { position: "absolute", top: 22, width: 176, height: 176, borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
   confetti: { position: "absolute", top: 0, width: 220, height: 220, alignItems: "center", justifyContent: "center" },
   confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
-  sharedCoin: { zIndex: 3, alignItems: "center", justifyContent: "center" },
+  sharedCoin: { zIndex: 3, alignItems: "center", justifyContent: "center", overflow: "visible" },
   sharedCoinImage: { width: "100%", height: "100%" },
   sharedRing: { position: "absolute", width: "82%", height: "82%", borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
   sharedShadow: { position: "absolute", bottom: -8, width: "70%", height: 16 },
