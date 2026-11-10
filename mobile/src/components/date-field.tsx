@@ -14,6 +14,7 @@ type Props = {
   error?: string;
   accessibilityLabel?: string;
   maxFontSizeMultiplier?: number;
+  compact?: boolean;
 };
 
 function dateFromIso(value: string): Date {
@@ -26,7 +27,7 @@ function isoFromDate(value: Date): string {
   return toLocalDateString(value);
 }
 
-export function DateField({ label, value, onChange, maximumDate, minimumDate, error, accessibilityLabel, maxFontSizeMultiplier }: Props) {
+export function DateField({ label, value, onChange, maximumDate, minimumDate, error, accessibilityLabel, maxFontSizeMultiplier, compact = false }: Props) {
   const theme = useTheme();
   const [iosVisible, setIosVisible] = useState(false);
   const [draft, setDraft] = useState(dateFromIso(value));
@@ -54,13 +55,13 @@ export function DateField({ label, value, onChange, maximumDate, minimumDate, er
   }
 
   return (
-    <View style={styles.field}>
-      <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={[styles.label, { color: theme.text }]}>{label}</ThemedText>
+    <View style={compact ? styles.compactField : styles.field}>
+      {!compact && <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={[styles.label, { color: theme.text }]}>{label}</ThemedText>}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel ?? label}
         onPress={openPicker}
-        style={[styles.value, { borderColor: error ? theme.danger : theme.line, backgroundColor: theme.surface }]}
+        style={[styles.value, compact && styles.compactValue, { borderColor: error ? theme.danger : theme.line, backgroundColor: theme.surface }]}
       >
         <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={[styles.valueText, { color: theme.text }]}>{formatDate(value)}</ThemedText>
         <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={{ color: theme.primary, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 }}>Change</ThemedText>
@@ -97,8 +98,10 @@ export function DateField({ label, value, onChange, maximumDate, minimumDate, er
 
 const styles = StyleSheet.create({
   field: { gap: 7 },
+  compactField: { gap: 0 },
   label: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   value: { minHeight: 50, borderWidth: 1, borderRadius: 12, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  compactValue: { minHeight: 36, borderRadius: 10, paddingHorizontal: 10 },
   valueText: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
   error: { fontFamily: "IBMPlexSans_400Regular", fontSize: 12 },
   backdrop: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.35)" },
