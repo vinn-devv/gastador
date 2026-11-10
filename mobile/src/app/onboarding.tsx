@@ -274,6 +274,7 @@ export default function OnboardingScreen() {
   }));
 
   const coinSize = Math.min(width * 0.78, height * 0.4, 320);
+  const firstCoinSize = Math.min(coinSize, Math.max(88, height * 0.15));
   const showQuickAmounts = height >= 700;
   const showSubtitle = height >= 640;
 
@@ -402,7 +403,7 @@ export default function OnboardingScreen() {
           </View>
         </ScrollView>
 
-        {page !== 1 ? <View pointerEvents="none" style={[styles.coinStage, { top: page === 0 ? height * 0.39 : insets.top + 56, height: page === 0 ? coinSize : Math.min(coinSize, 230), width: page === 0 ? coinSize : Math.min(coinSize, 230), left: (width - (page === 0 ? coinSize : Math.min(coinSize, 230))) / 2 }]}>
+        {page !== 1 ? <View pointerEvents="none" style={[styles.coinStage, { top: page === 0 ? height * 0.59 : insets.top + 56, height: page === 0 ? firstCoinSize : Math.min(coinSize, 230), width: page === 0 ? firstCoinSize : Math.min(coinSize, 230), left: (width - (page === 0 ? firstCoinSize : Math.min(coinSize, 230))) / 2 }]}>
           {page === 2 && <Reanimated.View style={[styles.ring, ringStyle]} />}
           <Reanimated.View style={[styles.confetti, confettiStyle]} importantForAccessibility="no-hide-descendants">{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>
           <Reanimated.View style={[styles.contactShadow, shadowStyle]}>
@@ -415,7 +416,7 @@ export default function OnboardingScreen() {
             </Svg>
           </Reanimated.View>
           <Reanimated.View style={[styles.coinWrap, coinStyle]}>
-            <Image source={COIN} contentFit="contain" style={{ width: page === 0 ? coinSize : Math.min(coinSize, 230), height: page === 0 ? coinSize : Math.min(coinSize, 230) }} accessibilityLabel="Peso coin" />
+            <Image source={COIN} contentFit="contain" style={{ width: page === 0 ? firstCoinSize : Math.min(coinSize, 230), height: page === 0 ? firstCoinSize : Math.min(coinSize, 230) }} accessibilityLabel="Peso coin" />
           </Reanimated.View>
         </View> : null}
       </View>
