@@ -236,9 +236,7 @@ export default function OnboardingScreen() {
         <Text maxFontSizeMultiplier={1.2} style={styles.counter}>{String(page + 1).padStart(2, "0")} / 03</Text>
         <View style={styles.progress} accessibilityRole="progressbar" accessibilityLabel={`Onboarding page ${page + 1} of 3`} accessibilityValue={{ min: 1, max: 3, now: page + 1 }}>
           {[0, 1, 2].map((item) => (
-            <View key={item} style={styles.segmentTrack}>
-              <Reanimated.View style={[styles.segmentFill, { width: page >= item ? "100%" : "0%" }]} />
-            </View>
+            <ProgressSegment key={item} index={item} progress={progressValue} />
           ))}
         </View>
         {page < 2 ? (
