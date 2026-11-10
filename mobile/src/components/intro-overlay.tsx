@@ -6,7 +6,7 @@ import { INTRO_HTML } from "@/components/intro-html";
 
 const BG = "#2563EB";
 
-export function IntroOverlay() {
+export function IntroOverlay({ onFinished }: { onFinished?: () => void }) {
   const [visible, setVisible] = useState(true);
   const opacity = useRef(new Animated.Value(1)).current;
   const finished = useRef(false);
@@ -14,8 +14,8 @@ export function IntroOverlay() {
   const finish = useCallback((): void => {
     if (finished.current) return;
     finished.current = true;
-    Animated.timing(opacity, { toValue: 0, duration: 350, useNativeDriver: true }).start(() => setVisible(false));
-  }, [opacity]);
+    Animated.timing(opacity, { toValue: 0, duration: 350, useNativeDriver: true }).start(() => { setVisible(false); onFinished?.(); });
+  }, [opacity, onFinished]);
 
   useEffect(() => {
     const t = setTimeout(finish, 6000);
