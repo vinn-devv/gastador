@@ -88,7 +88,7 @@ export default function ActivityScreen() {
   const total = filtered.reduce((sum, item) => sum + item.amountCentavos, 0);
 
   return (
-    <ScreenLayout title="Expenses" subtitle="Your complete spending history." onBack={() => router.back()} stackScreen>
+    <ScreenLayout title="Activity" subtitle="Your complete spending history.">
     <ScrollView
       style={{ flex: 1 }}
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + SHEET_GAP + 24 }]}
