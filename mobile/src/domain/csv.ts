@@ -15,7 +15,10 @@ export type CsvExportOptions = {
 /** Quote every field and neutralise spreadsheet formula injection. */
 export function csvCell(value: unknown): string {
   let text = String(value ?? "");
-  if (/^[\t\r ]*[=+\-@]/.test(text)) text = "'" + text;
+  const isNumeric =
+    typeof value === "number" ||
+    (typeof value === "string" && /^-?\d+(\.\d+)?$/.test(value));
+  if (!isNumeric && /^[\t\r ]*[=+\-@]/.test(text)) text = "'" + text;
   return '"' + text.replace(/"/g, '""') + '"';
 }
 
