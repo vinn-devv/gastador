@@ -51,7 +51,7 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
   const [menuOpen, setMenuOpen] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [overlayProgress] = useState(() => new Animated.Value(0));
-  const [menuItemProgress] = useState(() => [new Animated.Value(0), new Animated.Value(0)]);
+  const [menuItemProgress] = useState(() => [new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)]);
   const [buttonRotation] = useState(() => new Animated.Value(0));
   const [buttonScale] = useState(() => new Animated.Value(1));
   useEffect(() => {
@@ -99,7 +99,7 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
     });
   }, [menuOpen, overlayProgress, buttonRotation, menuItemProgress]);
 
-  const chooseAction = useCallback((route: "/scan" | "/new-expense") => {
+  const chooseAction = useCallback((route: "/scan" | "/new-expense" | "/allowance") => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     closeMenu(() => router.push(route));
   }, [closeMenu, router]);
@@ -125,9 +125,15 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
               </Pressable>
             </Animated.View>
             <Animated.View style={{ opacity: menuItemProgress[1], transform: [{ translateY: menuItemProgress[1].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }, { scale: menuItemProgress[1].interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Add manually" onPress={() => chooseAction("/new-expense")} style={styles.menuPill}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Expenses" onPress={() => chooseAction("/new-expense")} style={styles.menuPill}>
                 <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor="#2563EB" size={20} />
-                <ThemedText style={styles.menuText}>Add manually</ThemedText>
+                <ThemedText style={styles.menuText}>Expenses</ThemedText>
+              </Pressable>
+            </Animated.View>
+            <Animated.View style={{ opacity: menuItemProgress[2], transform: [{ translateY: menuItemProgress[2].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }, { scale: menuItemProgress[2].interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Add allowance" onPress={() => chooseAction("/allowance")} style={styles.menuPill}>
+                <SymbolView name={{ ios: "wallet.bifold", android: "account_balance_wallet", web: "account_balance_wallet" }} tintColor="#2563EB" size={20} />
+                <ThemedText style={styles.menuText}>Add allowance</ThemedText>
               </Pressable>
             </Animated.View>
           </View>
