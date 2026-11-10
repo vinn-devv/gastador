@@ -448,7 +448,7 @@ export default function OnboardingScreen() {
             </View>
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
             <Reanimated.View layout={LinearTransition.duration(200)} style={styles.allowanceBody}>
-              <View style={[styles.allowanceCard, keyboardVisible && styles.allowanceCardKeyboard]}>
+              <Pressable onPress={Keyboard.dismiss} style={[styles.allowanceCard, keyboardVisible && styles.allowanceCardKeyboard]}>
                 <Pressable style={[styles.amountLine, keyboardVisible && styles.amountLineCompact]} onPress={() => amountInput.current?.focus()}>
                   <Text maxFontSizeMultiplier={1.2} style={[styles.currencySign, keyboardVisible && styles.currencySignCompact]}>₱</Text>
                   <TextInput ref={amountInput} onFocus={() => setHeightBeforeKeyboard(rootHeight)} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const formatted = formatAllowanceInput(raw); setAmount(raw); setAmountSelection({ start: formatted.length, end: formatted.length }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
@@ -467,7 +467,7 @@ export default function OnboardingScreen() {
                   <View style={styles.dateControl} onTouchStart={() => Keyboard.dismiss()}><DateField label="Start date" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
                 </View>
                 <Text maxFontSizeMultiplier={1.2} style={[styles.helper, keyboardVisible && styles.helperCompact]}>{`Ends ${formatDate(endDate, false)} · About ${formatMoney(perDay, "PHP")} per day`}</Text>
-              </View>
+              </Pressable>
               {showQuickAmounts ? <Reanimated.View layout={LinearTransition.duration(200)} style={styles.quickAmounts}>
                 {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => { const next = String(value); setAmount(next); const nextDisplayLength = formatAllowanceInput(next).length; setAmountSelection({ start: nextDisplayLength, end: nextDisplayLength }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
               </Reanimated.View> : null}
