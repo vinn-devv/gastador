@@ -3,7 +3,8 @@ import { DefaultTheme, Stack, ThemeProvider, useRouter } from "expo-router";
 import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "@expo-google-fonts/nunito";
-import { View } from "react-native";
+import { Image as NativeImage, View } from "react-native";
+import { Image as ExpoImage } from "expo-image";
 import { DB_NAME, initializeDatabase } from "@/data/database";
 import { getSettings, saveSettings } from "@/data/repository";
 import { IntroOverlay } from "@/components/intro-overlay";
@@ -27,6 +28,8 @@ function AppNavigator() {
         await saveSettings(db, { ...settings, hasOnboarded: true, onboardingCompleted: true });
         return;
       }
+      const coinAsset = NativeImage.resolveAssetSource(require("@/assets/images/peso-coin.png"));
+      if (coinAsset?.uri) await ExpoImage.prefetch(coinAsset.uri);
       router.replace("/onboarding");
     } catch (error) {
       console.error("Could not determine first-launch onboarding state:", error);
