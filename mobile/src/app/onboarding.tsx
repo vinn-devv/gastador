@@ -15,6 +15,7 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { StatusBar } from "expo-status-bar";
+import { SymbolView } from "expo-symbols";
 import Reanimated, {
   Easing,
   FadeInUp,
@@ -337,7 +338,7 @@ export default function OnboardingScreen() {
         {page === 1 ? (
           <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); void saveAllowance(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel="Set allowance and continue" style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{saving ? "Saving…" : "Set Allowance"}</Text>
-            <Text maxFontSizeMultiplier={1.2} style={styles.arrow}>→</Text>
+            <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow-forward", web: "arrow-right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
         ) : (
           <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); page === 0 ? moveTo(1) : void finish(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} accessibilityRole="button" accessibilityLabel={page === 0 ? "Get started" : "Start tracking"} style={[styles.cta, buttonAnimatedStyle]}>
@@ -406,5 +407,5 @@ const styles = StyleSheet.create({
   cta: { height: 64, borderRadius: 999, backgroundColor: WHITE, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, shadowColor: "#061747", shadowOpacity: 0.2, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 5 },
   ctaDisabled: { opacity: 0.6 },
   ctaText: { color: BLUE, fontFamily: "IBMPlexSans_700Bold", fontSize: 17 },
-  arrow: { color: BLUE, fontFamily: "IBMPlexSans_700Bold", fontSize: 22 },
+  arrowCircle: { width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: "rgba(30,64,175,0.3)", alignItems: "center", justifyContent: "center" },
 });
