@@ -104,7 +104,7 @@ export default function OnboardingScreen() {
   const [amountSelection, setAmountSelection] = useState({ start: 0, end: 0 });
   const [period, setPeriod] = useState<Period>("monthly");
   const [periodWidth, setPeriodWidth] = useState(0);
-  const amountInput = useRef<TextInput>(null);
+  const amountInput = useRef<ComponentRef<typeof TextInput>>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const pageProgress = useSharedValue(0);
