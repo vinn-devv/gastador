@@ -370,7 +370,7 @@ export default function OnboardingScreen() {
   return (
     <RNAnimated.View style={[styles.root, { opacity: fade }]}>
       <StatusBar style="light" />
-      <NavigationBar style="light" />
+      <NavigationBar style="dark" />
       <LinearGradient colors={["#1E40AF", "#2563EB", "#0B1F5C"]} locations={[0, 0.52, 1]} style={StyleSheet.absoluteFill} />
       <View pointerEvents="none" style={[styles.orb, { width: width * 0.9, height: width * 0.9, top: -width * 0.42, right: -width * 0.32 }]} />
       {page === 0 ? <View pointerEvents="none" style={[styles.orb, styles.pageOneOrb, { width: width * 0.75, height: width * 0.75, bottom: height * 0.12, left: -width * 0.42 }]} /> : null}
