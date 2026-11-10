@@ -3,7 +3,7 @@ import { STANDARD_CATEGORIES } from "../domain/categories";
 import { defaultSettings } from "../domain/types";
 
 export const DB_NAME = "gastador.db";
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
   await db.execAsync(`
@@ -16,6 +16,7 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
       theme TEXT NOT NULL DEFAULT 'system',
       budgetMethod TEXT NOT NULL DEFAULT 'daily_pace',
       onboardingCompleted INTEGER NOT NULL DEFAULT 0,
+      hasOnboarded INTEGER NOT NULL DEFAULT 0,
       alertsJson TEXT NOT NULL,
       createdAt TEXT NOT NULL
     );
@@ -101,8 +102,15 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
       createdAt TEXT NOT NULL
     );
 
-    PRAGMA user_version = 1;
+
   `);
+  const settingColumns = await db.getAllAsync<{ name: string }>("PRAGMA table_info(settings)");
+  if (!settingColumns.some((column) => column.name === "hasOnboarded")) {
+    await db.execAsync("ALTER TABLE settings ADD COLUMN hasOnboarded INTEGER NOT NULL DEFAULT 0");
+    await db.execAsync("UPDATE settings SET hasOnboarded = onboardingCompleted");
+  }
+  await db.execAsync("PRAGMA user_version = 2");
+
   // Seed default settings only when the app has no settings yet.
   const now = new Date().toISOString();
   const settings = defaultSettings(new Date(now));
@@ -115,14 +123,16 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
       theme,
       budgetMethod,
       onboardingCompleted,
+      hasOnboarded,
       alertsJson,
       createdAt
-    ) VALUES (1, ?, ?, ?, ?, ?, ?, ?)`,
+    ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)`,
     settings.displayName,
     settings.currency,
     settings.theme,
     settings.budgetMethod,
     Number(settings.onboardingCompleted),
+    Number(settings.hasOnboarded),
     JSON.stringify(settings.alerts),
     settings.createdAt,
   );
