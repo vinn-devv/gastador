@@ -6,7 +6,7 @@ import type {
   Cycle,
   Transaction,
 } from "../domain/types";
-import { defaultSettings } from "../domain/types";
+import { defaultSettings, DEFAULT_PREFERENCES } from "../domain/types";
 import { addDays, addMonths, diffDays, fromManilaInput, isValidDate, manilaHourMinute, manilaToday } from "../domain/dates";
 import { cycleContainsDate, rangesOverlapInclusive } from "../domain/cycle-dates";
 import { remainingCentavos, validateExpense } from "../domain/spending-limit";
@@ -31,6 +31,8 @@ export async function getSettings(db: SQLiteDatabase): Promise<AppSettings> {
 
   if (!row) return defaults;
 
+  const storedAlerts = JSON.parse(row.alertsJson) as Record<string, unknown>;
+  const { __preferences, ...alertValues } = storedAlerts;
   return {
     ...defaults,
     displayName: row.displayName,
@@ -41,8 +43,9 @@ export async function getSettings(db: SQLiteDatabase): Promise<AppSettings> {
     hasOnboarded: Boolean(row.hasOnboarded || row.onboardingCompleted),
     alerts: {
       ...defaults.alerts,
-      ...JSON.parse(row.alertsJson),
+      ...alertValues,
     },
+    preferences: { ...DEFAULT_PREFERENCES, ...((__preferences as object | undefined) ?? {}) },
     createdAt: row.createdAt,
   };
 }
@@ -75,7 +78,7 @@ export async function saveSettings(
     settings.budgetMethod,
     Number(settings.onboardingCompleted),
     Number(settings.hasOnboarded),
-    JSON.stringify(settings.alerts),
+    JSON.stringify({ ...settings.alerts, __preferences: settings.preferences }),
   );
 }
 
