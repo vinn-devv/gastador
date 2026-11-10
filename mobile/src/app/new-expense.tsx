@@ -1,7 +1,8 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SHEET_GAP } from "@/constants/layout";
 import { ScreenLayout } from "@/components/screen-layout";
@@ -10,8 +11,10 @@ import { SymbolView } from "expo-symbols";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
-import { createTransaction, getAllTransactions, getCategories, getCycles, getSettings } from "@/data/repository";
-import { pickCurrentCycle, summarizeCycle } from "@/domain/allowance";
+import { createTransaction, getAllTransactions, getCategories, getCycles, getSettings, InsufficientFundsError } from "@/data/repository";
+import { expensesInCycle, cycleForDate } from "@/domain/allowance";
+import { remainingCentavos, validateExpense } from "@/domain/spending-limit";
+import type { Cycle, Transaction } from "@/domain/types";
 import { manilaToday, isValidDate } from "@/domain/dates";
 import { formatMoney, parseMoney } from "@/domain/money";
 import { PAYMENT_METHODS, type Category, type PaymentMethod } from "@/domain/types";
@@ -31,7 +34,10 @@ export default function NewExpenseScreen() {
   const [date, setDate] = useState(manilaToday());
   const [categoryId, setCategoryId] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
-  const [availableBalance, setAvailableBalance] = useState<number | null>(null);
+  const [cycles, setCycles] = useState<Cycle[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [fundsError, setFundsError] = useState("");
+  const [invalidHapticSent, setInvalidHapticSent] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -47,9 +53,10 @@ export default function NewExpenseScreen() {
           if (!active) return;
           setCategories(items.filter((item) => !item.archivedAt));
           setCurrency(settings.currency);
+          setCycles(cycles);
+          setTransactions(transactions);
           setCategoryId((current) => current || items.find((item) => !item.archivedAt)?.id || "");
-          const current = pickCurrentCycle(cycles, manilaToday());
-          setAvailableBalance(current ? summarizeCycle(current.cycle, transactions, manilaToday()).remainingCentavos : null);
+
         } catch (loadError) {
           console.error("Could not load expense form:", loadError);
           if (active) setError("Could not load your categories. Please try again.");
@@ -62,8 +69,38 @@ export default function NewExpenseScreen() {
     }, [db]),
   );
 
+  const selectedCycle = cycleForDate(cycles, date);
+  const selectedCycleRemaining = selectedCycle
+    ? remainingCentavos(selectedCycle, expensesInCycle(selectedCycle, transactions))
+    : null;
+  const parsedAmount = parseMoney(amount);
+  const amountIsInvalid = parsedAmount === null || parsedAmount <= 0;
+  const insufficientFunds = Boolean(
+    selectedCycle &&
+    parsedAmount !== null &&
+    parsedAmount > 0 &&
+    !validateExpense({
+      amountCentavos: parsedAmount,
+      remainingCentavos: selectedCycleRemaining ?? 0,
+    }).ok,
+  );
+  const liveFundsMessage = insufficientFunds
+    ? selectedCycleRemaining === 0
+      ? "You have no allowance left."
+      : `Not enough allowance. You only have ${formatMoney(selectedCycleRemaining ?? 0, currency)} left.`
+    : fundsError;
+
+  useEffect(() => {
+    if (insufficientFunds && !invalidHapticSent) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setInvalidHapticSent(true);
+    } else if (!insufficientFunds && invalidHapticSent) {
+      setInvalidHapticSent(false);
+    }
+  }, [insufficientFunds, invalidHapticSent]);
+
   async function save() {
-    const cents = parseMoney(amount);
+    const cents = parsedAmount;
     if (cents === null || cents <= 0) { setError("Enter an amount greater than zero."); return; }
     if (!categoryId) { setError("Choose a category."); return; }
     if (!isValidDate(date) || date > manilaToday()) { setDateError("Expense date cannot be in the future."); setError("Review the expense date."); return; }
@@ -71,12 +108,19 @@ export default function NewExpenseScreen() {
 
     setSaving(true);
     setError("");
+    setFundsError("");
     try {
       await createTransaction(db, { amountCentavos: cents, date, merchant, categoryId, paymentMethod, description });
       Alert.alert("Expense saved", "Your expense has been added.", [{ text: "OK", onPress: () => router.back() }]);
     } catch (saveError) {
-      console.error("Could not save expense:", saveError);
-      setError("Your expense could not be saved. Please check the details and try again.");
+      if (saveError instanceof InsufficientFundsError) {
+        setFundsError(saveError.remainingCentavos === 0
+          ? "You have no allowance left."
+          : `Not enough allowance. You only have ${formatMoney(saveError.remainingCentavos, currency)} left.`);
+      } else {
+        console.error("Could not save expense:", saveError);
+        setError("Your expense could not be saved. Please check the details and try again.");
+      }
     } finally {
       setSaving(false);
     }
@@ -92,7 +136,7 @@ export default function NewExpenseScreen() {
           <View style={[styles.balancePanel, { backgroundColor: theme.background }]}>
             <View style={{ flex: 1 }}>
               <ThemedText style={[styles.balanceLabel, { color: theme.muted }]}>Current allowance balance</ThemedText>
-              <ThemedText style={[styles.balanceValue, { color: theme.text }]}>{availableBalance === null ? "No active allowance" : formatMoney(availableBalance, currency)}</ThemedText>
+              <ThemedText style={[styles.balanceValue, { color: theme.text }]}>{selectedCycleRemaining === null ? "No allowance for this date" : formatMoney(selectedCycleRemaining, currency)}</ThemedText>
             </View>
             <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Set up allowance" style={styles.balanceAdd}>
               <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor={theme.primary} size={19} />
@@ -105,6 +149,7 @@ export default function NewExpenseScreen() {
               <ThemedText style={[styles.currencyPrefix, { color: theme.primary }]}>{currency === "PHP" ? "₱" : currency}</ThemedText>
               <TextInput value={amount} onChangeText={(value) => { setAmount(value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1")); setError(""); }} placeholder="0.00" placeholderTextColor={theme.muted} keyboardType="decimal-pad" accessibilityLabel="Expense amount" style={[styles.amountInput, { color: theme.text }]} />
             </View>
+            {!!liveFundsMessage && <ThemedText accessibilityLiveRegion="polite" style={styles.fundsError}>{liveFundsMessage}</ThemedText>}
           </View>
 
           <View style={styles.field}>
@@ -139,7 +184,7 @@ export default function NewExpenseScreen() {
           </View>
 
           <View style={styles.field}>
-            <DateField label="Date" value={date} onChange={(value) => { setDate(value); setDateError(""); }} maximumDate={manilaToday()} error={dateError} />
+            <DateField label="Date" value={date} onChange={(value) => { setDate(value); setDateError(""); setFundsError(""); }} maximumDate={manilaToday()} error={dateError} />
           </View>
           <View style={styles.field}>
             <ThemedText style={[styles.label, { color: theme.text }]}>Note (optional)</ThemedText>
@@ -147,7 +192,7 @@ export default function NewExpenseScreen() {
           </View>
 
           {!!error && <View style={[styles.error, { backgroundColor: theme.dangerSoft }]}><ThemedText style={[styles.errorText, { color: theme.danger }]}>{error}</ThemedText></View>}
-          <Pressable onPress={() => void save()} disabled={saving || loading} accessibilityRole="button" accessibilityLabel="Save expense" style={[styles.saveButton, { backgroundColor: theme.primary, opacity: saving || loading ? 0.55 : 1 }]}>
+          <Pressable onPress={() => void save()} disabled={saving || loading || amountIsInvalid || insufficientFunds || !categoryId || !isValidDate(date) || date > manilaToday()} accessibilityRole="button" accessibilityLabel="Save expense" style={[styles.saveButton, { backgroundColor: theme.primary, opacity: saving || loading || amountIsInvalid || insufficientFunds || !categoryId || !isValidDate(date) || date > manilaToday() ? 0.55 : 1 }]}>
             <ThemedText style={styles.saveButtonText}>{saving ? "Saving expense…" : "Save expense"}</ThemedText>
           </Pressable>
         </View>
@@ -170,6 +215,7 @@ const styles = StyleSheet.create({
   amountInputWrap: { minHeight: 60, borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", gap: 10 },
   currencyPrefix: { fontFamily: "IBMPlexSans_700Bold", fontSize: 24 },
   amountInput: { flex: 1, minWidth: 0, fontFamily: "IBMPlexSans_700Bold", fontSize: 25, paddingVertical: 8 },
+  fundsError: { color: "#DC2626", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
   field: { marginBottom: 18, gap: 8 },
   label: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   input: { minHeight: 48, borderWidth: 1, borderRadius: 12, paddingHorizontal: 15, fontFamily: "IBMPlexSans_400Regular", fontSize: 14 },
