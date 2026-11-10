@@ -32,7 +32,7 @@ export default function AllowanceScreen() {
 
   useFocusEffect(useCallback(() => {
     let active = true;
-    Promise.all([getCycles(db), getSettings(db)]).then(([items, settings]) => {
+    Promise.all([getCycles(db), getSettings(db)]).then(async ([items, settings]) => {
       if (!active) return;
       setCycles(items);
       setCurrency(settings.currency);
