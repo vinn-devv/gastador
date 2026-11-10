@@ -1,7 +1,9 @@
 import type { Centavos } from './money';
 
 export type Frequency = 'weekly' | 'biweekly' | 'monthly' | 'custom';
-export type PaymentMethod = 'gcash' | 'maya' | 'cash' | 'bank_transfer' | 'other';
+export type BuiltInPaymentMethod = 'gcash' | 'maya' | 'cash' | 'bank_transfer' | 'other';
+export type PaymentMethod = BuiltInPaymentMethod | `custom:${string}`;
+export interface CustomPaymentMethod { id: string; name: string; createdAt: string; }
 export type TxSource = 'manual' | 'screenshot' | 'receipt';
 export type OcrStatus = 'not_applicable' | 'succeeded' | 'corrected' | 'failed';
 export type ThemePref = 'system' | 'light' | 'dark';
