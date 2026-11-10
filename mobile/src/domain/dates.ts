@@ -25,6 +25,10 @@ function fromUtcMs(ms: number): string {
   return `${pad(d.getUTCFullYear(), 4)}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 }
 
+export function toLocalDateString(date: Date): string {
+  return `${pad(date.getFullYear(), 4)}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 export function manilaDateOf(instant: Date | string | number): string {
   const ms = instant instanceof Date ? instant.getTime() : new Date(instant).getTime();
   if (!Number.isFinite(ms)) throw new RangeError('Invalid instant');
