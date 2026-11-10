@@ -1,72 +1,50 @@
 # Gastador
 
-**Snap it. Track it. Stretch it.**
+**A local-first personal allowance and expense tracker for Android.**
 
-Gastador helps Filipino college students make a weekly, biweekly, or monthly allowance last. It shows what is left, a safe amount to spend each day, and reads GCash, Maya, and paper receipts on the phone itself.
+Gastador helps students manage their allowance, record expenses, review spending insights, and keep track of savings goals. Data is stored locally on the device.
 
-- One-time ₱99 lifetime unlock. No subscriptions, ads, loans, or buy-now-pay-later.
-- **Local-first:** expenses, allowance cycles, categories, savings goals, receipt images, and preferences are stored on the device in IndexedDB. There is no account and no cloud database.
-- **On-device OCR:** Tesseract.js runs in the browser. The engine and English language file are served with the app and cached for offline use. Images and recognised text are never uploaded.
-- Android-first installable PWA that also works on tablets and desktop.
+## Project
 
-## What is in this repository
+The current application is the Expo / React Native Android app in [mobile/](mobile/).
 
-| Folder | Purpose |
-| --- | --- |
-| `client/` | The app: React 18, TypeScript, Vite, Tailwind. This is all a normal user needs. |
-| `server/` | The previous Express and PostgreSQL backend. Kept so existing users can migrate (see `docs/MIGRATION.md`). Also hosts an optional Google Play purchase verification endpoint (see `docs/BILLING.md`). |
-| `docs/` | Architecture, allowance rules, migration, billing, release, design, test plan, and honest status. |
+- **Framework:** Expo, React Native, TypeScript
+- **Navigation:** Expo Router
+- **Storage:** SQLite (local-first)
+- **Currency:** Philippine peso (PHP)
 
-## Deploy to GitHub Pages
+## Run locally
 
-The public demo is configured for `https://vinn-devv.github.io/gastador/`. Push to `main` and enable **Settings → Pages → Build and deployment → Source → GitHub Actions**. The workflow in `.github/workflows/deploy-pages.yml` builds the PWA from `client/` and publishes it automatically. See [DEPLOYMENT-GITHUB-PAGES.md](DEPLOYMENT-GITHUB-PAGES.md) for the full steps and hosting limitations.
-
-## Run it
-
-Requires Node.js 20 or later.
+Requires Node.js and npm.
 
 ```bash
-npm run install:all
-npm run dev          # http://localhost:5173
+cd mobile
+npm install
+npx expo start
 ```
 
-Production build and local preview:
+For an Android development build, follow the Expo documentation and the app's EAS configuration.
+
+## Build an installable Android APK
+
+The EAS configuration in mobile/eas.json includes APK build profiles.
 
 ```bash
-npm run build        # type-checks, builds the PWA into client/dist
-npm run preview      # http://localhost:4173
+cd mobile
+npx eas-cli login
+npx eas-cli build --platform android --profile preview
 ```
 
-Tests (113 client tests, 11 server tests; the server tests need no database):
+Download the APK from the EAS build page when the cloud build completes. The installed app runs independently; it does not require Expo Go or a running development server.
 
-```bash
-npm test
-```
+## Repository structure
 
-`client/dist` is a static site. Host it on any HTTPS static host. The service worker, camera access, share target, and image hashing all require HTTPS (localhost counts as secure).
+- mobile/src/app/ — application routes and screens
+- mobile/src/components/ — reusable UI components
+- mobile/src/data/ — SQLite database and repositories
+- mobile/src/domain/ — allowance, expense, and business logic
+- mobile/assets/ — application images and animations
 
-## Optional: the old server
+## Notes
 
-Only needed to migrate people who used the old email-and-password version.
-
-```bash
-cp server/.env.example server/.env     # set DATABASE_URL
-npm run migrate
-npm run dev:server
-```
-
-Then open the new app from the same address that serves the old API (the Vite dev and preview servers proxy `/api` to `localhost:4000`), choose **I already have data to bring over**, and sign in to import. Full steps and caveats are in `docs/MIGRATION.md`.
-
-## Privacy in plain words
-
-- Records live in this browser or app on this device. Clearing app or browser data, uninstalling, or losing the phone can erase them. Settings, then Backup and restore, downloads a versioned JSON backup (optionally with receipt images) and a CSV of expenses.
-- Gastador does not encrypt the stored data and does not claim to. The phone's own lock and storage protection apply, and backup files are plain text.
-- The only network use by design: loading the app itself, and (for a Play purchase) sending the purchase token to the verification endpoint.
-
-## Honest limits
-
-- OCR is best-effort. Every field is shown for confirmation with a confidence note, and nothing is saved until the user confirms.
-- Android share-target import needs the app installed as a PWA from Chrome on Android; it was not testable here (see `docs/IMPLEMENTATION_STATUS.md`).
-- The ₱99 purchase is not live until Google Play Billing is configured. Until then the unlock screen says so and no premium limits are enforced. See `docs/BILLING.md`.
-
-Docs: `docs/ARCHITECTURE.md`, `docs/ALLOWANCE_LOGIC.md`, `docs/MIGRATION.md`, `docs/BILLING.md`, `docs/RELEASE.md`, `docs/DESIGN.md`, `docs/TEST_PLAN.md`, `docs/IMPLEMENTATION_STATUS.md`.
+Gastador is local-first. Each installation keeps its own data on its device. Users should make backups before uninstalling or changing devices.
