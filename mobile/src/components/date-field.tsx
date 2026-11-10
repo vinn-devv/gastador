@@ -14,7 +14,8 @@ type Props = {
   error?: string;
   accessibilityLabel?: string;
   maxFontSizeMultiplier?: number;
-  compact?: boolean;\n  dateFormat?: DateDisplayFormat;
+  compact?: boolean;
+  dateFormat?: DateDisplayFormat;
 };
 
 function dateFromIso(value: string): Date {
