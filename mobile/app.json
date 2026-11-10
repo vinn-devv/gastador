@@ -13,7 +13,8 @@
         "foregroundImage": "./assets/images/icon.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.gastador.mobile"
+      "package": "com.gastador.mobile",
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "output": "server",
