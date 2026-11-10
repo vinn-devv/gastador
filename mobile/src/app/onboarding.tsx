@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } 
 import {
   BackHandler,
   Keyboard,
+  KeyboardAvoidingView,
   Pressable,
   TextInput,
   Platform,
@@ -40,6 +41,7 @@ import { saveSettings, getSettings, getCycles, saveAllowance, CycleOverlapError 
 import { addDays, addMonths, daysInclusive, formatDate, manilaToday } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
 import type { Cycle } from "@/domain/types";
+import { getCoinSlots } from "@/domain/coin-slots";
 
 const BLUE = "#1E40AF";
 const SKY = "#8EC5FF";
@@ -93,7 +95,6 @@ export default function OnboardingScreen() {
   const confettiPlayed = useRef(false);
   const buttonScale = useSharedValue(1);
   const [page, setPage] = useState(0);
-  const [settledPage, setSettledPage] = useState(0);
   const [skippedAllowance, setSkippedAllowance] = useState(false);
   const [savedCycle, setSavedCycle] = useState<Cycle | null>(null);
   const [amount, setAmount] = useState("");
@@ -101,15 +102,12 @@ export default function OnboardingScreen() {
   const [period, setPeriod] = useState<Period>("monthly");
   const [periodWidth, setPeriodWidth] = useState(0);
   const amountInput = useRef<ComponentRef<typeof TextInput>>(null);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const keyboardHeightShared = useSharedValue(0);
-  const keyboardOffset = useSharedValue(0);
-  const [rootHeight, setRootHeight] = useState(0);
-  const [heightBeforeKeyboard, setHeightBeforeKeyboard] = useState(0);
-  const [keyboardNeedsManualOffset, setKeyboardNeedsManualOffset] = useState(false);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const pageProgress = useSharedValue(0);
-  const coinSlots = useSharedValue([{ x: 0, y: 0, width: 0, height: 0 }, { x: 0, y: 0, width: 0, height: 0 }, { x: 0, y: 0, width: 0, height: 0 }]);
+  const coinSlots = useSharedValue(getCoinSlots(width, height, insets));
+
+  useEffect(() => {
+    coinSlots.set(getCoinSlots(width, height, insets));
+  }, [coinSlots, width, height, insets.top, insets.bottom]);
   const periodIndex = period === "weekly" ? 0 : period === "biweekly" ? 1 : 2;
   const [startDate, setStartDate] = useState(manilaToday());
   const [allowanceSaved, setAllowanceSaved] = useState(false);
@@ -129,40 +127,10 @@ export default function OnboardingScreen() {
   }, [page, progressValue, pageProgress, reducedMotion]);
 
   useEffect(() => {
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-    const show = Keyboard.addListener(showEvent, (event) => {
-      setKeyboardVisible(true);
-      setKeyboardHeight(event.endCoordinates.height);
-      keyboardHeightShared.set(event.endCoordinates.height);
-    });
-    const hide = Keyboard.addListener(hideEvent, () => {
-      setKeyboardVisible(false);
-      setKeyboardHeight(0);
-      keyboardHeightShared.set(0);
-    });
-    return () => { show.remove(); hide.remove(); };
-  }, [keyboardHeightShared]);
-
-  useEffect(() => {
-    if (!keyboardVisible) {
-      keyboardOffset.set(withTiming(0, { duration: 180 }));
-      setKeyboardNeedsManualOffset(false);
-      return;
-    }
-    const resizedBy = Math.max(0, heightBeforeKeyboard - rootHeight);
-    const remainingKeyboard = Math.max(0, keyboardHeight - resizedBy);
-    const needsManualOffset = remainingKeyboard > insets.bottom + 12;
-    setKeyboardNeedsManualOffset(needsManualOffset);
-    const offset = needsManualOffset ? remainingKeyboard - insets.bottom + 12 : 0;
-    keyboardOffset.set(withTiming(offset, { duration: 180 }));
-  }, [keyboardVisible, keyboardHeight, rootHeight, heightBeforeKeyboard, insets.bottom, keyboardOffset]);
-
-  useEffect(() => {
     if (page !== 1) return;
     const timer = setTimeout(() => amountInput.current?.focus(), reducedMotion ? 120 : 250);
     return () => clearTimeout(timer);
-  }, [page, settledPage, reducedMotion]);
+  }, [page, reducedMotion]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -224,7 +192,6 @@ export default function OnboardingScreen() {
 
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-      if (keyboardVisible) { Keyboard.dismiss(); return true; }
       if (page > 0) {
         moveTo(page - 1);
         return true;
@@ -232,7 +199,7 @@ export default function OnboardingScreen() {
       return true;
     });
     return () => sub.remove();
-  }, [page, keyboardVisible, moveTo]);
+  }, [page, moveTo]);
 
   const finish = useCallback(async () => {
     try {
@@ -292,41 +259,20 @@ export default function OnboardingScreen() {
   const saveAllowanceForOnboarding = () => saveAllowanceWithMode("edit_current");
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.get() }] }));
-  const bottomKeyboardStyle = useAnimatedStyle(() => ({ transform: [{ translateY: -keyboardOffset.get() }] }));
   const sharedCoinStyle = useAnimatedStyle(() => {
-    const slots = coinSlots.get();
-    const hostHeight = Math.max(280, height - insets.top - insets.bottom - 150);
-    const points = slots.map((slot, index) => {
-      const measured = Number.isFinite(slot.x) && Number.isFinite(slot.y) && Number.isFinite(slot.width) && Number.isFinite(slot.height) && slot.width > 0 && slot.height > 0;
-      const pageOneFallbackSize = Math.max(112, Math.min(width * 0.7, 280, hostHeight * 0.42));
-      const pageOneFallbackY = hostHeight * 0.66;
-      const pageOneFallbackShift = Math.max(0, Math.min(height * 0.06, hostHeight - 20 - pageOneFallbackSize * 0.56 - pageOneFallbackY));
-      const fallback = index === 0
-        ? { x: width / 2, y: pageOneFallbackY + pageOneFallbackShift, size: pageOneFallbackSize }
-        : index === 1
-          ? { x: width - 56, y: 32, size: 64 }
-          : { x: width / 2, y: hostHeight * 0.34, size: Math.min(220, width - 48, hostHeight * 0.48) };
-      const measuredSize = index === 0
-        ? Math.min(width * 0.7, 280, slot.height - 24)
-        : index === 1
-          ? Math.min(64, slot.width, slot.height)
-          : Math.min(220, slot.width, slot.height - 8);
-      return measured
-        ? { x: slot.x + index * width + slot.width / 2, y: slot.y + slot.height / 2, size: Math.max(index === 1 ? 48 : 96, measuredSize) }
-        : fallback;
-    });
+    const points = coinSlots.get();
     const rawProgress = pageProgress.get();
     const p = Number.isFinite(rawProgress) ? Math.max(0, Math.min(2, rawProgress)) : page;
     const safeInterpolate = (values: number[]) => values.every(Number.isFinite) ? interpolate(p, [0, 1, 2], values) : values[Math.round(p)] ?? 0;
     const x = safeInterpolate(points.map((point) => point.x)) - p * width;
     const y = safeInterpolate(points.map((point) => point.y));
-    const size = Math.max(48, safeInterpolate(points.map((point) => point.size)));
+    const size = Math.max(40, safeInterpolate(points.map((point) => point.size)));
     const idle = p < 0.5 || p > 1.5;
     const bob = reducedMotion ? 0 : Math.sin(float.get() * Math.PI * 2) * (idle ? 10 : 2);
     const rotation = reducedMotion ? 0 : -8 + (tilt.get() - 0.5) * (idle ? 6 : 1.2);
     const spin = reducedMotion ? 0 : interpolate(p, [0, 1, 2], [0, 360, 360]);
     const scale = reducedMotion ? 1 : entryScale.get() * (p > 1 && p < 2 ? 1 + Math.sin((p - 1) * Math.PI) * 0.08 : 1);
-    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2, width: size, height: size, opacity: reducedMotion ? interpolate(p, [0, 0.5, 1, 1.5, 2], [1, 0.35, 1, 0.35, 1]) : 1, transform: [{ perspective: 800 }, { translateX: 0 }, { translateY: bob }, { scale }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }] };
+    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2, width: size, height: size, opacity: 1, transform: [{ perspective: 800 }, { translateX: 0 }, { translateY: bob }, { scale }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }] };
   });
   const periodIndicatorStyle = useAnimatedStyle(() => {
     const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
@@ -351,32 +297,12 @@ export default function OnboardingScreen() {
   });
 
   const formattedAmount = formatAllowanceInput(amount);
-  const amountFontSize = keyboardVisible ? 56 : formattedAmount.length > 11 ? 42 : formattedAmount.length > 9 ? 52 : formattedAmount.length > 7 ? 62 : 72;
-  const keyboardResizeDelta = Math.max(0, heightBeforeKeyboard - rootHeight);
-  const keyboardOverlap = keyboardVisible ? Math.max(0, keyboardHeight - keyboardResizeDelta) : 0;
-  const manualKeyboardLift = keyboardOverlap > insets.bottom + 12 ? keyboardOverlap - insets.bottom + 12 : 0;
-  const availableHeight = height - keyboardOverlap;
-  const showSubtitle = availableHeight >= 700;
-  const showQuickAmounts = availableHeight >= 640 && !keyboardVisible;
-
-  const compactHeaderCoin = availableHeight < 480;
-  const onCoinSlotLayout = useCallback((index: number, offsetX = 0, offsetY = 0) => (event: { nativeEvent: { layout: { x: number; y: number; width: number; height: number } } }) => {
-    const layout = event.nativeEvent.layout;
-    const pageOneSize = Math.max(96, Math.min(width * 0.7, 280, layout.height - 24));
-    const pageOneMaxShift = layout.height - 20 - pageOneSize * 0.56 - layout.height / 2;
-    const pageOneShift = index === 0 ? Math.max(0, Math.min(height * 0.06, pageOneMaxShift)) : 0;
-    const next = coinSlots.get().map((slot, i) => i === index ? { ...layout, x: layout.x + offsetX, y: layout.y + offsetY + pageOneShift } : slot);
-    coinSlots.set(next);
-  }, [coinSlots, height, width]);
-  const onWelcomeStackLayout = useCallback((event: { nativeEvent: { layout: { x: number; y: number; width: number } } }) => {
-    const layout = event.nativeEvent.layout;
-    const next = coinSlots.get().map((slot, i) => i === 2 ? { x: layout.x + 24 + (layout.width - 230) / 2, y: layout.y, width: 230, height: 236 } : slot);
-    coinSlots.set(next);
-  }, [coinSlots]);
+  const shortScreen = height < 700;
+  const amountFontSize = shortScreen ? 48 : formattedAmount.length > 11 ? 42 : formattedAmount.length > 9 ? 52 : formattedAmount.length > 7 ? 62 : 72;
   const scrollHandler = useAnimatedScrollHandler({ onScroll: (event) => { pageProgress.set(event.contentOffset.x / Math.max(1, width)); } });
 
   return (
-    <RNAnimated.View onLayout={(event) => setRootHeight(event.nativeEvent.layout.height)} style={[styles.root, { opacity: fade }]}>
+    <RNAnimated.View style={[styles.root, { opacity: fade }]}>
       <StatusBar style="light" />
       <LinearGradient colors={["#1E40AF", "#2563EB", "#0B1F5C"]} locations={[0, 0.52, 1]} style={StyleSheet.absoluteFill} />
       <View pointerEvents="none" style={[styles.orb, { width: width * 0.9, height: width * 0.9, top: -width * 0.42, right: -width * 0.32 }]} />
@@ -395,7 +321,7 @@ export default function OnboardingScreen() {
         </Pressable> : <View style={styles.skipPlaceholder} />}
       </View>
 
-      <Reanimated.View layout={LinearTransition.duration(200)} style={[styles.pagerHost, page === 1 && keyboardVisible && keyboardNeedsManualOffset && { marginBottom: manualKeyboardLift }]}>
+      <Reanimated.View layout={LinearTransition.duration(200)} style={styles.pagerHost}>
         <Reanimated.ScrollView
           ref={pager}
           horizontal
@@ -418,7 +344,6 @@ export default function OnboardingScreen() {
               Keyboard.dismiss();
               setPage(next);
             }
-            setSettledPage(next);
           }}
           style={{ flex: 1 }}
           contentContainerStyle={{ width: width * 3 }}
@@ -447,46 +372,50 @@ export default function OnboardingScreen() {
                 ))}
               </Reanimated.View>
             </View>
-            <View style={styles.pageOneCoinSlot} onLayout={onCoinSlotLayout(0)} />
+            <View style={styles.pageOneCoinSlot} />
           </View>
 
-          <View style={[styles.page, styles.allowancePage, keyboardVisible && styles.allowancePageKeyboard, { width }]}>
+          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0} style={[styles.page, styles.allowancePage, { width }]}>
             <Pressable pointerEvents="box-only" onPress={Keyboard.dismiss} style={StyleSheet.absoluteFill} />
-            <View style={[styles.allowanceHeading, keyboardVisible && styles.allowanceHeadingCompact]}>
+            <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
-              <View style={[styles.headerCoinSlot, compactHeaderCoin && styles.headerCoinSlotCompact]} onLayout={onCoinSlotLayout(1, 24, 0)} />
+              <View style={styles.headerCoinSlot} />
             </View>
-            {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
+            <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={[styles.allowanceSubtitle, shortScreen && styles.hiddenShortScreen]}>You can change this anytime in Settings.</Text>
             <Reanimated.View layout={LinearTransition.duration(200)} style={styles.allowanceBody}>
-              <Pressable onPress={Keyboard.dismiss} style={[styles.allowanceCard, keyboardVisible && styles.allowanceCardKeyboard]}>
-                <Pressable style={[styles.amountLine, keyboardVisible && styles.amountLineCompact]} onPress={(event) => { event.stopPropagation(); amountInput.current?.focus(); }}>
-                  <Text maxFontSizeMultiplier={1.2} style={[styles.currencySign, keyboardVisible && styles.currencySignCompact]}>₱</Text>
-                  <TextInput ref={amountInput} onFocus={() => setHeightBeforeKeyboard(rootHeight)} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const formatted = formatAllowanceInput(raw); setAmount(raw); setAmountSelection({ start: formatted.length, end: formatted.length }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
+              <Pressable onPress={Keyboard.dismiss} style={styles.allowanceCard}>
+                <Pressable style={styles.amountLine} onPress={(event) => { event.stopPropagation(); amountInput.current?.focus(); }}>
+                  <Text maxFontSizeMultiplier={1.2} style={styles.currencySign}>₱</Text>
+                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const formatted = formatAllowanceInput(raw); setAmount(raw); setAmountSelection({ start: formatted.length, end: formatted.length }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
                 </Pressable>
-                <View style={[styles.periodPill, keyboardVisible && styles.periodPillCompact]} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
+                <View style={styles.periodPill} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
                   <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
                   {(["weekly", "biweekly", "monthly"] as Period[]).map((value) => {
                     const active = period === value;
-                    return <Pressable key={value} onPress={() => { setPeriod(value); void Haptics.selectionAsync(); }} accessibilityRole="button" accessibilityState={{ selected: active }} style={[styles.periodOption, keyboardVisible && styles.periodOptionCompact]}>
+                    return <Pressable key={value} onPress={() => { setPeriod(value); void Haptics.selectionAsync(); }} accessibilityRole="button" accessibilityState={{ selected: active }} style={styles.periodOption}>
                       <Text maxFontSizeMultiplier={1.2} style={[styles.periodText, active && styles.periodTextActive]}>{value === "biweekly" ? "Every 2 weeks" : value === "weekly" ? "Weekly" : "Monthly"}</Text>
                     </Pressable>;
                   })}
                 </View>
-                <View style={[styles.dateRow, keyboardVisible && styles.dateRowCompact]}>
+                <View style={styles.dateRow}>
                   <Text maxFontSizeMultiplier={1.2} style={styles.dateLabel}>Start date</Text>
                   <View style={styles.dateControl} onTouchStart={() => Keyboard.dismiss()}><DateField label="Start date" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
                 </View>
-                <Text maxFontSizeMultiplier={1.2} style={[styles.helper, keyboardVisible && styles.helperCompact]}>{`Ends ${formatDate(endDate, false)} · About ${formatMoney(perDay, "PHP")} per day`}</Text>
+                <Text maxFontSizeMultiplier={1.2} style={styles.helper}>{`Ends ${formatDate(endDate, false)} · About ${formatMoney(perDay, "PHP")} per day`}</Text>
               </Pressable>
-              {showQuickAmounts ? <Reanimated.View layout={LinearTransition.duration(200)} style={styles.quickAmounts}>
+              <Reanimated.View layout={LinearTransition.duration(200)} style={[styles.quickAmounts, shortScreen && styles.hiddenShortScreen]}>
                 {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => { const next = String(value); setAmount(next); const nextDisplayLength = formatAllowanceInput(next).length; setAmountSelection({ start: nextDisplayLength, end: nextDisplayLength }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
-              </Reanimated.View> : null}
+              </Reanimated.View>
             </Reanimated.View>
             {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
-          </View>
+            <AnimatedPressable onPress={() => { Keyboard.dismiss(); void Haptics.selectionAsync(); void saveAllowanceForOnboarding(); }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel={allowanceSaved ? "Update allowance and continue" : "Set allowance and continue"} style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
+              <Text maxFontSizeMultiplier={1.2} style={[styles.ctaText, (numericAmount <= 0 || saving) && styles.ctaDisabledText]}>{saving ? "Saving…" : allowanceSaved ? "Update Allowance" : "Set Allowance"}</Text>
+              <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
+            </AnimatedPressable>
+          </KeyboardAvoidingView>
 
           <View style={[styles.page, styles.welcomePage, { width }]}>
-            <View style={styles.welcomeStack} onLayout={onWelcomeStackLayout}>
+            <View style={styles.welcomeStack}>
               <View style={styles.welcomeVisual}>
                 <View style={styles.welcomeCoinSlot} />
               </View>
@@ -502,28 +431,21 @@ export default function OnboardingScreen() {
             </View>
           </View>
         </Reanimated.ScrollView>
+      </Reanimated.View>
 
-
-        <Reanimated.View pointerEvents="none" style={[styles.sharedCoin, sharedCoinStyle]}>
+      <Reanimated.View pointerEvents="none" style={[styles.sharedCoin, sharedCoinStyle]}>
           <Reanimated.View style={[styles.sharedRing, ringStyle]} />
           <Reanimated.View style={[styles.sharedShadow, shadowStyle]}><Svg width="100%" height="100%" viewBox="0 0 100 20"><Defs><RadialGradient id="sharedCoinContact" cx="50%" cy="50%" rx="50%" ry="50%"><Stop offset="0" stopColor="#050F32" stopOpacity="0.35" /><Stop offset="1" stopColor="#050F32" stopOpacity="0" /></RadialGradient></Defs><Ellipse cx="50" cy="10" rx="50" ry="10" fill="url(#sharedCoinContact)" /></Svg></Reanimated.View>
           <Image source={COIN} contentFit="contain" style={styles.sharedCoinImage} accessibilityLabel="3D peso coin" />
           <Reanimated.View style={[styles.confetti, confettiStyle]}>{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>
-        </Reanimated.View>
       </Reanimated.View>
 
-      <Reanimated.View style={[styles.bottom, { paddingBottom: page === 1 && keyboardVisible ? (keyboardNeedsManualOffset ? insets.bottom : 12) : insets.bottom + 16 }, page === 1 && keyboardVisible && bottomKeyboardStyle]}>
+      {page !== 1 ? <Reanimated.View style={[styles.bottom, { paddingBottom: insets.bottom + 16 }]}>
         {page === 0 ? <View style={styles.noLogin}>
           <SymbolView name={{ ios: "checkmark.shield.fill", android: "verified_user", web: "verified_user" }} tintColor="rgba(255,255,255,0.9)" size={17} />
           <Text maxFontSizeMultiplier={1.2} style={styles.noLoginText}>No login or sign-up needed. Just start.</Text>
         </View> : null}
-        {page === 1 ? (
-          <AnimatedPressable onPress={() => { Keyboard.dismiss(); void Haptics.selectionAsync(); void saveAllowanceForOnboarding(); }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel={allowanceSaved ? "Update allowance and continue" : "Set allowance and continue"} style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
-            <Text maxFontSizeMultiplier={1.2} style={[styles.ctaText, (numericAmount <= 0 || saving) && styles.ctaDisabledText]}>{saving ? "Saving…" : allowanceSaved ? "Update Allowance" : "Set Allowance"}</Text>
-            <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
-          </AnimatedPressable>
-        ) : (
-          <Reanimated.View entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined}>
+        <Reanimated.View entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined}>
             <AnimatedPressable
               onPress={() => {
                 void Haptics.selectionAsync();
@@ -543,8 +465,7 @@ export default function OnboardingScreen() {
               <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
             </AnimatedPressable>
           </Reanimated.View>
-        )}
-      </Reanimated.View>
+      </Reanimated.View> : null}
     </RNAnimated.View>
   );
 }
@@ -571,41 +492,31 @@ const styles = StyleSheet.create({
   headlineAccent: { color: SKY },
   subtitle: { color: "rgba(255,255,255,0.85)", fontFamily: "IBMPlexSans_400Regular", fontSize: 17, lineHeight: 24, marginTop: 16, maxWidth: 340 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 18 },
+  hiddenShortScreen: { display: "none" },
   chip: { flexGrow: 0, flexShrink: 0, alignSelf: "flex-start", backgroundColor: "rgba(255,255,255,0.14)", borderRadius: 999, paddingHorizontal: 12, height: 36, justifyContent: "center", alignItems: "center", flexDirection: "row", gap: 6 },
   materialIcon: { color: WHITE, fontFamily: "MaterialSymbols_400Regular", fontSize: 16, lineHeight: 18 },
   chipText: { flexShrink: 0, color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   pageOneCoinSlot: { flex: 1, minHeight: 0, marginVertical: 16 },
-  allowancePage: { paddingTop: 8, paddingBottom: 0, gap: 0 },
-  allowancePageKeyboard: { paddingTop: 0 },
-  allowanceBody: { flex: 1, justifyContent: "center", gap: 16, minHeight: 0 },
-  allowanceCard: { backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 28, padding: 20, borderWidth: 0, gap: 8 },
-  allowanceCardKeyboard: { paddingVertical: 8, gap: 2 },
+  allowancePage: { flex: 1, paddingTop: 8, paddingBottom: 8, gap: 8 },
+  allowanceBody: { flex: 1, minHeight: 0, flexShrink: 1, justifyContent: "center", gap: 12 },
+  allowanceCard: { flexShrink: 1, minHeight: 0, backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 28, padding: 16, borderWidth: 0, gap: 6 },
   allowanceHeading: { height: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
-  allowanceHeadingCompact: { height: 48 },
   allowanceHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 34, lineHeight: 40, flex: 1 },
   headerCoinSlot: { width: 64, height: 64, flexShrink: 0 },
-  headerCoinSlotCompact: { width: 48, height: 48 },
-  allowanceSubtitle: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_400Regular", fontSize: 15, lineHeight: 20 },
-  dateRow: { minHeight: 36, flexDirection: "row", alignItems: "center", gap: 10 },
-  dateRowCompact: { minHeight: 26 },
+  allowanceSubtitle: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_400Regular", fontSize: 15, lineHeight: 20, flexShrink: 1 },
+  dateRow: { minHeight: 32, flexDirection: "row", alignItems: "center", gap: 10, flexShrink: 1 },
   dateLabel: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 78 },
   dateControl: { flex: 1, alignSelf: "center" },
-  amountLine: { flexDirection: "row", alignItems: "flex-start", justifyContent: "center", minHeight: 96, marginTop: 24, marginBottom: 24 },
-  amountLineCompact: { minHeight: 52, marginTop: 0, marginBottom: 0 },
-  currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 44, marginTop: 2, marginRight: 6 },
+  amountLine: { flexDirection: "row", alignItems: "flex-start", justifyContent: "center", minHeight: 56, marginTop: 8, marginBottom: 8, flexShrink: 1 },
+  currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 34, lineHeight: 40, marginTop: 2, marginRight: 6 },
   amountInput: { flexGrow: 0, flexShrink: 1, minWidth: 42, color: WHITE, textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 72, lineHeight: 80, includeFontPadding: false, padding: 0 },
-  allowancePageKeyboardAmount: { fontSize: 48, lineHeight: 52 },
-  currencySignCompact: { fontSize: 31, lineHeight: 36, marginTop: 1 },
   periodPill: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 999, padding: 4, gap: 2 },
-  periodPillCompact: { padding: 2 },
   periodOption: { flex: 1, minHeight: 34, borderRadius: 999, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
-  periodOptionCompact: { minHeight: 26 },
   periodIndicator: { position: "absolute", top: 4, bottom: 4, left: 4, backgroundColor: WHITE, borderRadius: 999 },
   periodText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 11 },
   periodTextActive: { color: BLUE },
-  helper: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13, lineHeight: 17, textAlign: "center", marginTop: 12, marginBottom: 4 },
-  helperCompact: { fontSize: 12, lineHeight: 16, marginVertical: 2 },
-  quickAmounts: { height: 40, flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", gap: 8, marginTop: 16 },
+  helper: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13, lineHeight: 17, textAlign: "center", marginTop: 6, marginBottom: 2, flexShrink: 1 },
+  quickAmounts: { height: 40, flexShrink: 0, flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", gap: 8, marginTop: 10 },
   quickChip: { flex: 1, minWidth: 0, height: 40, paddingHorizontal: 4, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.14)", justifyContent: "center", alignItems: "center" },
   quickText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   error: { color: "#FFE0E0", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
