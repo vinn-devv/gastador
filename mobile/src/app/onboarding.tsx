@@ -294,8 +294,8 @@ export default function OnboardingScreen() {
                   { label: "Private on-device", icon: { ios: "lock.fill", android: "lock", web: "lock" } },
                 ].map((item) => (
                   <View key={item.label} style={styles.chip}>
-                    <SymbolView name={item.icon as ComponentProps<typeof SymbolView>["name"]} tintColor={WHITE} size={14} />
-                    <Text maxFontSizeMultiplier={1.2} style={styles.chipText}>{item.label}</Text>
+                    <SymbolView name={item.icon as ComponentProps<typeof SymbolView>["name"]} tintColor={WHITE} size={12} />
+                    <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.chipText}>{item.label}</Text>
                   </View>
                 ))}
               </Reanimated.View>
