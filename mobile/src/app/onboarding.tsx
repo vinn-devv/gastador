@@ -59,25 +59,35 @@ function useStableInsets() {
   const [keyboardHideCount, setKeyboardHideCount] = useState(0);
   const keyboardVisible = useRef(false);
   const lastKeyboardHideAt = useRef(0);
+  const latestInsets = useRef(liveInsets);
+  const insetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    latestInsets.current = liveInsets;
+  }, [liveInsets.top, liveInsets.bottom, liveInsets.left, liveInsets.right]);
 
   useEffect(() => {
     const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
     const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
     const showSubscription = Keyboard.addListener(showEvent, () => {
       keyboardVisible.current = true;
+      if (insetTimer.current) clearTimeout(insetTimer.current);
     });
     const hideSubscription = Keyboard.addListener(hideEvent, () => {
       keyboardVisible.current = false;
       lastKeyboardHideAt.current = Date.now();
       setKeyboardHideCount((count) => count + 1);
-      setTimeout(() => {
+      if (insetTimer.current) clearTimeout(insetTimer.current);
+      insetTimer.current = setTimeout(() => {
         if (keyboardVisible.current) return;
+        const latest = latestInsets.current;
         setStableInsets((current) => ({
-          top: Math.max(current.top, liveInsets.top),
-          bottom: Math.max(current.bottom, liveInsets.bottom),
-          left: Math.max(current.left, liveInsets.left),
-          right: Math.max(current.right, liveInsets.right),
+          top: Math.max(current.top, latest.top),
+          bottom: Math.max(current.bottom, latest.bottom),
+          left: Math.max(current.left, latest.left),
+          right: Math.max(current.right, latest.right),
         }));
+        insetTimer.current = null;
       }, 400);
     });
 
@@ -85,7 +95,11 @@ function useStableInsets() {
       showSubscription.remove();
       hideSubscription.remove();
     };
-  }, [liveInsets.top, liveInsets.bottom, liveInsets.left, liveInsets.right]);
+  }, []);
+
+  useEffect(() => () => {
+    if (insetTimer.current) clearTimeout(insetTimer.current);
+  }, []);
 
   useEffect(() => {
     if (keyboardVisible.current || Date.now() - lastKeyboardHideAt.current < 400) return;
