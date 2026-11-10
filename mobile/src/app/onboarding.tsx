@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps,
 import {
   BackHandler,
   Pressable,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -336,12 +337,12 @@ export default function OnboardingScreen() {
               </Reanimated.View>
               <Reanimated.View entering={reducedMotion ? undefined : FadeInUp.duration(500).delay(240)} style={styles.chips}>
                 {[
-                  { label: "Track expenses", icon: { ios: "checkmark.circle.fill", android: "check-circle", web: "check-circle" } },
-                  { label: "Daily allowance", icon: { ios: "calendar", android: "calendar-month", web: "calendar" } },
+                  { label: "Track expenses", icon: { ios: "checkmark.circle.fill", android: "check_circle", web: "check-circle" } },
+                  { label: "Daily allowance", icon: { ios: "calendar", android: "calendar_month", web: "calendar" } },
                   { label: "Private on-device", icon: { ios: "lock.fill", android: "lock", web: "lock" } },
                 ].map((item) => (
                   <View key={item.label} style={styles.chip}>
-                    <SymbolView name={item.icon as ComponentProps<typeof SymbolView>["name"]} tintColor={WHITE} size={12} />
+                    {Platform.OS === "android" ? <Text maxFontSizeMultiplier={1.2} style={styles.materialIcon}>{item.icon.android}</Text> : <SymbolView name={item.icon as ComponentProps<typeof SymbolView>["name"]} tintColor={WHITE} size={12} />}
                     <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.chipText}>{item.label}</Text>
                   </View>
                 ))}
@@ -371,7 +372,7 @@ export default function OnboardingScreen() {
             </View>
             <View style={styles.dateRow}>
               <Text maxFontSizeMultiplier={1.2} style={styles.dateLabel}>Start date</Text>
-              <View style={styles.dateControl}><DateField label="" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
+              <View style={styles.dateControl}><DateField label="" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
             </View>
             <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.helper}>Ends {formatDate(endDate, false)} · About {formatMoney(perDay, "PHP")} per day</Text>
             {showQuickAmounts ? <View style={styles.quickAmounts}>
@@ -479,6 +480,7 @@ const styles = StyleSheet.create({
   subtitle: { color: "rgba(255,255,255,0.85)", fontFamily: "IBMPlexSans_400Regular", fontSize: 17, lineHeight: 24, marginTop: 16, maxWidth: 340 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 18 },
   chip: { flexGrow: 1, flexBasis: "30%", minWidth: 112, backgroundColor: "rgba(255,255,255,0.14)", borderRadius: 999, paddingHorizontal: 8, height: 36, justifyContent: "center", alignItems: "center", flexDirection: "row", gap: 5 },
+  materialIcon: { color: WHITE, fontFamily: "MaterialSymbols_400Regular", fontSize: 15, lineHeight: 16 },
   chipText: { flexShrink: 1, color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   allowancePage: { paddingTop: 0, paddingBottom: 0, gap: 3 },
   allowanceHeading: { height: 64, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
