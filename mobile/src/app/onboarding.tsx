@@ -151,9 +151,10 @@ export default function OnboardingScreen() {
       return;
     }
     const resizedBy = Math.max(0, heightBeforeKeyboard - rootHeight);
-    const needsManualOffset = resizedBy < keyboardHeight * 0.5;
+    const remainingKeyboard = Math.max(0, keyboardHeight - resizedBy);
+    const needsManualOffset = remainingKeyboard > insets.bottom + 12;
     setKeyboardNeedsManualOffset(needsManualOffset);
-    const offset = needsManualOffset ? Math.max(0, keyboardHeight - insets.bottom + 12) : 0;
+    const offset = needsManualOffset ? remainingKeyboard - insets.bottom + 12 : 0;
     keyboardOffset.set(withTiming(offset, { duration: 180 }));
   }, [keyboardVisible, keyboardHeight, rootHeight, heightBeforeKeyboard, insets.bottom, keyboardOffset]);
 
@@ -348,7 +349,10 @@ export default function OnboardingScreen() {
 
   const formattedAmount = formatAllowanceInput(amount);
   const amountFontSize = keyboardVisible ? 56 : formattedAmount.length > 11 ? 42 : formattedAmount.length > 9 ? 52 : formattedAmount.length > 7 ? 62 : 72;
-  const availableHeight = height - (keyboardVisible && keyboardNeedsManualOffset ? keyboardHeight : 0);
+  const keyboardResizeDelta = Math.max(0, heightBeforeKeyboard - rootHeight);
+  const keyboardOverlap = keyboardVisible ? Math.max(0, keyboardHeight - keyboardResizeDelta) : 0;
+  const manualKeyboardLift = keyboardOverlap > insets.bottom + 12 ? keyboardOverlap - insets.bottom + 12 : 0;
+  const availableHeight = height - keyboardOverlap;
   const showSubtitle = availableHeight >= 700;
   const showQuickAmounts = availableHeight >= 640 && !keyboardVisible;
 
@@ -385,7 +389,7 @@ export default function OnboardingScreen() {
         </Pressable> : <View style={styles.skipPlaceholder} />}
       </View>
 
-      <Reanimated.View layout={LinearTransition.duration(200)} style={[styles.pagerHost, page === 1 && keyboardVisible && keyboardNeedsManualOffset && { marginBottom: Math.max(0, keyboardHeight - insets.bottom + 12) }]}>
+      <Reanimated.View layout={LinearTransition.duration(200)} style={[styles.pagerHost, page === 1 && keyboardVisible && keyboardNeedsManualOffset && { marginBottom: manualKeyboardLift }]}>
         <Reanimated.ScrollView
           ref={pager}
           horizontal
