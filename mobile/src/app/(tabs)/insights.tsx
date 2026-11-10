@@ -148,7 +148,7 @@ export default function InsightsScreen() {
                     Still available
                   </ThemedText>
                   <ThemedText style={styles.cycleValue}>
-                    {formatMoney(cycleSummary.remainingCentavos, currency)}
+                    {formatMoney(Math.max(0, cycleSummary.remainingCentavos), currency)}
                   </ThemedText>
                 </View>
                 <View style={styles.cycleRow}>
