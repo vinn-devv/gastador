@@ -17,11 +17,11 @@ export function getCoinSlots(width: number, height: number, insets: Pick<EdgeIns
   const pageOneSize = fitSize(Math.min(safeWidth * 0.7, 280));
   const headerSize = 64;
   const pageThreeSize = fitSize(Math.min(220, safeWidth - 48, safeHeight * 0.34));
-  const headerCenterY = insets.top + 8 + 56 / 2 + 8;
+  const headerCenterY = insets.top + 96;
 
   return [
-    { x: safeWidth / 2, y: centeredY(safeHeight * 0.6, pageOneSize), size: pageOneSize },
+    { x: safeWidth / 2, y: centeredY(safeHeight * 0.62, pageOneSize), size: pageOneSize },
     { x: safeWidth + safeWidth - 24 - headerSize / 2, y: centeredY(headerCenterY, headerSize), size: headerSize },
-    { x: safeWidth * 2 + safeWidth / 2, y: centeredY(safeHeight * 0.35, pageThreeSize), size: pageThreeSize },
+    { x: safeWidth * 2 + safeWidth / 2, y: centeredY(safeHeight * 0.38, pageThreeSize), size: pageThreeSize },
   ];
 }
