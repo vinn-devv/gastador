@@ -7,7 +7,7 @@ import type {
   Transaction,
 } from "../domain/types";
 import { defaultSettings } from "../domain/types";
-import { addDays, fromManilaInput, isValidDate, manilaHourMinute, manilaToday } from "../domain/dates";
+import { addDays, addMonths, diffDays, fromManilaInput, isValidDate, manilaHourMinute, manilaToday } from "../domain/dates";
 import { cycleContainsDate, rangesOverlapInclusive } from "../domain/cycle-dates";
 
 type SettingsRow = {
@@ -216,10 +216,7 @@ function allowanceLength(input: SaveAllowanceInput): number {
   if (input.lengthDays !== undefined) return input.lengthDays;
   if (input.period === "weekly") return 7;
   if (input.period === "biweekly") return 14;
-  if (input.period === "monthly") {
-    const [year, month] = input.startDate.split("-").map(Number);
-    return Math.round((Date.UTC(year, month, 1) - Date.UTC(year, month - 1, Number(input.startDate.slice(8, 10)))) / 86_400_000);
-  }
+  if (input.period === "monthly") return diffDays(input.startDate, addMonths(input.startDate, 1));
   throw new RangeError("Choose a valid allowance length.");
 }
 
