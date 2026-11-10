@@ -273,7 +273,7 @@ export default function OnboardingScreen() {
     const slots = coinSlots.get();
     const hostHeight = Math.max(280, height - insets.top - insets.bottom - 150);
     const points = slots.map((slot, index) => {
-      const measured = Number.isFinite(slot.x) && Number.isFinite(slot.y) && slot.width > 0 && slot.height > 0;
+      const measured = Number.isFinite(slot.x) && Number.isFinite(slot.y) && Number.isFinite(slot.width) && Number.isFinite(slot.height) && slot.width > 0 && slot.height > 0;
       const fallback = index === 0
         ? { x: width / 2, y: hostHeight * 0.66, size: Math.max(112, Math.min(width * 0.7, 280, hostHeight * 0.42)) }
         : index === 1
@@ -299,7 +299,7 @@ export default function OnboardingScreen() {
     const rotation = reducedMotion ? 0 : -8 + (tilt.get() - 0.5) * (idle ? 6 : 1.2);
     const spin = reducedMotion ? 0 : interpolate(p, [0, 1, 2], [0, 360, 360]);
     const scale = reducedMotion ? 1 : entryScale.get() * (p > 1 && p < 2 ? 1 + Math.sin((p - 1) * Math.PI) * 0.08 : 1);
-    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2, width: size, height: size, opacity: 1, transform: [{ perspective: 800 }, { translateX: 0 }, { translateY: bob }, { scale }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }] };
+    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2, width: size, height: size, opacity: reducedMotion ? interpolate(p, [0, 0.5, 1, 1.5, 2], [1, 0.35, 1, 0.35, 1]) : 1, transform: [{ perspective: 800 }, { translateX: 0 }, { translateY: bob }, { scale }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }] };
   });
   const periodIndicatorStyle = useAnimatedStyle(() => {
     const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
