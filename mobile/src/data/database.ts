@@ -27,6 +27,7 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
     CREATE TABLE IF NOT EXISTS categories (
       id TEXT PRIMARY KEY NOT NULL,
       name TEXT NOT NULL,
+      color TEXT NOT NULL DEFAULT '#3B82F6',
       sortOrder INTEGER NOT NULL DEFAULT 0,
       archivedAt TEXT,
       createdAt TEXT NOT NULL
@@ -118,6 +119,10 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
   }
   if (!settingColumns.some((column) => column.name === "cycleReviewNoticePending")) {
     await db.execAsync("ALTER TABLE settings ADD COLUMN cycleReviewNoticePending INTEGER NOT NULL DEFAULT 0");
+  }
+  const categoryColumns = await db.getAllAsync<{ name: string }>("PRAGMA table_info(categories)");
+  if (!categoryColumns.some((column) => column.name === "color")) {
+    await db.execAsync("ALTER TABLE categories ADD COLUMN color TEXT NOT NULL DEFAULT '#3B82F6'");
   }
   const cycleColumns = await db.getAllAsync<{ name: string }>("PRAGMA table_info(cycles)");
   if (!cycleColumns.some((column) => column.name === "needsReview")) {
