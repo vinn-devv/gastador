@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentProps, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,7 +11,6 @@ import { navBarSpace } from "@/constants/layout";
 import { useSettings } from "@/hooks/use-settings";
 import type { Category, CustomPaymentMethod, SettingsPreferences, CurrencyCode } from "@/domain/types";
 
-type IconName = ComponentProps<typeof SymbolView>["name"];
 type PrefKey = keyof SettingsPreferences;
 
 const labels: Partial<Record<PrefKey, Record<string, string>>> = {
@@ -34,13 +33,12 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   </View>;
 }
 
-function SettingRow({ icon, title, subtitle, value, onPress, toggle, danger = false, disabled = false }: {
-  icon: IconName; title: string; subtitle?: string; value?: string; onPress?: () => void;
+function SettingRow({ title, subtitle, value, onPress, toggle, danger = false, disabled = false }: {
+  title: string; subtitle?: string; value?: string; onPress?: () => void;
   toggle?: { value: boolean; onChange: (value: boolean) => void }; danger?: boolean; disabled?: boolean;
 }) {
   const current = toggle ? (toggle.value ? "On" : "Off") : value ?? subtitle ?? "Unavailable";
   const content = <>
-    <View style={[styles.iconCircle, danger && styles.dangerIcon]}><SymbolView name={icon} tintColor={danger ? "#DC2626" : "#2563EB"} size={20} /></View>
     <View style={styles.rowText}>
       <View style={styles.rowTitleLine}>
         <View style={[styles.bullet, danger && styles.dangerBullet]} />
@@ -150,22 +148,22 @@ export default function SettingsScreen() {
       contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) + 32 }]}>
       {loading || !settings ? <ThemedText style={styles.loading}>Loading settings…</ThemedText> : <>
         <Section title="Preferences">
-          <SettingRow icon="dollarsign.circle" title="Currency" value={currencyOptions.find((item) => item.code === settings.currency)?.label ?? settings.currency} onPress={chooseCurrency} />
-          <SettingRow icon="number" title="Number format" value={value("numberFormat")} onPress={() => choose("numberFormat", "Number format", ["comma", "dot"])} />
-          <SettingRow icon="textformat" title="Currency symbol" value={value("symbolPlacement")} onPress={() => choose("symbolPlacement", "Currency symbol", ["before", "after", "hidden"])} />
-          <SettingRow icon="123.rectangle" title="Show decimals" toggle={{ value: settings.preferences.showDecimals, onChange: (v) => toggle("showDecimals", v) }} />
-          <SettingRow icon="calendar" title="Date format" value={value("dateFormat")} onPress={() => choose("dateFormat", "Date format", ["DMY", "MDY", "YMD", "DMMM"])} />
-          <SettingRow icon="calendar.badge.clock" title="Week starts on" value={value("firstDayOfWeek")} onPress={() => choose("firstDayOfWeek", "Week starts on", ["sunday", "monday"])} />
+          <SettingRow title="Currency" value={currencyOptions.find((item) => item.code === settings.currency)?.label ?? settings.currency} onPress={chooseCurrency} />
+          <SettingRow title="Number format" value={value("numberFormat")} onPress={() => choose("numberFormat", "Number format", ["comma", "dot"])} />
+          <SettingRow title="Currency symbol" value={value("symbolPlacement")} onPress={() => choose("symbolPlacement", "Currency symbol", ["before", "after", "hidden"])} />
+          <SettingRow title="Show decimals" toggle={{ value: settings.preferences.showDecimals, onChange: (v) => toggle("showDecimals", v) }} />
+          <SettingRow title="Date format" value={value("dateFormat")} onPress={() => choose("dateFormat", "Date format", ["DMY", "MDY", "YMD", "DMMM"])} />
+          <SettingRow title="Week starts on" value={value("firstDayOfWeek")} onPress={() => choose("firstDayOfWeek", "Week starts on", ["sunday", "monday"])} />
         </Section>
         <Section title="Expenses">
-          <SettingRow icon="square.grid.2x2" title="Categories" subtitle="Manage your expense categories" onPress={() => void openCategories()} />
-          <SettingRow icon="creditcard" title="Payment methods" subtitle="Manage custom payment methods" onPress={() => void openMethods()} />
-          <SettingRow icon="tag" title="Default category" value={settings.preferences.defaultCategoryId || "First available"} onPress={() => void chooseCategory()} />
-          <SettingRow icon="creditcard" title="Default payment" value={methods.find((item) => settings.preferences.defaultPaymentMethod === "custom:" + item.id)?.name ?? value("defaultPaymentMethod")} onPress={chooseDefaultMethod} />
+          <SettingRow title="Categories" subtitle="Manage your expense categories" onPress={() => void openCategories()} />
+          <SettingRow title="Payment methods" subtitle="Manage custom payment methods" onPress={() => void openMethods()} />
+          <SettingRow title="Default category" value={settings.preferences.defaultCategoryId || "First available"} onPress={() => void chooseCategory()} />
+          <SettingRow title="Default payment" value={methods.find((item) => settings.preferences.defaultPaymentMethod === "custom:" + item.id)?.name ?? value("defaultPaymentMethod")} onPress={chooseDefaultMethod} />
         </Section>
         <Section title="About">
-          <SettingRow icon="book" title="How Gastador works" subtitle="View the app walkthrough" onPress={() => Alert.alert("How it works", "The welcome walkthrough is available when you first set up Gastador.")} />
-          <SettingRow icon="doc.text.magnifyingglass" title="Open-source licenses" onPress={() => Alert.alert("Open-source licenses", "License details are available from the third-party packages used by Gastador.")} />
+          <SettingRow title="How Gastador works" subtitle="View the app walkthrough" onPress={() => Alert.alert("How it works", "The welcome walkthrough is available when you first set up Gastador.")} />
+          <SettingRow title="Open-source licenses" onPress={() => Alert.alert("Open-source licenses", "License details are available from the third-party packages used by Gastador.")} />
           <View style={styles.versionRow}>
             <ThemedText style={styles.rowTitle}>Version</ThemedText><ThemedText style={styles.rowValue}>{version}</ThemedText>
           </View>
@@ -195,18 +193,16 @@ const styles = StyleSheet.create({
   section: { gap: 8 },
   sectionHeading: { color: "#475569", fontFamily: "IBMPlexSans_700Bold", fontSize: 13, letterSpacing: 0.65, paddingHorizontal: 4 },
   card: { borderRadius: 24, backgroundColor: "#F3F7FF", paddingHorizontal: 16, paddingVertical: 8 },
-  row: { minHeight: 64, flexDirection: "row", alignItems: "center", gap: 12 },
+  row: { minHeight: 58, flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 5 },
   pressed: { opacity: 0.72 },
   disabled: { opacity: 0.55 },
-  iconCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#E3EDFF", alignItems: "center", justifyContent: "center" },
-  dangerIcon: { backgroundColor: "#FEE2E2" },
   dangerText: { color: "#DC2626" },
   rowText: { flex: 1, gap: 2 },
   rowTitleLine: { flexDirection: "row", alignItems: "center", gap: 8 },
   bullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#60A5FA" },
   dangerBullet: { backgroundColor: "#DC2626" },
-  rowTitle: { color: "#0F172A", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 17 },
-  rowSubtitle: { color: "#475569", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  rowTitle: { color: "#0F172A", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
+  rowSubtitle: { color: "#64748B", fontFamily: "IBMPlexSans_500Medium", fontSize: 13 },
   rowValue: { color: "#475569", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   trailing: { flexDirection: "row", alignItems: "center", gap: 6 },
   note: { color: "#475569", fontFamily: "IBMPlexSans_400Regular", fontSize: 13, paddingVertical: 8 },
