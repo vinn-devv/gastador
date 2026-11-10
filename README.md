@@ -1,7 +1,5 @@
 <div align="center">
 
-  <img src="https://raw.githubusercontent.com/vinn-devv/gastador/main/mobile/assets/images/gastador-logo.png" alt="Gastador logo" width="180" />
-
   <h1>Gastador</h1>
   <p><strong>Your allowance, under control.</strong></p>
   <p>A simple, local-first allowance and expense tracker made for students.</p>
@@ -31,11 +29,11 @@ Gastador helps you make your allowance last. Set your budget, record everyday ex
 
 | Feature | What it does |
 |:--|:--|
-| 💰 Allowance tracking | Manage your allowance and budget cycle. |
-| 🧾 Expense tracking | Record and organize everyday expenses. |
-| 📊 Spending insights | Review spending summaries and patterns. |
-| 🎯 Savings goals | Set goals and track your progress. |
-| 📱 On-device storage | Keep app data locally with SQLite. |
+| Allowance tracking | Manage your allowance and budget cycle. |
+| Expense tracking | Record and organize everyday expenses. |
+| Spending insights | Review spending summaries and patterns. |
+| Savings goals | Set goals and track your progress. |
+| On-device storage | Keep app data locally with SQLite. |
 
 ## Tech stack
 
