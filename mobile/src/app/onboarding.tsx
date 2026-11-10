@@ -374,7 +374,7 @@ export default function OnboardingScreen() {
             <View style={styles.pageOneCoinSlot} />
           </View>
 
-          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0} style={[styles.page, styles.allowancePage, { width, paddingBottom: Math.max(insets.bottom, 24) + 16 }]}>
+          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0} style={[styles.page, styles.allowancePage, { width, paddingBottom: Math.max(insets.bottom, 16) + 24 }]}>
             <Pressable pointerEvents="box-only" onPress={Keyboard.dismiss} style={StyleSheet.absoluteFill} />
             <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
@@ -434,7 +434,8 @@ export default function OnboardingScreen() {
         </Reanimated.ScrollView>
       </Reanimated.View>
 
-      <Reanimated.View pointerEvents="none" style={[styles.sharedCoin, sharedCoinStyle]}>
+      <View pointerEvents="none" style={styles.coinOverlay}>
+        <Reanimated.View style={[styles.sharedCoin, sharedCoinStyle]}>
           <Reanimated.View style={[styles.sharedRing, ringStyle]} />
           <Reanimated.View style={[styles.sharedShadow, shadowStyle]}><Svg width="100%" height="100%" viewBox="0 0 100 20"><Defs><RadialGradient id="sharedCoinContact" cx="50%" cy="50%" rx="50%" ry="50%"><Stop offset="0" stopColor="#050F32" stopOpacity="0.35" /><Stop offset="1" stopColor="#050F32" stopOpacity="0" /></RadialGradient></Defs><Ellipse cx="50" cy="10" rx="50" ry="10" fill="url(#sharedCoinContact)" /></Svg></Reanimated.View>
           <Image source={COIN} contentFit="contain" style={styles.sharedCoinImage} accessibilityLabel="3D peso coin" />
@@ -529,6 +530,7 @@ const styles = StyleSheet.create({
   ring: { position: "absolute", top: 22, width: 176, height: 176, borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
   confetti: { position: "absolute", top: 0, width: 220, height: 220, alignItems: "center", justifyContent: "center" },
   confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
+  coinOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 3 },
   sharedCoin: { zIndex: 3, alignItems: "center", justifyContent: "center", overflow: "visible" },
   sharedCoinImage: { width: "100%", height: "100%" },
   sharedRing: { position: "absolute", width: "82%", height: "82%", borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
