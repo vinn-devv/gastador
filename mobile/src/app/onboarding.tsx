@@ -18,6 +18,8 @@ import Svg, { Defs, Ellipse, RadialGradient, Stop } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { StatusBar } from "expo-status-bar";
+import { NavigationBar } from "expo-navigation-bar";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { SymbolView } from "expo-symbols";
 import Reanimated, {
   Easing,
@@ -31,7 +33,6 @@ import Reanimated, {
   withSequence,
   interpolate,
   useAnimatedScrollHandler,
-  useAnimatedKeyboard,
   LinearTransition,
   type SharedValue,
 } from "react-native-reanimated";
@@ -114,19 +115,6 @@ function useStableInsets() {
   return { ...stableInsets, keyboardHideCount };
 }
 
-function KeyboardLift({ stableBottom, children }: { stableBottom: number; children: ReactNode }) {
-  const keyboard = useAnimatedKeyboard();
-  const liftStyle = useAnimatedStyle(() => {
-    const keyboardHeight = keyboard.height.get();
-    const lift = keyboardHeight > 0
-      ? Math.max(0, keyboardHeight - stableBottom) + 12
-      : 0;
-    return { transform: [{ translateY: -lift }] };
-  });
-
-  return <Reanimated.View style={liftStyle}>{children}</Reanimated.View>;
-}
-
 function ProgressSegment({ index, progress, active, onPress }: { index: number; progress: SharedValue<number>; active: boolean; onPress: () => void }) {
   const fillStyle = useAnimatedStyle(() => ({
     width: `${Math.max(0, Math.min(1, progress.get() - index)) * 100}%`,
@@ -172,6 +160,7 @@ export default function OnboardingScreen() {
   const buttonScale = useSharedValue(1);
   const [page, setPage] = useState(0);
   const [keyboardLayoutVersion, setKeyboardLayoutVersion] = useState(0);
+  const [amountFocused, setAmountFocused] = useState(false);
   const [skippedAllowance, setSkippedAllowance] = useState(false);
   const [savedCycle, setSavedCycle] = useState<Cycle | null>(null);
   const [amount, setAmount] = useState("");
@@ -208,11 +197,6 @@ export default function OnboardingScreen() {
     progressValue.set(withTiming(page + 1, { duration: reducedMotion ? 180 : 400 }));
     pageProgress.set(withTiming(page, { duration: reducedMotion ? 180 : 600 }));
   }, [page, progressValue, pageProgress, reducedMotion]);
-
-  useEffect(() => {
-    if (page !== 1) return;
-    amountInput.current?.focus();
-  }, [page]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -386,6 +370,7 @@ export default function OnboardingScreen() {
   return (
     <RNAnimated.View style={[styles.root, { opacity: fade }]}>
       <StatusBar style="light" />
+      <NavigationBar style="light" />
       <LinearGradient colors={["#1E40AF", "#2563EB", "#0B1F5C"]} locations={[0, 0.52, 1]} style={StyleSheet.absoluteFill} />
       <View pointerEvents="none" style={[styles.orb, { width: width * 0.9, height: width * 0.9, top: -width * 0.42, right: -width * 0.32 }]} />
       {page === 0 ? <View pointerEvents="none" style={[styles.orb, styles.pageOneOrb, { width: width * 0.75, height: width * 0.75, bottom: height * 0.12, left: -width * 0.42 }]} /> : null}
@@ -466,38 +451,39 @@ export default function OnboardingScreen() {
             <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={[styles.allowanceSubtitle, shortScreen && styles.hiddenShortScreen]}>You can change this anytime in Settings.</Text>
             <Reanimated.View layout={LinearTransition.duration(200)} style={styles.allowanceBody}>
               <View style={styles.allowanceGroup}>
-              <Pressable onPress={Keyboard.dismiss} style={styles.allowanceCard}>
+              <Pressable onPress={() => amountInput.current?.focus()} style={styles.allowanceCard}>
                 <Pressable style={styles.amountLine} onPress={(event) => { event.stopPropagation(); amountInput.current?.focus(); }}>
                   <Text maxFontSizeMultiplier={1.2} style={styles.currencySign}>₱</Text>
-                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const formatted = formatAllowanceInput(raw); setAmount(raw); setAmountSelection({ start: formatted.length, end: formatted.length }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
+                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onFocus={() => setAmountFocused(true)} onBlur={() => setAmountFocused(false)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const formatted = formatAllowanceInput(raw); setAmount(raw); setAmountSelection({ start: formatted.length, end: formatted.length }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8, textDecorationLine: amountFocused ? "none" : "underline" }]} maxFontSizeMultiplier={1.2} />
                 </Pressable>
                 <View style={styles.periodPill} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
                   <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
                   {(["weekly", "biweekly", "monthly"] as Period[]).map((value) => {
                     const active = period === value;
-                    return <Pressable key={value} onPress={() => { setPeriod(value); void Haptics.selectionAsync(); }} accessibilityRole="button" accessibilityState={{ selected: active }} style={styles.periodOption}>
+                    return <Pressable key={value} onPress={(event) => { event.stopPropagation(); Keyboard.dismiss(); setPeriod(value); void Haptics.selectionAsync(); }} accessibilityRole="button" accessibilityState={{ selected: active }} style={styles.periodOption}>
                       <Text maxFontSizeMultiplier={1.2} style={[styles.periodText, active && styles.periodTextActive]}>{value === "biweekly" ? "Every 2 weeks" : value === "weekly" ? "Weekly" : "Monthly"}</Text>
                     </Pressable>;
                   })}
                 </View>
                 <View style={styles.dateRow}>
                   <Text maxFontSizeMultiplier={1.2} style={styles.dateLabel}>Start date</Text>
-                  <View style={styles.dateControl} onTouchStart={() => Keyboard.dismiss()}><DateField label="Start date" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
+                  <View style={styles.dateControl} onTouchStart={(event) => { event.stopPropagation(); Keyboard.dismiss(); }}><DateField label="Start date" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
                 </View>
                 <Text maxFontSizeMultiplier={1.2} style={styles.helper}>{`Ends ${formatDate(endDate, false)} · About ${formatMoney(perDay, "PHP")} per day`}</Text>
               </Pressable>
               <Reanimated.View layout={LinearTransition.duration(200)} style={[styles.quickAmounts, shortScreen && styles.hiddenShortScreen]}>
-                {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => { const next = String(value); setAmount(next); const nextDisplayLength = formatAllowanceInput(next).length; setAmountSelection({ start: nextDisplayLength, end: nextDisplayLength }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
+                {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={(event) => { event.stopPropagation(); Keyboard.dismiss(); const next = String(value); setAmount(next); const nextDisplayLength = formatAllowanceInput(next).length; setAmountSelection({ start: nextDisplayLength, end: nextDisplayLength }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
               </Reanimated.View>
               </View>
             </Reanimated.View>
             {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
-            {page === 1 ? <KeyboardLift stableBottom={stableInsets.bottom}>
+            <View style={styles.ctaSpacer} />
+            {page === 1 ? <KeyboardStickyView offset={{ closed: 0, opened: 12 }} style={[styles.allowanceSticky, { paddingBottom: Math.max(stableInsets.bottom, 16) + 24 }]}>
               <AnimatedPressable onPress={() => { Keyboard.dismiss(); void Haptics.selectionAsync(); void saveAllowanceForOnboarding(); }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel={allowanceSaved ? "Update allowance and continue" : "Set allowance and continue"} style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
                 <Text maxFontSizeMultiplier={1.2} style={[styles.ctaText, (numericAmount <= 0 || saving) && styles.ctaDisabledText]}>{saving ? "Saving…" : allowanceSaved ? "Update Allowance" : "Set Allowance"}</Text>
                 <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
               </AnimatedPressable>
-            </KeyboardLift> : null}
+            </KeyboardStickyView> : null}
           </View>
 
           <View style={[styles.page, styles.welcomePage, { width }]}>
@@ -609,6 +595,8 @@ const styles = StyleSheet.create({
   quickChip: { flex: 1, minWidth: 0, height: 40, paddingHorizontal: 4, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.14)", justifyContent: "center", alignItems: "center" },
   quickText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   error: { color: "#FFE0E0", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  ctaSpacer: { height: 64, flexShrink: 0 },
+  allowanceSticky: { position: "absolute", left: 0, right: 0, bottom: 0, paddingHorizontal: 24, zIndex: 5 },
   welcomePage: { alignItems: "center", justifyContent: "center", paddingVertical: 8 },
   welcomeStack: { width: "100%", alignItems: "center", justifyContent: "center" },
   welcomeVisual: { width: 230, height: 236, alignItems: "center", justifyContent: "flex-start", overflow: "hidden" },
