@@ -111,7 +111,7 @@ export default function SettingsScreen() {
         <Section title="Appearance and feel">
           <SettingRow icon="textformat.size" title="Text size" value={optionLabels.textSize?.[settings.preferences.textSize]} onPress={() => choose("textSize", "Text size", ["default", "large"])} />
           <SettingRow icon="hand.tap" title="Haptic feedback" toggle={{ value: settings.preferences.haptics, onChange: (v) => toggle("haptics", v) }} />
-          <SettingRow icon=" motion" title="Reduce motion" toggle={{ value: settings.preferences.reduceMotion, onChange: (v) => toggle("reduceMotion", v) }} />
+          <SettingRow icon="figure.walk" title="Reduce motion" toggle={{ value: settings.preferences.reduceMotion, onChange: (v) => toggle("reduceMotion", v) }} />
         </Section>
 
         <Section title="Privacy and security">
