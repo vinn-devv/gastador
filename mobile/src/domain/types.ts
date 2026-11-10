@@ -86,6 +86,7 @@ export interface AppSettings {
   theme: ThemePref;
   budgetMethod: BudgetMethod;
   onboardingCompleted: boolean;
+  hasOnboarded: boolean;
   alerts: AlertPrefs;
   createdAt: string;
 }
@@ -120,6 +121,7 @@ export function defaultSettings(now = new Date()): AppSettings {
     theme: 'system',
     budgetMethod: 'daily_pace',
     onboardingCompleted: false,
+    hasOnboarded: false,
     alerts: { ...DEFAULT_ALERTS },
     createdAt: now.toISOString()
   };
