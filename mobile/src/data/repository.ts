@@ -52,7 +52,7 @@ export async function getSettings(db: SQLiteDatabase): Promise<AppSettings> {
 
 export async function getCategories(db: SQLiteDatabase): Promise<Category[]> {
   return db.getAllAsync<Category>(
-    `SELECT id, name, sortOrder, archivedAt, createdAt
+    `SELECT id, name, color, sortOrder, archivedAt, createdAt
      FROM categories
      ORDER BY sortOrder ASC, name ASC`,
   );
@@ -460,4 +460,79 @@ export async function consumeCycleReviewNotice(db: SQLiteDatabase): Promise<bool
     if (pending) await db.runAsync("UPDATE settings SET cycleReviewNoticePending = 0 WHERE id = 1");
   });
   return pending;
+}
+
+
+export async function createCategory(db: SQLiteDatabase, name: string, color = "#3B82F6"): Promise<void> {
+  const normalized = name.trim().replace(/\\s+/g, " ");
+  if (!normalized) throw new Error("Enter a category name.");
+  const duplicate = await db.getFirstAsync<{ id: string }>(
+    "SELECT id FROM categories WHERE lower(name) = lower(?)",
+    normalized,
+  );
+  if (duplicate) throw new Error("A category with that name already exists.");
+  const order = await db.getFirstAsync<{ nextOrder: number | null }>(
+    "SELECT MAX(sortOrder) + 1 AS nextOrder FROM categories",
+  );
+  await db.runAsync(
+    "INSERT INTO categories (id, name, color, sortOrder, archivedAt, createdAt) VALUES (?, ?, ?, ?, NULL, ?)",
+    "custom-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8),
+    normalized,
+    color,
+    order?.nextOrder ?? 0,
+    new Date().toISOString(),
+  );
+}
+
+export async function updateCategory(
+  db: SQLiteDatabase,
+  id: string,
+  patch: { name?: string; color?: string },
+): Promise<void> {
+  const current = await db.getFirstAsync<{ id: string; name: string; color: string }>(
+    "SELECT id, name, color FROM categories WHERE id = ?",
+    id,
+  );
+  if (!current) throw new Error("Category not found.");
+  const name = patch.name === undefined ? current.name : patch.name.trim().replace(/\\s+/g, " ");
+  if (!name) throw new Error("Enter a category name.");
+  const duplicate = await db.getFirstAsync<{ id: string }>(
+    "SELECT id FROM categories WHERE lower(name) = lower(?) AND id != ?",
+    name, id,
+  );
+  if (duplicate) throw new Error("A category with that name already exists.");
+  await db.runAsync(
+    "UPDATE categories SET name = ?, color = ? WHERE id = ?",
+    name,
+    patch.color ?? current.color,
+    id,
+  );
+}
+
+export async function archiveCategory(db: SQLiteDatabase, id: string): Promise<void> {
+  const used = await db.getFirstAsync<{ total: number }>(
+    "SELECT COUNT(*) AS total FROM transactions WHERE categoryId = ?",
+    id,
+  );
+  if ((used?.total ?? 0) > 0) {
+    await db.runAsync("UPDATE categories SET archivedAt = ? WHERE id = ?", new Date().toISOString(), id);
+    return;
+  }
+  // Archive instead of deleting so references and backups remain stable.
+  await db.runAsync("UPDATE categories SET archivedAt = ? WHERE id = ?", new Date().toISOString(), id);
+}
+
+export async function reorderCategory(db: SQLiteDatabase, id: string, direction: -1 | 1): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    const rows = await db.getAllAsync<{ id: string; sortOrder: number }>(
+      "SELECT id, sortOrder FROM categories WHERE archivedAt IS NULL ORDER BY sortOrder, name",
+    );
+    const index = rows.findIndex((row) => row.id === id);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= rows.length) return;
+    const current = rows[index];
+    const neighbor = rows[target];
+    await db.runAsync("UPDATE categories SET sortOrder = ? WHERE id = ?", neighbor.sortOrder, current.id);
+    await db.runAsync("UPDATE categories SET sortOrder = ? WHERE id = ?", current.sortOrder, neighbor.id);
+  });
 }
