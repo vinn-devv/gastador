@@ -339,12 +339,13 @@ export async function createCycle(
 }
 
 export async function consumeCycleReviewNotice(db: SQLiteDatabase): Promise<boolean> {
-  return db.withTransactionAsync(async () => {
+  let pending = false;
+  await db.withTransactionAsync(async () => {
     const row = await db.getFirstAsync<{ cycleReviewNoticePending: number }>(
       "SELECT cycleReviewNoticePending FROM settings WHERE id = 1",
     );
-    if (!row?.cycleReviewNoticePending) return false;
-    await db.runAsync("UPDATE settings SET cycleReviewNoticePending = 0 WHERE id = 1");
-    return true;
-  }).then(async (result) => Boolean(result));
+    pending = Boolean(row?.cycleReviewNoticePending);
+    if (pending) await db.runAsync("UPDATE settings SET cycleReviewNoticePending = 0 WHERE id = 1");
+  });
+  return pending;
 }
