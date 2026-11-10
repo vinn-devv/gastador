@@ -385,11 +385,22 @@ export default function OnboardingScreen() {
             <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
         ) : (
-          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); if (page === 0) {
-              moveTo(1);
-            } else {
-              void finish();
-            } }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} accessibilityRole="button" accessibilityLabel={page === 0 ? "Get started" : "Start tracking"} entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined} style={[styles.cta, buttonAnimatedStyle]}>
+          <AnimatedPressable
+            onPress={() => {
+              void Haptics.selectionAsync();
+              if (page === 0) {
+                moveTo(1);
+              } else {
+                void finish();
+              }
+            }}
+            onPressIn={() => { buttonScale.set(withSpring(0.96)); }}
+            onPressOut={() => { buttonScale.set(withSpring(1)); }}
+            accessibilityRole="button"
+            accessibilityLabel={page === 0 ? "Get started" : "Start tracking"}
+            entering={page === 0 && !reducedMotion ? FadeInUp.duration(500).delay(320) : undefined}
+            style={[styles.cta, buttonAnimatedStyle]}
+          >
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{page === 0 ? "Get Started" : "Start Tracking"}</Text>
             <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
