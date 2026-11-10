@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenLayout } from "@/components/screen-layout";
 import { navBarSpace } from "@/constants/layout";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import {
   KeyboardAvoidingView,
@@ -41,6 +41,7 @@ const BUDGET_METHODS: { value: BudgetMethod; label: string; detail: string }[] =
 
 export default function SettingsScreen() {
   const db = useSQLiteContext();
+  const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [settings, setSettings] = useState<AppSettings | null>(null);
@@ -259,6 +260,21 @@ export default function SettingsScreen() {
         </>
       )}
 
+      {__DEV__ && !loading && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Replay welcome onboarding"
+          onPress={() => router.push("/onboarding")}
+          style={[styles.replayRow, { borderColor: theme.line }]}
+        >
+          <View style={{ flex: 1 }}>
+            <ThemedText style={styles.privacyTitle}>Replay welcome</ThemedText>
+            <ThemedText type="small" themeColor="muted">Preview the first-launch introduction.</ThemedText>
+          </View>
+          <ThemedText style={{ color: theme.primary, fontFamily: "IBMPlexSans_700Bold" }}>›</ThemedText>
+        </Pressable>
+      )}
+
       <View style={[styles.privacy, { borderColor: theme.line }]}>
         <ThemedText style={styles.privacyTitle}>
           Your data stays on this device
@@ -318,6 +334,7 @@ const styles = StyleSheet.create({
   method: { minHeight: 68, borderWidth: 1, borderRadius: 9, padding: 13, gap: 4, justifyContent: "center" },
   methodTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   message: { marginTop: -12, marginBottom: 20 },
+  replayRow: { minHeight: 58, borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: 10, flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 18 },
   privacy: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 17, gap: 5 },
   privacyTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
 });
