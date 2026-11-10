@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Animated,
   Pressable,
@@ -25,7 +25,7 @@ type Props = {
  *   <GlassButton label="Scan receipt" onPress={...} />
  */
 export function GlassButton({ label, onPress, icon, disabled, style }: Props) {
-  const scale = useRef(new Animated.Value(1)).current;
+  const [scale] = useState(() => new Animated.Value(1));
 
   const to = (value: number) =>
     Animated.spring(scale, {
