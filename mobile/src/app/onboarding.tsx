@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
   amountLine: { flexDirection: "row", alignItems: "flex-start", justifyContent: "center", minHeight: 96, marginTop: 24, marginBottom: 24 },
   amountLineCompact: { minHeight: 60, marginTop: 0, marginBottom: 2 },
   currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 44, marginTop: 2 },
-  amountInput: { flex: 0, minWidth: 0, maxWidth: "88%", color: WHITE, textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 72, lineHeight: 80, includeFontPadding: false, padding: 0 },
+  amountInput: { flex: 1, minWidth: 0, maxWidth: "88%", color: WHITE, textAlign: "center", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 72, lineHeight: 80, includeFontPadding: false, padding: 0 },
   allowancePageKeyboardAmount: { fontSize: 48, lineHeight: 52 },
   currencySignCompact: { fontSize: 31, lineHeight: 36, marginTop: 1 },
   periodPill: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 999, padding: 4, gap: 2 },
