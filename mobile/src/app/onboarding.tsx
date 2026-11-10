@@ -31,6 +31,7 @@ import Reanimated, {
   withSequence,
   interpolate,
   useAnimatedScrollHandler,
+  LinearTransition,
   type SharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -64,12 +65,7 @@ function endFor(start: string, period: Period): string {
 }
 
 function normalizeAllowanceInput(value: string): string {
-  const cleaned = value.replace(/,/g, "").replace(/[^0-9.]/g, "");
-  const hasDecimal = cleaned.includes(".");
-  const [wholeRaw, ...fractionParts] = cleaned.split(".");
-  const whole = (wholeRaw ?? "").replace(/\D/g, "").slice(0, 9).replace(/^0+(?=\d)/, "");
-  const fraction = fractionParts.join("").replace(/\D/g, "").slice(0, 2);
-  return hasDecimal ? `${whole || "0"}.${fraction}` : whole;
+  return value.replace(/\D/g, "").replace(/^0+(?=\d)/, "").slice(0, 9);
 }
 
 function formatAllowanceInput(value: string): string {
@@ -106,6 +102,11 @@ export default function OnboardingScreen() {
   const [periodWidth, setPeriodWidth] = useState(0);
   const amountInput = useRef<ComponentRef<typeof TextInput>>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardHeightShared = useSharedValue(0);
+  const keyboardOffset = useSharedValue(0);
+  const [rootHeight, setRootHeight] = useState(0);
+  const [heightBeforeKeyboard, setHeightBeforeKeyboard] = useState(0);
+  const [keyboardNeedsManualOffset, setKeyboardNeedsManualOffset] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const pageProgress = useSharedValue(0);
   const coinSlots = useSharedValue([{ x: 0, y: 0, width: 0, height: 0 }, { x: 0, y: 0, width: 0, height: 0 }, { x: 0, y: 0, width: 0, height: 0 }]);
@@ -130,10 +131,32 @@ export default function OnboardingScreen() {
   useEffect(() => {
     const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
     const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-    const show = Keyboard.addListener(showEvent, (event) => { setKeyboardVisible(true); setKeyboardHeight(event.endCoordinates.height); });
-    const hide = Keyboard.addListener(hideEvent, () => { setKeyboardVisible(false); setKeyboardHeight(0); });
+    const show = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardVisible(true);
+      setKeyboardHeight(event.endCoordinates.height);
+      keyboardHeightShared.set(event.endCoordinates.height);
+    });
+    const hide = Keyboard.addListener(hideEvent, () => {
+      setKeyboardVisible(false);
+      setKeyboardHeight(0);
+      keyboardHeightShared.set(0);
+    });
     return () => { show.remove(); hide.remove(); };
-  }, []);
+  }, [keyboardHeightShared]);
+
+  useEffect(() => {
+    if (!keyboardVisible) {
+      setHeightBeforeKeyboard(rootHeight);
+      keyboardOffset.set(withTiming(0, { duration: 180 }));
+      setKeyboardNeedsManualOffset(false);
+      return;
+    }
+    const resizedBy = Math.max(0, heightBeforeKeyboard - rootHeight);
+    const needsManualOffset = resizedBy < keyboardHeight * 0.5;
+    setKeyboardNeedsManualOffset(needsManualOffset);
+    const offset = needsManualOffset ? Math.max(0, keyboardHeight - insets.bottom + 12) : 0;
+    keyboardOffset.set(withTiming(offset, { duration: 180 }));
+  }, [keyboardVisible, keyboardHeight, rootHeight, heightBeforeKeyboard, insets.bottom, keyboardOffset]);
 
   useEffect(() => {
     if (page !== 1) return;
@@ -269,6 +292,7 @@ export default function OnboardingScreen() {
   const saveAllowanceForOnboarding = () => saveAllowanceWithMode("edit_current");
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.get() }] }));
+  const bottomKeyboardStyle = useAnimatedStyle(() => ({ transform: [{ translateY: -keyboardOffset.get() }] }));
   const sharedCoinStyle = useAnimatedStyle(() => {
     const slots = coinSlots.get();
     const hostHeight = Math.max(280, height - insets.top - insets.bottom - 150);
@@ -328,7 +352,7 @@ export default function OnboardingScreen() {
   const availableHeight = height - (Platform.OS === "ios" && keyboardVisible ? keyboardHeight : 0);
   const showSubtitle = availableHeight >= 700;
   const showQuickAmounts = availableHeight >= 640 && !keyboardVisible;
-  const showHelperDetail = availableHeight >= 600;
+  const showHelperDetail = true;
   const compactHeaderCoin = availableHeight < 480;
   const onCoinSlotLayout = useCallback((index: number, offsetX = 0, offsetY = 0) => (event: { nativeEvent: { layout: { x: number; y: number; width: number; height: number } } }) => {
     const layout = event.nativeEvent.layout;
@@ -343,7 +367,7 @@ export default function OnboardingScreen() {
   const scrollHandler = useAnimatedScrollHandler({ onScroll: (event) => { pageProgress.set(event.contentOffset.x / Math.max(1, width)); } });
 
   return (
-    <RNAnimated.View style={[styles.root, { opacity: fade }]}>
+    <RNAnimated.View onLayout={(event) => setRootHeight(event.nativeEvent.layout.height)} style={[styles.root, { opacity: fade }]}>
       <StatusBar style="light" />
       <LinearGradient colors={["#1E40AF", "#2563EB", "#0B1F5C"]} locations={[0, 0.52, 1]} style={StyleSheet.absoluteFill} />
       <View pointerEvents="none" style={[styles.orb, { width: width * 0.9, height: width * 0.9, top: -width * 0.42, right: -width * 0.32 }]} />
@@ -428,7 +452,7 @@ export default function OnboardingScreen() {
               <View style={[styles.allowanceCard, keyboardVisible && styles.allowanceCardKeyboard]}>
                 <Pressable style={[styles.amountLine, keyboardVisible && styles.amountLineCompact]} onPress={() => amountInput.current?.focus()}>
                   <Text maxFontSizeMultiplier={1.2} style={[styles.currencySign, keyboardVisible && styles.currencySignCompact]}>₱</Text>
-                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
+                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const formatted = formatAllowanceInput(raw); setAmount(raw); setAmountSelection({ start: formatted.length, end: formatted.length }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
                 </Pressable>
                 <View style={[styles.periodPill, keyboardVisible && styles.periodPillCompact]} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
                   <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
@@ -443,7 +467,7 @@ export default function OnboardingScreen() {
                   <Text maxFontSizeMultiplier={1.2} style={styles.dateLabel}>Start date</Text>
                   <View style={styles.dateControl} onTouchStart={() => Keyboard.dismiss()}><DateField label="Start date" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
                 </View>
-                <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={[styles.helper, keyboardVisible && styles.helperCompact]}>{showHelperDetail ? `Ends ${formatDate(endDate, false)} · About ${formatMoney(perDay, "PHP")} per day` : `Ends ${formatDate(endDate, false)}`}</Text>
+                <Text maxFontSizeMultiplier={1.2} style={[styles.helper, keyboardVisible && styles.helperCompact]}>{\`Ends \${formatDate(endDate, false)} · About \${formatMoney(perDay, "PHP")} per day\`}</Text>
               </View>
               {showQuickAmounts ? <View style={styles.quickAmounts}>
                 {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => { const next = String(value); setAmount(next); const nextDisplayLength = formatAllowanceInput(next).length; setAmountSelection({ start: nextDisplayLength, end: nextDisplayLength }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
@@ -479,7 +503,7 @@ export default function OnboardingScreen() {
         </Reanimated.View>
       </View>
 
-      <View style={[styles.bottom, { paddingBottom: page === 1 && keyboardVisible ? 12 : insets.bottom + 16, marginBottom: keyboardVisible && Platform.OS === "ios" ? Math.max(0, keyboardHeight - insets.bottom) : 0 }]}>
+      <Reanimated.View style={[styles.bottom, { paddingBottom: page === 1 && keyboardVisible ? (keyboardNeedsManualOffset ? insets.bottom : 12) : insets.bottom + 16 }, page === 1 && keyboardVisible && bottomKeyboardStyle]}>
         {page === 0 ? <View style={styles.noLogin}>
           <SymbolView name={{ ios: "checkmark.shield.fill", android: "verified_user", web: "verified_user" }} tintColor="rgba(255,255,255,0.9)" size={17} />
           <Text maxFontSizeMultiplier={1.2} style={styles.noLoginText}>No login or sign-up needed. Just start.</Text>
@@ -544,7 +568,7 @@ const styles = StyleSheet.create({
   pageOneCoinSlot: { flex: 1, minHeight: 0, marginVertical: 16 },
   allowancePage: { paddingTop: 8, paddingBottom: 0, gap: 0 },
   allowancePageKeyboard: { paddingTop: 0 },
-  allowanceBody: { flex: 1, justifyContent: "center", gap: 12, minHeight: 0 },
+  allowanceBody: { flex: 1, justifyContent: "center", gap: 16, minHeight: 0 },
   allowanceCard: { backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 28, padding: 20, borderWidth: 0, gap: 8 },
   allowanceCardKeyboard: { paddingVertical: 8, gap: 2 },
   allowanceHeading: { height: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
@@ -552,7 +576,7 @@ const styles = StyleSheet.create({
   allowanceHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 34, lineHeight: 40, flex: 1 },
   headerCoinSlot: { width: 64, height: 64, flexShrink: 0 },
   headerCoinSlotCompact: { width: 48, height: 48 },
-  allowanceSubtitle: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 16 },
+  allowanceSubtitle: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_400Regular", fontSize: 15, lineHeight: 20 },
   dateRow: { minHeight: 36, flexDirection: "row", alignItems: "center", gap: 10 },
   dateRowCompact: { minHeight: 26 },
   dateLabel: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 78 },
@@ -570,11 +594,11 @@ const styles = StyleSheet.create({
   periodIndicator: { position: "absolute", top: 4, bottom: 4, left: 4, backgroundColor: WHITE, borderRadius: 999 },
   periodText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 11 },
   periodTextActive: { color: BLUE },
-  helper: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13, lineHeight: 16, textAlign: "center", marginTop: 12, marginBottom: 4 },
-  helperCompact: { fontSize: 12, lineHeight: 14, marginVertical: 2 },
-  quickAmounts: { height: 32, flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", gap: 5 },
-  quickChip: { flex: 1, minWidth: 0, height: 32, paddingHorizontal: 4, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.14)", justifyContent: "center", alignItems: "center" },
-  quickText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
+  helper: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13, lineHeight: 17, textAlign: "center", marginTop: 12, marginBottom: 4 },
+  helperCompact: { fontSize: 12, lineHeight: 16, marginVertical: 2 },
+  quickAmounts: { height: 40, flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", gap: 8, marginTop: 16 },
+  quickChip: { flex: 1, minWidth: 0, height: 40, paddingHorizontal: 4, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.14)", justifyContent: "center", alignItems: "center" },
+  quickText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   error: { color: "#FFE0E0", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   welcomePage: { alignItems: "center", justifyContent: "center", paddingVertical: 8 },
   welcomeStack: { width: "100%", alignItems: "center", justifyContent: "center" },
