@@ -11,7 +11,7 @@ import { SymbolView } from "expo-symbols";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
-import { createTransaction, getAllTransactions, getCategories, getCycles, getSettings, InsufficientFundsError } from "@/data/repository";
+import { createTransaction, getAllTransactions, getCategories, getCycles, getCustomPaymentMethods, getSettings, InsufficientFundsError } from "@/data/repository";
 import { expensesInCycle, cycleForDate } from "@/domain/allowance";
 import { remainingCentavos, validateExpense } from "@/domain/spending-limit";
 import { manilaToday, isValidDate } from "@/domain/dates";
@@ -26,6 +26,7 @@ export default function NewExpenseScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [customMethods, setCustomMethods] = useState<import("@/domain/types").CustomPaymentMethod[]>([]);
   const [currency, setCurrency] = useState("PHP");
   const [displayPreferences, setDisplayPreferences] = useState<SettingsPreferences>(DEFAULT_PREFERENCES);
   const [amount, setAmount] = useState(params.amount ?? "");
@@ -47,12 +48,14 @@ export default function NewExpenseScreen() {
       let active = true;
       async function load() {
         try {
-          const [items, settings, cycles, transactions] = await Promise.all([
-            getCategories(db), getSettings(db), getCycles(db), getAllTransactions(db),
+          const [items, settings, cycles, transactions, methods] = await Promise.all([
+            getCategories(db), getSettings(db), getCycles(db), getAllTransactions(db), getCustomPaymentMethods(db),
           ]);
           if (!active) return;
           setCategories(items.filter((item) => !item.archivedAt));
           setCurrency(settings.currency);
+          setDisplayPreferences(settings.preferences);
+          setCustomMethods(methods);
           setCycles(cycles);
           setTransactions(transactions);
           setCategoryId((current) => current || (settings.preferences.defaultCategoryId && items.some((item) => item.id === settings.preferences.defaultCategoryId && !item.archivedAt) ? settings.preferences.defaultCategoryId : items.find((item) => !item.archivedAt)?.id) || "");
@@ -89,7 +92,7 @@ export default function NewExpenseScreen() {
   const liveFundsMessage = insufficientFunds
     ? selectedCycleRemaining === 0
       ? "You have no allowance left."
-      : `Not enough allowance. You only have ${displayMoney(selectedCycleRemaining ?? 0, currency)} left.`
+      : `Not enough allowance. You only have ${displayMoney(selectedCycleRemaining ?? 0)} left.`
     : fundsError;
 
   useEffect(() => {
@@ -118,7 +121,7 @@ export default function NewExpenseScreen() {
       if (saveError instanceof InsufficientFundsError) {
         setFundsError(saveError.remainingCentavos === 0
           ? "You have no allowance left."
-          : `Not enough allowance. You only have ${displayMoney(saveError.remainingCentavos, currency)} left.`);
+          : `Not enough allowance. You only have ${displayMoney(saveError.remainingCentavos)} left.`);
       } else {
         console.error("Could not save expense:", saveError);
         setError("Your expense could not be saved. Please check the details and try again.");
@@ -176,7 +179,7 @@ export default function NewExpenseScreen() {
           <View style={styles.field}>
             <ThemedText style={[styles.label, { color: theme.text }]}>Paid with</ThemedText>
             <View style={styles.optionGrid}>
-              {PAYMENT_METHODS.map((method) => {
+              {[...PAYMENT_METHODS, ...customMethods.map((method) => ({ value: ("custom:" + method.id) as PaymentMethod, label: method.name }))].map((method) => {
                 const selected = paymentMethod === method.value;
                 return <Pressable key={method.value} onPress={() => setPaymentMethod(method.value)} accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={method.label} style={[styles.option, { backgroundColor: selected ? theme.primarySoft : theme.surface, borderColor: selected ? theme.primary : theme.line }]}>
                   <ThemedText style={[styles.optionText, { color: selected ? theme.primary : theme.text }]}>{method.label}</ThemedText>
