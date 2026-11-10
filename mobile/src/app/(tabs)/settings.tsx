@@ -3,13 +3,13 @@ import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, TextInput, Vie
 import { SymbolView } from "expo-symbols";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSQLiteContext } from "expo-sqlite";
-import { archiveCategory, createCategory, getCategories, reorderCategory, updateCategory } from "@/data/repository";
+import { archiveCategory, createCategory, createCustomPaymentMethod, deleteCustomPaymentMethod, getCategories, getCustomPaymentMethods, renameCustomPaymentMethod, reorderCategory, updateCategory } from "@/data/repository";
 import Constants from "expo-constants";
 import { ScreenLayout } from "@/components/screen-layout";
 import { ThemedText } from "@/components/themed-text";
 import { navBarSpace } from "@/constants/layout";
 import { useSettings } from "@/hooks/use-settings";
-import type { Category, SettingsPreferences, CurrencyCode } from "@/domain/types";
+import type { Category, CustomPaymentMethod, SettingsPreferences, CurrencyCode } from "@/domain/types";
 
 type IconName = ComponentProps<typeof SymbolView>["name"];
 type PrefKey = keyof SettingsPreferences;
@@ -71,6 +71,10 @@ export default function SettingsScreen() {
   const [categoryName, setCategoryName] = useState("");
   const [categoryColor, setCategoryColor] = useState("#3B82F6");
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [methodsOpen, setMethodsOpen] = useState(false);
+  const [methods, setMethods] = useState<CustomPaymentMethod[]>([]);
+  const [methodName, setMethodName] = useState("");
+  const [editingMethod, setEditingMethod] = useState<string | null>(null);
   const version = Constants.expoConfig?.version ?? "1.0.0";
 
   const choose = (key: PrefKey, title: string, values: string[]) => {
@@ -94,6 +98,28 @@ export default function SettingsScreen() {
       else await createCategory(db, categoryName, categoryColor);
       setCategories(await getCategories(db)); setCategoryName(""); setEditingCategory(null);
     } catch (error) { Alert.alert("Could not save category", error instanceof Error ? error.message : "Please try again."); }
+  };
+  const openMethods = async () => {
+    try { setMethods(await getCustomPaymentMethods(db)); setMethodName(""); setEditingMethod(null); setMethodsOpen(true); }
+    catch (error) { console.error("Could not load payment methods:", error); Alert.alert("Payment methods unavailable", "Please try again."); }
+  };
+  const saveMethod = async () => {
+    try {
+      if (editingMethod) await renameCustomPaymentMethod(db, editingMethod, methodName);
+      else await createCustomPaymentMethod(db, methodName);
+      setMethods(await getCustomPaymentMethods(db)); setMethodName(""); setEditingMethod(null);
+    } catch (error) { Alert.alert("Could not save payment method", error instanceof Error ? error.message : "Please try again."); }
+  };
+  const chooseDefaultMethod = () => {
+    const options = [
+      { value: "cash", label: "Cash" }, { value: "gcash", label: "GCash" },
+      { value: "maya", label: "Maya" }, { value: "bank_transfer", label: "Bank" }, { value: "other", label: "Other" },
+      ...methods.map((item) => ({ value: "custom:" + item.id, label: item.name })),
+    ];
+    Alert.alert("Default payment method", "Choose the method preselected for new expenses.", [
+      ...options.map((item) => ({ text: item.label + (settings?.preferences.defaultPaymentMethod === item.value ? "  ✓" : ""), onPress: () => settings && void update({ preferences: { ...settings.preferences, defaultPaymentMethod: item.value as SettingsPreferences["defaultPaymentMethod"] } }) })),
+      { text: "Cancel", style: "cancel" },
+    ]);
   };
   const chooseCategory = async () => {
     if (!settings) return;
@@ -132,9 +158,9 @@ export default function SettingsScreen() {
 
         <Section title="Expenses">
           <SettingRow icon="square.grid.2x2" title="Categories" subtitle="Add, rename, recolor, reorder or archive" onPress={() => void openCategories()} />
-          <SettingRow icon="creditcard" title="Payment methods" subtitle="Cash, GCash, Maya, Bank and Other" disabled />
+          <SettingRow icon="creditcard" title="Payment methods" subtitle="Manage built-in and custom methods" onPress={() => void openMethods()} />
           <SettingRow icon="tag" title="Default category" value={settings.preferences.defaultCategoryId || "First available"} onPress={() => void chooseCategory()} />
-          <SettingRow icon="creditcard" title="Default payment method" value={value("defaultPaymentMethod")} onPress={() => choose("defaultPaymentMethod", "Default payment method", ["cash", "gcash", "maya", "bank_transfer", "other"])} />
+          <SettingRow icon="creditcard" title="Default payment method" value={methods.find((item) => settings.preferences.defaultPaymentMethod === "custom:" + item.id)?.name ?? value("defaultPaymentMethod")} onPress={chooseDefaultMethod} />
         </Section>
 
         <Section title="Notifications">
@@ -192,6 +218,20 @@ export default function SettingsScreen() {
         </Section> : null}
       </>}
     </ScrollView>
+
+    <Modal visible={methodsOpen} animationType="slide" transparent onRequestClose={() => setMethodsOpen(false)}>
+      <View style={styles.modalBackdrop}><View style={styles.modalCard}>
+        <View style={styles.modalHeader}><ThemedText style={styles.modalTitle}>Payment methods</ThemedText><Pressable accessibilityRole="button" accessibilityLabel="Close payment methods" onPress={() => setMethodsOpen(false)}><ThemedText style={styles.modalClose}>Done</ThemedText></Pressable></View>
+        <ThemedText style={styles.note}>Built-in methods: Cash, GCash, Maya, Bank and Other. Add your own below.</ThemedText>
+        {methods.map((item) => <View key={item.id} style={styles.categoryItem}>
+          <Pressable style={styles.categoryNameArea} accessibilityRole="button" accessibilityLabel={"Rename " + item.name} onPress={() => { setEditingMethod(item.id); setMethodName(item.name); }}><ThemedText style={styles.rowTitle}>{item.name}</ThemedText></Pressable>
+          <Pressable style={styles.smallAction} accessibilityRole="button" accessibilityLabel={"Delete " + item.name} onPress={() => Alert.alert("Remove payment method?", "Past expenses will keep this method in their history.", [{ text: "Cancel", style: "cancel" }, { text: "Remove", style: "destructive", onPress: async () => { await deleteCustomPaymentMethod(db, item.id); setMethods(await getCustomPaymentMethods(db)); if (settings.preferences.defaultPaymentMethod === "custom:" + item.id) void update({ preferences: { ...settings.preferences, defaultPaymentMethod: "cash" } }); } }])}><SymbolView name="trash" size={17} tintColor="#DC2626" /></Pressable>
+        </View>)}
+        <ThemedText style={styles.editorHeading}>{editingMethod ? "RENAME METHOD" : "NEW METHOD"}</ThemedText>
+        <TextInput value={methodName} onChangeText={setMethodName} placeholder="e.g. Credit card" placeholderTextColor="#94A3B8" style={styles.categoryInput} maxLength={32} accessibilityLabel="Payment method name" />
+        <View style={styles.modalActions}><Pressable style={styles.secondaryButton} onPress={() => { setEditingMethod(null); setMethodName(""); }}><ThemedText style={styles.secondaryButtonText}>New</ThemedText></Pressable><Pressable style={styles.primaryButton} onPress={() => void saveMethod()}><ThemedText style={styles.primaryButtonText}>{editingMethod ? "Save changes" : "Add method"}</ThemedText></Pressable></View>
+      </View></View>
+    </Modal>
   </ScreenLayout>;
 }
 
