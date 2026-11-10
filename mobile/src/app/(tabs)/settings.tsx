@@ -64,8 +64,6 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const db = useSQLiteContext();
   const { settings, loading, update } = useSettings();
-  const [versionTaps, setVersionTaps] = useState(0);
-  const [developerVisible, setDeveloperVisible] = useState(__DEV__);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryName, setCategoryName] = useState("");
@@ -148,77 +146,28 @@ export default function SettingsScreen() {
     <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}
       contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) + 32 }]}>
       {loading || !settings ? <ThemedText style={styles.loading}>Loading settings…</ThemedText> : <>
-        <Section title="Regional">
+        <Section title="Preferences">
           <SettingRow icon="dollarsign.circle" title="Currency" value={currencyOptions.find((item) => item.code === settings.currency)?.label ?? settings.currency} onPress={chooseCurrency} />
           <SettingRow icon="number" title="Number format" value={value("numberFormat")} onPress={() => choose("numberFormat", "Number format", ["comma", "dot"])} />
-          <SettingRow icon="textformat" title="Currency symbol placement" value={value("symbolPlacement")} onPress={() => choose("symbolPlacement", "Currency symbol placement", ["before", "after", "hidden"])} />
+          <SettingRow icon="textformat" title="Currency symbol" value={value("symbolPlacement")} onPress={() => choose("symbolPlacement", "Currency symbol", ["before", "after", "hidden"])} />
           <SettingRow icon="123.rectangle" title="Show decimals" toggle={{ value: settings.preferences.showDecimals, onChange: (v) => toggle("showDecimals", v) }} />
           <SettingRow icon="calendar" title="Date format" value={value("dateFormat")} onPress={() => choose("dateFormat", "Date format", ["DMY", "MDY", "YMD", "DMMM"])} />
-          <SettingRow icon="calendar.badge.clock" title="First day of the week" value={value("firstDayOfWeek")} onPress={() => choose("firstDayOfWeek", "First day of the week", ["sunday", "monday"])} />
+          <SettingRow icon="calendar.badge.clock" title="Week starts on" value={value("firstDayOfWeek")} onPress={() => choose("firstDayOfWeek", "Week starts on", ["sunday", "monday"])} />
         </Section>
-
         <Section title="Expenses">
-          <SettingRow icon="square.grid.2x2" title="Categories" subtitle="Add, rename, recolor, reorder or archive" onPress={() => void openCategories()} />
-          <SettingRow icon="creditcard" title="Payment methods" subtitle="Manage built-in and custom methods" onPress={() => void openMethods()} />
+          <SettingRow icon="square.grid.2x2" title="Categories" subtitle="Manage your expense categories" onPress={() => void openCategories()} />
+          <SettingRow icon="creditcard" title="Payment methods" subtitle="Manage custom payment methods" onPress={() => void openMethods()} />
           <SettingRow icon="tag" title="Default category" value={settings.preferences.defaultCategoryId || "First available"} onPress={() => void chooseCategory()} />
-          <SettingRow icon="creditcard" title="Default payment method" value={methods.find((item) => settings.preferences.defaultPaymentMethod === "custom:" + item.id)?.name ?? value("defaultPaymentMethod")} onPress={chooseDefaultMethod} />
+          <SettingRow icon="creditcard" title="Default payment" value={methods.find((item) => settings.preferences.defaultPaymentMethod === "custom:" + item.id)?.name ?? value("defaultPaymentMethod")} onPress={chooseDefaultMethod} />
         </Section>
-
-        <Section title="Notifications">
-          <SettingRow icon="bell.badge" title="Budget alert at 80%" toggle={{ value: settings.preferences.budgetAlert80, onChange: (v) => toggle("budgetAlert80", v) }} />
-          <SettingRow icon="bell" title="Budget alert at 100%" toggle={{ value: settings.preferences.budgetAlert100, onChange: (v) => toggle("budgetAlert100", v) }} />
-          <SettingRow icon="sun.max" title="Daily reminder" subtitle={settings.preferences.dailyReminderTime} toggle={{ value: settings.preferences.dailyReminderEnabled, onChange: (v) => toggle("dailyReminderEnabled", v) }} />
-          <SettingRow icon="calendar.badge.clock" title="Weekly summary" subtitle={"Every " + ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][settings.preferences.weeklySummaryDay] + " · " + settings.preferences.weeklySummaryTime} toggle={{ value: settings.preferences.weeklySummary, onChange: (v) => toggle("weeklySummary", v) }} />
-          <SettingRow icon="moon" title="Quiet hours" subtitle={settings.preferences.quietHoursStart + " – " + settings.preferences.quietHoursEnd} toggle={{ value: settings.preferences.quietHoursEnabled, onChange: (v) => toggle("quietHoursEnabled", v) }} />
-          <ThemedText style={styles.note}>Notification delivery and time pickers are not connected yet; these preferences are saved locally.</ThemedText>
-        </Section>
-
-        <Section title="Appearance and feel">
-          <SettingRow icon="textformat.size" title="Text size" value={value("textSize")} onPress={() => choose("textSize", "Text size", ["default", "large"])} />
-          <SettingRow icon="hand.tap" title="Haptic feedback" toggle={{ value: settings.preferences.haptics, onChange: (v) => toggle("haptics", v) }} />
-          <SettingRow icon="figure.walk.motion" title="Reduce motion" toggle={{ value: settings.preferences.reduceMotion, onChange: (v) => toggle("reduceMotion", v) }} />
-        </Section>
-
-        <Section title="Privacy and security">
-          <SettingRow icon="lock" title="App lock" subtitle="Passcode or biometrics · Not configured" disabled />
-          <SettingRow icon="eye.slash" title="Hide balance" subtitle="Balance privacy preference" toggle={{ value: settings.preferences.hideBalance, onChange: (v) => toggle("hideBalance", v) }} />
-          <SettingRow icon="rectangle.on.rectangle.slash" title="Hide app preview" subtitle="App switcher privacy preference" toggle={{ value: settings.preferences.hideAppPreview, onChange: (v) => toggle("hideAppPreview", v) }} />
-        </Section>
-
-        <Section title="Data">
-          <SettingRow icon="arrow.up.doc" title="Back up data" subtitle="Backup workflow not available yet" disabled />
-          <SettingRow icon="arrow.down.doc" title="Restore from backup" subtitle="Restore workflow not available yet" disabled />
-          <SettingRow icon="tablecells" title="Export to CSV" subtitle="CSV export workflow not available yet" disabled />
-          <SettingRow icon="square.and.arrow.down" title="Import from CSV" subtitle="CSV import workflow not available yet" disabled />
-          <SettingRow icon="internaldrive" title="Storage used" value="Not calculated yet" />
-          <SettingRow icon="trash" title="Delete all data" subtitle="Data deletion workflow not available yet" danger disabled />
-        </Section>
-
-        <Section title="Gastador Unlock">
-          <SettingRow icon="lock.open" title="Unlock Gastador" subtitle="Purchases are not configured yet" disabled />
-          <SettingRow icon="arrow.clockwise" title="Restore purchases" subtitle="Purchases are not configured yet" disabled />
-          <ThemedText style={styles.note}>Your personal data and exports are never locked.</ThemedText>
-        </Section>
-
-        <Section title="Help and about">
-          <SettingRow icon="book" title="How it works" subtitle="Replay the welcome walkthrough" onPress={() => Alert.alert("How it works", "Use Developer → Replay onboarding to restart the walkthrough.")} />
-          <SettingRow icon="envelope" title="Send feedback" subtitle="Feedback email is not configured yet" disabled />
-          <SettingRow icon="hand.raised" title="Privacy policy" subtitle="Policy URL is not configured yet" disabled />
-          <SettingRow icon="doc.text" title="Terms" subtitle="Terms URL is not configured yet" disabled />
+        <Section title="About">
+          <SettingRow icon="book" title="How Gastador works" subtitle="View the app walkthrough" onPress={() => Alert.alert("How it works", "The welcome walkthrough is available when you first set up Gastador.")} />
           <SettingRow icon="doc.text.magnifyingglass" title="Open-source licenses" onPress={() => Alert.alert("Open-source licenses", "License details are available from the third-party packages used by Gastador.")} />
-          <Pressable style={styles.versionRow} accessibilityRole="button" accessibilityLabel={"Version " + version + ". Tap seven times to reveal developer options."} onPress={() => { const next = versionTaps + 1; setVersionTaps(next); if (next >= 7) setDeveloperVisible(true); }}>
+          <View style={styles.versionRow}>
             <ThemedText style={styles.rowTitle}>Version</ThemedText><ThemedText style={styles.rowValue}>{version}</ThemedText>
-          </Pressable>
+          </View>
         </Section>
-
-        {developerVisible ? <Section title="Developer">
-          <SettingRow icon="arrow.counterclockwise" title="Replay onboarding" onPress={() => Alert.alert("Replay onboarding", "The onboarding reset action is not connected yet.")} />
-          <SettingRow icon="flag" title="Reset onboarding flag" disabled />
-          <SettingRow icon="lock.open" title="Toggle unlocked" disabled />
-          <SettingRow icon="tray.and.arrow.down" title="Seed sample data" disabled />
-        </Section> : null}
-      </>}
-    </ScrollView>
+      </>}    </ScrollView>
 
     <Modal visible={methodsOpen} animationType="slide" transparent onRequestClose={() => setMethodsOpen(false)}>
       <View style={styles.modalBackdrop}><View style={styles.modalCard}>
