@@ -1,9 +1,10 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 import { STANDARD_CATEGORIES } from "../domain/categories";
 import { defaultSettings } from "../domain/types";
+import { convertLegacyCycleDate, rangesOverlapInclusive } from "../domain/cycle-dates";
 
 export const DB_NAME = "gastador.db";
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
   await db.execAsync(`
@@ -109,7 +110,7 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
     await db.execAsync("ALTER TABLE settings ADD COLUMN hasOnboarded INTEGER NOT NULL DEFAULT 0");
     await db.execAsync("UPDATE settings SET hasOnboarded = 1");
   }
-  await db.execAsync("PRAGMA user_version = 2");
+  if (!settingColumns.some((column) => column.name === "cycleDateMigrationVersion")) {\n    await db.execAsync("ALTER TABLE settings ADD COLUMN cycleDateMigrationVersion INTEGER NOT NULL DEFAULT 0");\n  }\n  if (!settingColumns.some((column) => column.name === "cycleReviewNoticePending")) {\n    await db.execAsync("ALTER TABLE settings ADD COLUMN cycleReviewNoticePending INTEGER NOT NULL DEFAULT 0");\n  }\n  const cycleColumns = await db.getAllAsync<{ name: string }>("PRAGMA table_info(cycles)");\n  if (!cycleColumns.some((column) => column.name === "needsReview")) {\n    await db.execAsync("ALTER TABLE cycles ADD COLUMN needsReview INTEGER NOT NULL DEFAULT 0");\n  }
 
   // Seed default settings only when the app has no settings yet.
   const now = new Date().toISOString();
@@ -137,7 +138,81 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
     settings.createdAt,
   );
 
-  // Seed standard categories without duplicating them.
+
+  // One-time cycle date normalization. All row backups, conversions, conflict flags,
+  // and both schema-version markers are committed atomically.
+  const migrationState = await db.getFirstAsync<{ cycleDateMigrationVersion: number }>(
+    "SELECT cycleDateMigrationVersion FROM settings WHERE id = 1",
+  );
+  if ((migrationState?.cycleDateMigrationVersion ?? 0) < 1) {
+    let failedCycleId: string | null = null;
+    try {
+      await db.withTransactionAsync(async () => {
+        const rows = await db.getAllAsync<{ id: string; startDate: string; endDate: string }>(
+          "SELECT id, startDate, endDate FROM cycles ORDER BY id",
+        );
+        await db.execAsync(`
+          CREATE TABLE IF NOT EXISTS cycle_date_backup (
+            cycle_id TEXT PRIMARY KEY NOT NULL,
+            old_start TEXT NOT NULL,
+            old_end TEXT NOT NULL,
+            migrated_at TEXT NOT NULL
+          );
+        `);
+        const migratedAt = new Date().toISOString();
+        let converted = 0;
+        let skipped = 0;
+        for (const row of rows) {
+          failedCycleId = row.id;
+          await db.runAsync(
+            "INSERT OR IGNORE INTO cycle_date_backup (cycle_id, old_start, old_end, migrated_at) VALUES (?, ?, ?, ?)",
+            row.id, row.startDate, row.endDate, migratedAt,
+          );
+          const start = convertLegacyCycleDate(row.startDate);
+          const end = convertLegacyCycleDate(row.endDate);
+          if (!start.ok || !end.ok) {
+            throw new Error(`Unable to normalize cycle dates for cycle ${row.id}`);
+          }
+          if (start.changed || end.changed) {
+            await db.runAsync(
+              "UPDATE cycles SET startDate = ?, endDate = ? WHERE id = ?",
+              start.date, end.date, row.id,
+            );
+            converted += 1;
+          } else {
+            skipped += 1;
+          }
+        }
+        const normalized = await db.getAllAsync<{ id: string; startDate: string; endDate: string }>(
+          "SELECT id, startDate, endDate FROM cycles ORDER BY startDate, id",
+        );
+        await db.runAsync("UPDATE cycles SET needsReview = 0");
+        const conflicts: Array<[string, string]> = [];
+        for (let i = 0; i < normalized.length; i += 1) {
+          for (let j = i + 1; j < normalized.length; j += 1) {
+            if (rangesOverlapInclusive(normalized[i], normalized[j])) {
+              conflicts.push([normalized[i].id, normalized[j].id]);
+              await db.runAsync("UPDATE cycles SET needsReview = 1 WHERE id IN (?, ?)", normalized[i].id, normalized[j].id);
+              console.warn("[cycle-date-migration] overlap conflict", normalized[i].id, normalized[j].id);
+            }
+          }
+        }
+        await db.runAsync(
+          "UPDATE settings SET cycleDateMigrationVersion = 1, cycleReviewNoticePending = ? WHERE id = 1",
+          Number(conflicts.length > 0),
+        );
+        await db.execAsync("PRAGMA user_version = 3");
+        console.info("[cycle-date-migration] complete", {
+          scanned: rows.length, converted, skipped, conflicts: conflicts.length,
+        });
+      });
+    } catch (error) {
+      console.error("[cycle-date-migration] rolled back; failed cycle:", failedCycleId, error);
+      // Keep launch available; the migration version remains unchanged for a safe retry.
+    }
+  }
+
+    // Seed standard categories without duplicating them.
   for (const [index, category] of STANDARD_CATEGORIES.entries()) {
     await db.runAsync(
       `INSERT OR IGNORE INTO categories (
