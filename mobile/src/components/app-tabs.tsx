@@ -153,7 +153,10 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
                   icon={options?.tabBarIcon?.({ focused, color: focused ? "#2563EB" : "#64748B", size: 24 })}
                   onPress={() => {
                     const event = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-                    if (!focused && !event.defaultPrevented) navigateToTab(route.key);
+                    if (!focused && !event.defaultPrevented) {
+                      if (route.name === "insights") router.push("/?panel=insight");
+                      else navigateToTab(route.key);
+                    }
                   }}
                 />
               );
@@ -172,7 +175,10 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
                   icon={options?.tabBarIcon?.({ focused, color: focused ? "#2563EB" : "#9A9A9A", size: 24 })}
                   onPress={() => {
                     const event = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-                    if (!focused && !event.defaultPrevented) navigateToTab(route.key);
+                    if (!focused && !event.defaultPrevented) {
+                      if (route.name === "insights") router.push("/?panel=insight");
+                      else navigateToTab(route.key);
+                    }
                   }}
                 />
               );
