@@ -88,3 +88,27 @@ export function ratioPercent(part: Centavos, whole: Centavos): number {
   return Math.round((part * 1000) / whole) / 10;
 }
 
+export type MoneyDisplayPreferences = {
+  numberFormat: "comma" | "dot";
+  symbolPlacement: "before" | "after" | "hidden";
+  showDecimals: boolean;
+};
+
+const CURRENCY_SYMBOLS: Record<string, string> = { PHP: "₱", USD: "$", EUR: "€", SGD: "$" };
+
+export function formatMoneyWithPreferences(
+  value: Centavos,
+  currency: string,
+  preferences: MoneyDisplayPreferences,
+): string {
+  const absolute = Math.abs(value) / 100;
+  const number = new Intl.NumberFormat(preferences.numberFormat === "comma" ? "en-US" : "de-DE", {
+    minimumFractionDigits: preferences.showDecimals ? 2 : 0,
+    maximumFractionDigits: preferences.showDecimals ? 2 : 0,
+  }).format(absolute);
+  const symbol = CURRENCY_SYMBOLS[currency] ?? currency;
+  const amount = preferences.symbolPlacement === "hidden"
+    ? number
+    : preferences.symbolPlacement === "after" ? number + " " + symbol : symbol + number;
+  return (value < 0 ? "-" : "") + amount;
+}
