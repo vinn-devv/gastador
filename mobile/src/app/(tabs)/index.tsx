@@ -371,7 +371,8 @@ export default function HomeScreen() {
   const spendable = summary?.spendableCentavos ?? 0;
   const rawSpentPercent =
     spendable > 0 ? Math.max(0, (summary!.spentCentavos / spendable) * 100) : 0;
-  const spentPercent = Math.min(100, rawSpentPercent);
+  const isOverspent = remaining < 0;
+  const spentPercent = isOverspent ? 100 : Math.min(100, rawSpentPercent);
   const formattedBalance = formatMoney(summary ? animatedRemaining : 0, currency);
   const balanceFirstDigit = formattedBalance.search(/\d/);
   const balancePrefix =
@@ -461,15 +462,17 @@ export default function HomeScreen() {
   );
 
   const displayPercent =
-    rawSpentPercent === 0
+    isOverspent && spendable <= 0
+      ? "100%"
+      : rawSpentPercent === 0
       ? "0%"
       : rawSpentPercent >= 10
         ? `${Math.round(rawSpentPercent)}%`
         : rawSpentPercent >= 1
           ? `${rawSpentPercent.toFixed(1)}%`
           : `${rawSpentPercent.toFixed(2)}%`;
-  const ringColor = rawSpentPercent > 100 ? "#F87171" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
-  const ringGradientStart = rawSpentPercent > 100 ? "#FDA4AF" : rawSpentPercent > 80 ? "#FDE68A" : "#60A5FA";
+  const ringColor = isOverspent ? "#F87171" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
+  const ringGradientStart = isOverspent ? "#FDA4AF" : rawSpentPercent > 80 ? "#FDE68A" : "#60A5FA";
 
   return (
     <>
