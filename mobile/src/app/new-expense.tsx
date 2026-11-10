@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
@@ -36,7 +36,7 @@ export default function NewExpenseScreen() {
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [fundsError, setFundsError] = useState("");
-  const [invalidHapticSent, setInvalidHapticSent] = useState(false);
+  const invalidHapticSent = useRef(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -90,13 +90,13 @@ export default function NewExpenseScreen() {
     : fundsError;
 
   useEffect(() => {
-    if (insufficientFunds && !invalidHapticSent) {
+    if (insufficientFunds && !invalidHapticSent.current) {
+      invalidHapticSent.current = true;
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      setInvalidHapticSent(true);
-    } else if (!insufficientFunds && invalidHapticSent) {
-      setInvalidHapticSent(false);
+    } else if (!insufficientFunds) {
+      invalidHapticSent.current = false;
     }
-  }, [insufficientFunds, invalidHapticSent]);
+  }, [insufficientFunds]);
 
   async function save() {
     const cents = parsedAmount;
