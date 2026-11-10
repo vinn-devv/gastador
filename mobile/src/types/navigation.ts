@@ -8,7 +8,7 @@ export type RootStackParamList = {
 
 export type TabParamList = {
   index: undefined;
-  allowance: undefined;
+  activity: undefined;
   insights: undefined;
   settings: undefined;
 };
