@@ -15,8 +15,8 @@ export type CsvExportOptions = {
 /** Quote every field and neutralise spreadsheet formula injection. */
 export function csvCell(value: unknown): string {
   let text = String(value ?? "");
-  if (/^[\\t\\r ]*[=+\\-@]/.test(text)) text = `'${text}`;
-  return `"${text.replace(/"/g, '""')}"`;
+  if (/^[\t\r ]*[=+\-@]/.test(text)) text = \`'\${text}\`;
+  return \`"\${text.replace(/"/g, '""')}"\`;
 }
 
 export function filterTransactionsForCsv(
@@ -61,5 +61,5 @@ export function transactionsToCsv(
   });
 
   // UTF-8 BOM helps spreadsheet apps recognise the file's encoding.
-  return `\\uFEFF${[columns.map(csvCell).join(","), ...rows].join("\\r\\n")}`;
+  return \`\uFEFF\${[columns.map(csvCell).join(","), ...rows].join("\r\n")}\`;
 }
