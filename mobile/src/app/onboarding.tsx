@@ -32,7 +32,7 @@ import Reanimated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DateField } from "@/components/date-field";
-import { saveSettings, getSettings, createCycle } from "@/data/repository";
+import { saveSettings, getSettings, saveAllowance, CycleOverlapError } from "@/data/repository";
 import { addDays, addMonths, daysInclusive, formatDate, manilaToday } from "@/domain/dates";
 import { formatMoney } from "@/domain/money";
 
@@ -90,6 +90,7 @@ export default function OnboardingScreen() {
   const [savedAmount, setSavedAmount] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [overlapPrompt, setOverlapPrompt] = useState(false);
 
   const numericAmount = Number(amount || "0");
   const endDate = useMemo(() => endFor(startDate, period), [startDate, period]);
@@ -174,27 +175,36 @@ export default function OnboardingScreen() {
     void finish();
   };
 
-  const saveAllowance = async () => {
+  const saveAllowanceWithMode = async (mode: "edit_current" | "start_next" = "edit_current") => {
     if (numericAmount <= 0 || saving) return;
     setSaving(true);
     setError("");
+    setOverlapPrompt(false);
     try {
-      await createCycle(db, {
+      await saveAllowance(db, {
         name: "Allowance",
-        frequency: period,
+        period,
         startDate,
-        endDate,
-        allowanceCentavos: numericAmount * 100,
+        lengthDays: days,
+        amountCentavos: numericAmount * 100,
+        mode,
       });
       setAllowanceSaved(true);
       setSavedAmount(numericAmount * 100);
       moveTo(2);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Couldn't save your allowance. Please try again.");
+      if (e instanceof CycleOverlapError) {
+        setError("You already have an allowance for these dates. Update it or start the next cycle.");
+        setOverlapPrompt(true);
+      } else {
+        setError(e instanceof Error ? e.message : "Couldn't save your allowance. Please try again.");
+      }
     } finally {
       setSaving(false);
     }
   };
+
+  const saveAllowanceForOnboarding = () => saveAllowanceWithMode("edit_current");
 
   const coinStyle = useAnimatedStyle(() => {
     const progress = pageProgress.value;
@@ -348,7 +358,17 @@ export default function OnboardingScreen() {
                   </Pressable>
                 ))}
               </View>
-              {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
+              {!!error && <View style={{ gap: 8 }}>
+                <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>
+                {overlapPrompt ? <View style={{ flexDirection: "row", gap: 8 }}>
+                  <Pressable onPress={() => void saveAllowanceWithMode("edit_current")} style={{ paddingVertical: 10, paddingHorizontal: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.18)" }}>
+                    <Text style={{ color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 }}>Update current</Text>
+                  </Pressable>
+                  <Pressable onPress={() => void saveAllowanceWithMode("start_next")} style={{ paddingVertical: 10, paddingHorizontal: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.18)" }}>
+                    <Text style={{ color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 }}>Start next cycle</Text>
+                  </Pressable>
+                </View> : null}
+              </View>}
             </ScrollView>
           </View>
 
