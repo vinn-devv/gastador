@@ -119,7 +119,8 @@ export async function getCycles(db: SQLiteDatabase): Promise<Cycle[]> {
       allowanceCentavos,
       carryoverCentavos,
       plannedSavingsCentavos,
-      createdAt
+      createdAt,
+      needsReview
     FROM cycles
     ORDER BY startDate DESC`,
   );
@@ -335,4 +336,15 @@ export async function createCycle(
     savings,
     now,
   );
+}
+
+export async function consumeCycleReviewNotice(db: SQLiteDatabase): Promise<boolean> {
+  return db.withTransactionAsync(async () => {
+    const row = await db.getFirstAsync<{ cycleReviewNoticePending: number }>(
+      "SELECT cycleReviewNoticePending FROM settings WHERE id = 1",
+    );
+    if (!row?.cycleReviewNoticePending) return false;
+    await db.runAsync("UPDATE settings SET cycleReviewNoticePending = 0 WHERE id = 1");
+    return true;
+  }).then(async (result) => Boolean(result));
 }
