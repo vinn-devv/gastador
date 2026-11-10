@@ -4,7 +4,6 @@ import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { SHEET_GAP } from "@/constants/layout";
 import { useTheme } from "@/hooks/use-theme";
 
 type ScreenLayoutProps = {
@@ -15,7 +14,7 @@ type ScreenLayoutProps = {
   stackScreen?: boolean;
 };
 
-export function ScreenLayout({ title, subtitle, children, onBack, stackScreen = false }: ScreenLayoutProps) {
+export function ScreenLayout({ title, subtitle, children, onBack }: ScreenLayoutProps) {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
 
@@ -35,7 +34,7 @@ export function ScreenLayout({ title, subtitle, children, onBack, stackScreen = 
           <ScreenSubtitle>{subtitle}</ScreenSubtitle>
         </View>
       </View>
-      <View style={[styles.sheet, { marginBottom: SHEET_GAP + (stackScreen ? insets.bottom : 0) }]}>{children}</View>
+      <View style={[styles.sheet, { marginBottom: 0 }]}>{children}</View>
     </View>
   );
 }
@@ -58,8 +57,8 @@ const styles = StyleSheet.create({
   headerText: { gap: 4 },
   titleRow: { minHeight: 34, flexDirection: "row", alignItems: "center", gap: 10 },
   backButton: { width: 36, height: 36, alignItems: "center", justifyContent: "center", marginLeft: -8 },
-  title: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 25, lineHeight: 32 },
-  subtitle: { color: "rgba(255,255,255,0.82)", fontFamily: "IBMPlexSans_400Regular", fontSize: 13, lineHeight: 19 },
+  title: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 30, lineHeight: 38 },
+  subtitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, lineHeight: 20 },
   sheet: {
     flex: 1,
     minHeight: 0,
