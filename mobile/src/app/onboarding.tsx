@@ -308,8 +308,14 @@ export default function OnboardingScreen() {
   const showQuickAmounts = height >= 720 && !keyboardVisible;
   const showSubtitle = height >= 700 && !keyboardVisible;
   const showHelperDetail = height >= 620 && !keyboardVisible;
-  const onCoinSlotLayout = useCallback((index: number) => (event: { nativeEvent: { layout: { x: number; y: number; width: number; height: number } } }) => {
-    const next = coinSlots.get().map((slot, i) => i === index ? event.nativeEvent.layout : slot);
+  const onCoinSlotLayout = useCallback((index: number, offsetX = 0, offsetY = 0) => (event: { nativeEvent: { layout: { x: number; y: number; width: number; height: number } } }) => {
+    const layout = event.nativeEvent.layout;
+    const next = coinSlots.get().map((slot, i) => i === index ? { ...layout, x: layout.x + offsetX, y: layout.y + offsetY } : slot);
+    coinSlots.set(next);
+  }, [coinSlots]);
+  const onWelcomeStackLayout = useCallback((event: { nativeEvent: { layout: { x: number; y: number; width: number } } }) => {
+    const layout = event.nativeEvent.layout;
+    const next = coinSlots.get().map((slot, i) => i === 2 ? { x: layout.x + (layout.width - 230) / 2, y: layout.y, width: 230, height: 236 } : slot);
     coinSlots.set(next);
   }, [coinSlots]);
   const scrollHandler = useAnimatedScrollHandler({ onScroll: (event) => { pageProgress.set(event.contentOffset.x / Math.max(1, width)); } });
@@ -392,7 +398,7 @@ export default function OnboardingScreen() {
             <Pressable pointerEvents="box-only" onPress={Keyboard.dismiss} style={StyleSheet.absoluteFill} />
             <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
-              <View style={styles.headerCoinSlot} onLayout={onCoinSlotLayout(1)} />
+              <View style={styles.headerCoinSlot} onLayout={onCoinSlotLayout(1, 24, 0)} />
             </View>
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
             <Pressable style={styles.amountLine} onPress={() => amountInput.current?.focus()}>
@@ -420,7 +426,7 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={[styles.page, styles.welcomePage, { width }]}>
-            <View style={styles.welcomeStack}>
+            <View style={styles.welcomeStack} onLayout={onWelcomeStackLayout}>
               <View style={styles.welcomeVisual}>
                 <View style={styles.welcomeCoinSlot} onLayout={onCoinSlotLayout(2)} />
               </View>
