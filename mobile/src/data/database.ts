@@ -33,6 +33,12 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
       createdAt TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS payment_methods (
+      id TEXT PRIMARY KEY NOT NULL,
+      name TEXT NOT NULL COLLATE NOCASE UNIQUE,
+      createdAt TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS cycles (
       id TEXT PRIMARY KEY NOT NULL,
       name TEXT NOT NULL,
