@@ -186,7 +186,7 @@ export default function NewExpenseScreen() {
           </View>
 
           <View style={styles.field}>
-            <DateField label="Date" value={date} onChange={(value) => { setDate(value); setDateError(""); setFundsError(""); }} maximumDate={manilaToday()} error={dateError} />
+            <DateField label="Date" dateFormat={displayPreferences.dateFormat} value={date} onChange={(value) => { setDate(value); setDateError(""); setFundsError(""); }} maximumDate={manilaToday()} error={dateError} />
           </View>
           <View style={styles.field}>
             <ThemedText style={[styles.label, { color: theme.text }]}>Note (optional)</ThemedText>
