@@ -352,7 +352,7 @@ export default function OnboardingScreen() {
   const availableHeight = height - (Platform.OS === "ios" && keyboardVisible ? keyboardHeight : 0);
   const showSubtitle = availableHeight >= 700;
   const showQuickAmounts = availableHeight >= 640 && !keyboardVisible;
-  const showHelperDetail = true;
+
   const compactHeaderCoin = availableHeight < 480;
   const onCoinSlotLayout = useCallback((index: number, offsetX = 0, offsetY = 0) => (event: { nativeEvent: { layout: { x: number; y: number; width: number; height: number } } }) => {
     const layout = event.nativeEvent.layout;
@@ -448,7 +448,7 @@ export default function OnboardingScreen() {
               <View style={[styles.headerCoinSlot, compactHeaderCoin && styles.headerCoinSlotCompact]} onLayout={onCoinSlotLayout(1, 24, 0)} />
             </View>
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
-            <View style={styles.allowanceBody}>
+            <Reanimated.View layout={LinearTransition.duration(200)} style={styles.allowanceBody}>
               <View style={[styles.allowanceCard, keyboardVisible && styles.allowanceCardKeyboard]}>
                 <Pressable style={[styles.amountLine, keyboardVisible && styles.amountLineCompact]} onPress={() => amountInput.current?.focus()}>
                   <Text maxFontSizeMultiplier={1.2} style={[styles.currencySign, keyboardVisible && styles.currencySignCompact]}>₱</Text>
@@ -467,11 +467,11 @@ export default function OnboardingScreen() {
                   <Text maxFontSizeMultiplier={1.2} style={styles.dateLabel}>Start date</Text>
                   <View style={styles.dateControl} onTouchStart={() => Keyboard.dismiss()}><DateField label="Start date" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
                 </View>
-                <Text maxFontSizeMultiplier={1.2} style={[styles.helper, keyboardVisible && styles.helperCompact]}>{\`Ends \${formatDate(endDate, false)} · About \${formatMoney(perDay, "PHP")} per day\`}</Text>
+                <Text maxFontSizeMultiplier={1.2} style={[styles.helper, keyboardVisible && styles.helperCompact]}>{`Ends ${formatDate(endDate, false)} · About ${formatMoney(perDay, "PHP")} per day`}</Text>
               </View>
-              {showQuickAmounts ? <View style={styles.quickAmounts}>
+              {showQuickAmounts ? <Reanimated.View layout={LinearTransition.duration(200)} style={styles.quickAmounts}>
                 {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => { const next = String(value); setAmount(next); const nextDisplayLength = formatAllowanceInput(next).length; setAmountSelection({ start: nextDisplayLength, end: nextDisplayLength }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
-              </View> : null}
+              </Reanimated.View> : null}
             </View>
             {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
           </View>
