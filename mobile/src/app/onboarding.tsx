@@ -269,7 +269,7 @@ export default function OnboardingScreen() {
   const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.get() }] }));
   const sharedCoinStyle = useAnimatedStyle(() => {
     const slots = coinSlots.get();
-    const points = slots.map((slot, index) => ({ x: slot.x + (index * width) + slot.width / 2, y: slot.y + slot.height / 2, size: index === 0 ? Math.min(width * 0.7, 280, slot.height - 32) : index === 1 ? 64 : Math.min(220, slot.width, slot.height - 16) }));
+    const points = slots.map((slot, index) => ({ x: slot.x + (index * width) + slot.width / 2, y: slot.y + slot.height / 2, size: index === 0 ? Math.min(width * 0.7, 280, slot.height - 48) : index === 1 ? 64 : Math.min(220, slot.width, slot.height - 16) }));
     const p = Math.max(0, Math.min(2, pageProgress.get()));
     const x = interpolate(p, [0, 1, 2], points.map((point) => point.x)) - p * width;
     const y = interpolate(p, [0, 1, 2], points.map((point) => point.y));
@@ -303,6 +303,8 @@ export default function OnboardingScreen() {
     return { transform: [{ scaleX: 1 - lift * 0.08 }, { scaleY: 1 - lift * 0.06 }], opacity: (0.85 - lift * 0.12) * visibility };
   });
 
+  const formattedAmount = formatAllowanceInput(amount);
+  const amountFontSize = formattedAmount.length > 11 ? 34 : formattedAmount.length > 9 ? 40 : formattedAmount.length > 7 ? 48 : keyboardVisible ? 48 : 56;
   const showQuickAmounts = height >= 720 && !keyboardVisible;
   const showSubtitle = height >= 700 && !keyboardVisible;
   const showHelperDetail = height >= 620 && !keyboardVisible;
@@ -395,7 +397,7 @@ export default function OnboardingScreen() {
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
             <Pressable style={styles.amountLine} onPress={() => amountInput.current?.focus()}>
               <Text maxFontSizeMultiplier={1.2} style={[styles.currencySign, keyboardVisible && styles.currencySignCompact]}>₱</Text>
-              <TextInput ref={amountInput} value={formatAllowanceInput(amount)} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, keyboardVisible && styles.allowancePageKeyboardAmount]} maxFontSizeMultiplier={1.2} />
+              <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
             </Pressable>
             <View style={styles.periodPill} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
               <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
