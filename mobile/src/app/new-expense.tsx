@@ -54,7 +54,8 @@ export default function NewExpenseScreen() {
           setCurrency(settings.currency);
           setCycles(cycles);
           setTransactions(transactions);
-          setCategoryId((current) => current || items.find((item) => !item.archivedAt)?.id || "");
+          setCategoryId((current) => current || (settings.preferences.defaultCategoryId && items.some((item) => item.id === settings.preferences.defaultCategoryId && !item.archivedAt) ? settings.preferences.defaultCategoryId : items.find((item) => !item.archivedAt)?.id) || "");
+          setPaymentMethod(settings.preferences.defaultPaymentMethod);
 
         } catch (loadError) {
           console.error("Could not load expense form:", loadError);
