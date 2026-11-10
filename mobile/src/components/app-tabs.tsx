@@ -36,7 +36,7 @@ function WalletTabItem({ focused, label, icon, onPress, accessibilityLabel }: { 
     <Pressable accessibilityRole="tab" accessibilityLabel={accessibilityLabel} accessibilityState={focused ? { selected: true } : {}} onPress={onPress} style={styles.tab}>
       <Animated.View style={{ alignItems: "center", justifyContent: "center", transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -2] }) }] }}>
         {icon}
-        <Animated.View style={{ opacity: progress }}>
+        <Animated.View style={{ opacity: 1 }}>
           <ThemedText style={[styles.tabLabel, { color }]}>{label}</ThemedText>
         </Animated.View>
       </Animated.View>
