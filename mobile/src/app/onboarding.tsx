@@ -97,6 +97,7 @@ export default function OnboardingScreen() {
   const confettiPlayed = useRef(false);
   const buttonScale = useSharedValue(1);
   const [page, setPage] = useState(0);
+  const [settledPage, setSettledPage] = useState(0);
   const [skippedAllowance, setSkippedAllowance] = useState(false);
   const [savedCycle, setSavedCycle] = useState<Cycle | null>(null);
   const [amount, setAmount] = useState("");
@@ -136,9 +137,9 @@ export default function OnboardingScreen() {
 
   useEffect(() => {
     if (page !== 1) return;
-    const timer = setTimeout(() => amountInput.current?.focus(), reducedMotion ? 180 : 850);
+    const timer = setTimeout(() => amountInput.current?.focus(), reducedMotion ? 120 : 250);
     return () => clearTimeout(timer);
-  }, [page, reducedMotion]);
+  }, [settledPage, reducedMotion]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -326,7 +327,7 @@ export default function OnboardingScreen() {
   const amountFontSize = formattedAmount.length > 11 ? 42 : formattedAmount.length > 9 ? 52 : formattedAmount.length > 7 ? 62 : keyboardVisible ? 56 : 72;
   const availableHeight = height - (Platform.OS === "ios" && keyboardVisible ? keyboardHeight : 0);
   const showSubtitle = availableHeight >= 700;
-  const showQuickAmounts = availableHeight >= 760;
+  const showQuickAmounts = availableHeight >= 620 && !keyboardVisible;
   const showHelperDetail = availableHeight >= 640;
   const compactHeaderCoin = availableHeight < 480;
   const onCoinSlotLayout = useCallback((index: number, offsetX = 0, offsetY = 0) => (event: { nativeEvent: { layout: { x: number; y: number; width: number; height: number } } }) => {
@@ -336,7 +337,7 @@ export default function OnboardingScreen() {
   }, [coinSlots]);
   const onWelcomeStackLayout = useCallback((event: { nativeEvent: { layout: { x: number; y: number; width: number } } }) => {
     const layout = event.nativeEvent.layout;
-    const next = coinSlots.get().map((slot, i) => i === 2 ? { x: layout.x + (layout.width - 230) / 2, y: layout.y, width: 230, height: 236 } : slot);
+    const next = coinSlots.get().map((slot, i) => i === 2 ? { x: layout.x + 24 + (layout.width - 230) / 2, y: layout.y, width: 230, height: 236 } : slot);
     coinSlots.set(next);
   }, [coinSlots]);
   const scrollHandler = useAnimatedScrollHandler({ onScroll: (event) => { pageProgress.set(event.contentOffset.x / Math.max(1, width)); } });
@@ -383,6 +384,7 @@ export default function OnboardingScreen() {
             if (next !== page) {
               Keyboard.dismiss();
               setPage(next);
+              setSettledPage(next);
             }
           }}
           style={{ flex: 1 }}
@@ -419,7 +421,7 @@ export default function OnboardingScreen() {
             <Pressable pointerEvents="box-only" onPress={Keyboard.dismiss} style={StyleSheet.absoluteFill} />
             <View style={[styles.allowanceHeading, keyboardVisible && styles.allowanceHeadingCompact]}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
-              <View style={[styles.headerCoinSlot, compactHeaderCoin && styles.headerCoinSlotCompact]} onLayout={onCoinSlotLayout(1)} />
+              <View style={[styles.headerCoinSlot, compactHeaderCoin && styles.headerCoinSlotCompact]} onLayout={onCoinSlotLayout(1, 24, 0)} />
             </View>
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
             <View style={styles.allowanceBody}>
@@ -540,7 +542,7 @@ const styles = StyleSheet.create({
   materialIcon: { color: WHITE, fontFamily: "MaterialSymbols_400Regular", fontSize: 16, lineHeight: 18 },
   chipText: { flexShrink: 0, color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   pageOneCoinSlot: { flex: 1, minHeight: 0, marginVertical: 16 },
-  allowancePage: { paddingTop: 0, paddingBottom: 0, gap: 0 },
+  allowancePage: { paddingTop: 8, paddingBottom: 0, gap: 0 },
   allowancePageKeyboard: { paddingTop: 0 },
   allowanceBody: { flex: 1, justifyContent: "center", gap: 12, minHeight: 0 },
   allowanceCard: { backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 28, padding: 20, borderWidth: 0, gap: 8 },
