@@ -269,13 +269,16 @@ export default function OnboardingScreen() {
     transform: [{ scale: 0.75 + confettiProgress.get() * 0.3 }],
   }));
 
-  const shadowStyle = useAnimatedStyle(() => ({
-    transform: [{ scaleX: 1 - float.get() * 0.08 }, { scaleY: 1 - float.get() * 0.06 }],
-    opacity: 0.85 - float.get() * 0.12,
-  }));
+  const shadowStyle = useAnimatedStyle(() => {
+    const lift = Math.max(0, -Math.sin(float.get() * Math.PI * 2));
+    return {
+      transform: [{ scaleX: 1 - lift * 0.08 }, { scaleY: 1 - lift * 0.06 }],
+      opacity: 0.85 - lift * 0.12,
+    };
+  });
 
   const coinSize = Math.min(width * 0.78, height * 0.4, 320);
-  const firstCoinSize = Math.min(coinSize, Math.max(88, height * 0.15));
+  const firstCoinSize = Math.min(coinSize, Math.max(80, height * 0.14));
   const showQuickAmounts = height >= 700;
   const showSubtitle = height >= 640;
 
@@ -372,7 +375,7 @@ export default function OnboardingScreen() {
             </View>
             <View style={styles.dateRow}>
               <Text maxFontSizeMultiplier={1.2} style={styles.dateLabel}>Start date</Text>
-              <View style={styles.dateControl}><DateField label="" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
+              <View style={styles.dateControl}><DateField label="Start date" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
             </View>
             <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.helper}>Ends {formatDate(endDate, false)} · About {formatMoney(perDay, "PHP")} per day</Text>
             {showQuickAmounts ? <View style={styles.quickAmounts}>
@@ -404,7 +407,7 @@ export default function OnboardingScreen() {
           </View>
         </ScrollView>
 
-        {page !== 1 ? <View pointerEvents="none" style={[styles.coinStage, { top: page === 0 ? height * 0.59 : insets.top + 56, height: page === 0 ? firstCoinSize : Math.min(coinSize, 230), width: page === 0 ? firstCoinSize : Math.min(coinSize, 230), left: (width - (page === 0 ? firstCoinSize : Math.min(coinSize, 230))) / 2 }]}>
+        {page !== 1 ? <View pointerEvents="none" style={[styles.coinStage, { top: page === 0 ? height * 0.63 : insets.top + 56, height: page === 0 ? firstCoinSize : Math.min(coinSize, 230), width: page === 0 ? firstCoinSize : Math.min(coinSize, 230), left: (width - (page === 0 ? firstCoinSize : Math.min(coinSize, 230))) / 2 }]}>
           {page === 2 && <Reanimated.View style={[styles.ring, ringStyle]} />}
           <Reanimated.View style={[styles.confetti, confettiStyle]} importantForAccessibility="no-hide-descendants">{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>
           <Reanimated.View style={[styles.contactShadow, shadowStyle]}>
