@@ -17,7 +17,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);overflow:hi
 .markwrap::before{content:"";position:absolute;inset:-45%;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 65%)}
 .mark{position:relative;width:100%;height:100%;display:block;overflow:visible}
 .tile{transform-box:fill-box;transform-origin:center}
-.c{fill:none;stroke:#FFFFFF;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;transform-origin:60px 60px}
+.c{fill:none;stroke:#FACC15;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;transform-origin:60px 60px}
 .p{fill:none;stroke:#EFEDE4;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 2;stroke-dashoffset:0}
 .b{fill:none;stroke:#EFEDE4;stroke-width:5.5;stroke-linecap:round;transform-origin:62px 58px}
 .flash{fill:#fff;opacity:0}
