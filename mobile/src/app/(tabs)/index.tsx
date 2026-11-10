@@ -394,12 +394,6 @@ export default function HomeScreen() {
   const insightDailyLimit = summary?.dailySafeLimitCentavos ?? summary?.plannedDailyCentavos ?? 0;
   const insightBudgetValue = insightDailyLimit;
   const insightBudgetLabel = "Safe per day";
-  const insightStatus =
-    remaining < 0
-      ? `You’ve gone over your allowance by ${displayMoney(Math.abs(remaining), currency)}.`
-      : rawSpentPercent > 80
-        ? "Careful, you’ve used most of your allowance."
-        : "You’re on track. Keep it up!";
 
   useEffect(() => {
     if (loading) return;
@@ -870,9 +864,7 @@ export default function HomeScreen() {
                               tintColor="#2563EB"
                               size={16}
                             />
-                            <ThemedText style={styles.insightStatusText}>
-                              {insightStatus}
-                            </ThemedText>
+                      
                           </View>
                         </StaggeredRow>
                       </>
