@@ -384,7 +384,7 @@ export default function OnboardingScreen() {
         {page < 2 ? <Pressable onPress={skip} accessibilityRole="button" accessibilityLabel={page === 1 ? "Skip allowance" : "Skip onboarding"} hitSlop={8} style={styles.skip}>
           <Text maxFontSizeMultiplier={1.2} style={styles.skipText}>Skip</Text>
         </Pressable> : <View style={styles.skipPlaceholder} />}
-      </View>
+      </Reanimated.View>
 
       <View style={styles.pagerHost}>
         <Reanimated.ScrollView
@@ -437,7 +437,7 @@ export default function OnboardingScreen() {
                   </View>
                 ))}
               </Reanimated.View>
-            </View>
+            </Reanimated.View>
             <View style={styles.pageOneCoinSlot} onLayout={onCoinSlotLayout(0)} />
           </View>
 
