@@ -82,6 +82,8 @@ export default function OnboardingScreen() {
   const [page, setPage] = useState(0);
   const [amount, setAmount] = useState("");
   const [period, setPeriod] = useState<Period>("monthly");
+  const [periodWidth, setPeriodWidth] = useState(0);
+  const periodIndex = period === "weekly" ? 0 : period === "biweekly" ? 1 : 2;
   const [startDate, setStartDate] = useState(manilaToday());
   const [allowanceSaved, setAllowanceSaved] = useState(false);
   const [savedAmount, setSavedAmount] = useState(0);
@@ -214,6 +216,10 @@ export default function OnboardingScreen() {
   }, [coinEntry, entryScale, tiltMotion]);
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.value }] }));
+  const periodIndicatorStyle = useAnimatedStyle(() => {
+    const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
+    return { width: segmentWidth, transform: [{ translateX: withTiming(periodIndex * (segmentWidth + 2), { duration: 250 }) }] };
+  }, [periodIndex, periodWidth]);
 
   const ringStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 0.8 + pulse.value * 0.6 }],
@@ -315,10 +321,11 @@ export default function OnboardingScreen() {
                   <Text maxFontSizeMultiplier={1.2} style={styles.currencySign}>₱</Text>
                   <Text maxFontSizeMultiplier={1.2} adjustsFontSizeToFit numberOfLines={1} style={styles.amount}>{amount ? Number(amount).toLocaleString("en-PH") : "0"}</Text>
                 </View>
-                <View style={styles.periodPill}>
+                <View style={styles.periodPill} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
+                  <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
                   {(["weekly", "biweekly", "monthly"] as Period[]).map((value) => {
                     const active = period === value;
-                    return <Pressable key={value} onPress={() => { setPeriod(value); void Haptics.selectionAsync(); }} accessibilityRole="button" accessibilityState={{ selected: active }} style={[styles.periodOption, active && styles.periodActive]}>
+                    return <Pressable key={value} onPress={() => { setPeriod(value); void Haptics.selectionAsync(); }} accessibilityRole="button" accessibilityState={{ selected: active }} style={styles.periodOption}>
                       <Text maxFontSizeMultiplier={1.2} style={[styles.periodText, active && styles.periodTextActive]}>{value === "biweekly" ? "Every 2 weeks" : value === "weekly" ? "Weekly" : "Monthly"}</Text>
                     </Pressable>;
                   })}
@@ -415,7 +422,7 @@ const styles = StyleSheet.create({
   amount: { flex: 1, color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 56, lineHeight: 68, includeFontPadding: false },
   periodPill: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 999, padding: 4, gap: 2 },
   periodOption: { flex: 1, minHeight: 40, borderRadius: 999, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
-  periodActive: { backgroundColor: WHITE },
+  periodIndicator: { position: "absolute", top: 4, bottom: 4, left: 4, backgroundColor: WHITE, borderRadius: 999 },
   periodText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 11 },
   periodTextActive: { color: BLUE },
   endDate: { color: "rgba(255,255,255,0.8)", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, marginTop: -6 },
