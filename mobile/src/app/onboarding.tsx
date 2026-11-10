@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef, type ReactNode } from "react";
 import {
   BackHandler,
   Keyboard,
-  KeyboardAvoidingView,
   Pressable,
   TextInput,
   Platform,
@@ -32,10 +31,11 @@ import Reanimated, {
   withSequence,
   interpolate,
   useAnimatedScrollHandler,
+  useAnimatedKeyboard,
   LinearTransition,
   type SharedValue,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { initialWindowMetrics, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DateField } from "@/components/date-field";
 import { saveSettings, getSettings, getCycles, saveAllowance, CycleOverlapError } from "@/data/repository";
 import { addDays, addMonths, daysInclusive, formatDate, manilaToday } from "@/domain/dates";
@@ -50,6 +50,68 @@ const COIN = require("@/assets/images/peso-coin.png");
 const AnimatedPressable = Reanimated.createAnimatedComponent(Pressable);
 
 type Period = "weekly" | "biweekly" | "monthly";
+
+function useStableInsets() {
+  const liveInsets = useSafeAreaInsets();
+  const [stableInsets, setStableInsets] = useState(
+    () => initialWindowMetrics?.insets ?? liveInsets,
+  );
+  const [keyboardHideCount, setKeyboardHideCount] = useState(0);
+  const keyboardVisible = useRef(false);
+  const lastKeyboardHideAt = useRef(0);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const showSubscription = Keyboard.addListener(showEvent, () => {
+      keyboardVisible.current = true;
+    });
+    const hideSubscription = Keyboard.addListener(hideEvent, () => {
+      keyboardVisible.current = false;
+      lastKeyboardHideAt.current = Date.now();
+      setKeyboardHideCount((count) => count + 1);
+      setTimeout(() => {
+        if (keyboardVisible.current) return;
+        setStableInsets((current) => ({
+          top: Math.max(current.top, liveInsets.top),
+          bottom: Math.max(current.bottom, liveInsets.bottom),
+          left: Math.max(current.left, liveInsets.left),
+          right: Math.max(current.right, liveInsets.right),
+        }));
+      }, 400);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [liveInsets.top, liveInsets.bottom, liveInsets.left, liveInsets.right]);
+
+  useEffect(() => {
+    if (keyboardVisible.current || Date.now() - lastKeyboardHideAt.current < 400) return;
+    setStableInsets((current) => ({
+      top: Math.max(current.top, liveInsets.top),
+      bottom: Math.max(current.bottom, liveInsets.bottom),
+      left: Math.max(current.left, liveInsets.left),
+      right: Math.max(current.right, liveInsets.right),
+    }));
+  }, [liveInsets.top, liveInsets.bottom, liveInsets.left, liveInsets.right]);
+
+  return { ...stableInsets, keyboardHideCount };
+}
+
+function KeyboardLift({ stableBottom, children }: { stableBottom: number; children: ReactNode }) {
+  const keyboard = useAnimatedKeyboard();
+  const liftStyle = useAnimatedStyle(() => {
+    const keyboardHeight = keyboard.height.get();
+    const lift = keyboardHeight > 0
+      ? Math.max(0, keyboardHeight - stableBottom) + 12
+      : 0;
+    return { transform: [{ translateY: -lift }] };
+  });
+
+  return <Reanimated.View style={liftStyle}>{children}</Reanimated.View>;
+}
 
 function ProgressSegment({ index, progress, active, onPress }: { index: number; progress: SharedValue<number>; active: boolean; onPress: () => void }) {
   const fillStyle = useAnimatedStyle(() => ({
@@ -80,7 +142,7 @@ function formatAllowanceInput(value: string): string {
 export default function OnboardingScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const stableInsets = useStableInsets();
   const { width, height } = useWindowDimensions();
   const reducedMotion = useReducedMotion();
   const pager = useRef<ComponentRef<typeof Reanimated.ScrollView>>(null);
@@ -95,6 +157,7 @@ export default function OnboardingScreen() {
   const confettiPlayed = useRef(false);
   const buttonScale = useSharedValue(1);
   const [page, setPage] = useState(0);
+  const [keyboardLayoutVersion, setKeyboardLayoutVersion] = useState(0);
   const [skippedAllowance, setSkippedAllowance] = useState(false);
   const [savedCycle, setSavedCycle] = useState<Cycle | null>(null);
   const [amount, setAmount] = useState("");
@@ -103,11 +166,17 @@ export default function OnboardingScreen() {
   const [periodWidth, setPeriodWidth] = useState(0);
   const amountInput = useRef<ComponentRef<typeof TextInput>>(null);
   const pageProgress = useSharedValue(0);
-  const coinSlots = useSharedValue(getCoinSlots(width, height, insets));
+  const coinSlots = useSharedValue(getCoinSlots(width, height, stableInsets));
 
   useEffect(() => {
-    coinSlots.set(getCoinSlots(width, height, insets));
-  }, [coinSlots, width, height, insets.top, insets.bottom]);
+    coinSlots.set(getCoinSlots(width, height, stableInsets));
+  }, [coinSlots, width, height, stableInsets.top, stableInsets.bottom]);
+  useEffect(() => {
+    if (stableInsets.keyboardHideCount > 0) {
+      setKeyboardLayoutVersion((version) => version + 1);
+    }
+  }, [stableInsets.keyboardHideCount]);
+
   const periodIndex = period === "weekly" ? 0 : period === "biweekly" ? 1 : 2;
   const [startDate, setStartDate] = useState(manilaToday());
   const [allowanceSaved, setAllowanceSaved] = useState(false);
@@ -307,7 +376,7 @@ export default function OnboardingScreen() {
       <View pointerEvents="none" style={[styles.orb, { width: width * 0.9, height: width * 0.9, top: -width * 0.42, right: -width * 0.32 }]} />
       {page === 0 ? <View pointerEvents="none" style={[styles.orb, styles.pageOneOrb, { width: width * 0.75, height: width * 0.75, bottom: height * 0.12, left: -width * 0.42 }]} /> : null}
 
-      <View style={[styles.top, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.top, { paddingTop: stableInsets.top + 8 }]}>
         {page > 0 ? <Pressable onPress={() => moveTo(page - 1)} accessibilityRole="button" accessibilityLabel="Go back" style={styles.backButton}>
           <SymbolView name={{ ios: "chevron.left", android: "chevron_left", web: "chevron_left" }} tintColor={WHITE} size={18} />
         </Pressable> : <View style={styles.backPlaceholder} />}
@@ -374,7 +443,7 @@ export default function OnboardingScreen() {
             <View style={styles.pageOneCoinSlot} />
           </View>
 
-          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0} style={[styles.page, styles.allowancePage, { width, paddingBottom: Math.max(insets.bottom, 16) + 24 }]}>
+          <View key={keyboardLayoutVersion} style={[styles.page, styles.allowancePage, { width, paddingBottom: Math.max(stableInsets.bottom, 16) + 24 }]}>
             <Pressable pointerEvents="box-only" onPress={Keyboard.dismiss} style={StyleSheet.absoluteFill} />
             <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
@@ -409,11 +478,13 @@ export default function OnboardingScreen() {
               </View>
             </Reanimated.View>
             {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
-            <AnimatedPressable onPress={() => { Keyboard.dismiss(); void Haptics.selectionAsync(); void saveAllowanceForOnboarding(); }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel={allowanceSaved ? "Update allowance and continue" : "Set allowance and continue"} style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
-              <Text maxFontSizeMultiplier={1.2} style={[styles.ctaText, (numericAmount <= 0 || saving) && styles.ctaDisabledText]}>{saving ? "Saving…" : allowanceSaved ? "Update Allowance" : "Set Allowance"}</Text>
-              <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
-            </AnimatedPressable>
-          </KeyboardAvoidingView>
+            {page === 1 ? <KeyboardLift stableBottom={stableInsets.bottom}>
+              <AnimatedPressable onPress={() => { Keyboard.dismiss(); void Haptics.selectionAsync(); void saveAllowanceForOnboarding(); }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel={allowanceSaved ? "Update allowance and continue" : "Set allowance and continue"} style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
+                <Text maxFontSizeMultiplier={1.2} style={[styles.ctaText, (numericAmount <= 0 || saving) && styles.ctaDisabledText]}>{saving ? "Saving…" : allowanceSaved ? "Update Allowance" : "Set Allowance"}</Text>
+                <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
+              </AnimatedPressable>
+            </KeyboardLift> : null}
+          </View>
 
           <View style={[styles.page, styles.welcomePage, { width }]}>
             <View style={styles.welcomeStack}>
@@ -443,7 +514,7 @@ export default function OnboardingScreen() {
         </Reanimated.View>
       </View>
 
-      {page !== 1 ? <Reanimated.View style={[styles.bottom, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}>
+      {page !== 1 ? <Reanimated.View style={[styles.bottom, { paddingBottom: Math.max(stableInsets.bottom, 16) + 24 }]}>
         {page === 0 ? <View style={styles.noLogin}>
           <SymbolView name={{ ios: "checkmark.shield.fill", android: "verified_user", web: "verified_user" }} tintColor="rgba(255,255,255,0.9)" size={17} />
           <Text maxFontSizeMultiplier={1.2} style={styles.noLoginText}>No login or sign-up needed. Just start.</Text>
