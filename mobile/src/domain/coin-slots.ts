@@ -7,7 +7,7 @@ export function getCoinSlots(width: number, height: number, insets: Pick<EdgeIns
   const safeHeight = Math.max(120, Number.isFinite(height) ? height : 640);
   const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
   const fitSize = (requested: number) => clamp(requested, 40, Math.max(40, Math.min(safeWidth, safeHeight) - 2));
-  const centeredY = (requested: number, size: number) => clamp(requested, size / 2 + 1, safeHeight - size / 2 - 1);
+  const centeredY = (requested: number, size: number) => clamp(requested, insets.top + size / 2 + 1, safeHeight - insets.bottom - size / 2 - 1);
 
   const pageOneSize = fitSize(Math.min(safeWidth * 0.7, 280));
   const headerSize = fitSize(64);
