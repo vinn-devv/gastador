@@ -32,7 +32,6 @@ import Reanimated, {
   useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
-  withRepeat,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
@@ -270,36 +269,11 @@ export default function HomeScreen() {
   const [balanceLabelOpacity] = useState(() => new RNAnimated.Value(0));
   const [animatedRemaining, setAnimatedRemaining] = useState(0);
   const ringProgress = useSharedValue(0);
-  const shimmerProgress = useSharedValue(0);
-  const ringHeadPulse = useSharedValue(1);
   const ringAnimatedProps = useAnimatedProps(() => {
     const raw = Math.max(0, Math.min(1, ringProgress.value));
     return { strokeDashoffset: RING_CIRCUMFERENCE * (1 - raw) };
   });
-  const shimmerAnimatedProps = useAnimatedProps(() => {
-    const raw = Math.max(0, Math.min(1, ringProgress.value));
-    const arcLength = RING_CIRCUMFERENCE * raw;
-    const segment = RING_CIRCUMFERENCE * 0.06;
-    if (raw < 0.06) {
-      return { strokeDasharray: [0, RING_CIRCUMFERENCE], strokeDashoffset: 0, opacity: 0 };
-    }
-    const travel = Math.max(0, arcLength - segment);
-    return {
-      strokeDasharray: [segment, RING_CIRCUMFERENCE - segment],
-      strokeDashoffset: RING_CIRCUMFERENCE * (1 - raw) - travel * shimmerProgress.value,
-      opacity: 0.7,
-    };
-  });
-  const ringHeadProps = useAnimatedProps(() => {
-    const angle = ringProgress.value * Math.PI * 2;
-    const radius = RING_RADIUS;
-    return {
-      cx: RING_SIZE / 2 + Math.cos(angle) * radius,
-      cy: RING_SIZE / 2 + Math.sin(angle) * radius,
-      r: 6 * ringHeadPulse.value,
-      opacity: ringProgress.value > 0 ? 1 : 0,
-    };
-  });
+
 
   useEffect(() => {
     RNAnimated.spring(sheetEntrance, {
@@ -432,18 +406,7 @@ export default function HomeScreen() {
     }));
   }, [hasAllowance, ringProgress, spentPercent]);
 
-  useEffect(() => {
-    shimmerProgress.set(withRepeat(
-      withTiming(1, { duration: 3000, easing: Easing.linear }),
-      -1,
-      false,
-    ));
-    ringHeadPulse.set(withRepeat(
-      withTiming(1.15, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true,
-    ));
-  }, [ringHeadPulse, shimmerProgress]);
+
 
   const switchSheetTab = useCallback(
     (next: "activity" | "insight") => {
@@ -471,8 +434,7 @@ export default function HomeScreen() {
         : spentPercent >= 1
           ? `${spentPercent.toFixed(1)}%`
           : `${spentPercent.toFixed(2)}%`;
-  const ringColor = isOverspent ? "#F87171" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
-  const ringGradientStart = isOverspent ? "#FDA4AF" : rawSpentPercent > 80 ? "#FDE68A" : "#60A5FA";
+  const ringColor = "#FACC15";
 
   return (
     <>
@@ -725,12 +687,6 @@ export default function HomeScreen() {
                           height={RING_SIZE}
                           viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
                         >
-                          <Defs>
-                            <LinearGradient id="insightRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <Stop offset="0%" stopColor={ringGradientStart} />
-                              <Stop offset="100%" stopColor={ringColor} />
-                            </LinearGradient>
-                          </Defs>
                           <G
                             rotation={-90}
                             origin={`${RING_SIZE / 2}, ${RING_SIZE / 2}`}
@@ -739,7 +695,7 @@ export default function HomeScreen() {
                               cx={RING_SIZE / 2}
                               cy={RING_SIZE / 2}
                               r={RING_RADIUS}
-                              stroke="#E3EDFF"
+                              stroke="#2563EB"
                               strokeWidth={RING_STROKE}
                               fill="none"
                             />
@@ -749,9 +705,9 @@ export default function HomeScreen() {
                                   cx={RING_SIZE / 2}
                                   cy={RING_SIZE / 2}
                                   r={RING_RADIUS}
-                                  stroke={ringColor}
-                                  strokeWidth={24}
-                                  opacity={0.25}
+                                  stroke="#FDE047"
+                                  strokeWidth={28}
+                                  opacity={0.28}
                                   fill="none"
                                   strokeDasharray={`${RING_CIRCUMFERENCE} ${RING_CIRCUMFERENCE}`}
                                   animatedProps={ringAnimatedProps}
@@ -760,31 +716,12 @@ export default function HomeScreen() {
                                   cx={RING_SIZE / 2}
                                   cy={RING_SIZE / 2}
                                   r={RING_RADIUS}
-                                  stroke="url(#insightRingGradient)"
+                                  stroke="#FACC15"
                                   strokeWidth={RING_STROKE}
                                   strokeLinecap="round"
                                   fill="none"
                                   strokeDasharray={`${RING_CIRCUMFERENCE} ${RING_CIRCUMFERENCE}`}
                                   animatedProps={ringAnimatedProps}
-                                />
-                                <AnimatedCircle
-                                  cx={RING_SIZE / 2}
-                                  cy={RING_SIZE / 2}
-                                  r={RING_RADIUS}
-                                  stroke="#BFDBFE"
-                                  strokeOpacity={0.7}
-                                  strokeWidth={RING_STROKE}
-                                  strokeLinecap="round"
-                                  fill="none"
-                                  animatedProps={shimmerAnimatedProps}
-                                />
-                                <AnimatedCircle
-                                  cx={RING_SIZE / 2}
-                                  cy={RING_SIZE / 2}
-                                  fill="#FFFFFF"
-                                  stroke={ringColor}
-                                  strokeWidth={3}
-                                  animatedProps={ringHeadProps}
                                 />
                               </>
                             ) : null}
