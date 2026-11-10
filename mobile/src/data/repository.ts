@@ -7,7 +7,8 @@ import type {
   Transaction,
 } from "../domain/types";
 import { defaultSettings } from "../domain/types";
-import { fromManilaInput, isValidDate, manilaHourMinute, manilaToday } from "../domain/dates";
+import { addDays, fromManilaInput, isValidDate, manilaHourMinute, manilaToday } from "../domain/dates";
+import { cycleContainsDate, rangesOverlapInclusive } from "../domain/cycle-dates";
 
 type SettingsRow = {
   displayName: string;
@@ -191,6 +192,101 @@ export async function createTransaction(
 }
 
 
+
+export class CycleOverlapError extends Error {
+  readonly code = "CYCLE_OVERLAP";
+  constructor(message = "You already have an allowance for these dates. Update it or start the next cycle.") {
+    super(message);
+    this.name = "CycleOverlapError";
+  }
+}
+
+export type SaveAllowanceInput = {
+  amountCentavos: number;
+  startDate: string;
+  period?: Cycle["frequency"];
+  lengthDays?: number;
+  mode?: "edit_current" | "start_next";
+  name?: string;
+  plannedSavingsCentavos?: number;
+};
+
+function allowanceLength(input: SaveAllowanceInput): number {
+  if (input.lengthDays !== undefined) return input.lengthDays;
+  if (input.period === "weekly") return 7;
+  if (input.period === "biweekly") return 14;
+  if (input.period === "monthly") {
+    const [year, month] = input.startDate.split("-").map(Number);
+    return Math.round((Date.UTC(year, month, 1) - Date.UTC(year, month - 1, Number(input.startDate.slice(8, 10)))) / 86_400_000);
+  }
+  throw new RangeError("Choose a valid allowance length.");
+}
+
+export async function saveAllowance(db: SQLiteDatabase, input: SaveAllowanceInput): Promise<void> {
+  if (!Number.isSafeInteger(input.amountCentavos) || input.amountCentavos <= 0) {
+    throw new RangeError("Allowance must be greater than zero.");
+  }
+  if (!isValidDate(input.startDate)) throw new RangeError("Choose a valid allowance start date.");
+  const lengthDays = allowanceLength(input);
+  if (!Number.isSafeInteger(lengthDays) || lengthDays < 1 || lengthDays > 366) {
+    throw new RangeError("Choose a valid allowance length.");
+  }
+  const savings = input.plannedSavingsCentavos ?? 0;
+  if (!Number.isSafeInteger(savings) || savings < 0 || savings > input.amountCentavos) {
+    throw new RangeError("Planned savings must be between zero and the allowance amount.");
+  }
+  const today = manilaToday();
+  const requestedMode = input.mode ?? "edit_current";
+  await db.withTransactionAsync(async () => {
+    const cycles = await db.getAllAsync<Pick<Cycle, "id" | "name" | "frequency" | "startDate" | "endDate" | "allowanceCentavos" | "carryoverCentavos" | "plannedSavingsCentavos" | "createdAt">>("SELECT * FROM cycles ORDER BY startDate ASC");
+    const current = cycles.find((cycle) => cycleContainsDate(cycle, today));
+    const now = new Date().toISOString();
+    if (current && requestedMode === "edit_current") {
+      const endDate = addDays(current.startDate, lengthDays - 1);
+      const conflict = cycles.find((cycle) => cycle.id !== current.id &&
+        rangesOverlapInclusive({ startDate: current.startDate, endDate }, cycle));
+      if (conflict) throw new CycleOverlapError();
+      await db.runAsync(
+        "UPDATE cycles SET name = ?, frequency = ?, endDate = ?, allowanceCentavos = ?, plannedSavingsCentavos = ? WHERE id = ?",
+        input.name?.trim() || current.name,
+        input.period ?? current.frequency,
+        endDate,
+        input.amountCentavos,
+        savings,
+        current.id,
+      );
+      return;
+    }
+    let startDate = input.startDate;
+    if (current && requestedMode === "start_next") {
+      if (startDate <= current.startDate) throw new CycleOverlapError();
+      const previousEnd = addDays(startDate, -1);
+      await db.runAsync("UPDATE cycles SET endDate = ? WHERE id = ?", previousEnd, current.id);
+    }
+    const endDate = addDays(startDate, lengthDays - 1);
+    const conflict = cycles.find((cycle) => {
+      if (current && requestedMode === "start_next" && cycle.id === current.id) return false;
+      return rangesOverlapInclusive({ startDate, endDate }, cycle);
+    });
+    if (conflict) throw new CycleOverlapError();
+    const id = `cycle-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    await db.runAsync(
+      `INSERT INTO cycles (
+        id, name, frequency, startDate, endDate, allowanceCentavos,
+        carryoverCentavos, plannedSavingsCentavos, createdAt
+      ) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)`,
+      id,
+      input.name?.trim() || `Allowance from ${startDate}`,
+      input.period ?? "custom",
+      startDate,
+      endDate,
+      input.amountCentavos,
+      savings,
+      now,
+    );
+  });
+}
+
 export type NewCycleInput = {
   name: string;
   frequency: Cycle["frequency"];
@@ -218,12 +314,8 @@ export async function createCycle(
   const existing = await db.getAllAsync<Pick<Cycle, "id" | "startDate" | "endDate">>(
     "SELECT id, startDate, endDate FROM cycles",
   );
-  const overlap = existing.find((cycle) =>
-    input.startDate <= cycle.endDate && cycle.startDate <= input.endDate,
-  );
-  if (overlap) {
-    throw new Error("This date range overlaps an existing allowance cycle.");
-  }
+  const overlap = existing.find((cycle) => rangesOverlapInclusive(input, cycle));
+  if (overlap) throw new CycleOverlapError();
 
   const now = new Date().toISOString();
   const id = `cycle-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
