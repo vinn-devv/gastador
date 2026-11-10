@@ -348,7 +348,7 @@ export default function OnboardingScreen() {
   });
 
   const formattedAmount = formatAllowanceInput(amount);
-  const amountFontSize = formattedAmount.length > 11 ? 42 : formattedAmount.length > 9 ? 52 : formattedAmount.length > 7 ? 62 : keyboardVisible ? 56 : 72;
+  const amountFontSize = keyboardVisible ? 56 : formattedAmount.length > 11 ? 42 : formattedAmount.length > 9 ? 52 : formattedAmount.length > 7 ? 62 : 72;
   const availableHeight = height - (Platform.OS === "ios" && keyboardVisible ? keyboardHeight : 0);
   const showSubtitle = availableHeight >= 700;
   const showQuickAmounts = availableHeight >= 640 && !keyboardVisible;
@@ -437,7 +437,7 @@ export default function OnboardingScreen() {
                   </View>
                 ))}
               </Reanimated.View>
-            </Reanimated.View>
+            </View>
             <View style={styles.pageOneCoinSlot} onLayout={onCoinSlotLayout(0)} />
           </View>
 
@@ -472,7 +472,7 @@ export default function OnboardingScreen() {
               {showQuickAmounts ? <Reanimated.View layout={LinearTransition.duration(200)} style={styles.quickAmounts}>
                 {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => { const next = String(value); setAmount(next); const nextDisplayLength = formatAllowanceInput(next).length; setAmountSelection({ start: nextDisplayLength, end: nextDisplayLength }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
               </Reanimated.View> : null}
-            </View>
+            </Reanimated.View>
             {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
           </View>
 
@@ -509,7 +509,7 @@ export default function OnboardingScreen() {
           <Text maxFontSizeMultiplier={1.2} style={styles.noLoginText}>No login or sign-up needed. Just start.</Text>
         </View> : null}
         {page === 1 ? (
-          <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); void saveAllowanceForOnboarding(); }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel={allowanceSaved ? "Update allowance and continue" : "Set allowance and continue"} style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
+          <AnimatedPressable onPress={() => { Keyboard.dismiss(); void Haptics.selectionAsync(); void saveAllowanceForOnboarding(); }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel={allowanceSaved ? "Update allowance and continue" : "Set allowance and continue"} style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
             <Text maxFontSizeMultiplier={1.2} style={[styles.ctaText, (numericAmount <= 0 || saving) && styles.ctaDisabledText]}>{saving ? "Saving…" : allowanceSaved ? "Update Allowance" : "Set Allowance"}</Text>
             <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
@@ -535,7 +535,7 @@ export default function OnboardingScreen() {
             </AnimatedPressable>
           </Reanimated.View>
         )}
-      </View>
+      </Reanimated.View>
     </RNAnimated.View>
   );
 }
