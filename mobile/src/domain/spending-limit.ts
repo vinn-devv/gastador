@@ -13,6 +13,18 @@ export function remainingCentavos(
   cycle: SpendingCycle,
   spentCentavos: number,
 ): number {
+  if (
+    !Number.isSafeInteger(cycle.allowanceCentavos) ||
+    !Number.isSafeInteger(cycle.carryoverCentavos) ||
+    !Number.isSafeInteger(cycle.plannedSavingsCentavos) ||
+    !Number.isSafeInteger(spentCentavos) ||
+    cycle.allowanceCentavos < 0 ||
+    cycle.carryoverCentavos < 0 ||
+    cycle.plannedSavingsCentavos < 0 ||
+    spentCentavos < 0
+  ) {
+    throw new RangeError("Allowance and spending must use non-negative integer centavos.");
+  }
   const spendable =
     cycle.allowanceCentavos +
     cycle.carryoverCentavos -
@@ -34,7 +46,7 @@ export function validateExpense({
     amountCentavos <= 0 ||
     !Number.isSafeInteger(replacingCentavos) ||
     replacingCentavos < 0 ||
-    !Number.isFinite(remaining) ||
+    !Number.isSafeInteger(remaining) ||
     remaining < 0
   ) {
     return {
