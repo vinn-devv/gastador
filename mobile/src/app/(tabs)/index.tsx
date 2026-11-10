@@ -237,6 +237,7 @@ export default function HomeScreen() {
   const [transactions, setTransactions] = useState<RecentTransaction[]>([]);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [balanceRevealed, setBalanceRevealed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [sheetTab, setSheetTab] = useState<"activity" | "insight">("activity");
@@ -504,7 +505,9 @@ export default function HomeScreen() {
             >
               Available to spend
             </RNAnimated.Text>
+            <Pressable onPressIn={() => setBalanceRevealed(true)} onPressOut={() => setBalanceRevealed(false)} accessibilityRole="button" accessibilityLabel={settings?.preferences.hideBalance && !balanceRevealed ? "Hidden balance. Hold to reveal." : "Available balance"}>
             <RNAnimated.Text style={styles.balanceAmount}>
+              {settings?.preferences.hideBalance && !balanceRevealed ? "₱•••••" : <>
               {balanceSign ? (
                 <Text style={styles.balanceSign}>{balanceSign}</Text>
               ) : null}
@@ -512,7 +515,9 @@ export default function HomeScreen() {
                 <Text style={styles.pesoSign}>{balanceCurrencySymbol}</Text>
               ) : null}
               {balanceDigits}
+              </>}
             </RNAnimated.Text>
+            </Pressable>
           </View>
         </View>
 
