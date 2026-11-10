@@ -258,14 +258,27 @@ export default function OnboardingScreen() {
         >
           <View style={[styles.page, { width }]}>
             <View style={[styles.copy, { paddingTop: Math.max(24, height * 0.035) }]}>
-              <Text maxFontSizeMultiplier={1.2} style={styles.headline}>Your Money,</Text>
-              <Text maxFontSizeMultiplier={1.2} style={[styles.headline, styles.headlineAccent]}>Better Days</Text>
-              <Text maxFontSizeMultiplier={1.2} style={styles.subtitle}>Track what you spend, set a smart allowance, and know what’s safe to spend every day. All on your phone.</Text>
-              <View style={styles.chips}>
-                {["Track expenses", "Daily allowance", "Private on-device"].map((label) => (
-                  <View key={label} style={styles.chip}><Text maxFontSizeMultiplier={1.2} style={styles.chipText}>{label}</Text></View>
+              <Reanimated.View entering={reducedMotion ? undefined : FadeInUp.duration(500)}>
+                <Text maxFontSizeMultiplier={1.2} style={styles.headline}>Your Money,</Text>
+              </Reanimated.View>
+              <Reanimated.View entering={reducedMotion ? undefined : FadeInUp.duration(500).delay(80)}>
+                <Text maxFontSizeMultiplier={1.2} style={[styles.headline, styles.headlineAccent]}>Better Days</Text>
+              </Reanimated.View>
+              <Reanimated.View entering={reducedMotion ? undefined : FadeInUp.duration(500).delay(160)}>
+                <Text maxFontSizeMultiplier={1.2} style={styles.subtitle}>Track what you spend, set a smart allowance, and know what’s safe to spend every day. All on your phone.</Text>
+              </Reanimated.View>
+              <Reanimated.View entering={reducedMotion ? undefined : FadeInUp.duration(500).delay(240)} style={styles.chips}>
+                {[
+                  { label: "Track expenses", icon: { ios: "checkmark.circle.fill", android: "check-circle", web: "check-circle" } },
+                  { label: "Daily allowance", icon: { ios: "calendar", android: "calendar-month", web: "calendar" } },
+                  { label: "Private on-device", icon: { ios: "lock.fill", android: "lock", web: "lock" } },
+                ].map((item) => (
+                  <View key={item.label} style={styles.chip}>
+                    <SymbolView name={item.icon} tintColor={WHITE} size={14} />
+                    <Text maxFontSizeMultiplier={1.2} style={styles.chipText}>{item.label}</Text>
+                  </View>
                 ))}
-              </View>
+              </Reanimated.View>
             </View>
             <View style={{ flex: 1 }} />
           </View>
@@ -329,7 +342,8 @@ export default function OnboardingScreen() {
         <View pointerEvents="none" style={[styles.coinStage, { top: page === 0 ? height * 0.34 : page === 1 ? 0 : height * 0.04, height: coinSize, width: coinSize, left: (width - coinSize) / 2 }]}>
           {page === 2 && <Reanimated.View style={[styles.ring, ringStyle]} />}
           {page === 2 && <Reanimated.View entering={reducedMotion ? undefined : FadeInUp.duration(1200)} style={styles.confetti} importantForAccessibility="no-hide-descendants">{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>}
-          <View style={styles.pedestal} />\n          <Reanimated.View style={[styles.contactShadow, shadowStyle]} />
+          <View style={styles.pedestal} />
+          <Reanimated.View style={[styles.contactShadow, shadowStyle]} />
           <Reanimated.View style={[styles.coinWrap, coinStyle]}>
             <Image source={COIN} contentFit="contain" style={{ width: coinSize, height: coinSize }} accessibilityLabel="Peso coin" />
           </Reanimated.View>
@@ -371,7 +385,7 @@ const styles = StyleSheet.create({
   headlineAccent: { color: SKY },
   subtitle: { color: "rgba(255,255,255,0.85)", fontFamily: "IBMPlexSans_400Regular", fontSize: 17, lineHeight: 24, marginTop: 16, maxWidth: 340 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginTop: 18 },
-  chip: { backgroundColor: "rgba(255,255,255,0.14)", borderRadius: 999, paddingHorizontal: 11, minHeight: 32, justifyContent: "center" },
+  chip: { backgroundColor: "rgba(255,255,255,0.14)", borderRadius: 999, paddingHorizontal: 11, minHeight: 32, justifyContent: "center", alignItems: "center", flexDirection: "row", gap: 6 },
   chipText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
   formScroll: { flex: 1, marginTop: 8 },
   formContent: { paddingBottom: 8, gap: 10 },
@@ -399,7 +413,8 @@ const styles = StyleSheet.create({
   ring: { position: "absolute", width: "76%", height: "76%", borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
   confetti: { position: "absolute", width: "100%", height: "100%", alignItems: "center", justifyContent: "center" },
   confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
-  pedestal: { position: "absolute", width: "88%", height: "24%", bottom: "6%", borderRadius: 999, backgroundColor: "rgba(11,31,92,0.6)" },\n  contactShadow: { position: "absolute", width: "68%", height: "16%", bottom: "8%", borderRadius: 999, backgroundColor: "rgba(5,15,50,0.45)", shadowColor: "#050F32", shadowOpacity: 0.35, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
+  pedestal: { position: "absolute", width: "88%", height: "24%", bottom: "6%", borderRadius: 999, backgroundColor: "rgba(11,31,92,0.6)" },
+  contactShadow: { position: "absolute", width: "68%", height: "16%", bottom: "8%", borderRadius: 999, backgroundColor: "rgba(5,15,50,0.45)", shadowColor: "#050F32", shadowOpacity: 0.35, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
   welcomePage: { alignItems: "center" },
   welcomeCopy: { width: "100%", alignItems: "center", paddingHorizontal: 8, marginTop: 20 },
   welcomeHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 42, lineHeight: 49, textAlign: "center" },
