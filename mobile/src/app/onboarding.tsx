@@ -300,7 +300,7 @@ export default function OnboardingScreen() {
           contentContainerStyle={{ width: width * 3 }}
         >
           <View style={[styles.page, { width }]}>
-            <View style={[styles.copy, { paddingTop: Math.max(24, height * 0.035) }]}>
+            <View style={[styles.copy, { paddingTop: Math.max(16, height * 0.02) }]}>
               <Reanimated.View entering={reducedMotion ? undefined : FadeInUp.duration(500)}>
                 <Text maxFontSizeMultiplier={1.2} style={styles.headline}>Your Money,</Text>
               </Reanimated.View>
@@ -317,7 +317,7 @@ export default function OnboardingScreen() {
                   { label: "Private on-device", icon: { ios: "lock.fill", android: "lock", web: "lock" } },
                 ].map((item) => (
                   <View key={item.label} style={styles.chip}>
-                    {Platform.OS === "android" ? <Text maxFontSizeMultiplier={1.2} style={styles.materialIcon}>{item.icon.android}</Text> : <SymbolView name={item.icon as never} tintColor={WHITE} size={12} />}
+                    {Platform.OS === "android" ? <Text maxFontSizeMultiplier={1.2} style={styles.materialIcon}>{item.icon.android}</Text> : <SymbolView name={item.icon as never} tintColor={WHITE} size={16} />}
                     <Text maxFontSizeMultiplier={1.2} style={styles.chipText}>{item.label}</Text>
                   </View>
                 ))}
@@ -339,7 +339,7 @@ export default function OnboardingScreen() {
             </View>
           </View>
 
-          <View style={[styles.page, styles.allowancePage, { width }]>
+          <View style={[styles.page, styles.allowancePage, { width }]}>
             <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
               <Image source={COIN} contentFit="contain" style={styles.headerCoin} accessibilityLabel="3D peso coin" />
