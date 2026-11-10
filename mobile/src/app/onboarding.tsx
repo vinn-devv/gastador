@@ -368,7 +368,6 @@ export default function OnboardingScreen() {
   const scrollHandler = useAnimatedScrollHandler({ onScroll: (event) => { pageProgress.set(event.contentOffset.x / Math.max(1, width)); } });
 
   return (
-    <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
     <RNAnimated.View style={[styles.root, { opacity: fade }]}>
       <StatusBar style="light" />
       <NavigationBar style="dark" />
@@ -542,7 +541,6 @@ export default function OnboardingScreen() {
           </Reanimated.View>
       </Reanimated.View> : null}
     </RNAnimated.View>
-    </KeyboardProvider>
   );
 }
 
