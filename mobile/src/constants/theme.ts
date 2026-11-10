@@ -3,15 +3,15 @@ import { Platform } from "react-native";
 
 export const Colors = {
   light: {
-    text: "#202A35",
+    text: "#0F172A",
     background: "#F3F5F6",
     backgroundElement: "#FFFFFF",
     backgroundSelected: "#EAF3FF",
-    textSecondary: "#56616B",
+    textSecondary: "#475569",
     surface: "#FFFFFF",
     sunken: "#EDF1F4",
     line: "#D9DEE2",
-    muted: "#68747D",
+    muted: "#64748B",
     primary: "#2563EB",
     onPrimary: "#FFFFFF",
     primarySoft: "#EAF3FF",
