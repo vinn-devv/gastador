@@ -1,81 +1,88 @@
-# Welcome to your Expo app 👋
+# Gastador Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Gastador is an Android-first, local-first allowance and expense tracker designed to help students manage their money in Philippine pesos.
 
-## Get started
+## Features
 
-1. Install dependencies
+- Allowance cycles: weekly, every two weeks, monthly, or custom
+- Expense recording with categories, dates, and payment methods
+- Balance tracking with protection against expenses that exceed the remaining allowance
+- Activity history and spending insights
+- QR scanning and supported image-based scanning flows
+- Savings goals and contributions
+- Custom categories, payment methods, and display preferences
+- Local SQLite storage
 
-   ```bash
-   npm install
-   ```
+## Requirements
 
-2. Start the app
+- Node.js and npm
+- Android device or emulator
+- Expo Go for compatible development previews, or an installed development build
 
-   ```bash
-   npx expo start
-   ```
+## Run locally
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+From the repository root:
 
 ```bash
-npm run reset-project
+cd mobile
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+To clear Metro's cache when troubleshooting a stale development bundle:
 
-### Other setup steps
+```bash
+npx expo start -c
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Run checks
 
-## Learn more
+```bash
+npx tsc --noEmit
+npm test
+npm run lint
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Build an installable Android APK
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+The EAS preview and production profiles are configured to produce APK files.
 
-## Join the community
+```bash
+cd mobile
+npx eas-cli login
+npx eas-cli build --platform android --profile preview
+```
 
-Join our community of developers creating universal apps.
+Use the production profile when preparing a production release:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx eas-cli build --platform android --profile production
+```
 
+Download the finished APK from the [Expo EAS dashboard](https://expo.dev/). The installed APK runs independently of Expo Go and the Metro development server.
 
-## Build a standalone Android APK
+## Project structure
 
-The repository includes an EAS production profile that outputs an installable APK.
+```
+mobile/
+├── assets/       App artwork and animations
+├── scripts/      Project maintenance scripts
+└── src/
+    ├── app/      Expo Router screens and routes
+    ├── components/
+    ├── constants/
+    ├── data/     SQLite schema and repositories
+    ├── domain/   Allowance, expense, date, and money logic
+    ├── hooks/
+    └── types/
+```
 
-1. Sign in to your Expo account:
+## Data storage
 
-   ```bash
-   npx eas-cli login
-   ```
+Gastador stores app data locally on each device using SQLite. Separate installations do not automatically share or synchronize their data. Back up important information before uninstalling the app, clearing its storage, or changing devices.
 
-2. Create or link the EAS project (this adds its project ID to `app.json`):
+## Notes
 
-   ```bash
-   npx eas-cli init
-   ```
-
-3. Build the standalone APK:
-
-   ```bash
-   npx eas-cli build --platform android --profile production
-   ```
-
-When the cloud build finishes, download the `.apk` artifact from the EAS build page and install it on your Android device. This production APK does not need Expo Go or a running Metro server.
+- The app's Android application ID is `com.gastador.mobile`.
+- The Expo app configuration is in `app.json`.
+- Android build profiles are in `eas.json`.
