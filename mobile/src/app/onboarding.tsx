@@ -289,7 +289,7 @@ export default function OnboardingScreen() {
                     </Pressable>;
                   })}
                 </View>
-                <DateField label="Start date" value={startDate} onChange={setStartDate} />
+                <DateField label="Start date" value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} />
                 <Text maxFontSizeMultiplier={1.2} style={styles.endDate}>Ends {formatDate(endDate, false)}</Text>
                 <Text maxFontSizeMultiplier={1.2} style={styles.helper}>About {formatMoney(perDay, "PHP")} per day</Text>
               </View>
