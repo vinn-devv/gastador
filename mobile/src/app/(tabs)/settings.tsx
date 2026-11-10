@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { useRouter } from "expo-router";
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -63,6 +64,7 @@ function SettingRow({ title, subtitle, value, onPress, toggle, danger = false, d
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const db = useSQLiteContext();
   const { settings, loading, update } = useSettings();
   const [categoriesOpen, setCategoriesOpen] = useState(false);
@@ -162,7 +164,7 @@ export default function SettingsScreen() {
           <SettingRow title="Default payment" value={methods.find((item) => settings.preferences.defaultPaymentMethod === "custom:" + item.id)?.name ?? value("defaultPaymentMethod")} onPress={chooseDefaultMethod} />
         </Section>
         <Section title="About">
-          <SettingRow title="How Gastador works" subtitle="View the app walkthrough" onPress={() => Alert.alert("How it works", "The welcome walkthrough is available when you first set up Gastador.")} />
+          <SettingRow title="How Gastador works" onPress={() => router.push("/how-it-works")} />
           <SettingRow title="Open-source licenses" onPress={() => Alert.alert("Open-source licenses", "License details are available from the third-party packages used by Gastador.")} />
           <View style={styles.versionRow}>
             <ThemedText style={styles.rowTitle}>Version</ThemedText><ThemedText style={styles.rowValue}>{version}</ThemedText>
