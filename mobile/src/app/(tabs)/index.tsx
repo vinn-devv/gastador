@@ -797,6 +797,15 @@ export default function HomeScreen() {
 
                       </>
                     ) : null}
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="See full insight"
+                      onPress={() => router.navigate("/insights")}
+                      style={styles.fullInsightLink}
+                    >
+                      <ThemedText style={styles.fullInsightLinkText}>See full insight</ThemedText>
+                      <SymbolView name={{ ios: "arrow.right", android: "arrow_forward", web: "arrow_forward" }} tintColor="#2563EB" size={17} />
+                    </Pressable>
                   </View>
                 )}
               </Reanimated.View>
@@ -958,6 +967,8 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: "center",
   },
+  fullInsightLink: { minHeight: 44, alignSelf: "center", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingHorizontal: 14, marginTop: 2 },
+  fullInsightLinkText: { color: "#2563EB", fontFamily: "IBMPlexSans_700Bold", fontSize: 15, lineHeight: 20 },
   insightStatsRow: { width: "100%", flexDirection: "row", gap: 12 },
   insightStatSlot: { flex: 1, minWidth: 0 },
   insightStatChip: {
