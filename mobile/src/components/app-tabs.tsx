@@ -125,9 +125,9 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
               </Pressable>
             </Animated.View>
             <Animated.View style={{ opacity: menuItemProgress[1], transform: [{ translateY: menuItemProgress[1].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }, { scale: menuItemProgress[1].interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Expenses" onPress={() => chooseAction("/new-expense")} style={styles.menuPill}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Add expense" onPress={() => chooseAction("/new-expense")} style={styles.menuPill}>
                 <SymbolView name={{ ios: "receipt", android: "receipt_long", web: "receipt_long" }} tintColor="#2563EB" size={20} />
-                <ThemedText style={styles.menuText}>Expenses</ThemedText>
+                <ThemedText style={styles.menuText}>Add expense</ThemedText>
               </Pressable>
             </Animated.View>
             <Animated.View style={{ opacity: menuItemProgress[2], transform: [{ translateY: menuItemProgress[2].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }, { scale: menuItemProgress[2].interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
