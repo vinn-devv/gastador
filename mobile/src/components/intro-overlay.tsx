@@ -8,7 +8,7 @@ const BG = "#2563EB";
 
 export function IntroOverlay({ onFinished }: { onFinished?: () => void | Promise<void> }) {
   const [visible, setVisible] = useState(true);
-  const opacity = useRef(new Animated.Value(1)).current;
+  const [opacity] = useState(() => new Animated.Value(1));
   const finished = useRef(false);
 
   const finish = useCallback((): void => {
