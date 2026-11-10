@@ -741,7 +741,7 @@ export default function HomeScreen() {
                                   strokeWidth={24}
                                   opacity={0.25}
                                   fill="none"
-                                  strokeDasharray="1000 1000"
+                                  strokeDasharray={`${RING_CIRCUMFERENCE} ${RING_CIRCUMFERENCE}`}
                                   animatedProps={ringAnimatedProps}
                                 />
                                 <AnimatedCircle
@@ -906,7 +906,7 @@ const styles = StyleSheet.create({
     gap: 7,
   },
   balanceLabel: {
-    color: "rgba(255,255,255,0.85)",
+    color: "#FFFFFF",
     textAlign: "center",
     fontFamily: "IBMPlexSans_600SemiBold",
     fontSize: 16,
