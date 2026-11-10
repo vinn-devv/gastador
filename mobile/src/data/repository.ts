@@ -188,7 +188,7 @@ async function assertExpenseWithinCycle(
   txn: SQLiteDatabase,
   input: NewTransactionInput,
   replacing?: { amountCentavos: number; date: string },
- ): Promise<void> {
+): Promise<void> {
   const category = await txn.getFirstAsync<{ id: string }>(
     "SELECT id FROM categories WHERE id = ?",
     input.categoryId,
