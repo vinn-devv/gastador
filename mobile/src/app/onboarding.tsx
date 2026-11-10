@@ -368,6 +368,7 @@ export default function OnboardingScreen() {
   const scrollHandler = useAnimatedScrollHandler({ onScroll: (event) => { pageProgress.set(event.contentOffset.x / Math.max(1, width)); } });
 
   return (
+    <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
     <RNAnimated.View style={[styles.root, { opacity: fade }]}>
       <StatusBar style="light" />
       <NavigationBar style="dark" />
@@ -454,7 +455,7 @@ export default function OnboardingScreen() {
               <Pressable onPress={() => amountInput.current?.focus()} style={styles.allowanceCard}>
                 <Pressable style={styles.amountLine} onPress={(event) => { event.stopPropagation(); amountInput.current?.focus(); }}>
                   <Text maxFontSizeMultiplier={1.2} style={styles.currencySign}>₱</Text>
-                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onFocus={() => setAmountFocused(true)} onBlur={() => setAmountFocused(false)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const formatted = formatAllowanceInput(raw); setAmount(raw); setAmountSelection({ start: formatted.length, end: formatted.length }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8, textDecorationLine: amountFocused ? "none" : "underline" }]} maxFontSizeMultiplier={1.2} />
+                  <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onFocus={() => setAmountFocused(true)} onBlur={() => setAmountFocused(false)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const formatted = formatAllowanceInput(raw); setAmount(raw); setAmountSelection({ start: formatted.length, end: formatted.length }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { width: Math.min(width - 110, Math.max(48, formattedAmount.length * amountFontSize * 0.54 + 12)), fontSize: amountFontSize, lineHeight: amountFontSize + 8, textDecorationLine: amountFocused ? "none" : "underline", textDecorationColor: "rgba(255,255,255,0.7)" }]} maxFontSizeMultiplier={1.2} />
                 </Pressable>
                 <View style={styles.periodPill} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
                   <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
@@ -541,6 +542,7 @@ export default function OnboardingScreen() {
           </Reanimated.View>
       </Reanimated.View> : null}
     </RNAnimated.View>
+    </KeyboardProvider>
   );
 }
 
