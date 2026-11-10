@@ -13,6 +13,7 @@ type Props = {
   minimumDate?: string;
   error?: string;
   accessibilityLabel?: string;
+  maxFontSizeMultiplier?: number;
 };
 
 function dateFromIso(value: string): Date {
@@ -28,7 +29,7 @@ function isoFromDate(value: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-export function DateField({ label, value, onChange, maximumDate, minimumDate, error, accessibilityLabel }: Props) {
+export function DateField({ label, value, onChange, maximumDate, minimumDate, error, accessibilityLabel, maxFontSizeMultiplier }: Props) {
   const theme = useTheme();
   const [iosVisible, setIosVisible] = useState(false);
   const [draft, setDraft] = useState(dateFromIso(value));
@@ -57,25 +58,25 @@ export function DateField({ label, value, onChange, maximumDate, minimumDate, er
 
   return (
     <View style={styles.field}>
-      <ThemedText style={[styles.label, { color: theme.text }]}>{label}</ThemedText>
+      <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={[styles.label, { color: theme.text }]}>{label}</ThemedText>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel ?? label}
         onPress={openPicker}
         style={[styles.value, { borderColor: error ? theme.danger : theme.line, backgroundColor: theme.surface }]}
       >
-        <ThemedText style={[styles.valueText, { color: theme.text }]}>{formatDate(value)}</ThemedText>
-        <ThemedText style={{ color: theme.primary, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 }}>Change</ThemedText>
+        <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={[styles.valueText, { color: theme.text }]}>{formatDate(value)}</ThemedText>
+        <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={{ color: theme.primary, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 }}>Change</ThemedText>
       </Pressable>
-      {!!error && <ThemedText style={[styles.error, { color: theme.danger }]}>{error}</ThemedText>}
+      {!!error && <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={[styles.error, { color: theme.danger }]}>{error}</ThemedText>}
       {Platform.OS === "ios" && (
         <Modal visible={iosVisible} transparent animationType="slide" onRequestClose={() => setIosVisible(false)}>
           <Pressable style={styles.backdrop} onPress={() => setIosVisible(false)}>
             <Pressable style={[styles.modal, { backgroundColor: theme.surface }]} onPress={() => undefined}>
               <View style={styles.modalHeader}>
-                <ThemedText style={[styles.modalTitle, { color: theme.text }]}>{label}</ThemedText>
+                <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={[styles.modalTitle, { color: theme.text }]}>{label}</ThemedText>
                 <Pressable accessibilityRole="button" onPress={() => { onChange(isoFromDate(draft)); setIosVisible(false); }}>
-                  <ThemedText style={{ color: theme.primary, fontFamily: "IBMPlexSans_700Bold" }}>Done</ThemedText>
+                  <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={{ color: theme.primary, fontFamily: "IBMPlexSans_700Bold" }}>Done</ThemedText>
                 </Pressable>
               </View>
               <DateTimePicker
