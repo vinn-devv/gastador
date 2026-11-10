@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,7 +8,7 @@ import { ScreenLayout } from "@/components/screen-layout";
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
 import { navBarSpace } from "@/constants/layout";
-import { getCycles, getSettings } from "@/data/repository";
+import { consumeCycleReviewNotice, getCycles, getSettings } from "@/data/repository";
 import { formatMoney } from "@/domain/money";
 import { cycleStatus } from "@/domain/allowance";
 import { formatDate, manilaToday } from "@/domain/dates";
@@ -36,6 +36,8 @@ export default function AllowanceScreen() {
       if (!active) return;
       setCycles(items);
       setCurrency(settings.currency);
+      const reviewNotice = await consumeCycleReviewNotice(db);
+      if (active && reviewNotice) Alert.alert("Allowance cycles need review", "Some allowance dates overlap after date normalization. Please review them in Allowance management.");
     }).catch((error) => console.error("Could not load allowance cycles:", error))
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -60,7 +62,7 @@ export default function AllowanceScreen() {
               <View key={cycle.id} style={[styles.cycle, { borderBottomColor: theme.line }]}>
                 <View style={styles.cycleTop}>
                   <ThemedText style={[styles.cycleName, { color: theme.text }]}>{cycle.name}</ThemedText>
-                  <ThemedText style={[styles.status, { color: status === "active" ? theme.primary : theme.textSecondary }]}>{status === "active" ? "Active" : status === "upcoming" ? "Upcoming" : "Ended"}</ThemedText>
+                  <ThemedText style={[styles.status, { color: cycle.needsReview ? theme.danger : status === "active" ? theme.primary : theme.textSecondary }]}>{cycle.needsReview ? "Needs review" : status === "active" ? "Active" : status === "upcoming" ? "Upcoming" : "Ended"}</ThemedText>
                 </View>
                 <ThemedText type="small" themeColor="muted">{frequencyLabel[cycle.frequency]} · {formatDate(cycle.startDate)} – {formatDate(cycle.endDate)}</ThemedText>
                 <ThemedText style={[styles.amount, { color: theme.navy }]}>{formatMoney(cycle.allowanceCentavos, currency)}</ThemedText>
