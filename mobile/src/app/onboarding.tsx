@@ -343,7 +343,7 @@ export default function OnboardingScreen() {
         ) : (
           <AnimatedPressable onPress={() => { void Haptics.selectionAsync(); page === 0 ? moveTo(1) : void finish(); }} onPressIn={() => { buttonScale.value = withSpring(0.96); }} onPressOut={() => { buttonScale.value = withSpring(1); }} accessibilityRole="button" accessibilityLabel={page === 0 ? "Get started" : "Start tracking"} style={[styles.cta, buttonAnimatedStyle]}>
             <Text maxFontSizeMultiplier={1.2} style={styles.ctaText}>{page === 0 ? "Get Started" : "Start Tracking"}</Text>
-            <Text maxFontSizeMultiplier={1.2} style={styles.arrow}>→</Text>
+            <View style={styles.arrowCircle}><SymbolView name={{ ios: "arrow.right", android: "arrow-forward", web: "arrow-right" }} tintColor={BLUE} size={17} /></View>
           </AnimatedPressable>
         )}
       </View>
