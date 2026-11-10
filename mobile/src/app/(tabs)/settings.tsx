@@ -65,7 +65,12 @@ export default function SettingsScreen() {
   const db = useSQLiteContext();
   const { settings, loading, update } = useSettings();
   const [versionTaps, setVersionTaps] = useState(0);
-  const [developerVisible, setDeveloperVisible] = useState(__DEV__);\n  const [categoriesOpen, setCategoriesOpen] = useState(false);\n  const [categories, setCategories] = useState<Category[]>([]);\n  const [categoryName, setCategoryName] = useState("");\n  const [categoryColor, setCategoryColor] = useState("#3B82F6");\n  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [developerVisible, setDeveloperVisible] = useState(__DEV__);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryName, setCategoryName] = useState("");
+  const [categoryColor, setCategoryColor] = useState("#3B82F6");
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const version = Constants.expoConfig?.version ?? "1.0.0";
 
   const choose = (key: PrefKey, title: string, values: string[]) => {
@@ -79,7 +84,18 @@ export default function SettingsScreen() {
       { text: "Cancel", style: "cancel" },
     ]);
   };
-  const openCategories = async () => {\n    try { setCategories(await getCategories(db)); setCategoryName(""); setEditingCategory(null); setCategoriesOpen(true); }\n    catch (error) { console.error("Could not load categories:", error); Alert.alert("Categories unavailable", "Please try again."); }\n  };\n  const saveCategory = async () => {\n    try {\n      if (editingCategory) await updateCategory(db, editingCategory, { name: categoryName, color: categoryColor });\n      else await createCategory(db, categoryName, categoryColor);\n      setCategories(await getCategories(db)); setCategoryName(""); setEditingCategory(null);\n    } catch (error) { Alert.alert("Could not save category", error instanceof Error ? error.message : "Please try again."); }\n  };\n  const chooseCategory = async () => {
+  const openCategories = async () => {
+    try { setCategories(await getCategories(db)); setCategoryName(""); setEditingCategory(null); setCategoriesOpen(true); }
+    catch (error) { console.error("Could not load categories:", error); Alert.alert("Categories unavailable", "Please try again."); }
+  };
+  const saveCategory = async () => {
+    try {
+      if (editingCategory) await updateCategory(db, editingCategory, { name: categoryName, color: categoryColor });
+      else await createCategory(db, categoryName, categoryColor);
+      setCategories(await getCategories(db)); setCategoryName(""); setEditingCategory(null);
+    } catch (error) { Alert.alert("Could not save category", error instanceof Error ? error.message : "Please try again."); }
+  };
+  const chooseCategory = async () => {
     if (!settings) return;
     try {
       const categories = (await getCategories(db)).filter((item) => !item.archivedAt);
@@ -198,5 +214,25 @@ const styles = StyleSheet.create({
   trailing: { flexDirection: "row", alignItems: "center", gap: 6 },
   note: { color: "#475569", fontFamily: "IBMPlexSans_400Regular", fontSize: 13, paddingVertical: 8 },
   versionRow: { minHeight: 64, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4 },
-  loading: { padding: 20, color: "#475569" },\n  modalBackdrop: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15,23,42,0.38)" },\n  modalCard: { maxHeight: "88%", backgroundColor: "#FFFFFF", borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 22, gap: 12 },\n  modalHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },\n  modalTitle: { color: "#0F172A", fontFamily: "IBMPlexSans_700Bold", fontSize: 22 },\n  modalClose: { color: "#2563EB", fontFamily: "IBMPlexSans_700Bold", fontSize: 15 },\n  categoryList: { maxHeight: 300 },\n  categoryItem: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#E2E8F0" },\n  categorySwatch: { width: 13, height: 13, borderRadius: 7 },\n  categoryNameArea: { flex: 1, justifyContent: "center", minHeight: 48 },\n  smallAction: { width: 34, height: 40, alignItems: "center", justifyContent: "center" },\n  editorHeading: { color: "#475569", fontFamily: "IBMPlexSans_700Bold", fontSize: 12, letterSpacing: 0.6 },\n  categoryInput: { minHeight: 48, borderRadius: 14, backgroundColor: "#F1F5F9", paddingHorizontal: 14, color: "#0F172A", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },\n  palette: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 4 },\n  paletteDot: { width: 27, height: 27, borderRadius: 14 },\n  paletteSelected: { borderWidth: 3, borderColor: "#0F172A" },\n  modalActions: { flexDirection: "row", gap: 10 },\n  secondaryButton: { minHeight: 48, minWidth: 72, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#EAF1FF" },\n  secondaryButtonText: { color: "#1D4ED8", fontFamily: "IBMPlexSans_700Bold", fontSize: 15 },\n  primaryButton: { flex: 1, minHeight: 48, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#2563EB" },\n  primaryButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 15 },
+  loading: { padding: 20, color: "#475569" },
+  modalBackdrop: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15,23,42,0.38)" },
+  modalCard: { maxHeight: "88%", backgroundColor: "#FFFFFF", borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 22, gap: 12 },
+  modalHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  modalTitle: { color: "#0F172A", fontFamily: "IBMPlexSans_700Bold", fontSize: 22 },
+  modalClose: { color: "#2563EB", fontFamily: "IBMPlexSans_700Bold", fontSize: 15 },
+  categoryList: { maxHeight: 300 },
+  categoryItem: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#E2E8F0" },
+  categorySwatch: { width: 13, height: 13, borderRadius: 7 },
+  categoryNameArea: { flex: 1, justifyContent: "center", minHeight: 48 },
+  smallAction: { width: 34, height: 40, alignItems: "center", justifyContent: "center" },
+  editorHeading: { color: "#475569", fontFamily: "IBMPlexSans_700Bold", fontSize: 12, letterSpacing: 0.6 },
+  categoryInput: { minHeight: 48, borderRadius: 14, backgroundColor: "#F1F5F9", paddingHorizontal: 14, color: "#0F172A", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
+  palette: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 4 },
+  paletteDot: { width: 27, height: 27, borderRadius: 14 },
+  paletteSelected: { borderWidth: 3, borderColor: "#0F172A" },
+  modalActions: { flexDirection: "row", gap: 10 },
+  secondaryButton: { minHeight: 48, minWidth: 72, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#EAF1FF" },
+  secondaryButtonText: { color: "#1D4ED8", fontFamily: "IBMPlexSans_700Bold", fontSize: 15 },
+  primaryButton: { flex: 1, minHeight: 48, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#2563EB" },
+  primaryButtonText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 15 },
 });
