@@ -367,14 +367,12 @@ export default function HomeScreen() {
   const currency = settings?.currency ?? "PHP";
   const summary = dashboard?.summary;
   const remaining = summary?.remainingCentavos ?? 0;
+  const displayRemaining = Math.max(0, remaining);
   const spendable = summary?.spendableCentavos ?? 0;
   const rawSpentPercent =
     spendable > 0 ? Math.max(0, (summary!.spentCentavos / spendable) * 100) : 0;
   const spentPercent = Math.min(100, rawSpentPercent);
-  const formattedBalance = formatMoney(
-    summary ? (remaining < 0 ? -animatedRemaining : animatedRemaining) : 0,
-    currency,
-  );
+  const formattedBalance = formatMoney(summary ? animatedRemaining : 0, currency);
   const balanceFirstDigit = formattedBalance.search(/\d/);
   const balancePrefix =
     balanceFirstDigit >= 0 ? formattedBalance.slice(0, balanceFirstDigit) : "";
@@ -388,13 +386,13 @@ export default function HomeScreen() {
   const balanceCurrencySymbol = balancePrefix.replace(balanceSign, "").trim();
   const hasAllowance = Boolean(summary);
   const insightSpent = summary?.spentCentavos ?? 0;
-  const insightLeft = summary?.remainingCentavos ?? 0;
+  const insightLeft = Math.max(0, summary?.remainingCentavos ?? 0);
   const insightDailyLimit = summary?.dailySafeLimitCentavos ?? summary?.plannedDailyCentavos ?? 0;
   const insightBudgetValue = insightDailyLimit;
   const insightBudgetLabel = "Safe per day";
   const insightStatus =
-    rawSpentPercent > 100
-      ? "You’ve gone over your allowance."
+    remaining < 0
+      ? `You’ve gone over your allowance by ${formatMoney(Math.abs(remaining), currency)}.`
       : rawSpentPercent > 80
         ? "Careful, you’ve used most of your allowance."
         : "You’re on track. Keep it up!";
@@ -408,7 +406,7 @@ export default function HomeScreen() {
     balanceLabelOpacity.setValue(0);
     RNAnimated.parallel([
       RNAnimated.timing(balanceProgress, {
-        toValue: Math.abs(remaining),
+        toValue: displayRemaining,
         duration: 850,
         easing: RNEasing.out(RNEasing.cubic),
         useNativeDriver: false,
@@ -425,7 +423,7 @@ export default function HomeScreen() {
       balanceProgress.stopAnimation();
       balanceLabelOpacity.stopAnimation();
     };
-  }, [balanceLabelOpacity, balanceProgress, loading, remaining]);
+  }, [balanceLabelOpacity, balanceProgress, displayRemaining, loading]);
 
   useEffect(() => {
     ringProgress.set(withSpring(hasAllowance ? spentPercent / 100 : 0, {
@@ -470,7 +468,7 @@ export default function HomeScreen() {
         : rawSpentPercent >= 1
           ? `${rawSpentPercent.toFixed(1)}%`
           : `${rawSpentPercent.toFixed(2)}%`;
-  const ringColor = rawSpentPercent > 100 ? "#EF4444" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
+  const ringColor = rawSpentPercent > 100 ? "#F87171" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
   const ringGradientStart = rawSpentPercent > 100 ? "#FDA4AF" : rawSpentPercent > 80 ? "#FDE68A" : "#60A5FA";
 
   return (
