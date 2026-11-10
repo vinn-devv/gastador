@@ -35,7 +35,7 @@ import Reanimated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import Svg, { Circle, G, Path } from "react-native-svg";
+import Svg, { Circle, Defs, G, LinearGradient, Path, Stop } from "react-native-svg";
 
 import { ThemedText } from "@/components/themed-text";
 import {
@@ -465,6 +465,7 @@ export default function HomeScreen() {
           ? `${rawSpentPercent.toFixed(1)}%`
           : `${rawSpentPercent.toFixed(2)}%`;
   const ringColor = rawSpentPercent > 100 ? "#EF4444" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
+  const ringGradientStart = rawSpentPercent > 100 ? "#FDA4AF" : rawSpentPercent > 80 ? "#FDE68A" : "#60A5FA";
 
   return (
     <>
@@ -712,6 +713,12 @@ export default function HomeScreen() {
                           height={RING_SIZE}
                           viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
                         >
+                          <Defs>
+                            <LinearGradient id="insightRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                              <Stop offset="0%" stopColor={ringGradientStart} />
+                              <Stop offset="100%" stopColor={ringColor} />
+                            </LinearGradient>
+                          </Defs>
                           <G
                             rotation={-90}
                             origin={`${RING_SIZE / 2}, ${RING_SIZE / 2}`}
@@ -731,6 +738,17 @@ export default function HomeScreen() {
                                   cy={RING_SIZE / 2}
                                   r={RING_RADIUS}
                                   stroke={ringColor}
+                                  strokeWidth={24}
+                                  opacity={0.25}
+                                  fill="none"
+                                  strokeDasharray="1000 1000"
+                                  animatedProps={ringAnimatedProps}
+                                />
+                                <AnimatedCircle
+                                  cx={RING_SIZE / 2}
+                                  cy={RING_SIZE / 2}
+                                  r={RING_RADIUS}
+                                  stroke="url(#insightRingGradient)"
                                   strokeWidth={RING_STROKE}
                                   strokeLinecap="round"
                                   fill="none"
@@ -742,6 +760,7 @@ export default function HomeScreen() {
                                   cy={RING_SIZE / 2}
                                   r={RING_RADIUS}
                                   stroke="#BFDBFE"
+                                  strokeOpacity={0.7}
                                   strokeWidth={RING_STROKE}
                                   strokeLinecap="round"
                                   fill="none"
