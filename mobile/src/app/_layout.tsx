@@ -8,6 +8,7 @@ import { Image as ExpoImage } from "expo-image";
 import { DB_NAME, initializeDatabase } from "@/data/database";
 import { getSettings, saveSettings } from "@/data/repository";
 import { IntroOverlay } from "@/components/intro-overlay";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -77,12 +78,14 @@ export default function TabLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <ThemeProvider value={DefaultTheme}>
-      <View style={{ flex: 1, backgroundColor: "#2563EB" }} onLayout={() => { void SplashScreen.hideAsync(); }}>
-        <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
-          <AppNavigator />
-        </SQLiteProvider>
-      </View>
-    </ThemeProvider>
+    <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
+      <ThemeProvider value={DefaultTheme}>
+        <View style={{ flex: 1, backgroundColor: "#2563EB" }} onLayout={() => { void SplashScreen.hideAsync(); }}>
+          <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
+            <AppNavigator />
+          </SQLiteProvider>
+        </View>
+      </ThemeProvider>
+    </KeyboardProvider>
   );
 }
