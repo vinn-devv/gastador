@@ -8,9 +8,9 @@ Gastador is an Android-first, local-first allowance and expense tracker designed
 - Expense recording with categories, dates, and payment methods
 - Balance tracking with protection against expenses that exceed the remaining allowance
 - Activity history and spending insights
-- QR scanning and supported image-based scanning flows
-- Savings goals and contributions
-- Custom categories, payment methods, and display preferences
+- QR scanning and QR image selection
+- Custom expense categories and payment methods
+- Display preferences for currency, number format, dates, and text size
 - Local SQLite storage
 
 ## Requirements
