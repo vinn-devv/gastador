@@ -113,11 +113,15 @@ export default function OnboardingScreen() {
   }, [float, reducedMotion]);
 
   useEffect(() => {
+    if (!reducedMotion) tiltMotion.value = withRepeat(withTiming(1, { duration: 2500, easing: Easing.inOut(Easing.sin) }), -1, true);
+  }, [reducedMotion, tiltMotion]);
+
+  useEffect(() => {
     if (page === 2 && allowanceSaved) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }, [page, allowanceSaved]);
 
   useEffect(() => {
-    if (page === 2 && !confettiPlayed.current) {
+    if (page === 2 && !confettiPlayed.current && !reducedMotion) {
       confettiPlayed.current = true;
       confettiProgress.value = withSequence(withTiming(1, { duration: 1200 }), withTiming(0, { duration: 500 }));
     }
@@ -202,8 +206,8 @@ export default function OnboardingScreen() {
         { perspective: 800 },
         { translateX: x },
         { translateY: y + bob },
-        { scale: withSpring(size, { damping: 14, stiffness: 110 }) },
-        { rotateZ: `${tilt + (reducedMotion ? 0 : Math.sin(float.value * Math.PI * 2) * 3)}deg` },
+        { scale: withSpring(size * entryScale.value, { damping: 14, stiffness: 110 }) },
+        { rotateZ: `${tilt + (reducedMotion ? 0 : interpolate(tiltMotion.value, [0, 1], [-3, 3]))}deg` },
         { rotateY: reducedMotion ? "0deg" : `${interpolate(progress, [0, 1, 2], [0, 360, 720])}deg` },
       ],
     };
