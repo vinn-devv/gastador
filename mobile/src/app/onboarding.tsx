@@ -374,7 +374,7 @@ export default function OnboardingScreen() {
             <View style={styles.pageOneCoinSlot} />
           </View>
 
-          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0} style={[styles.page, styles.allowancePage, { width }]}>
+          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0} style={[styles.page, styles.allowancePage, { width, paddingBottom: Math.max(insets.bottom, 24) + 16 }]}>
             <Pressable pointerEvents="box-only" onPress={Keyboard.dismiss} style={StyleSheet.absoluteFill} />
             <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
@@ -382,6 +382,7 @@ export default function OnboardingScreen() {
             </View>
             <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={[styles.allowanceSubtitle, shortScreen && styles.hiddenShortScreen]}>You can change this anytime in Settings.</Text>
             <Reanimated.View layout={LinearTransition.duration(200)} style={styles.allowanceBody}>
+              <View style={styles.allowanceGroup}>
               <Pressable onPress={Keyboard.dismiss} style={styles.allowanceCard}>
                 <Pressable style={styles.amountLine} onPress={(event) => { event.stopPropagation(); amountInput.current?.focus(); }}>
                   <Text maxFontSizeMultiplier={1.2} style={styles.currencySign}>₱</Text>
@@ -405,6 +406,7 @@ export default function OnboardingScreen() {
               <Reanimated.View layout={LinearTransition.duration(200)} style={[styles.quickAmounts, shortScreen && styles.hiddenShortScreen]}>
                 {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => { const next = String(value); setAmount(next); const nextDisplayLength = formatAllowanceInput(next).length; setAmountSelection({ start: nextDisplayLength, end: nextDisplayLength }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
               </Reanimated.View>
+              </View>
             </Reanimated.View>
             {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
             <AnimatedPressable onPress={() => { Keyboard.dismiss(); void Haptics.selectionAsync(); void saveAllowanceForOnboarding(); }} onPressIn={() => { buttonScale.set(withSpring(0.96)); }} onPressOut={() => { buttonScale.set(withSpring(1)); }} disabled={numericAmount <= 0 || saving} accessibilityRole="button" accessibilityLabel={allowanceSaved ? "Update allowance and continue" : "Set allowance and continue"} style={[styles.cta, buttonAnimatedStyle, (numericAmount <= 0 || saving) && styles.ctaDisabled]}>
@@ -439,7 +441,7 @@ export default function OnboardingScreen() {
           <Reanimated.View style={[styles.confetti, confettiStyle]}>{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>
       </Reanimated.View>
 
-      {page !== 1 ? <Reanimated.View style={[styles.bottom, { paddingBottom: insets.bottom + 16 }]}>
+      {page !== 1 ? <Reanimated.View style={[styles.bottom, { paddingBottom: Math.max(insets.bottom, 24) + 16 }]}>
         {page === 0 ? <View style={styles.noLogin}>
           <SymbolView name={{ ios: "checkmark.shield.fill", android: "verified_user", web: "verified_user" }} tintColor="rgba(255,255,255,0.9)" size={17} />
           <Text maxFontSizeMultiplier={1.2} style={styles.noLoginText}>No login or sign-up needed. Just start.</Text>
@@ -497,7 +499,8 @@ const styles = StyleSheet.create({
   chipText: { flexShrink: 0, color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   pageOneCoinSlot: { flex: 1, minHeight: 0, marginVertical: 16 },
   allowancePage: { flex: 1, paddingTop: 8, paddingBottom: 8, gap: 8 },
-  allowanceBody: { flex: 1, minHeight: 0, flexShrink: 1, justifyContent: "center", gap: 12 },
+  allowanceBody: { flex: 1, minHeight: 0, flexShrink: 1, justifyContent: "center" },
+  allowanceGroup: { width: "100%", flexShrink: 1, gap: 12 },
   allowanceCard: { flexShrink: 1, minHeight: 0, backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 28, padding: 16, borderWidth: 0, gap: 6 },
   allowanceHeading: { height: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
   allowanceHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 34, lineHeight: 40, flex: 1 },
