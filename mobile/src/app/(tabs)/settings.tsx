@@ -7,7 +7,7 @@ import { ScreenLayout } from "@/components/screen-layout";
 import { ThemedText } from "@/components/themed-text";
 import { navBarSpace } from "@/constants/layout";
 import { useSettings } from "@/hooks/use-settings";
-import type { SettingsPreferences, CurrencyCode, PaymentMethod } from "@/domain/types";
+import type { SettingsPreferences, CurrencyCode } from "@/domain/types";
 
 type IconName = ComponentProps<typeof SymbolView>["name"];
 type PrefKey = keyof SettingsPreferences;
@@ -123,7 +123,7 @@ export default function SettingsScreen() {
         <Section title="Privacy and security">
           <SettingRow icon="lock" title="App lock" subtitle="Passcode or biometrics · Not configured" disabled />
           <SettingRow icon="eye.slash" title="Hide balance" subtitle="Balance privacy preference" toggle={{ value: settings.preferences.hideBalance, onChange: (v) => toggle("hideBalance", v) }} />
-          <SettingRow icon="rectangle.on.rectangle.slash" title="Hide app preview" subtitle="App switcher privacy preference" toggle={{ value: settings.preferences.hideAppPreview, onChange: (v) => toggle("hideAppPreview", v)} />
+          <SettingRow icon="rectangle.on.rectangle.slash" title="Hide app preview" subtitle="App switcher privacy preference" toggle={{ value: settings.preferences.hideAppPreview, onChange: (v) => toggle("hideAppPreview", v) }} />
         </Section>
 
         <Section title="Data">
