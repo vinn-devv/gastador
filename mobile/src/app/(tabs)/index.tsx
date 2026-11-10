@@ -11,6 +11,7 @@ import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
+  Alert,
   Animated as RNAnimated,
   Easing as RNEasing,
   Pressable,
@@ -39,6 +40,7 @@ import Svg, { Circle, Defs, G, LinearGradient, Path, Stop } from "react-native-s
 
 import { ThemedText } from "@/components/themed-text";
 import {
+  consumeCycleReviewNotice,
   getAllTransactions,
   getCycles,
   getRecentTransactions,
@@ -324,6 +326,12 @@ export default function HomeScreen() {
               getAllTransactions(db),
               getSettings(db),
             ]);
+          const reviewNotice = await consumeCycleReviewNotice(db);
+          if (active && reviewNotice) Alert.alert(
+            "Allowance cycles need review",
+            "Some allowance dates overlap after date normalization. Open Allowance management to review the flagged cycles.",
+            [{ text: "Open Allowance management", onPress: () => router.navigate("/allowance") }, { text: "Later" }],
+          );
           const current = pickCurrentCycle(cycles, manilaToday());
           if (!active) return;
           setTransactions(recent);
@@ -353,7 +361,7 @@ export default function HomeScreen() {
       return () => {
         active = false;
       };
-    }, [db]),
+    }, [db, router]),
   );
 
   const currency = settings?.currency ?? "PHP";
