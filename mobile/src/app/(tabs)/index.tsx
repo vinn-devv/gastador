@@ -5,7 +5,7 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { SymbolView } from "expo-symbols";
 import { StatusBar } from "expo-status-bar";
@@ -231,6 +231,7 @@ function StaggeredRow({
 
 export default function HomeScreen() {
   const router = useRouter();
+  const routeParams = useLocalSearchParams<{ panel?: string }>();
   const db = useSQLiteContext();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -458,16 +459,18 @@ export default function HomeScreen() {
     [progress, sheetTab],
   );
 
+  useEffect(() => {
+    if (routeParams.panel === "insight") switchSheetTab("insight");
+  }, [routeParams.panel, switchSheetTab]);
+
   const displayPercent =
-    isOverspent && spendable <= 0
-      ? "100%"
-      : rawSpentPercent === 0
+    spentPercent === 0
       ? "0%"
-      : rawSpentPercent >= 10
-        ? `${Math.round(rawSpentPercent)}%`
-        : rawSpentPercent >= 1
-          ? `${rawSpentPercent.toFixed(1)}%`
-          : `${rawSpentPercent.toFixed(2)}%`;
+      : spentPercent >= 10
+        ? `${Math.round(spentPercent)}%`
+        : spentPercent >= 1
+          ? `${spentPercent.toFixed(1)}%`
+          : `${spentPercent.toFixed(2)}%`;
   const ringColor = isOverspent ? "#F87171" : rawSpentPercent > 80 ? "#F59E0B" : "#2563EB";
   const ringGradientStart = isOverspent ? "#FDA4AF" : rawSpentPercent > 80 ? "#FDE68A" : "#60A5FA";
 
@@ -993,7 +996,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     paddingTop: 0,
     paddingBottom: 24,
-    gap: 18,
+    gap: 14,
   },
   noAllowanceText: {
     color: "#6B7280",
