@@ -92,6 +92,7 @@ export default function OnboardingScreen() {
   const float = useSharedValue(0);
   const tilt = useSharedValue(0);
   const entryScale = useSharedValue(0.85);
+  const entryOpacity = useSharedValue(0);
   const pulse = useSharedValue(0);
   const confettiProgress = useSharedValue(0);
   const confettiPlayed = useRef(false);
@@ -148,7 +149,8 @@ export default function OnboardingScreen() {
 
   useEffect(() => {
     entryScale.set(reducedMotion ? 1 : withSpring(1, { damping: 14, stiffness: 120 }));
-  }, [entryScale, reducedMotion]);
+    entryOpacity.set(reducedMotion ? 1 : withTiming(1, { duration: 320 }));
+  }, [entryScale, entryOpacity, reducedMotion]);
 
   useEffect(() => {
     if (page === 2 && allowanceSaved) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -279,7 +281,7 @@ export default function OnboardingScreen() {
     const rotation = reducedMotion ? 0 : (tilt.get() - 0.5) * (idle ? 6 : 1.2);
     const spin = reducedMotion ? 0 : p * 360;
     const scale = reducedMotion ? 1 : entryScale.get() * (p > 1 && p < 2 ? 1 + Math.sin((p - 1) * Math.PI) * 0.08 : 1);
-    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2 + bob, width: size, height: size, opacity: slots.every((slot) => slot.width > 0) ? (reducedMotion ? interpolate(p, [0, 0.45, 0.55, 0.95, 1.05, 1.45, 1.55, 2], [1, 1, 0.35, 1, 1, 0.35, 1, 1]) : 1) : 0, transform: [{ perspective: 800 }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }, { scale }] };
+    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2 + bob, width: size, height: size, opacity: slots.every((slot) => slot.width > 0) ? (reducedMotion ? interpolate(p, [0, 0.45, 0.55, 0.95, 1.05, 1.45, 1.55, 2], [1, 1, 0.35, 1, 1, 0.35, 1, 1]) : entryOpacity.get()) : 0, transform: [{ perspective: 800 }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }, { scale }] };
   });
   const periodIndicatorStyle = useAnimatedStyle(() => {
     const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
