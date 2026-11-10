@@ -64,8 +64,20 @@ function endFor(start: string, period: Period): string {
   return addDays(addMonths(start, 1), -1);
 }
 
-function moneyDigits(value: string): string {
-  return value.replace(/\D/g, "").slice(0, 9);
+function normalizeAllowanceInput(value: string): string {
+  const cleaned = value.replace(/,/g, "").replace(/[^0-9.]/g, "");
+  const hasDecimal = cleaned.includes(".");
+  const [wholeRaw, ...fractionParts] = cleaned.split(".");
+  const whole = (wholeRaw ?? "").replace(/\D/g, "").slice(0, 9).replace(/^0+(?=\d)/, "");
+  const fraction = fractionParts.join("").replace(/\D/g, "").slice(0, 2);
+  return hasDecimal ? `${whole || "0"}.${fraction}` : whole;
+}
+
+function formatAllowanceInput(value: string): string {
+  if (!value) return "";
+  const [whole, fraction] = value.split(".");
+  const formattedWhole = Number(whole || "0").toLocaleString("en-PH");
+  return value.includes(".") ? `${formattedWhole}.${fraction ?? ""}` : formattedWhole;
 }
 
 export default function OnboardingScreen() {
@@ -175,9 +187,10 @@ export default function OnboardingScreen() {
       setSavedCycle(current);
       setAllowanceSaved(true);
       setSavedAmount(current.allowanceCentavos);
-      const loadedAmount = String(Math.round(current.allowanceCentavos / 100));
+      const loadedAmount = (current.allowanceCentavos / 100).toFixed(2).replace(/\.?0+$/, "");
       setAmount(loadedAmount);
-      setAmountSelection({ start: loadedAmount.length, end: loadedAmount.length });
+      const loadedDisplay = formatAllowanceInput(loadedAmount).length;
+      setAmountSelection({ start: loadedDisplay, end: loadedDisplay });
       setPeriod(current.frequency === "weekly" || current.frequency === "biweekly" ? current.frequency : "monthly");
       setStartDate(current.startDate);
     }).catch((loadError) => console.error("Could not load current allowance:", loadError));
@@ -227,13 +240,13 @@ export default function OnboardingScreen() {
         period,
         startDate: savedCycle?.startDate ?? startDate,
         lengthDays: days,
-        amountCentavos: numericAmount * 100,
+        amountCentavos: Math.round(numericAmount * 100),
         mode,
       });
       setAllowanceSaved(true);
       confettiPlayed.current = false;
       setConfettiPending(true);
-      setSavedAmount(numericAmount * 100);
+      setSavedAmount(Math.round(numericAmount * 100));
       setSkippedAllowance(false);
       const refreshedCycles = await getCycles(db);
       const today = manilaToday();
@@ -381,7 +394,7 @@ export default function OnboardingScreen() {
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
             <Pressable style={styles.amountLine} onPress={() => amountInput.current?.focus()}>
               <Text maxFontSizeMultiplier={1.2} style={styles.currencySign}>₱</Text>
-              <TextInput ref={amountInput} value={amount ? Number(amount).toLocaleString("en-PH") : ""} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = moneyDigits(value).replace(/^0+(?=\d)/, ""); const digitsBefore = moneyDigits(value.slice(0, amountSelection.start)).length; const formatted = raw ? Number(raw).toLocaleString("en-PH") : ""; let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < digitsBefore) { if (/\d/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="number-pad" inputMode="numeric" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={styles.amountInput} maxFontSizeMultiplier={1.2} />
+              <TextInput ref={amountInput} value={formatAllowanceInput(amount)} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={styles.amountInput} maxFontSizeMultiplier={1.2} />
             </Pressable>
             <View style={styles.periodPill} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
               <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
@@ -398,7 +411,7 @@ export default function OnboardingScreen() {
             </View>
             <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.helper}>{showHelperDetail ? `Ends ${formatDate(endDate, false)} · About ${formatMoney(perDay, "PHP")} per day` : `Ends ${formatDate(endDate, false)}`}</Text>
             {showQuickAmounts ? <View style={styles.quickAmounts}>
-              {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => { const next = String(value); setAmount(next); setAmountSelection({ start: next.length, end: next.length }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
+              {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => { const next = String(value); setAmount(next); const nextDisplayLength = formatAllowanceInput(next).length; setAmountSelection({ start: nextDisplayLength, end: nextDisplayLength }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
             </View> : null}
             {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
           </View>
