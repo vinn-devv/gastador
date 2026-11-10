@@ -75,7 +75,8 @@ export default function SettingsScreen() {
   const [methods, setMethods] = useState<CustomPaymentMethod[]>([]);
   const [methodName, setMethodName] = useState("");
   const [editingMethod, setEditingMethod] = useState<string | null>(null);
-  const version = Constants.expoConfig?.version ?? "1.0.0";\n  useEffect(() => { void getCustomPaymentMethods(db).then(setMethods).catch((error) => console.error("Could not load payment methods:", error)); }, [db]);
+  const version = Constants.expoConfig?.version ?? "1.0.0";
+  useEffect(() => { void getCustomPaymentMethods(db).then(setMethods).catch((error) => console.error("Could not load payment methods:", error)); }, [db]);
 
   const choose = (key: PrefKey, title: string, values: string[]) => {
     if (!settings) return;
