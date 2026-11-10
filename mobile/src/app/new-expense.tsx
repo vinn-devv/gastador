@@ -147,7 +147,7 @@ export default function NewExpenseScreen() {
             <ThemedText style={[styles.amountLabel, { color: theme.text }]}>Expense amount</ThemedText>
             <View style={[styles.amountInputWrap, { borderColor: theme.line, backgroundColor: theme.surface }]}>
               <ThemedText style={[styles.currencyPrefix, { color: theme.primary }]}>{currency === "PHP" ? "₱" : currency}</ThemedText>
-              <TextInput value={amount} onChangeText={(value) => { setAmount(value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1")); setError(""); }} placeholder="0.00" placeholderTextColor={theme.muted} keyboardType="decimal-pad" accessibilityLabel="Expense amount" style={[styles.amountInput, { color: theme.text }]} />
+              <TextInput value={amount} onChangeText={(value) => { setAmount(value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1")); setError(""); setFundsError(""); }} placeholder="0.00" placeholderTextColor={theme.muted} keyboardType="decimal-pad" accessibilityLabel="Expense amount" style={[styles.amountInput, { color: theme.text }]} />
             </View>
             {!!liveFundsMessage && <ThemedText accessibilityLiveRegion="polite" style={styles.fundsError}>{liveFundsMessage}</ThemedText>}
           </View>
