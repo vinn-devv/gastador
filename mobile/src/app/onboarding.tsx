@@ -139,7 +139,7 @@ export default function OnboardingScreen() {
     if (page !== 1) return;
     const timer = setTimeout(() => amountInput.current?.focus(), reducedMotion ? 120 : 250);
     return () => clearTimeout(timer);
-  }, [settledPage, reducedMotion]);
+  }, [page, settledPage, reducedMotion]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -473,8 +473,8 @@ export default function OnboardingScreen() {
 
         <Reanimated.View pointerEvents="none" style={[styles.sharedCoin, sharedCoinStyle]}>
           <Reanimated.View style={[styles.sharedRing, ringStyle]} />
-          <Image source={COIN} contentFit="contain" style={styles.sharedCoinImage} accessibilityLabel="3D peso coin" />
           <Reanimated.View style={[styles.sharedShadow, shadowStyle]}><Svg width="100%" height="100%" viewBox="0 0 100 20"><Defs><RadialGradient id="sharedCoinContact" cx="50%" cy="50%" rx="50%" ry="50%"><Stop offset="0" stopColor="#050F32" stopOpacity="0.35" /><Stop offset="1" stopColor="#050F32" stopOpacity="0" /></RadialGradient></Defs><Ellipse cx="50" cy="10" rx="50" ry="10" fill="url(#sharedCoinContact)" /></Svg></Reanimated.View>
+          <Image source={COIN} contentFit="contain" style={styles.sharedCoinImage} accessibilityLabel="3D peso coin" />
           <Reanimated.View style={[styles.confetti, confettiStyle]}>{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>
         </Reanimated.View>
       </View>
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
   sharedCoin: { zIndex: 3, alignItems: "center", justifyContent: "center", overflow: "visible" },
   sharedCoinImage: { width: "100%", height: "100%" },
   sharedRing: { position: "absolute", width: "82%", height: "82%", borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
-  sharedShadow: { position: "absolute", bottom: -8, width: "70%", height: 16 },
+  sharedShadow: { position: "absolute", bottom: "-6%", width: "70%", height: "12%" },
 
   welcomeCopy: { width: "100%", alignItems: "center", paddingHorizontal: 8, marginTop: 32 },
   welcomeHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 46, textAlign: "center" },
