@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type ComponentRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from "react";
 import {
   BackHandler,
   Pressable,
@@ -15,7 +15,6 @@ import { useSQLiteContext } from "expo-sqlite";
 import { Image } from "expo-image";
 import Svg, { Defs, Ellipse, RadialGradient, Stop } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import { StatusBar } from "expo-status-bar";
 import { SymbolView } from "expo-symbols";
@@ -79,9 +78,6 @@ export default function OnboardingScreen() {
   const progressValue = useSharedValue(0);
   const float = useSharedValue(0);
   const pulse = useSharedValue(0);
-  const coinEntry = useSharedValue(0);
-  const entryScale = useSharedValue(0.85);
-  const tiltMotion = useSharedValue(0);
   const confettiProgress = useSharedValue(0);
   const confettiPlayed = useRef(false);
   const buttonScale = useSharedValue(1);
@@ -91,6 +87,8 @@ export default function OnboardingScreen() {
   const [amount, setAmount] = useState("");
   const [period, setPeriod] = useState<Period>("monthly");
   const [periodWidth, setPeriodWidth] = useState(0);
+  const [coinSlotHeight, setCoinSlotHeight] = useState(0);
+  const [keypadLayout, setKeypadLayout] = useState({ width: 0, height: 0 });
   const periodIndex = period === "weekly" ? 0 : period === "biweekly" ? 1 : 2;
   const [startDate, setStartDate] = useState(manilaToday());
   const [allowanceSaved, setAllowanceSaved] = useState(false);
@@ -108,11 +106,6 @@ export default function OnboardingScreen() {
   }, [page, progressValue, reducedMotion]);
 
   useEffect(() => {
-    coinEntry.set(withTiming(1, { duration: reducedMotion ? 180 : 700 }));
-    entryScale.set(withSpring(1, { damping: 14, stiffness: 100 }));
-  }, [coinEntry, entryScale, reducedMotion]);
-
-  useEffect(() => {
     if (!reducedMotion) {
       float.set(withRepeat(
         withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.sin) }),
@@ -121,10 +114,6 @@ export default function OnboardingScreen() {
       ));
     }
   }, [float, reducedMotion]);
-
-  useEffect(() => {
-    if (!reducedMotion) tiltMotion.set(withRepeat(withTiming(1, { duration: 2500, easing: Easing.inOut(Easing.sin) }), -1, true));
-  }, [reducedMotion, tiltMotion]);
 
   useEffect(() => {
     if (page === 2 && allowanceSaved) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -233,26 +222,7 @@ export default function OnboardingScreen() {
 
   const saveAllowanceForOnboarding = () => saveAllowanceWithMode("edit_current");
 
-  const coinStyle = useAnimatedStyle(() => {
-    const progress = pageProgress.get();
-    const size = interpolate(progress, [0, 1, 2], [1, 0.55, 0.9]);
-    const x = interpolate(progress, [0, 1, 2], [0, width * 0.23, 0]);
-    const y = interpolate(progress, [0, 1, 2], [0, -height * 0.14, 0]);
-    const tilt = reducedMotion ? 0 : interpolate(progress, [0, 1, 2], [-8, 0, 0]);
-    const bob = reducedMotion ? 0 : Math.sin(float.get() * Math.PI * 2) * 10;
-    return {
-      opacity: coinEntry.get(),
-      transform: [
-        { perspective: 800 },
-        { translateX: x },
-        { translateY: y + bob },
-        { scale: withSpring(size * entryScale.get(), { damping: 14, stiffness: 110 }) },
-        { rotateZ: `${tilt + (reducedMotion ? 0 : interpolate(tiltMotion.get(), [0, 1], [-3, 3]))}deg` },
-        { rotateY: reducedMotion ? "0deg" : `${interpolate(progress, [0, 1, 2], [0, 360, 720])}deg` },
-      ],
-    };
-  }, [coinEntry, entryScale, tiltMotion]);
-
+  const welcomeCoinStyle = useAnimatedStyle(() => ({ transform: [{ translateY: reducedMotion ? 0 : Math.sin(float.get() * Math.PI * 2) * 6 }] }));
   const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.get() }] }));
   const periodIndicatorStyle = useAnimatedStyle(() => {
     const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
@@ -277,17 +247,20 @@ export default function OnboardingScreen() {
     };
   });
 
-  const coinSize = Math.min(width * 0.78, height * 0.4, 320);
-  const firstCoinSize = Math.min(coinSize, Math.max(80, height * 0.14));
-  const showQuickAmounts = height >= 700;
+  const pageOneCoinSize = Math.min(width * 0.7, 280, Math.max(0, coinSlotHeight - 36));
+  const welcomeCoinSize = 220;
+  const keypadRowHeight = Math.max(0, (keypadLayout.height - 30) / 4);
+  const keypadColumnWidth = keypadLayout.width / 3;
+  const keySize = Math.max(44, Math.min(56, Math.min(keypadRowHeight, keypadColumnWidth) - 8));
+  const showQuickAmounts = height >= 800 && keySize > 44;
   const showSubtitle = height >= 640;
 
   return (
     <RNAnimated.View style={[styles.root, { opacity: fade }]}>
       <StatusBar style="light" />
       <LinearGradient colors={["#1E40AF", "#2563EB", "#0B1F5C"]} locations={[0, 0.52, 1]} style={StyleSheet.absoluteFill} />
-      <View pointerEvents="none" style={[styles.orb, { width: width * 0.9, height: width * 0.9, top: -width * 0.42, right: -width * 0.32 }]}><BlurView intensity={32} tint="light" style={StyleSheet.absoluteFill} /></View>
-      <View pointerEvents="none" style={[styles.orb, { width: width * 0.75, height: width * 0.75, bottom: height * 0.18, left: -width * 0.42 }]}><BlurView intensity={32} tint="light" style={StyleSheet.absoluteFill} /></View>
+      <View pointerEvents="none" style={[styles.orb, { width: width * 0.9, height: width * 0.9, top: -width * 0.42, right: -width * 0.32 }]} />
+      {page === 0 ? <View pointerEvents="none" style={[styles.orb, styles.pageOneOrb, { width: width * 0.75, height: width * 0.75, bottom: height * 0.12, left: -width * 0.42 }]} /> : null}
 
       <View style={[styles.top, { paddingTop: insets.top + 8 }]}>
         {page > 0 ? <Pressable onPress={() => moveTo(page - 1)} accessibilityRole="button" accessibilityLabel="Go back" style={styles.backButton}>
@@ -346,15 +319,28 @@ export default function OnboardingScreen() {
                 ].map((item) => (
                   <View key={item.label} style={styles.chip}>
                     {Platform.OS === "android" ? <Text maxFontSizeMultiplier={1.2} style={styles.materialIcon}>{item.icon.android}</Text> : <SymbolView name={item.icon as ComponentProps<typeof SymbolView>["name"]} tintColor={WHITE} size={12} />}
-                    <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.chipText}>{item.label}</Text>
+                    <Text maxFontSizeMultiplier={1.2} style={styles.chipText}>{item.label}</Text>
                   </View>
                 ))}
               </Reanimated.View>
             </View>
-            <View style={{ flex: 1 }} />
+            <View style={styles.pageOneCoinSlot} onLayout={(event) => setCoinSlotHeight(event.nativeEvent.layout.height)}>
+              {pageOneCoinSize > 0 ? <>
+                <Image source={COIN} contentFit="contain" style={{ width: pageOneCoinSize, height: pageOneCoinSize }} accessibilityLabel="3D peso coin" />
+                <View style={styles.coinContactShadow}>
+                  <Svg width="100%" height="100%" viewBox="0 0 100 20">
+                    <Defs><RadialGradient id="pageOneCoinContact" cx="50%" cy="50%" rx="50%" ry="50%">
+                      <Stop offset="0" stopColor="#050F32" stopOpacity="0.35" />
+                      <Stop offset="1" stopColor="#050F32" stopOpacity="0" />
+                    </RadialGradient></Defs>
+                    <Ellipse cx="50" cy="10" rx="50" ry="10" fill="url(#pageOneCoinContact)" />
+                  </Svg>
+                </View>
+              </> : null}
+            </View>
           </View>
 
-          <View style={[styles.page, styles.allowancePage, { width }]}>
+          <View style={[styles.page, styles.allowancePage, { width }]>
             <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
               <Image source={COIN} contentFit="contain" style={styles.headerCoin} accessibilityLabel="3D peso coin" />
@@ -381,13 +367,21 @@ export default function OnboardingScreen() {
             {showQuickAmounts ? <View style={styles.quickAmounts}>
               {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => setAmount(String(value))} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
             </View> : null}
-            <View style={styles.keypad}>
-              {["1","2","3","4","5","6","7","8","9","", "0", "⌫"].map((key, index) => <Pressable key={index} disabled={!key} onPress={() => {
-                void Haptics.selectionAsync();
-                setAmount((old) => key === "⌫" ? old.slice(0, -1) : moneyDigits(old + key));
-              }} accessibilityRole="button" accessibilityLabel={key === "⌫" ? "Backspace" : key ? `Enter ${key} pesos` : undefined} style={[styles.key, !key && styles.keyEmpty]}>
-                <Text maxFontSizeMultiplier={1.2} style={styles.keyText}>{key}</Text>
-              </Pressable>)}
+            <View style={styles.keypad} onLayout={(event) => setKeypadLayout({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height })}>
+              {[["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["", "0", "⌫"]].map((row, rowIndex) => (
+                <View key={rowIndex} style={styles.keypadRow}>
+                  {row.map((key, columnIndex) => (
+                    <View key={`${rowIndex}-${columnIndex}`} style={styles.keypadCell}>
+                      <Pressable disabled={!key} onPress={() => {
+                        void Haptics.selectionAsync();
+                        setAmount((old) => key === "⌫" ? old.slice(0, -1) : moneyDigits(old + key));
+                      }} accessibilityRole="button" accessibilityLabel={key === "⌫" ? "Backspace" : key ? `Enter ${key} pesos` : undefined} style={[styles.key, { width: keySize, height: keySize, borderRadius: keySize / 2 }, !key && styles.keyEmpty]}>
+                        <Text maxFontSizeMultiplier={1.2} style={styles.keyText}>{key}</Text>
+                      </Pressable>
+                    </View>
+                  ))}
+                </View>
+              ))}
             </View>
             {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
           </View>
@@ -463,28 +457,31 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#1E40AF" },
-  orb: { position: "absolute", zIndex: 0, borderRadius: 999, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.05)" },
+  orb: { position: "absolute", zIndex: 0, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.05)" },
+  pageOneOrb: { zIndex: 0 },
   top: { flexDirection: "row", alignItems: "center", gap: 9, paddingHorizontal: 18, paddingBottom: 8, zIndex: 4 },
   backButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.16)", alignItems: "center", justifyContent: "center" },
   backPlaceholder: { width: 40, height: 40 },
   counter: { color: "rgba(255,255,255,0.7)", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 52 },
   progress: { flex: 1, flexDirection: "row", gap: 8, alignItems: "center" },
   segmentHit: { flex: 1, minHeight: 32, justifyContent: "center" },
-  segmentTrack: { flex: 1, height: 3, borderRadius: 99, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.25)" },
-  segmentFill: { height: 3, backgroundColor: ACCENT, borderRadius: 99 },
+  segmentTrack: { width: "100%", height: 4, alignSelf: "center", borderRadius: 999, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.28)" },
+  segmentFill: { height: 4, backgroundColor: WHITE, borderRadius: 999 },
   skip: { minWidth: 44, minHeight: 44, justifyContent: "center", alignItems: "flex-end" },
   skipText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
   skipPlaceholder: { width: 44 },
   pagerHost: { flex: 1, zIndex: 1 },
   page: { flex: 1, paddingHorizontal: 24 },
-  copy: { zIndex: 2 },
+  copy: { zIndex: 2, paddingTop: 12 },
   headline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 44, lineHeight: 49, includeFontPadding: false },
   headlineAccent: { color: SKY },
   subtitle: { color: "rgba(255,255,255,0.85)", fontFamily: "IBMPlexSans_400Regular", fontSize: 17, lineHeight: 24, marginTop: 16, maxWidth: 340 },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 18 },
-  chip: { flexGrow: 1, flexBasis: "30%", minWidth: 112, backgroundColor: "rgba(255,255,255,0.14)", borderRadius: 999, paddingHorizontal: 8, height: 36, justifyContent: "center", alignItems: "center", flexDirection: "row", gap: 5 },
-  materialIcon: { color: WHITE, fontFamily: "MaterialSymbols_400Regular", fontSize: 15, lineHeight: 16 },
-  chipText: { flexShrink: 1, color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 18 },
+  chip: { flexGrow: 0, flexShrink: 0, alignSelf: "flex-start", backgroundColor: "rgba(255,255,255,0.14)", borderRadius: 999, paddingHorizontal: 12, height: 36, justifyContent: "center", alignItems: "center", flexDirection: "row", gap: 6 },
+  materialIcon: { color: WHITE, fontFamily: "MaterialSymbols_400Regular", fontSize: 16, lineHeight: 18 },
+  chipText: { flexShrink: 0, color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
+  pageOneCoinSlot: { flex: 1, minHeight: 0, marginVertical: 16, alignItems: "center", justifyContent: "center", zIndex: 1 },
+  coinContactShadow: { width: "70%", height: 16, marginTop: 8 },
   allowancePage: { paddingTop: 0, paddingBottom: 0, gap: 2 },
   allowanceHeading: { height: 64, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
   allowanceHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 34, lineHeight: 40, flex: 1 },
@@ -492,7 +489,7 @@ const styles = StyleSheet.create({
   allowanceSubtitle: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 18 },
   dateRow: { minHeight: 38, flexDirection: "row", alignItems: "center", gap: 10 },
   dateLabel: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 78 },
-  dateControl: { flex: 1 },
+  dateControl: { flex: 1, alignSelf: "center" },
   amountLine: { flexDirection: "row", alignItems: "center", minHeight: 60, marginTop: 0 },
   currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 31, lineHeight: 48 },
   amount: { flex: 1, color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 50, lineHeight: 60, includeFontPadding: false },
@@ -501,27 +498,29 @@ const styles = StyleSheet.create({
   periodIndicator: { position: "absolute", top: 4, bottom: 4, left: 4, backgroundColor: WHITE, borderRadius: 999 },
   periodText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 11 },
   periodTextActive: { color: BLUE },
-  endDate: { color: "rgba(255,255,255,0.8)", fontFamily: "IBMPlexSans_400Regular", fontSize: 12, marginTop: -6 },
-  helper: { color: ACCENT, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12, lineHeight: 16 },
+  helper: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13, lineHeight: 18, textAlign: "center", marginVertical: 8 },
   quickAmounts: { height: 32, flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", gap: 5 },
   quickChip: { flex: 1, minWidth: 0, height: 32, paddingHorizontal: 4, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.14)", justifyContent: "center", alignItems: "center" },
   quickText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
-  keypad: { flex: 1, minHeight: 188, flexDirection: "row", flexWrap: "wrap", alignContent: "stretch", justifyContent: "space-between", columnGap: 6, rowGap: 4 },
-  key: { width: "31%", minHeight: 44, maxHeight: 56, flexGrow: 1, flexBasis: "30%", borderRadius: 999, backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center" },
+  keypad: { flex: 1, minHeight: 188, flexDirection: "column", gap: 10 },
+  keypadRow: { flex: 1, flexDirection: "row", alignItems: "center" },
+  keypadCell: { flex: 1, alignItems: "center", justifyContent: "center" },
+  key: { backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center" },
   keyEmpty: { backgroundColor: "transparent" },
   keyText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
   error: { color: "#FFE0E0", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  coinStage: { position: "absolute", zIndex: 1, alignItems: "center", justifyContent: "center" },
-  coinWrap: { alignItems: "center", justifyContent: "center" },
-  ring: { position: "absolute", width: "76%", height: "76%", borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
-  confetti: { position: "absolute", width: "100%", height: "100%", alignItems: "center", justifyContent: "center" },
+  welcomePage: { alignItems: "center", justifyContent: "center", paddingVertical: 12 },
+  welcomeStack: { width: "100%", alignItems: "center", justifyContent: "center" },
+  welcomeVisual: { width: 230, height: 252, alignItems: "center", justifyContent: "flex-start", overflow: "hidden" },
+  welcomeCoin: { width: 220, height: 220, alignItems: "center", justifyContent: "center" },
+  ring: { position: "absolute", top: 22, width: 176, height: 176, borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
+  confetti: { position: "absolute", top: 0, width: 220, height: 220, alignItems: "center", justifyContent: "center" },
   confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
-  contactShadow: { position: "absolute", width: "70%", height: "12%", bottom: "3%", borderRadius: 999, overflow: "hidden" },
-  welcomePage: { alignItems: "center" },
-  welcomeCopy: { width: "100%", alignItems: "center", paddingHorizontal: 8, marginTop: 20, zIndex: 2 },
+  welcomeContactShadow: { position: "absolute", bottom: 0, width: "70%", height: 16 },
+  welcomeCopy: { width: "100%", alignItems: "center", paddingHorizontal: 8, marginTop: 32 },
   welcomeHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 42, lineHeight: 49, textAlign: "center" },
   welcomeBrand: { color: "#CFE6FF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 52, lineHeight: 58, textAlign: "center" },
-  welcomeSubtitle: { color: "rgba(255,255,255,0.85)", fontFamily: "IBMPlexSans_400Regular", fontSize: 16, lineHeight: 23, textAlign: "center", marginTop: 16 },
+  welcomeSubtitle: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_400Regular", fontSize: 16, lineHeight: 23, textAlign: "center", marginTop: 16 },
   bottom: { paddingHorizontal: 24, paddingTop: 8, zIndex: 4 },
   noLogin: { minHeight: 24, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, marginBottom: 12 },
   noLoginText: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15, textAlign: "center" },
