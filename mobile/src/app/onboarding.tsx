@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import { StatusBar } from "expo-status-bar";
 import { SymbolView } from "expo-symbols";
@@ -242,8 +243,8 @@ export default function OnboardingScreen() {
     <RNAnimated.View style={[styles.root, { opacity: fade }]}>
       <StatusBar style="light" />
       <LinearGradient colors={["#1E40AF", "#2563EB", "#0B1F5C"]} locations={[0, 0.52, 1]} style={StyleSheet.absoluteFill} />
-      <View pointerEvents="none" style={[styles.orb, { width: width * 0.9, height: width * 0.9, top: -width * 0.42, right: -width * 0.32 }]} />
-      <View pointerEvents="none" style={[styles.orb, { width: width * 0.75, height: width * 0.75, bottom: height * 0.18, left: -width * 0.42 }]} />
+      <View pointerEvents="none" style={[styles.orb, { width: width * 0.9, height: width * 0.9, top: -width * 0.42, right: -width * 0.32 }]}><BlurView intensity={32} tint="light" style={StyleSheet.absoluteFill} /></View>
+      <View pointerEvents="none" style={[styles.orb, { width: width * 0.75, height: width * 0.75, bottom: height * 0.18, left: -width * 0.42 }]}><BlurView intensity={32} tint="light" style={StyleSheet.absoluteFill} /></View>
 
       <View style={[styles.top, { paddingTop: insets.top + 8 }]}>
         <Text maxFontSizeMultiplier={1.2} style={styles.counter}>{String(page + 1).padStart(2, "0")} / 03</Text>
@@ -396,7 +397,7 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#1E40AF" },
-  orb: { position: "absolute", borderRadius: 999, backgroundColor: "rgba(255,255,255,0.08)" },
+  orb: { position: "absolute", borderRadius: 999, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.08)" },
   top: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 24, paddingBottom: 8, zIndex: 4 },
   counter: { color: "rgba(255,255,255,0.7)", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 52 },
   progress: { flex: 1, flexDirection: "row", gap: 8, alignItems: "center" },
