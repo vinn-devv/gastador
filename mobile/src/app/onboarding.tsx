@@ -405,7 +405,7 @@ export default function OnboardingScreen() {
               <View style={[styles.headerCoinSlot, compactHeaderCoin && styles.headerCoinSlotCompact]} onLayout={onCoinSlotLayout(1, 24, 0)} />
             </View>
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
-            <Pressable style={styles.amountLine} onPress={() => amountInput.current?.focus()}>
+            <Pressable style={[styles.amountLine, keyboardVisible && styles.amountLineCompact]} onPress={() => amountInput.current?.focus()}>
               <Text maxFontSizeMultiplier={1.2} style={[styles.currencySign, keyboardVisible && styles.currencySignCompact]}>₱</Text>
               <TextInput ref={amountInput} value={formattedAmount} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, { fontSize: amountFontSize, lineHeight: amountFontSize + 8 }]} maxFontSizeMultiplier={1.2} />
             </Pressable>
@@ -531,6 +531,7 @@ const styles = StyleSheet.create({
   dateLabel: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 78 },
   dateControl: { flex: 1, alignSelf: "center" },
   amountLine: { flexDirection: "row", alignItems: "flex-start", minHeight: 68, marginTop: 0 },
+  amountLineCompact: { minHeight: 56 },
   currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 31, lineHeight: 36, marginTop: 8 },
   amountInput: { flex: 1, color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 56, lineHeight: 64, includeFontPadding: false, padding: 0, minWidth: 0 },
   allowancePageKeyboardAmount: { fontSize: 48, lineHeight: 52 },
