@@ -156,6 +156,22 @@ export type NewTransactionInput = {
   description?: string | null;
 };
 
+let expenseWriteQueue: Promise<void> = Promise.resolve();
+
+async function serializeExpenseWrite(task: () => Promise<void>): Promise<void> {
+  const previous = expenseWriteQueue;
+  let release: () => void = () => {};
+  expenseWriteQueue = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await previous;
+  try {
+    await task();
+  } finally {
+    release();
+  }
+}
+
 export class InsufficientFundsError extends Error {
   readonly code = "INSUFFICIENT_FUNDS";
   constructor(readonly remainingCentavos: number) {
@@ -219,7 +235,7 @@ export async function createTransaction(
   const occurredAt = fromManilaInput(`${input.date}T${manilaHourMinute()}`) ?? now;
   const id = `tx-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
-  await db.withExclusiveTransactionAsync(async (txn) => {
+  await serializeExpenseWrite(() => db.withExclusiveTransactionAsync(async (txn) => {
     await assertExpenseWithinCycle(txn, input);
     await txn.runAsync(
       `INSERT INTO transactions (
@@ -238,7 +254,7 @@ export async function createTransaction(
       now,
       now,
     );
-  });
+  }));
 }
 
 export async function updateTransaction(
@@ -255,7 +271,7 @@ export async function updateTransaction(
 
   const now = new Date().toISOString();
   const occurredAt = fromManilaInput(`${input.date}T${manilaHourMinute()}`) ?? now;
-  await db.withExclusiveTransactionAsync(async (txn) => {
+  await serializeExpenseWrite(() => db.withExclusiveTransactionAsync(async (txn) => {
     const existing = await txn.getFirstAsync<Pick<Transaction, "id" | "amountCentavos" | "date">>(
       "SELECT id, amountCentavos, date FROM transactions WHERE id = ?",
       id,
@@ -277,7 +293,7 @@ export async function updateTransaction(
       now,
       id,
     );
-  });
+  }));
 }
 
 
