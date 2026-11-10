@@ -168,7 +168,7 @@ export default function OnboardingScreen() {
     else pulse.set(0);
   }, [page, pulse, reducedMotion]);
 
-  const moveTo = (next: number, allowForward = false) => {
+  const moveTo = useCallback((next: number, allowForward = false) => {
     const safe = Math.max(0, Math.min(2, next));
     if (safe > 1 && !allowForward && !allowanceSaved && !skippedAllowance) return;
     Keyboard.dismiss();
@@ -176,7 +176,7 @@ export default function OnboardingScreen() {
     pageProgress.set(withTiming(safe, { duration: reducedMotion ? 180 : 600 }));
     pager.current?.scrollTo({ x: safe * width, animated: true });
     void Haptics.selectionAsync();
-  };
+  }, [allowanceSaved, skippedAllowance, reducedMotion, width, pageProgress]);
 
   useEffect(() => {
     let active = true;
@@ -208,7 +208,7 @@ export default function OnboardingScreen() {
       return true;
     });
     return () => sub.remove();
-  }, [page, keyboardVisible]);
+  }, [page, keyboardVisible, moveTo]);
 
   const finish = useCallback(async () => {
     try {
