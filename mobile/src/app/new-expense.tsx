@@ -15,8 +15,8 @@ import { createTransaction, getAllTransactions, getCategories, getCycles, getSet
 import { expensesInCycle, cycleForDate } from "@/domain/allowance";
 import { remainingCentavos, validateExpense } from "@/domain/spending-limit";
 import { manilaToday, isValidDate } from "@/domain/dates";
-import { formatMoney, parseMoney } from "@/domain/money";
-import { PAYMENT_METHODS, type Category, type Cycle, type PaymentMethod, type Transaction } from "@/domain/types";
+import { formatMoneyWithPreferences, parseMoney } from "@/domain/money";
+import { DEFAULT_PREFERENCES, PAYMENT_METHODS, type Category, type Cycle, type PaymentMethod, type Transaction, type SettingsPreferences } from "@/domain/types";
 import type { RootStackParamList } from "@/types/navigation";
 
 export default function NewExpenseScreen() {
@@ -26,7 +26,7 @@ export default function NewExpenseScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [currency, setCurrency] = useState("PHP");
+  const [currency, setCurrency] = useState("PHP");\n  const [displayPreferences, setDisplayPreferences] = useState<SettingsPreferences>(DEFAULT_PREFERENCES);
   const [amount, setAmount] = useState(params.amount ?? "");
   const [merchant, setMerchant] = useState(params.merchant ?? "");
   const [description, setDescription] = useState("");
@@ -69,7 +69,7 @@ export default function NewExpenseScreen() {
     }, [db]),
   );
 
-  const selectedCycle = cycleForDate(cycles, date);
+  const displayMoney = (amount: number) => formatMoneyWithPreferences(amount, currency, displayPreferences);\n  const selectedCycle = cycleForDate(cycles, date);
   const selectedCycleRemaining = selectedCycle
     ? remainingCentavos(selectedCycle, expensesInCycle(selectedCycle, transactions))
     : null;
@@ -87,7 +87,7 @@ export default function NewExpenseScreen() {
   const liveFundsMessage = insufficientFunds
     ? selectedCycleRemaining === 0
       ? "You have no allowance left."
-      : `Not enough allowance. You only have ${formatMoney(selectedCycleRemaining ?? 0, currency)} left.`
+      : `Not enough allowance. You only have ${displayMoney(selectedCycleRemaining ?? 0, currency)} left.`
     : fundsError;
 
   useEffect(() => {
@@ -116,7 +116,7 @@ export default function NewExpenseScreen() {
       if (saveError instanceof InsufficientFundsError) {
         setFundsError(saveError.remainingCentavos === 0
           ? "You have no allowance left."
-          : `Not enough allowance. You only have ${formatMoney(saveError.remainingCentavos, currency)} left.`);
+          : `Not enough allowance. You only have ${displayMoney(saveError.remainingCentavos, currency)} left.`);
       } else {
         console.error("Could not save expense:", saveError);
         setError("Your expense could not be saved. Please check the details and try again.");
@@ -136,7 +136,7 @@ export default function NewExpenseScreen() {
           <View style={[styles.balancePanel, { backgroundColor: theme.background }]}>
             <View style={{ flex: 1 }}>
               <ThemedText style={[styles.balanceLabel, { color: theme.muted }]}>Current allowance balance</ThemedText>
-              <ThemedText style={[styles.balanceValue, { color: theme.text }]}>{selectedCycleRemaining === null ? "No allowance for this date" : formatMoney(selectedCycleRemaining, currency)}</ThemedText>
+              <ThemedText style={[styles.balanceValue, { color: theme.text }]}>{selectedCycleRemaining === null ? "No allowance for this date" : displayMoney(selectedCycleRemaining, currency)}</ThemedText>
             </View>
             <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Set up allowance" style={styles.balanceAdd}>
               <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor={theme.primary} size={19} />
