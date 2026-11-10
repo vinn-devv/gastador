@@ -26,7 +26,8 @@ export default function NewExpenseScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [currency, setCurrency] = useState("PHP");\n  const [displayPreferences, setDisplayPreferences] = useState<SettingsPreferences>(DEFAULT_PREFERENCES);
+  const [currency, setCurrency] = useState("PHP");
+  const [displayPreferences, setDisplayPreferences] = useState<SettingsPreferences>(DEFAULT_PREFERENCES);
   const [amount, setAmount] = useState(params.amount ?? "");
   const [merchant, setMerchant] = useState(params.merchant ?? "");
   const [description, setDescription] = useState("");
@@ -69,7 +70,8 @@ export default function NewExpenseScreen() {
     }, [db]),
   );
 
-  const displayMoney = (amount: number) => formatMoneyWithPreferences(amount, currency, displayPreferences);\n  const selectedCycle = cycleForDate(cycles, date);
+  const displayMoney = (amount: number) => formatMoneyWithPreferences(amount, currency, displayPreferences);
+  const selectedCycle = cycleForDate(cycles, date);
   const selectedCycleRemaining = selectedCycle
     ? remainingCentavos(selectedCycle, expensesInCycle(selectedCycle, transactions))
     : null;
