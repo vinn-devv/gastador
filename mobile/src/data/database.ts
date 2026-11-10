@@ -19,7 +19,9 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
       onboardingCompleted INTEGER NOT NULL DEFAULT 0,
       hasOnboarded INTEGER NOT NULL DEFAULT 0,
       alertsJson TEXT NOT NULL,
-      createdAt TEXT NOT NULL
+      createdAt TEXT NOT NULL,
+      cycleDateMigrationVersion INTEGER NOT NULL DEFAULT 0,
+      cycleReviewNoticePending INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS categories (
@@ -39,7 +41,8 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
       allowanceCentavos INTEGER NOT NULL CHECK (allowanceCentavos >= 0),
       carryoverCentavos INTEGER NOT NULL DEFAULT 0,
       plannedSavingsCentavos INTEGER NOT NULL DEFAULT 0,
-      createdAt TEXT NOT NULL
+      createdAt TEXT NOT NULL,
+      needsReview INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS cycleLimits (
@@ -110,7 +113,16 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
     await db.execAsync("ALTER TABLE settings ADD COLUMN hasOnboarded INTEGER NOT NULL DEFAULT 0");
     await db.execAsync("UPDATE settings SET hasOnboarded = 1");
   }
-  if (!settingColumns.some((column) => column.name === "cycleDateMigrationVersion")) {\n    await db.execAsync("ALTER TABLE settings ADD COLUMN cycleDateMigrationVersion INTEGER NOT NULL DEFAULT 0");\n  }\n  if (!settingColumns.some((column) => column.name === "cycleReviewNoticePending")) {\n    await db.execAsync("ALTER TABLE settings ADD COLUMN cycleReviewNoticePending INTEGER NOT NULL DEFAULT 0");\n  }\n  const cycleColumns = await db.getAllAsync<{ name: string }>("PRAGMA table_info(cycles)");\n  if (!cycleColumns.some((column) => column.name === "needsReview")) {\n    await db.execAsync("ALTER TABLE cycles ADD COLUMN needsReview INTEGER NOT NULL DEFAULT 0");\n  }
+  if (!settingColumns.some((column) => column.name === "cycleDateMigrationVersion")) {
+    await db.execAsync("ALTER TABLE settings ADD COLUMN cycleDateMigrationVersion INTEGER NOT NULL DEFAULT 0");
+  }
+  if (!settingColumns.some((column) => column.name === "cycleReviewNoticePending")) {
+    await db.execAsync("ALTER TABLE settings ADD COLUMN cycleReviewNoticePending INTEGER NOT NULL DEFAULT 0");
+  }
+  const cycleColumns = await db.getAllAsync<{ name: string }>("PRAGMA table_info(cycles)");
+  if (!cycleColumns.some((column) => column.name === "needsReview")) {
+    await db.execAsync("ALTER TABLE cycles ADD COLUMN needsReview INTEGER NOT NULL DEFAULT 0");
+  }
 
   // Seed default settings only when the app has no settings yet.
   const now = new Date().toISOString();
@@ -126,8 +138,10 @@ export async function initializeDatabase(db: SQLiteDatabase): Promise<void> {
       onboardingCompleted,
       hasOnboarded,
       alertsJson,
-      createdAt
-    ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      createdAt,
+      cycleDateMigrationVersion,
+      cycleReviewNoticePending
+    ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)`,
     settings.displayName,
     settings.currency,
     settings.theme,
