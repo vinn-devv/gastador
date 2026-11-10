@@ -26,6 +26,7 @@ export function ThemedText({
 
   return (
     <Text
+      maxFontSizeMultiplier={1.3}
       style={[
         {
           color:
