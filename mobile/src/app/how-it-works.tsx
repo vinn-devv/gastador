@@ -50,7 +50,7 @@ export default function HowGastadorWorksScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <ScreenLayout title="How Gastador works" subtitle="A simple guide to managing your allowance.">
+    <ScreenLayout title="How Gastador works" subtitle="A simple guide to managing your allowance." onBack={() => router.back()}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) + 28 }]}
