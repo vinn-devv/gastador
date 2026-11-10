@@ -11,7 +11,7 @@ export type CurrencyCode = 'PHP' | 'USD' | 'EUR' | 'SGD';
 export interface Category {
   id: string;
   name: string;
-  color: string;
+  color?: string;
   sortOrder: number;
   archivedAt: string | null;
   createdAt: string;
