@@ -42,7 +42,10 @@ function SettingRow({ icon, title, subtitle, value, onPress, toggle, danger = fa
   const content = <>
     <View style={[styles.iconCircle, danger && styles.dangerIcon]}><SymbolView name={icon} tintColor={danger ? "#DC2626" : "#2563EB"} size={20} /></View>
     <View style={styles.rowText}>
-      <ThemedText style={[styles.rowTitle, danger && styles.dangerText]}>{title}</ThemedText>
+      <View style={styles.rowTitleLine}>
+        <View style={[styles.bullet, danger && styles.dangerBullet]} />
+        <ThemedText style={[styles.rowTitle, danger && styles.dangerText]}>{title}</ThemedText>
+      </View>
       {subtitle ? <ThemedText style={styles.rowSubtitle}>{subtitle}</ThemedText> : null}
     </View>
     {toggle ? <Switch value={toggle.value} onValueChange={toggle.onChange} trackColor={{ false: "#CBD5E1", true: "#93BDFB" }} thumbColor={toggle.value ? "#2563EB" : "#FFFFFF"} /> :
@@ -199,6 +202,9 @@ const styles = StyleSheet.create({
   dangerIcon: { backgroundColor: "#FEE2E2" },
   dangerText: { color: "#DC2626" },
   rowText: { flex: 1, gap: 2 },
+  rowTitleLine: { flexDirection: "row", alignItems: "center", gap: 8 },
+  bullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#60A5FA" },
+  dangerBullet: { backgroundColor: "#DC2626" },
   rowTitle: { color: "#0F172A", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 17 },
   rowSubtitle: { color: "#475569", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
   rowValue: { color: "#475569", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
