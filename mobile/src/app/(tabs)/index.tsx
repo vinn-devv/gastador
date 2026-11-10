@@ -598,6 +598,7 @@ export default function HomeScreen() {
                 styles.contentScrollInner,
                 { paddingBottom: navBarSpace(insets.bottom) + 24 },
               ]}
+              scrollEnabled={sheetTab === "activity"}
               showsVerticalScrollIndicator={false}
             >
               <Reanimated.View
@@ -712,7 +713,7 @@ export default function HomeScreen() {
                       {
                         paddingTop: Math.max(
                           0,
-                          (insightViewportHeight - RING_SIZE) / 2 - 58,
+                          (insightViewportHeight - RING_SIZE) / 2 - 78,
                         ),
                       },
                     ]}
