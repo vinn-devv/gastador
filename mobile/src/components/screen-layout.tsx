@@ -63,14 +63,14 @@ const styles = StyleSheet.create({
   sheet: {
     flex: 1,
     minHeight: 0,
-    marginHorizontal: SHEET_GAP,
-    marginBottom: SHEET_GAP,
+    marginHorizontal: 0,
+    marginBottom: 0,
     paddingTop: 16,
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     overflow: "hidden",
   },
 });
