@@ -186,7 +186,6 @@ export default function OnboardingScreen() {
     opacity: 0.85 - float.value * 0.12,
   }));
 
-  const page2Top = page === 1 ? 0 : height * 0.30;
   const coinSize = Math.min(width, height * 0.48, 380);
 
   return (
@@ -222,7 +221,7 @@ export default function OnboardingScreen() {
           bounces={false}
           onMomentumScrollEnd={(event) => {
             const next = Math.round(event.nativeEvent.contentOffset.x / width);
-            if (next > 1 && page === 1 && numericAmount <= 0) {
+            if (next === 2 && page !== 2 && numericAmount <= 0) {
               pager.current?.scrollTo({ x: width, animated: true });
               return;
             }
