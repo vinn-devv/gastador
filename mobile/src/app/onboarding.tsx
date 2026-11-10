@@ -345,7 +345,7 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={[styles.page, styles.welcomePage, { width }]}>
-            <View style={{ flex: 1 }} />
+            <View style={{ flex: 1.25 }} />
             <View style={styles.welcomeCopy}>
               <Text maxFontSizeMultiplier={1.2} style={styles.welcomeHeadline}>Welcome to</Text>
               <Text maxFontSizeMultiplier={1.2} style={styles.welcomeBrand}>Gastador</Text>
@@ -355,7 +355,7 @@ export default function OnboardingScreen() {
                   : "Your wallet is ready. Add your first expense, or set an allowance later in Settings."}
               </Text>
             </View>
-            <View style={{ flex: 1 }} />
+            <View style={{ flex: 0.75 }} />
           </View>
         </ScrollView>
 
