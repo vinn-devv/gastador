@@ -7,7 +7,7 @@ export const FEATURES = {
   // Settings preferences can be stored locally; related workflows remain gated.
   settingsPreferences: true,
   categoryManagement: true,
-  paymentMethodManagement: false,
+  paymentMethodManagement: true,
   // TODO: Implement encrypted backup and restore in mobile/src/data/backup.ts
   backup: false,
   restore: false,
