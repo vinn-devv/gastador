@@ -96,7 +96,6 @@ export default function OnboardingScreen() {
   const [savedAmount, setSavedAmount] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [overlapPrompt, setOverlapPrompt] = useState(false);
 
   const numericAmount = Number(amount || "0");
   const endDate = useMemo(() => endFor(startDate, period), [startDate, period]);
@@ -204,7 +203,6 @@ export default function OnboardingScreen() {
     if (numericAmount <= 0 || saving) return;
     setSaving(true);
     setError("");
-    setOverlapPrompt(false);
     try {
       await saveAllowance(db, {
         name: "Allowance",
@@ -224,7 +222,6 @@ export default function OnboardingScreen() {
     } catch (e) {
       if (e instanceof CycleOverlapError) {
         setError("You already have an allowance for these dates. Update it or start the next cycle.");
-        setOverlapPrompt(true);
       } else {
         setError(e instanceof Error ? e.message : "Couldn't save your allowance. Please try again.");
       }
@@ -311,7 +308,9 @@ export default function OnboardingScreen() {
           onMomentumScrollEnd={(event) => {
             const next = Math.round(event.nativeEvent.contentOffset.x / width);
             if (next > 1 && !allowanceSaved && !skippedAllowance) {
-              pager.current?.scrollTo({ x: page * width, animated: true });
+              pager.current?.scrollTo({ x: width, animated: true });
+              setPage(1);
+              pageProgress.set(withTiming(1, { duration: reducedMotion ? 180 : 420 }));
               return;
             }
             if (next !== page) {
@@ -459,21 +458,21 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#1E40AF" },
-  orb: { position: "absolute", zIndex: -1, borderRadius: 999, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.05)" },
+  orb: { position: "absolute", zIndex: 0, borderRadius: 999, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.05)" },
   top: { flexDirection: "row", alignItems: "center", gap: 9, paddingHorizontal: 18, paddingBottom: 8, zIndex: 4 },
   backButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.16)", alignItems: "center", justifyContent: "center" },
   backPlaceholder: { width: 40, height: 40 },
   counter: { color: "rgba(255,255,255,0.7)", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 52 },
   progress: { flex: 1, flexDirection: "row", gap: 8, alignItems: "center" },
   segmentHit: { flex: 1, minHeight: 32, justifyContent: "center" },
-  segmentTrack: { height: 3, borderRadius: 99, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.25)" },
+  segmentTrack: { flex: 1, height: 3, borderRadius: 99, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.25)" },
   segmentFill: { height: 3, backgroundColor: ACCENT, borderRadius: 99 },
   skip: { minWidth: 44, minHeight: 44, justifyContent: "center", alignItems: "flex-end" },
   skipText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15 },
   skipPlaceholder: { width: 44 },
-  pagerHost: { flex: 1 },
+  pagerHost: { flex: 1, zIndex: 1 },
   page: { flex: 1, paddingHorizontal: 24 },
-  copy: { zIndex: 1 },
+  copy: { zIndex: 2 },
   headline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 44, lineHeight: 49, includeFontPadding: false },
   headlineAccent: { color: SKY },
   subtitle: { color: "rgba(255,255,255,0.85)", fontFamily: "IBMPlexSans_400Regular", fontSize: 17, lineHeight: 24, marginTop: 16, maxWidth: 340 },
@@ -481,7 +480,7 @@ const styles = StyleSheet.create({
   chip: { flexGrow: 1, flexBasis: "30%", minWidth: 112, backgroundColor: "rgba(255,255,255,0.14)", borderRadius: 999, paddingHorizontal: 8, height: 36, justifyContent: "center", alignItems: "center", flexDirection: "row", gap: 5 },
   chipText: { flexShrink: 1, color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   allowancePage: { paddingTop: 0, paddingBottom: 0, gap: 3 },
-  allowanceHeading: { height: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
+  allowanceHeading: { height: 64, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
   allowanceHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 34, lineHeight: 40, flex: 1 },
   headerCoin: { width: 64, height: 64, flexShrink: 0 },
   allowanceSubtitle: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 18 },
@@ -506,18 +505,18 @@ const styles = StyleSheet.create({
   keyEmpty: { backgroundColor: "transparent" },
   keyText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
   error: { color: "#FFE0E0", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  coinStage: { position: "absolute", zIndex: 0, alignItems: "center", justifyContent: "center" },
+  coinStage: { position: "absolute", zIndex: 1, alignItems: "center", justifyContent: "center" },
   coinWrap: { alignItems: "center", justifyContent: "center" },
   ring: { position: "absolute", width: "76%", height: "76%", borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
   confetti: { position: "absolute", width: "100%", height: "100%", alignItems: "center", justifyContent: "center" },
   confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
   contactShadow: { position: "absolute", width: "70%", height: "12%", bottom: "3%", borderRadius: 999, overflow: "hidden" },
   welcomePage: { alignItems: "center" },
-  welcomeCopy: { width: "100%", alignItems: "center", paddingHorizontal: 8, marginTop: 20 },
+  welcomeCopy: { width: "100%", alignItems: "center", paddingHorizontal: 8, marginTop: 20, zIndex: 2 },
   welcomeHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 42, lineHeight: 49, textAlign: "center" },
   welcomeBrand: { color: "#CFE6FF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 52, lineHeight: 58, textAlign: "center" },
   welcomeSubtitle: { color: "rgba(255,255,255,0.85)", fontFamily: "IBMPlexSans_400Regular", fontSize: 16, lineHeight: 23, textAlign: "center", marginTop: 16 },
-  bottom: { paddingHorizontal: 24, paddingTop: 8 },
+  bottom: { paddingHorizontal: 24, paddingTop: 8, zIndex: 4 },
   noLogin: { minHeight: 24, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, marginBottom: 12 },
   noLoginText: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 15, textAlign: "center" },
   cta: { height: 64, borderRadius: 999, backgroundColor: WHITE, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, shadowColor: "#061747", shadowOpacity: 0.2, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 5 },
