@@ -261,10 +261,10 @@ export default function HomeScreen() {
       ["rgba(255,255,255,0.75)", "#1E40AF"],
     ),
   }));
-  const sheetEntrance = useRef(new RNAnimated.Value(0)).current;
+  const [sheetEntrance] = useState(() => new RNAnimated.Value(0));
 
-  const balanceProgress = useRef(new RNAnimated.Value(0)).current;
-  const balanceLabelOpacity = useRef(new RNAnimated.Value(0)).current;
+  const [balanceProgress] = useState(() => new RNAnimated.Value(0));
+  const [balanceLabelOpacity] = useState(() => new RNAnimated.Value(0));
   const [animatedRemaining, setAnimatedRemaining] = useState(0);
   const ringProgress = useSharedValue(0);
   const shimmerProgress = useSharedValue(0);
@@ -424,24 +424,24 @@ export default function HomeScreen() {
   }, [balanceLabelOpacity, balanceProgress, loading, remaining]);
 
   useEffect(() => {
-    ringProgress.value = withSpring(hasAllowance ? spentPercent / 100 : 0, {
+    ringProgress.set(withSpring(hasAllowance ? spentPercent / 100 : 0, {
       damping: 16,
       stiffness: 90,
       mass: 0.8,
-    });
+    }));
   }, [hasAllowance, ringProgress, spentPercent]);
 
   useEffect(() => {
-    shimmerProgress.value = withRepeat(
+    shimmerProgress.set(withRepeat(
       withTiming(1, { duration: 3000, easing: Easing.linear }),
       -1,
       false,
-    );
-    ringHeadPulse.value = withRepeat(
+    ));
+    ringHeadPulse.set(withRepeat(
       withTiming(1.2, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true,
-    );
+    ));
   }, [ringHeadPulse, shimmerProgress]);
 
   const switchSheetTab = useCallback(
@@ -450,10 +450,10 @@ export default function HomeScreen() {
       const target = next === "insight" ? 1 : 0;
       setContentDirection(next === "insight" ? 1 : -1);
       setSheetTab(next);
-      progress.value = withTiming(target, {
+      progress.set(withTiming(target, {
         duration: 400,
         easing: Easing.bezier(0.4, 0, 0.2, 1),
-      });
+      }));
     },
     [progress, sheetTab],
   );
