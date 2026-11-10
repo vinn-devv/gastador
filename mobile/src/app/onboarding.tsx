@@ -88,6 +88,7 @@ export default function OnboardingScreen() {
   const [skippedAllowance, setSkippedAllowance] = useState(false);
   const [savedCycle, setSavedCycle] = useState<Cycle | null>(null);
   const [amount, setAmount] = useState("");
+  const [amountSelection, setAmountSelection] = useState({ start: 0, end: 0 });
   const [period, setPeriod] = useState<Period>("monthly");
   const [periodWidth, setPeriodWidth] = useState(0);
   const amountInput = useRef<TextInput>(null);
@@ -174,7 +175,9 @@ export default function OnboardingScreen() {
       setSavedCycle(current);
       setAllowanceSaved(true);
       setSavedAmount(current.allowanceCentavos);
-      setAmount(String(Math.round(current.allowanceCentavos / 100)));
+      const loadedAmount = String(Math.round(current.allowanceCentavos / 100));
+      setAmount(loadedAmount);
+      setAmountSelection({ start: loadedAmount.length, end: loadedAmount.length });
       setPeriod(current.frequency === "weekly" || current.frequency === "biweekly" ? current.frequency : "monthly");
       setStartDate(current.startDate);
     }).catch((loadError) => console.error("Could not load current allowance:", loadError));
@@ -228,6 +231,7 @@ export default function OnboardingScreen() {
         mode,
       });
       setAllowanceSaved(true);
+      confettiPlayed.current = false;
       setConfettiPending(true);
       setSavedAmount(numericAmount * 100);
       setSkippedAllowance(false);
@@ -261,7 +265,7 @@ export default function OnboardingScreen() {
     const rotation = reducedMotion ? 0 : (tilt.get() - 0.5) * (idle ? 6 : 1.2);
     const spin = reducedMotion ? 0 : p * 360;
     const scale = entryScale.get() * (p > 1 && p < 2 ? 1 + Math.sin((p - 1) * Math.PI) * 0.08 : 1);
-    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2 + bob, width: size, height: size, opacity: slots.every((slot) => slot.width > 0) ? 1 : 0, transform: [{ perspective: 800 }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }, { scale }] };
+    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2 + bob, width: size, height: size, opacity: slots.every((slot) => slot.width > 0) ? (reducedMotion ? interpolate(p, [0, 0.45, 0.55, 0.95, 1.05, 1.45, 1.55, 2], [1, 1, 0.35, 1, 1, 0.35, 1, 1]) : 1) : 0, transform: [{ perspective: 800 }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }, { scale }] };
   });
   const periodIndicatorStyle = useAnimatedStyle(() => {
     const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
@@ -334,8 +338,8 @@ export default function OnboardingScreen() {
               return;
             }
             if (next !== page) {
+              Keyboard.dismiss();
               setPage(next);
-
             }
           }}
           style={{ flex: 1 }}
@@ -369,6 +373,7 @@ export default function OnboardingScreen() {
           </View>
 
           <View style={[styles.page, styles.allowancePage, { width }]}>
+            <Pressable pointerEvents="box-only" onPress={Keyboard.dismiss} style={StyleSheet.absoluteFill} />
             <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
               <View style={styles.headerCoinSlot} onLayout={onCoinSlotLayout(1)} />
@@ -376,7 +381,7 @@ export default function OnboardingScreen() {
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
             <Pressable style={styles.amountLine} onPress={() => amountInput.current?.focus()}>
               <Text maxFontSizeMultiplier={1.2} style={styles.currencySign}>₱</Text>
-              <TextInput ref={amountInput} value={amount ? Number(amount).toLocaleString("en-PH") : ""} onChangeText={(value) => setAmount(moneyDigits(value).replace(/^0+(?=\d)/, ""))} keyboardType="number-pad" inputMode="numeric" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={styles.amountInput} maxFontSizeMultiplier={1.2} />
+              <TextInput ref={amountInput} value={amount ? Number(amount).toLocaleString("en-PH") : ""} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = moneyDigits(value).replace(/^0+(?=\d)/, ""); const digitsBefore = moneyDigits(value.slice(0, amountSelection.start)).length; const formatted = raw ? Number(raw).toLocaleString("en-PH") : ""; let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < digitsBefore) { if (/\d/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="number-pad" inputMode="numeric" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={styles.amountInput} maxFontSizeMultiplier={1.2} />
             </Pressable>
             <View style={styles.periodPill} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
               <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
@@ -389,13 +394,12 @@ export default function OnboardingScreen() {
             </View>
             <View style={styles.dateRow}>
               <Text maxFontSizeMultiplier={1.2} style={styles.dateLabel}>Start date</Text>
-              <View style={styles.dateControl}><DateField label="Start date" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
+              <View style={styles.dateControl} onTouchStart={() => Keyboard.dismiss()}><DateField label="Start date" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
             </View>
             <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.helper}>{showHelperDetail ? `Ends ${formatDate(endDate, false)} · About ${formatMoney(perDay, "PHP")} per day` : `Ends ${formatDate(endDate, false)}`}</Text>
             {showQuickAmounts ? <View style={styles.quickAmounts}>
-              {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => setAmount(String(value))} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
+              {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => { const next = String(value); setAmount(next); setAmountSelection({ start: next.length, end: next.length }); }} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
             </View> : null}
-            <View style={styles.quickAmountsPlaceholder}>{null}</View>
             {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
           </View>
 
@@ -508,7 +512,6 @@ const styles = StyleSheet.create({
   quickAmounts: { height: 32, flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", gap: 5 },
   quickChip: { flex: 1, minWidth: 0, height: 32, paddingHorizontal: 4, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.14)", justifyContent: "center", alignItems: "center" },
   quickText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
-  quickAmountsPlaceholder: { height: 0 },
   error: { color: "#FFE0E0", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   welcomePage: { alignItems: "center", justifyContent: "center", paddingVertical: 8 },
   welcomeStack: { width: "100%", alignItems: "center", justifyContent: "center" },
