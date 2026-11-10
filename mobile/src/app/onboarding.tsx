@@ -199,6 +199,7 @@ export default function OnboardingScreen() {
 
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (keyboardVisible) { Keyboard.dismiss(); return true; }
       if (page > 0) {
         moveTo(page - 1);
         return true;
@@ -206,7 +207,7 @@ export default function OnboardingScreen() {
       return true;
     });
     return () => sub.remove();
-  });
+  }, [page, keyboardVisible]);
 
   const finish = useCallback(async () => {
     try {
@@ -385,7 +386,7 @@ export default function OnboardingScreen() {
             <View style={styles.pageOneCoinSlot} onLayout={onCoinSlotLayout(0)} />
           </View>
 
-          <View style={[styles.page, styles.allowancePage, { width }]}>
+          <View style={[styles.page, styles.allowancePage, keyboardVisible && styles.allowancePageKeyboard, { width }]}>
             <Pressable pointerEvents="box-only" onPress={Keyboard.dismiss} style={StyleSheet.absoluteFill} />
             <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
@@ -393,8 +394,8 @@ export default function OnboardingScreen() {
             </View>
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
             <Pressable style={styles.amountLine} onPress={() => amountInput.current?.focus()}>
-              <Text maxFontSizeMultiplier={1.2} style={styles.currencySign}>₱</Text>
-              <TextInput ref={amountInput} value={formatAllowanceInput(amount)} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={styles.amountInput} maxFontSizeMultiplier={1.2} />
+              <Text maxFontSizeMultiplier={1.2} style={[styles.currencySign, keyboardVisible && styles.currencySignCompact]}>₱</Text>
+              <TextInput ref={amountInput} value={formatAllowanceInput(amount)} selection={amountSelection} onSelectionChange={(event) => setAmountSelection(event.nativeEvent.selection)} onChangeText={(value) => { const raw = normalizeAllowanceInput(value); const significantBefore = value.slice(0, amountSelection.start).replace(/[^0-9.]/g, "").length; const formatted = formatAllowanceInput(raw); let cursor = 0; let seen = 0; while (cursor < formatted.length && seen < significantBefore) { if (/[0-9.]/.test(formatted[cursor])) seen += 1; cursor += 1; } setAmount(raw); setAmountSelection({ start: cursor, end: cursor }); }} keyboardType="decimal-pad" inputMode="decimal" maxLength={14} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={[styles.amountInput, keyboardVisible && styles.allowancePageKeyboardAmount]} maxFontSizeMultiplier={1.2} />
             </Pressable>
             <View style={styles.periodPill} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
               <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
@@ -443,7 +444,7 @@ export default function OnboardingScreen() {
         </Reanimated.View>
       </View>
 
-      <View style={[styles.bottom, { paddingBottom: insets.bottom + 16, marginBottom: keyboardVisible && Platform.OS === "ios" ? Math.max(0, keyboardHeight - insets.bottom) : 0 }]}>
+      <View style={[styles.bottom, { paddingBottom: page === 1 && keyboardVisible ? 12 : insets.bottom + 16, marginBottom: keyboardVisible && Platform.OS === "ios" ? Math.max(0, keyboardHeight - insets.bottom) : 0 }]}>
         {page === 0 ? <View style={styles.noLogin}>
           <SymbolView name={{ ios: "checkmark.shield.fill", android: "verified_user", web: "verified_user" }} tintColor="rgba(255,255,255,0.9)" size={17} />
           <Text maxFontSizeMultiplier={1.2} style={styles.noLoginText}>No login or sign-up needed. Just start.</Text>
@@ -506,6 +507,7 @@ const styles = StyleSheet.create({
   chipText: { flexShrink: 0, color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   pageOneCoinSlot: { flex: 1, minHeight: 0, marginVertical: 16 },
   allowancePage: { paddingTop: 0, paddingBottom: 0, gap: 0 },
+  allowancePageKeyboard: { paddingTop: 0 },
   allowanceHeading: { height: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
   allowanceHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 34, lineHeight: 40, flex: 1 },
   headerCoinSlot: { width: 64, height: 64, flexShrink: 0 },
@@ -514,8 +516,10 @@ const styles = StyleSheet.create({
   dateLabel: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 78 },
   dateControl: { flex: 1, alignSelf: "center" },
   amountLine: { flexDirection: "row", alignItems: "flex-start", minHeight: 68, marginTop: 0 },
-  currencySign: { color: WHITE, fontFamily: "Nunito_800ExtraBold", fontSize: 31, lineHeight: 36, marginTop: 8 },
-  amountInput: { flex: 1, color: WHITE, fontFamily: "Nunito_800ExtraBold", fontSize: 56, lineHeight: 64, includeFontPadding: false, padding: 0, minWidth: 0 },
+  currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 31, lineHeight: 36, marginTop: 8 },
+  amountInput: { flex: 1, color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 56, lineHeight: 64, includeFontPadding: false, padding: 0, minWidth: 0 },
+  allowancePageKeyboardAmount: { fontSize: 48, lineHeight: 52 },
+  currencySignCompact: { fontSize: 26, lineHeight: 32, marginTop: 5 },
   periodPill: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 999, padding: 4, gap: 2 },
   periodOption: { flex: 1, minHeight: 34, borderRadius: 999, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
   periodIndicator: { position: "absolute", top: 4, bottom: 4, left: 4, backgroundColor: WHITE, borderRadius: 999 },
