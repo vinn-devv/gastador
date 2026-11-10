@@ -38,7 +38,6 @@ import { formatMoney } from "@/domain/money";
 import type { Cycle } from "@/domain/types";
 
 const BLUE = "#1E40AF";
-const ACCENT = "#EAF3FF";
 const SKY = "#8EC5FF";
 const WHITE = "#FFFFFF";
 const COIN = require("@/assets/images/peso-coin.png");
@@ -73,7 +72,6 @@ export default function OnboardingScreen() {
   const reducedMotion = useReducedMotion();
   const pager = useRef<ComponentRef<typeof ScrollView>>(null);
   const [fade] = useState(() => new RNAnimated.Value(1));
-  const pageProgress = useSharedValue(0);
   const progressValue = useSharedValue(0);
   const float = useSharedValue(0);
   const pulse = useSharedValue(0);
@@ -134,7 +132,6 @@ export default function OnboardingScreen() {
     const safe = Math.max(0, Math.min(2, next));
     if (safe > 1 && !allowForward && !allowanceSaved && !skippedAllowance) return;
     setPage(safe);
-    pageProgress.set(withTiming(safe, { duration: reducedMotion ? 180 : 420 }));
     pager.current?.scrollTo({ x: safe * width, animated: true });
     void Haptics.selectionAsync();
   };
@@ -287,12 +284,10 @@ export default function OnboardingScreen() {
             if (next > 1 && !allowanceSaved && !skippedAllowance) {
               pager.current?.scrollTo({ x: width, animated: true });
               setPage(1);
-              pageProgress.set(withTiming(1, { duration: reducedMotion ? 180 : 420 }));
               return;
             }
             if (next !== page) {
               setPage(next);
-              pageProgress.set(withTiming(next, { duration: reducedMotion ? 180 : 420 }));
 
             }
           }}
