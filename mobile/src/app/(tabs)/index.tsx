@@ -269,9 +269,8 @@ export default function HomeScreen() {
   const shimmerProgress = useSharedValue(0);
   const ringHeadPulse = useSharedValue(1);
   const ringAnimatedProps = useAnimatedProps(() => {
-    const raw = ringProgress.value;
-    const visible = raw > 0 && raw < 0.012 ? 0.012 : raw;
-    return { strokeDashoffset: RING_CIRCUMFERENCE * (1 - visible) };
+    const raw = Math.max(0, Math.min(1, ringProgress.value));
+    return { strokeDashoffset: RING_CIRCUMFERENCE * (1 - raw) };
   });
   const shimmerAnimatedProps = useAnimatedProps(() => {
     const raw = Math.max(0, Math.min(1, ringProgress.value));
@@ -383,8 +382,7 @@ export default function HomeScreen() {
   const insightSpent = summary?.spentCentavos ?? 0;
   const insightLeft = summary?.remainingCentavos ?? 0;
   const insightDailyLimit = summary?.dailySafeLimitCentavos ?? summary?.plannedDailyCentavos ?? 0;
-  const budgetMethod = settings?.budgetMethod ?? "daily_pace";
-  const insightBudgetValue = budgetMethod === "simple_total" ? insightLeft : budgetMethod === "category_limits" ? insightSpent : insightDailyLimit;
+  const insightBudgetValue = insightDailyLimit;
   const insightBudgetLabel = "Safe per day";
   const insightStatus =
     rawSpentPercent > 100
@@ -784,12 +782,12 @@ export default function HomeScreen() {
                               <ThemedText
                                 style={[
                                   styles.ringPercent,
-                                  { color: ringColor },
+                                  { color: "#1E3A8A" },
                                 ]}
                               >
                                 {displayPercent}
                               </ThemedText>
-                              <ThemedText style={styles.ringLabel}>
+                              <ThemedText maxFontSizeMultiplier={1.3} style={styles.ringLabel}>
                                 of allowance spent
                               </ThemedText>
                             </>
@@ -810,10 +808,10 @@ export default function HomeScreen() {
                             entering={FadeInDown.duration(240).delay(50)}
                           >
                             <View style={styles.insightStatChip}>
-                              <ThemedText style={styles.insightStatValue}>
+                              <ThemedText maxFontSizeMultiplier={1.3} adjustsFontSizeToFit numberOfLines={1} style={styles.insightStatValue}>
                                 {formatMoney(insightSpent, currency)}
                               </ThemedText>
-                              <ThemedText style={styles.insightStatLabel}>
+                              <ThemedText maxFontSizeMultiplier={1.3} style={styles.insightStatLabel}>
                                 Spent
                               </ThemedText>
                             </View>
