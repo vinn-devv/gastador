@@ -78,6 +78,8 @@ export default function OnboardingScreen() {
   const [fade] = useState(() => new RNAnimated.Value(1));
   const progressValue = useSharedValue(0);
   const float = useSharedValue(0);
+  const tilt = useSharedValue(0);
+  const entryScale = useSharedValue(0.85);
   const pulse = useSharedValue(0);
   const confettiProgress = useSharedValue(0);
   const confettiPlayed = useRef(false);
@@ -96,6 +98,7 @@ export default function OnboardingScreen() {
   const periodIndex = period === "weekly" ? 0 : period === "biweekly" ? 1 : 2;
   const [startDate, setStartDate] = useState(manilaToday());
   const [allowanceSaved, setAllowanceSaved] = useState(false);
+  const [confettiPending, setConfettiPending] = useState(false);
   const [savedAmount, setSavedAmount] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -125,28 +128,29 @@ export default function OnboardingScreen() {
   }, [page, reducedMotion]);
 
   useEffect(() => {
-    if (!reducedMotion) {
-      float.set(withRepeat(
-        withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.sin) }),
-        -1,
-        true,
-      ));
-    }
-  }, [float, reducedMotion]);
+    if (reducedMotion) return;
+    float.set(withRepeat(withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.sin) }), -1, true));
+    tilt.set(withRepeat(withTiming(1, { duration: 2500, easing: Easing.inOut(Easing.sin) }), -1, true));
+  }, [float, tilt, reducedMotion]);
+
+  useEffect(() => {
+    entryScale.set(withSpring(1, { damping: 14, stiffness: 120 }));
+  }, [entryScale]);
 
   useEffect(() => {
     if (page === 2 && allowanceSaved) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }, [page, allowanceSaved]);
 
   useEffect(() => {
-    if (page === 2 && !confettiPlayed.current && !reducedMotion) {
+    if (page === 2 && confettiPending && !confettiPlayed.current && !reducedMotion) {
       confettiPlayed.current = true;
       confettiProgress.set(withSequence(withTiming(1, { duration: 1200 }), withTiming(0, { duration: 500 })));
+      setConfettiPending(false);
     }
-  }, [page, confettiProgress, reducedMotion]);
+  }, [page, confettiPending, confettiProgress, reducedMotion]);
 
   useEffect(() => {
-    if (page === 2 && !reducedMotion) pulse.set(withRepeat(withTiming(1, { duration: 1200 }), -1, true));
+    if ((page === 0 || page === 2) && !reducedMotion) pulse.set(withRepeat(withTiming(1, { duration: 1200 }), -1, true));
     else pulse.set(0);
   }, [page, pulse, reducedMotion]);
 
@@ -224,6 +228,7 @@ export default function OnboardingScreen() {
         mode,
       });
       setAllowanceSaved(true);
+      setConfettiPending(true);
       setSavedAmount(numericAmount * 100);
       setSkippedAllowance(false);
       const refreshedCycles = await getCycles(db);
@@ -243,7 +248,6 @@ export default function OnboardingScreen() {
 
   const saveAllowanceForOnboarding = () => saveAllowanceWithMode("edit_current");
 
-  const welcomeCoinStyle = useAnimatedStyle(() => ({ transform: [{ translateY: reducedMotion ? 0 : Math.sin(float.get() * Math.PI * 2) * 6 }] }));
   const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.get() }] }));
   const sharedCoinStyle = useAnimatedStyle(() => {
     const slots = coinSlots.get();
@@ -254,18 +258,21 @@ export default function OnboardingScreen() {
     const size = interpolate(p, [0, 1, 2], points.map((point) => Math.max(0, point.size)));
     const idle = p < 0.5 || p > 1.5;
     const bob = reducedMotion ? 0 : Math.sin(float.get() * Math.PI * 2) * (idle ? 10 : 2);
+    const rotation = reducedMotion ? 0 : (tilt.get() - 0.5) * (idle ? 6 : 1.2);
     const spin = reducedMotion ? 0 : p * 360;
-    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2 + bob, width: size, height: size, opacity: slots.every((slot) => slot.width > 0) ? 1 : 0, transform: [{ perspective: 800 }, { rotateY: `${spin}deg` }] };
+    const scale = entryScale.get() * (p > 1 && p < 2 ? 1 + Math.sin((p - 1) * Math.PI) * 0.08 : 1);
+    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2 + bob, width: size, height: size, opacity: slots.every((slot) => slot.width > 0) ? 1 : 0, transform: [{ perspective: 800 }, { rotateY: `${spin}deg` }, { rotateZ: `${rotation}deg` }, { scale }] };
   });
   const periodIndicatorStyle = useAnimatedStyle(() => {
     const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
     return { width: segmentWidth, transform: [{ translateX: withTiming(periodIndex * (segmentWidth + 2), { duration: 250 }) }] };
   }, [periodIndex, periodWidth]);
 
-  const ringStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: 0.8 + pulse.get() * 0.6 }],
-    opacity: reducedMotion ? 0.24 : 0.35 * (1 - pulse.get()),
-  }));
+  const ringStyle = useAnimatedStyle(() => {
+    const p = pageProgress.get();
+    const visibility = reducedMotion ? 0 : interpolate(p, [0, 0.5, 1, 1.5, 2], [1, 0, 0, 0, 1]);
+    return { transform: [{ scale: reducedMotion ? 1 : 0.8 + pulse.get() * 0.6 }], opacity: 0.35 * (1 - pulse.get()) * visibility };
+  });
 
   const confettiStyle = useAnimatedStyle(() => ({
     opacity: confettiProgress.get(),
@@ -273,11 +280,9 @@ export default function OnboardingScreen() {
   }));
 
   const shadowStyle = useAnimatedStyle(() => {
-    const lift = Math.max(0, -Math.sin(float.get() * Math.PI * 2));
-    return {
-      transform: [{ scaleX: 1 - lift * 0.08 }, { scaleY: 1 - lift * 0.06 }],
-      opacity: 0.85 - lift * 0.12,
-    };
+    const lift = reducedMotion ? 0 : Math.max(0, -Math.sin(float.get() * Math.PI * 2));
+    const visibility = reducedMotion ? 0 : interpolate(pageProgress.get(), [0, 0.5, 1, 1.5, 2], [1, 0, 0, 0, 1]);
+    return { transform: [{ scaleX: 1 - lift * 0.08 }, { scaleY: 1 - lift * 0.06 }], opacity: (0.85 - lift * 0.12) * visibility };
   });
 
   const showQuickAmounts = height >= 720 && !keyboardVisible;
@@ -371,7 +376,7 @@ export default function OnboardingScreen() {
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
             <Pressable style={styles.amountLine} onPress={() => amountInput.current?.focus()}>
               <Text maxFontSizeMultiplier={1.2} style={styles.currencySign}>₱</Text>
-              <TextInput ref={amountInput} value={amount ? Number(amount).toLocaleString("en-PH") : ""} onChangeText={(value) => setAmount(moneyDigits(value).replace(/^0+(?=\\d)/, ""))} keyboardType="number-pad" inputMode="numeric" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={styles.amountInput} maxFontSizeMultiplier={1.2} />
+              <TextInput ref={amountInput} value={amount ? Number(amount).toLocaleString("en-PH") : ""} onChangeText={(value) => setAmount(moneyDigits(value).replace(/^0+(?=\d)/, ""))} keyboardType="number-pad" inputMode="numeric" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={styles.amountInput} maxFontSizeMultiplier={1.2} />
             </Pressable>
             <View style={styles.periodPill} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
               <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
