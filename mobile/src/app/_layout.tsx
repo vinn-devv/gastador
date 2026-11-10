@@ -53,7 +53,7 @@ function AppNavigator() {
         <Stack.Screen name="expenses" options={{ animation: "slide_from_right" }} />
         <Stack.Screen name="new-cycle" options={{ animation: "slide_from_right" }} />
       </Stack>
-      <IntroOverlay onFinished={() => { void afterIntro(); }} />
+      <IntroOverlay onFinished={afterIntro} />
     </>
   );
 }
