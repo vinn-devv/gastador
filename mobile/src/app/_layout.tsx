@@ -78,7 +78,7 @@ export default function TabLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
+    <KeyboardProvider enabled={false}>
       <ThemeProvider value={DefaultTheme}>
         <View style={{ flex: 1, backgroundColor: "#2563EB" }} onLayout={() => { void SplashScreen.hideAsync(); }}>
           <SQLiteProvider databaseName={DB_NAME} onInit={initializeDatabase}>
