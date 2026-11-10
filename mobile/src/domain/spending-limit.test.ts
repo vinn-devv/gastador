@@ -103,3 +103,15 @@ testCase("sequential expense saves cannot both consume the same remaining balanc
   );
   assert.equal(saved.length, 1);
 });
+
+testCase("two simultaneous expense writes cannot both pass the same remaining balance", async () => {
+  const { db, saved } = fakeDatabase([activeCycle]);
+  const results = await Promise.allSettled([
+    createTransaction(db, expenseInput(75)),
+    createTransaction(db, expenseInput(75)),
+  ]);
+  assert.equal(results.filter((result) => result.status === "fulfilled").length, 1);
+  const rejected = results.find((result) => result.status === "rejected");
+  assert.ok(rejected && rejected.status === "rejected" && rejected.reason instanceof InsufficientFundsError);
+  assert.equal(saved.length, 1);
+});
