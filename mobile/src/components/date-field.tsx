@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Modal, Platform, Pressable, StyleSheet, View } from "react-native";
 import DateTimePicker, { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { ThemedText } from "@/components/themed-text";
-import { formatDate, isValidDate, toLocalDateString } from "@/domain/dates";
+import { formatDateWithPreference, isValidDate, toLocalDateString, type DateDisplayFormat } from "@/domain/dates";
 import { useTheme } from "@/hooks/use-theme";
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
   error?: string;
   accessibilityLabel?: string;
   maxFontSizeMultiplier?: number;
-  compact?: boolean;
+  compact?: boolean;\n  dateFormat?: DateDisplayFormat;
 };
 
 function dateFromIso(value: string): Date {
@@ -27,7 +27,7 @@ function isoFromDate(value: Date): string {
   return toLocalDateString(value);
 }
 
-export function DateField({ label, value, onChange, maximumDate, minimumDate, error, accessibilityLabel, maxFontSizeMultiplier, compact = false }: Props) {
+export function DateField({ label, value, onChange, maximumDate, minimumDate, error, accessibilityLabel, maxFontSizeMultiplier, compact = false, dateFormat = "DMMM" }: Props) {
   const theme = useTheme();
   const [iosVisible, setIosVisible] = useState(false);
   const [draft, setDraft] = useState(dateFromIso(value));
@@ -63,7 +63,7 @@ export function DateField({ label, value, onChange, maximumDate, minimumDate, er
         onPress={openPicker}
         style={[styles.value, compact && styles.compactValue, { borderColor: error ? theme.danger : theme.line, backgroundColor: theme.surface }]}
       >
-        <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={[styles.valueText, { color: theme.text }]}>{formatDate(value)}</ThemedText>
+        <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={[styles.valueText, { color: theme.text }]}>{formatDateWithPreference(value, dateFormat)}</ThemedText>
         <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={{ color: theme.primary, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 }}>Change</ThemedText>
       </Pressable>
       {!!error && <ThemedText maxFontSizeMultiplier={maxFontSizeMultiplier} style={[styles.error, { color: theme.danger }]}>{error}</ThemedText>}
