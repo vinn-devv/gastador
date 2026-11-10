@@ -26,6 +26,7 @@ import Reanimated, {
   withRepeat,
   withSpring,
   withTiming,
+  withSequence,
   type SharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -73,6 +74,8 @@ export default function OnboardingScreen() {
   const float = useSharedValue(0);
   const pulse = useSharedValue(0);
   const coinEntry = useSharedValue(0);
+  const confettiProgress = useSharedValue(0);
+  const confettiPlayed = useRef(false);
   const buttonScale = useSharedValue(1);
   const [page, setPage] = useState(0);
   const [amount, setAmount] = useState("");
@@ -109,6 +112,13 @@ export default function OnboardingScreen() {
   useEffect(() => {
     if (page === 2 && allowanceSaved) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }, [page, allowanceSaved]);
+
+  useEffect(() => {
+    if (page === 2 && !confettiPlayed.current) {
+      confettiPlayed.current = true;
+      confettiProgress.value = withSequence(withTiming(1, { duration: 1200 }), withTiming(0, { duration: 500 }));
+    }
+  }, [page, confettiProgress]);
 
   useEffect(() => {
     if (page === 2 && !reducedMotion) pulse.value = withRepeat(withTiming(1, { duration: 1200 }), -1, true);
@@ -201,6 +211,11 @@ export default function OnboardingScreen() {
   const ringStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 0.8 + pulse.value * 0.6 }],
     opacity: reducedMotion ? 0.24 : 0.35 * (1 - pulse.value),
+  }));
+
+  const confettiStyle = useAnimatedStyle(() => ({
+    opacity: confettiProgress.value,
+    transform: [{ scale: 0.75 + confettiProgress.value * 0.3 }],
   }));
 
   const shadowStyle = useAnimatedStyle(() => ({
@@ -341,7 +356,7 @@ export default function OnboardingScreen() {
 
         <View pointerEvents="none" style={[styles.coinStage, { top: page === 0 ? height * 0.34 : page === 1 ? 0 : height * 0.04, height: coinSize, width: coinSize, left: (width - coinSize) / 2 }]}>
           {page === 2 && <Reanimated.View style={[styles.ring, ringStyle]} />}
-          {page === 2 && <Reanimated.View entering={reducedMotion ? undefined : FadeInUp.duration(1200)} style={styles.confetti} importantForAccessibility="no-hide-descendants">{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>}
+          <Reanimated.View style={[styles.confetti, confettiStyle]} importantForAccessibility="no-hide-descendants">{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>
           <View style={styles.pedestal} />
           <Reanimated.View style={[styles.contactShadow, shadowStyle]} />
           <Reanimated.View style={[styles.coinWrap, coinStyle]}>
