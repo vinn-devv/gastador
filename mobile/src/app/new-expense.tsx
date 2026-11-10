@@ -141,7 +141,7 @@ export default function NewExpenseScreen() {
           <View style={[styles.balancePanel, { backgroundColor: theme.background }]}>
             <View style={{ flex: 1 }}>
               <ThemedText style={[styles.balanceLabel, { color: theme.muted }]}>Current allowance balance</ThemedText>
-              <ThemedText style={[styles.balanceValue, { color: theme.text }]}>{selectedCycleRemaining === null ? "No allowance for this date" : displayMoney(selectedCycleRemaining, currency)}</ThemedText>
+              <ThemedText style={[styles.balanceValue, { color: theme.text }]}>{selectedCycleRemaining === null ? "No allowance for this date" : displayMoney(selectedCycleRemaining)}</ThemedText>
             </View>
             <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Set up allowance" style={styles.balanceAdd}>
               <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor={theme.primary} size={19} />
