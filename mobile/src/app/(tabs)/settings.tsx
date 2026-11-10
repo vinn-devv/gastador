@@ -2,6 +2,8 @@ import { useState, type ComponentProps, type ReactNode } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSQLiteContext } from "expo-sqlite";
+import { getCategories } from "@/data/repository";
 import Constants from "expo-constants";
 import { ScreenLayout } from "@/components/screen-layout";
 import { ThemedText } from "@/components/themed-text";
@@ -60,6 +62,7 @@ function SettingRow({ icon, title, subtitle, value, onPress, toggle, danger = fa
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
+  const db = useSQLiteContext();
   const { settings, loading, update } = useSettings();
   const [versionTaps, setVersionTaps] = useState(0);
   const [developerVisible, setDeveloperVisible] = useState(__DEV__);
@@ -75,6 +78,19 @@ export default function SettingsScreen() {
       })),
       { text: "Cancel", style: "cancel" },
     ]);
+  };
+  const chooseCategory = async () => {
+    if (!settings) return;
+    try {
+      const categories = (await getCategories(db)).filter((item) => !item.archivedAt);
+      Alert.alert("Default category", "Choose the category preselected for new expenses.", [
+        ...categories.map((item) => ({ text: item.name + (settings.preferences.defaultCategoryId === item.id ? "  ✓" : ""), onPress: () => void update({ preferences: { ...settings.preferences, defaultCategoryId: item.id } }) })),
+        { text: "Cancel", style: "cancel" },
+      ]);
+    } catch (error) {
+      console.error("Could not load categories:", error);
+      Alert.alert("Categories unavailable", "Please try again.");
+    }
   };
   const chooseCurrency = () => Alert.alert("Currency", "Choose the currency used to display amounts.", [
     ...currencyOptions.map((item) => ({ text: item.label + (settings?.currency === item.code ? "  ✓" : ""), onPress: () => void update({ currency: item.code }) })),
@@ -101,7 +117,7 @@ export default function SettingsScreen() {
         <Section title="Expenses">
           <SettingRow icon="square.grid.2x2" title="Categories" subtitle="Manage expense categories" disabled />
           <SettingRow icon="creditcard" title="Payment methods" subtitle="Cash, GCash, Maya, Bank and Other" disabled />
-          <SettingRow icon="tag" title="Default category" subtitle="Choose a default on the expense form" disabled />
+          <SettingRow icon="tag" title="Default category" value={settings.preferences.defaultCategoryId || "First available"} onPress={() => void chooseCategory()} />
           <SettingRow icon="creditcard" title="Default payment method" value={value("defaultPaymentMethod")} onPress={() => choose("defaultPaymentMethod", "Default payment method", ["cash", "gcash", "maya", "bank_transfer", "other"])} />
         </Section>
 
