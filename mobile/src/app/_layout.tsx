@@ -29,7 +29,13 @@ function AppNavigator() {
         return;
       }
       const coinAsset = NativeImage.resolveAssetSource(require("@/assets/images/peso-coin.png"));
-      if (coinAsset?.uri) await ExpoImage.prefetch(coinAsset.uri);
+      if (coinAsset?.uri) {
+        try {
+          await ExpoImage.prefetch(coinAsset.uri);
+        } catch (prefetchError) {
+          console.warn("Peso coin preload failed; continuing to onboarding:", prefetchError);
+        }
+      }
       router.replace("/onboarding");
     } catch (error) {
       console.error("Could not determine first-launch onboarding state:", error);
