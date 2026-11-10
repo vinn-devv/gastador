@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from "react";
 import {
   BackHandler,
+  Keyboard,
   Pressable,
+  TextInput,
   Platform,
   ScrollView,
   StyleSheet,
@@ -28,6 +30,8 @@ import Reanimated, {
   withSpring,
   withTiming,
   withSequence,
+  interpolate,
+  useAnimatedScrollHandler,
   type SharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -84,8 +88,11 @@ export default function OnboardingScreen() {
   const [amount, setAmount] = useState("");
   const [period, setPeriod] = useState<Period>("monthly");
   const [periodWidth, setPeriodWidth] = useState(0);
-  const [coinSlotHeight, setCoinSlotHeight] = useState(0);
-  const [keypadLayout, setKeypadLayout] = useState({ width: 0, height: 0 });
+  const amountInput = useRef<TextInput>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const pageProgress = useSharedValue(0);
+  const coinSlots = useSharedValue([{ x: 0, y: 0, width: 0, height: 0 }, { x: 0, y: 0, width: 0, height: 0 }, { x: 0, y: 0, width: 0, height: 0 }]);
   const periodIndex = period === "weekly" ? 0 : period === "biweekly" ? 1 : 2;
   const [startDate, setStartDate] = useState(manilaToday());
   const [allowanceSaved, setAllowanceSaved] = useState(false);
@@ -100,7 +107,22 @@ export default function OnboardingScreen() {
 
   useEffect(() => {
     progressValue.set(withTiming(page + 1, { duration: reducedMotion ? 180 : 400 }));
-  }, [page, progressValue, reducedMotion]);
+    pageProgress.set(withTiming(page, { duration: reducedMotion ? 180 : 600 }));
+  }, [page, progressValue, pageProgress, reducedMotion]);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const show = Keyboard.addListener(showEvent, (event) => { setKeyboardVisible(true); setKeyboardHeight(event.endCoordinates.height); });
+    const hide = Keyboard.addListener(hideEvent, () => { setKeyboardVisible(false); setKeyboardHeight(0); });
+    return () => { show.remove(); hide.remove(); };
+  }, []);
+
+  useEffect(() => {
+    if (page !== 1) return;
+    const timer = setTimeout(() => amountInput.current?.focus(), reducedMotion ? 180 : 620);
+    return () => clearTimeout(timer);
+  }, [page, reducedMotion]);
 
   useEffect(() => {
     if (!reducedMotion) {
@@ -131,7 +153,9 @@ export default function OnboardingScreen() {
   const moveTo = (next: number, allowForward = false) => {
     const safe = Math.max(0, Math.min(2, next));
     if (safe > 1 && !allowForward && !allowanceSaved && !skippedAllowance) return;
+    Keyboard.dismiss();
     setPage(safe);
+    pageProgress.set(withTiming(safe, { duration: reducedMotion ? 180 : 600 }));
     pager.current?.scrollTo({ x: safe * width, animated: true });
     void Haptics.selectionAsync();
   };
@@ -177,6 +201,7 @@ export default function OnboardingScreen() {
   }, [db, fade, router]);
 
   const skip = () => {
+    Keyboard.dismiss();
     if (page === 1) {
       setSkippedAllowance(true);
       moveTo(2, true);
@@ -220,6 +245,18 @@ export default function OnboardingScreen() {
 
   const welcomeCoinStyle = useAnimatedStyle(() => ({ transform: [{ translateY: reducedMotion ? 0 : Math.sin(float.get() * Math.PI * 2) * 6 }] }));
   const buttonAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: buttonScale.get() }] }));
+  const sharedCoinStyle = useAnimatedStyle(() => {
+    const slots = coinSlots.get();
+    const points = slots.map((slot, index) => ({ x: slot.x + (index * width) + slot.width / 2, y: slot.y + slot.height / 2, size: index === 0 ? Math.min(width * 0.7, 280, slot.height - 32) : index === 1 ? 64 : Math.min(220, slot.width, slot.height - 16) }));
+    const p = Math.max(0, Math.min(2, pageProgress.get()));
+    const x = interpolate(p, [0, 1, 2], points.map((point) => point.x)) - p * width;
+    const y = interpolate(p, [0, 1, 2], points.map((point) => point.y));
+    const size = interpolate(p, [0, 1, 2], points.map((point) => Math.max(0, point.size)));
+    const idle = p < 0.5 || p > 1.5;
+    const bob = reducedMotion ? 0 : Math.sin(float.get() * Math.PI * 2) * (idle ? 10 : 2);
+    const spin = reducedMotion ? 0 : p * 360;
+    return { position: "absolute" as const, left: x - size / 2, top: y - size / 2 + bob, width: size, height: size, opacity: slots.every((slot) => slot.width > 0) ? 1 : 0, transform: [{ perspective: 800 }, { rotateY: `${spin}deg` }] };
+  });
   const periodIndicatorStyle = useAnimatedStyle(() => {
     const segmentWidth = Math.max(0, (periodWidth - 12) / 3);
     return { width: segmentWidth, transform: [{ translateX: withTiming(periodIndex * (segmentWidth + 2), { duration: 250 }) }] };
@@ -243,13 +280,14 @@ export default function OnboardingScreen() {
     };
   });
 
-  const pageOneCoinSize = Math.min(width * 0.7, 280, Math.max(0, coinSlotHeight - 36));
-  const welcomeCoinSize = 220;
-  const keypadRowHeight = Math.max(0, (keypadLayout.height - 30) / 4);
-  const keypadColumnWidth = keypadLayout.width / 3;
-  const keySize = Math.max(44, Math.min(56, Math.min(keypadRowHeight, keypadColumnWidth) - 8));
-  const showQuickAmounts = height >= 800 && keySize > 44;
-  const showSubtitle = height >= 640;
+  const showQuickAmounts = height >= 720 && !keyboardVisible;
+  const showSubtitle = height >= 700 && !keyboardVisible;
+  const showHelperDetail = height >= 620 && !keyboardVisible;
+  const onCoinSlotLayout = useCallback((index: number) => (event: { nativeEvent: { layout: { x: number; y: number; width: number; height: number } } }) => {
+    const next = coinSlots.get().map((slot, i) => i === index ? event.nativeEvent.layout : slot);
+    coinSlots.set(next);
+  }, [coinSlots]);
+  const scrollHandler = useAnimatedScrollHandler({ onScroll: (event) => { pageProgress.set(event.contentOffset.x / Math.max(1, width)); } });
 
   return (
     <RNAnimated.View style={[styles.root, { opacity: fade }]}>
@@ -277,6 +315,10 @@ export default function OnboardingScreen() {
           horizontal
           pagingEnabled
           scrollEnabled={true}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
           showsHorizontalScrollIndicator={false}
           bounces={false}
           onMomentumScrollEnd={(event) => {
@@ -318,32 +360,19 @@ export default function OnboardingScreen() {
                 ))}
               </Reanimated.View>
             </View>
-            <View style={styles.pageOneCoinSlot} onLayout={(event) => setCoinSlotHeight(event.nativeEvent.layout.height)}>
-              {pageOneCoinSize > 0 ? <>
-                <Image source={COIN} contentFit="contain" style={{ width: pageOneCoinSize, height: pageOneCoinSize }} accessibilityLabel="3D peso coin" />
-                <View style={styles.coinContactShadow}>
-                  <Svg width="100%" height="100%" viewBox="0 0 100 20">
-                    <Defs><RadialGradient id="pageOneCoinContact" cx="50%" cy="50%" rx="50%" ry="50%">
-                      <Stop offset="0" stopColor="#050F32" stopOpacity="0.35" />
-                      <Stop offset="1" stopColor="#050F32" stopOpacity="0" />
-                    </RadialGradient></Defs>
-                    <Ellipse cx="50" cy="10" rx="50" ry="10" fill="url(#pageOneCoinContact)" />
-                  </Svg>
-                </View>
-              </> : null}
-            </View>
+            <View style={styles.pageOneCoinSlot} onLayout={onCoinSlotLayout(0)} />
           </View>
 
           <View style={[styles.page, styles.allowancePage, { width }]}>
             <View style={styles.allowanceHeading}>
               <Text maxFontSizeMultiplier={1.2} numberOfLines={1} adjustsFontSizeToFit style={[styles.allowanceHeadline, { maxWidth: width - 64 - 48 }]}>Set Your Allowance</Text>
-              <Image source={COIN} contentFit="contain" style={styles.headerCoin} accessibilityLabel="3D peso coin" />
+              <View style={styles.headerCoinSlot} onLayout={onCoinSlotLayout(1)} />
             </View>
             {showSubtitle ? <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.allowanceSubtitle}>You can change this anytime in Settings.</Text> : null}
-            <View style={styles.amountLine}>
+            <Pressable style={styles.amountLine} onPress={() => amountInput.current?.focus()}>
               <Text maxFontSizeMultiplier={1.2} style={styles.currencySign}>₱</Text>
-              <Text maxFontSizeMultiplier={1.2} adjustsFontSizeToFit numberOfLines={1} style={styles.amount}>{amount ? Number(amount).toLocaleString("en-PH") : "0"}</Text>
-            </View>
+              <TextInput ref={amountInput} value={amount ? Number(amount).toLocaleString("en-PH") : ""} onChangeText={(value) => setAmount(moneyDigits(value).replace(/^0+(?=\\d)/, ""))} keyboardType="number-pad" inputMode="numeric" maxLength={11} selectionColor="#CFE6FF" cursorColor="#FFFFFF" placeholder="0" placeholderTextColor="rgba(255,255,255,0.5)" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} blurOnSubmit style={styles.amountInput} maxFontSizeMultiplier={1.2} />
+            </Pressable>
             <View style={styles.periodPill} onLayout={(event) => setPeriodWidth(event.nativeEvent.layout.width)}>
               <Reanimated.View pointerEvents="none" style={[styles.periodIndicator, periodIndicatorStyle]} />
               {(["weekly", "biweekly", "monthly"] as Period[]).map((value) => {
@@ -357,48 +386,18 @@ export default function OnboardingScreen() {
               <Text maxFontSizeMultiplier={1.2} style={styles.dateLabel}>Start date</Text>
               <View style={styles.dateControl}><DateField label="Start date" accessibilityLabel="Change start date" compact value={startDate} onChange={setStartDate} maxFontSizeMultiplier={1.2} /></View>
             </View>
-            <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.helper}>Ends {formatDate(endDate, false)} · About {formatMoney(perDay, "PHP")} per day</Text>
+            <Text maxFontSizeMultiplier={1.2} numberOfLines={1} style={styles.helper}>{showHelperDetail ? `Ends ${formatDate(endDate, false)} · About ${formatMoney(perDay, "PHP")} per day` : `Ends ${formatDate(endDate, false)}`}</Text>
             {showQuickAmounts ? <View style={styles.quickAmounts}>
               {[5000, 10000, 15000, 20000].map((value) => <Pressable key={value} onPress={() => setAmount(String(value))} style={styles.quickChip}><Text maxFontSizeMultiplier={1.2} style={styles.quickText}>₱{value.toLocaleString("en-PH")}</Text></Pressable>)}
             </View> : null}
-            <View style={styles.keypad} onLayout={(event) => setKeypadLayout({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height })}>
-              {[["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["", "0", "⌫"]].map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.keypadRow}>
-                  {row.map((key, columnIndex) => (
-                    <View key={`${rowIndex}-${columnIndex}`} style={styles.keypadCell}>
-                      <Pressable disabled={!key} onPress={() => {
-                        void Haptics.selectionAsync();
-                        setAmount((old) => key === "⌫" ? old.slice(0, -1) : moneyDigits(old + key));
-                      }} accessibilityRole="button" accessibilityLabel={key === "⌫" ? "Backspace" : key ? `Enter ${key} pesos` : undefined} style={[styles.key, { width: keySize, height: keySize, borderRadius: keySize / 2 }, !key && styles.keyEmpty]}>
-                        <Text maxFontSizeMultiplier={1.2} style={styles.keyText}>{key}</Text>
-                      </Pressable>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
+            <View style={styles.quickAmountsPlaceholder}>{null}</View>
             {!!error && <Text maxFontSizeMultiplier={1.2} style={styles.error}>{error}</Text>}
           </View>
 
           <View style={[styles.page, styles.welcomePage, { width }]}>
             <View style={styles.welcomeStack}>
               <View style={styles.welcomeVisual}>
-                <Reanimated.View style={[styles.ring, ringStyle]} />
-                <Reanimated.View style={[styles.confetti, confettiStyle]} importantForAccessibility="no-hide-descendants">
-                  {[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}
-                </Reanimated.View>
-                <Reanimated.View style={[styles.welcomeCoin, welcomeCoinStyle]}>
-                  <Image source={COIN} contentFit="contain" style={{ width: welcomeCoinSize, height: welcomeCoinSize }} accessibilityLabel="3D peso coin" />
-                </Reanimated.View>
-                <Reanimated.View style={[styles.welcomeContactShadow, shadowStyle]}>
-                  <Svg width="100%" height="100%" viewBox="0 0 100 20">
-                    <Defs><RadialGradient id="welcomeCoinContact" cx="50%" cy="50%" rx="50%" ry="50%">
-                      <Stop offset="0" stopColor="#050F32" stopOpacity="0.35" />
-                      <Stop offset="1" stopColor="#050F32" stopOpacity="0" />
-                    </RadialGradient></Defs>
-                    <Ellipse cx="50" cy="10" rx="50" ry="10" fill="url(#welcomeCoinContact)" />
-                  </Svg>
-                </Reanimated.View>
+                <View style={styles.welcomeCoinSlot} onLayout={onCoinSlotLayout(2)} />
               </View>
               <View style={styles.welcomeCopy}>
                 <Text maxFontSizeMultiplier={1.2} style={styles.welcomeHeadline}>Welcome to</Text>
@@ -414,9 +413,15 @@ export default function OnboardingScreen() {
         </ScrollView>
 
 
+        <Reanimated.View pointerEvents="none" style={[styles.sharedCoin, sharedCoinStyle]}>
+          <Reanimated.View style={[styles.sharedRing, ringStyle]} />
+          <Image source={COIN} contentFit="contain" style={styles.sharedCoinImage} accessibilityLabel="3D peso coin" />
+          <Reanimated.View style={[styles.sharedShadow, shadowStyle]}><Svg width="100%" height="100%" viewBox="0 0 100 20"><Defs><RadialGradient id="sharedCoinContact" cx="50%" cy="50%" rx="50%" ry="50%"><Stop offset="0" stopColor="#050F32" stopOpacity="0.35" /><Stop offset="1" stopColor="#050F32" stopOpacity="0" /></RadialGradient></Defs><Ellipse cx="50" cy="10" rx="50" ry="10" fill="url(#sharedCoinContact)" /></Svg></Reanimated.View>
+          <Reanimated.View style={[styles.confetti, confettiStyle]}>{[[0,-42], [34,-22], [-38,-14], [45,22], [-48,34], [4,48]].map(([x,y],i) => <View key={i} style={[styles.confettiDot, { transform: [{ translateX: x }, { translateY: y }] }]} />)}</Reanimated.View>
+        </Reanimated.View>
       </View>
 
-      <View style={[styles.bottom, { paddingBottom: insets.bottom + 16 }]}>
+      <View style={[styles.bottom, { paddingBottom: insets.bottom + 16, marginBottom: keyboardVisible && Platform.OS === "ios" ? Math.max(0, keyboardHeight - insets.bottom) : 0 }]}>
         {page === 0 ? <View style={styles.noLogin}>
           <SymbolView name={{ ios: "checkmark.shield.fill", android: "verified_user", web: "verified_user" }} tintColor="rgba(255,255,255,0.9)" size={17} />
           <Text maxFontSizeMultiplier={1.2} style={styles.noLoginText}>No login or sign-up needed. Just start.</Text>
@@ -477,19 +482,18 @@ const styles = StyleSheet.create({
   chip: { flexGrow: 0, flexShrink: 0, alignSelf: "flex-start", backgroundColor: "rgba(255,255,255,0.14)", borderRadius: 999, paddingHorizontal: 12, height: 36, justifyContent: "center", alignItems: "center", flexDirection: "row", gap: 6 },
   materialIcon: { color: WHITE, fontFamily: "MaterialSymbols_400Regular", fontSize: 16, lineHeight: 18 },
   chipText: { flexShrink: 0, color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
-  pageOneCoinSlot: { flex: 1, minHeight: 0, marginVertical: 16, alignItems: "center", justifyContent: "center", zIndex: 1 },
-  coinContactShadow: { width: "70%", height: 16, marginTop: 8 },
+  pageOneCoinSlot: { flex: 1, minHeight: 0, marginVertical: 16 },
   allowancePage: { paddingTop: 0, paddingBottom: 0, gap: 0 },
   allowanceHeading: { height: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 },
   allowanceHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 34, lineHeight: 40, flex: 1 },
-  headerCoin: { width: 56, height: 56, flexShrink: 0 },
+  headerCoinSlot: { width: 64, height: 64, flexShrink: 0 },
   allowanceSubtitle: { color: "rgba(255,255,255,0.9)", fontFamily: "IBMPlexSans_400Regular", fontSize: 14, lineHeight: 16 },
   dateRow: { minHeight: 36, flexDirection: "row", alignItems: "center", gap: 10 },
   dateLabel: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, width: 78 },
   dateControl: { flex: 1, alignSelf: "center" },
-  amountLine: { flexDirection: "row", alignItems: "center", minHeight: 52, marginTop: 0 },
-  currencySign: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 29, lineHeight: 44 },
-  amount: { flex: 1, color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 46, lineHeight: 52, includeFontPadding: false },
+  amountLine: { flexDirection: "row", alignItems: "flex-start", minHeight: 68, marginTop: 0 },
+  currencySign: { color: WHITE, fontFamily: "Nunito_800ExtraBold", fontSize: 31, lineHeight: 36, marginTop: 8 },
+  amountInput: { flex: 1, color: WHITE, fontFamily: "Nunito_800ExtraBold", fontSize: 56, lineHeight: 64, includeFontPadding: false, padding: 0, minWidth: 0 },
   periodPill: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 999, padding: 4, gap: 2 },
   periodOption: { flex: 1, minHeight: 34, borderRadius: 999, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
   periodIndicator: { position: "absolute", top: 4, bottom: 4, left: 4, backgroundColor: WHITE, borderRadius: 999 },
@@ -499,21 +503,19 @@ const styles = StyleSheet.create({
   quickAmounts: { height: 32, flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", gap: 5 },
   quickChip: { flex: 1, minWidth: 0, height: 32, paddingHorizontal: 4, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.14)", justifyContent: "center", alignItems: "center" },
   quickText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 12 },
-  keypad: { flex: 1, minHeight: 206, flexDirection: "column", gap: 10 },
-  keypadRow: { flex: 1, flexDirection: "row", alignItems: "center" },
-  keypadCell: { flex: 1, alignItems: "center", justifyContent: "center" },
-  key: { backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center" },
-  keyEmpty: { backgroundColor: "transparent" },
-  keyText: { color: WHITE, fontFamily: "IBMPlexSans_600SemiBold", fontSize: 18 },
+  quickAmountsPlaceholder: { height: 0 },
   error: { color: "#FFE0E0", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   welcomePage: { alignItems: "center", justifyContent: "center", paddingVertical: 8 },
   welcomeStack: { width: "100%", alignItems: "center", justifyContent: "center" },
   welcomeVisual: { width: 230, height: 236, alignItems: "center", justifyContent: "flex-start", overflow: "hidden" },
-  welcomeCoin: { width: 220, height: 220, alignItems: "center", justifyContent: "center" },
+  welcomeCoinSlot: { width: 230, height: 236 },
   ring: { position: "absolute", top: 22, width: 176, height: 176, borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
   confetti: { position: "absolute", top: 0, width: 220, height: 220, alignItems: "center", justifyContent: "center" },
   confettiDot: { position: "absolute", width: 7, height: 7, borderRadius: 4, backgroundColor: SKY },
-  welcomeContactShadow: { position: "absolute", bottom: 0, width: "70%", height: 16 },
+  sharedCoin: { zIndex: 3, alignItems: "center", justifyContent: "center" },
+  sharedCoinImage: { width: "100%", height: "100%" },
+  sharedRing: { position: "absolute", width: "82%", height: "82%", borderRadius: 999, borderWidth: 3, borderColor: "rgba(142,197,255,0.35)", backgroundColor: "rgba(142,197,255,0.05)" },
+  sharedShadow: { position: "absolute", bottom: -8, width: "70%", height: 16 },
 
   welcomeCopy: { width: "100%", alignItems: "center", paddingHorizontal: 8, marginTop: 32 },
   welcomeHeadline: { color: WHITE, fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 40, lineHeight: 46, textAlign: "center" },
