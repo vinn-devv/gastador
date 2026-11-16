@@ -36,6 +36,12 @@
           "cameraPermission": "Allow Gastador to scan payment QR codes.",
           "recordAudioAndroid": false
         }
+      ],
+      [
+        "expo-ocr-kit",
+        {
+          "cameraPermission": "Allow Gastador to capture receipt photos for on-device text recognition."
+        }
       ]
     ],
     "experiments": {
