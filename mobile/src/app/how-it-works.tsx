@@ -11,7 +11,7 @@ const guides = [
     number: "01",
     title: "Set your allowance",
     description: "Start by entering the money you receive and choosing how long it needs to last. Gastador uses your allowance cycle to calculate your available balance and daily safe amount.",
-    icon: "wallet",
+    icon: "creditcard",
   },
   {
     number: "02",
