@@ -466,19 +466,20 @@ export default function HomeScreen() {
             >
               Available to spend
             </RNAnimated.Text>
-            <Pressable onPressIn={() => setBalanceRevealed(true)} onPressOut={() => setBalanceRevealed(false)} accessibilityRole="button" accessibilityLabel={settings?.preferences.hideBalance && !balanceRevealed ? "Hidden balance. Hold to reveal." : "Available balance"}>
-            <RNAnimated.Text style={styles.balanceAmount}>
-              {settings?.preferences.hideBalance && !balanceRevealed ? "₱•••••" : <>
-              {balanceSign ? (
-                <Text style={styles.balanceSign}>{balanceSign}</Text>
-              ) : null}
-              {balanceCurrencySymbol ? (
-                <Text style={styles.pesoSign}>{balanceCurrencySymbol}</Text>
-              ) : null}
-              {balanceDigits}
-              </>}
-            </RNAnimated.Text>
-            </Pressable>
+            <View style={styles.balanceAmountRow}>
+              <Pressable onPressIn={() => setBalanceRevealed(true)} onPressOut={() => setBalanceRevealed(false)} accessibilityRole="button" accessibilityLabel={settings?.preferences.hideBalance && !balanceRevealed ? "Hidden balance. Hold to reveal." : "Available balance"}>
+                <RNAnimated.Text style={styles.balanceAmount}>
+                  {settings?.preferences.hideBalance && !balanceRevealed ? "₱•••••" : <>
+                    {balanceSign ? <Text style={styles.balanceSign}>{balanceSign}</Text> : null}
+                    {balanceCurrencySymbol ? <Text style={styles.pesoSign}>{balanceCurrencySymbol}</Text> : null}
+                    {balanceDigits}
+                  </>}
+                </RNAnimated.Text>
+              </Pressable>
+              <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Add allowance" accessibilityHint="Opens the form to add an allowance." hitSlop={8} style={styles.addAllowanceButton}>
+                <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor="#2563EB" size={22} />
+              </Pressable>
+            </View>
           </View>
         </View>
 
@@ -856,6 +857,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 0,
   },
+  balanceAmountRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12 },
+  addAllowanceButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center", marginTop: 4 },
   balanceAmount: {
     color: "#FFFFFF",
     textAlign: "center",
