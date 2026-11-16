@@ -12,10 +12,9 @@ type ScreenLayoutProps = {
   children: ReactNode;
   onBack?: () => void;
   stackScreen?: boolean;
-  headerAction?: ReactNode;
 };
 
-export function ScreenLayout({ title, subtitle, children, onBack, headerAction }: ScreenLayoutProps) {
+export function ScreenLayout({ title, subtitle, children, onBack }: ScreenLayoutProps) {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
 
@@ -24,17 +23,14 @@ export function ScreenLayout({ title, subtitle, children, onBack, headerAction }
       <StatusBar style="light" />
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <View style={styles.headerText}>
-          <View style={styles.titleRow}>
-            <View style={styles.titleGroup}>
-              {onBack ? (
-                <Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Go back" hitSlop={10} style={styles.backButton}>
-                  <SymbolView name={{ ios: "chevron.left", android: "arrow_back", web: "arrow_back" }} tintColor={theme.onPrimary} size={20} />
-                </Pressable>
-              ) : null}
+          {onBack ? (
+            <View style={styles.titleRow}>
+              <Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Go back" hitSlop={10} style={styles.backButton}>
+                <SymbolView name={{ ios: "chevron.left", android: "arrow_back", web: "arrow_back" }} tintColor={theme.onPrimary} size={20} />
+              </Pressable>
               <ScreenTitle>{title}</ScreenTitle>
             </View>
-            {headerAction}
-          </View>
+          ) : <ScreenTitle>{title}</ScreenTitle>}
           <ScreenSubtitle>{subtitle}</ScreenSubtitle>
         </View>
       </View>
@@ -59,8 +55,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, overflow: "hidden" },
   header: { paddingHorizontal: 24, paddingBottom: 18 },
   headerText: { gap: 4 },
-  titleRow: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  titleGroup: { flex: 1, flexDirection: "row", alignItems: "center", gap: 10 },
+  titleRow: { minHeight: 34, flexDirection: "row", alignItems: "center", gap: 10 },
   backButton: { width: 36, height: 36, alignItems: "center", justifyContent: "center", marginLeft: -8 },
   title: { color: "#FFFFFF", fontFamily: "IBMPlexSans_800ExtraBold", fontSize: 30, lineHeight: 38 },
   subtitle: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, lineHeight: 20 },
