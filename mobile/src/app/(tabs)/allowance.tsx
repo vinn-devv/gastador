@@ -3,6 +3,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SymbolView } from "expo-symbols";
 
 import { ScreenLayout } from "@/components/screen-layout";
 import { ThemedText } from "@/components/themed-text";
@@ -44,11 +45,12 @@ export default function AllowanceScreen() {
   }, [db]));
 
   return (
-    <ScreenLayout title="Allowance" subtitle="Manage your allowance schedule and available budget.">
+    <ScreenLayout title="Allowance" subtitle="Manage your allowance schedule and available budget." headerAction={
+      <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Add allowance" accessibilityHint="Opens the form to create a new allowance cycle." hitSlop={8} style={styles.addButton}>
+        <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor="#2563EB" size={23} />
+      </Pressable>
+    }>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.content, { paddingBottom: navBarSpace(insets.bottom) }]} showsVerticalScrollIndicator={false}>
-        <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" style={[styles.primary, { backgroundColor: theme.primary }]}>
-          <ThemedText style={styles.primaryText}>Set up a new allowance</ThemedText>
-        </Pressable>
         <ThemedText style={[styles.sectionTitle, { color: theme.navy }]}>Allowance cycles</ThemedText>
         {loading ? <ThemedText type="small" themeColor="muted">Loading allowance cycles…</ThemedText> :
           cycles.length === 0 ? (
@@ -76,8 +78,7 @@ export default function AllowanceScreen() {
 
 const styles = StyleSheet.create({
   content: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 24 },
-  primary: { minHeight: 52, borderRadius: 15, alignItems: "center", justifyContent: "center", marginBottom: 25 },
-  primaryText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_700Bold", fontSize: 15 },
+  addButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center" },
   sectionTitle: { fontFamily: "IBMPlexSans_700Bold", fontSize: 18, marginBottom: 12 },
   empty: { paddingVertical: 22, gap: 5 },
   emptyTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 16 },
