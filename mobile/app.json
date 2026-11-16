@@ -33,7 +33,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Gastador to scan payment QR codes.",
+          "cameraPermission": "Allow Gastador to take photos of receipts.",
           "recordAudioAndroid": false
         }
       ],
