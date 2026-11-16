@@ -43,7 +43,7 @@ const guides = [
     description: "In Settings, choose your currency and number or date formats, manage expense categories and payment methods, and set your defaults.",
     icon: "gearshape",
   },
-];
+] as const;
 
 export default function HowGastadorWorksScreen() {
   const router = useRouter();
