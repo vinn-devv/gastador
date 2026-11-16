@@ -5,6 +5,8 @@ import { ScreenLayout } from "@/components/screen-layout";
 import { SHEET_GAP } from "@/constants/layout";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
+import { recognizeText } from "expo-ocr-kit";
+import { parseReceiptText, type ReceiptExtraction } from "@/domain/receipt-ocr";
 import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 
@@ -21,6 +23,7 @@ export default function ScanScreen() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [receiptUri, setReceiptUri] = useState<string | null>(null);
+  const [extraction, setExtraction] = useState<ReceiptExtraction | null>(null);
   const cameraRef = useRef<CameraView>(null);
 
   useEffect(() => {
@@ -29,13 +32,45 @@ export default function ScanScreen() {
     }
   }, [focused, permission, requestPermission]);
 
+  async function readReceipt(uri: string) {
+    setBusy(true);
+    setError("");
+    setExtraction(null);
+    try {
+      const result = await recognizeText(uri);
+      const parsed = parseReceiptText(result.text);
+      if (!result.text.trim()) {
+        setError("No readable text was found. Try a brighter, sharper photo or enter the expense manually.");
+      } else {
+        setExtraction(parsed);
+        if (!parsed.amount) setError("Receipt text was detected, but the total wasn't clear. Please enter or correct it yourself.");
+      }
+    } catch (ocrError) {
+      console.error("Receipt OCR failed:", ocrError);
+      setError("Gastador couldn't read this photo. Try retaking it or use manual entry.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function continueWithExtractedDetails() {
+    router.push({
+      pathname: "/new-expense",
+      params: {
+        amount: extraction?.amount ?? "",
+        merchant: extraction?.merchant ?? "",
+        date: extraction?.date ?? "",
+      },
+    });
+  }
+
   async function captureReceipt() {
     if (!cameraRef.current || busy) return;
     setBusy(true);
     setError("");
     try {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.9 });
-      if (photo?.uri) setReceiptUri(photo.uri);
+      if (photo?.uri) { setReceiptUri(photo.uri); await readReceipt(photo.uri); }
       else setError("The receipt photo could not be captured. Please try again.");
     } catch {
       setError("The camera couldn't capture your receipt. Please try again.");
@@ -54,6 +89,7 @@ export default function ScanScreen() {
       });
       if (!result.canceled && result.assets[0]?.uri) {
         setReceiptUri(result.assets[0].uri);
+        await readReceipt(result.assets[0].uri);
       }
     } catch {
       setError("The receipt photo couldn't be opened. Please try another image.");
@@ -83,7 +119,7 @@ export default function ScanScreen() {
         <View style={styles.previewShell}>
           <Image source={{ uri: receiptUri }} style={styles.receiptPreview} resizeMode="contain" />
           <View style={styles.previewActions}>
-            <Pressable onPress={() => setReceiptUri(null)} accessibilityRole="button" style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+            <Pressable onPress={() => { setReceiptUri(null); setExtraction(null); setError(""); }} accessibilityRole="button" style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.line }]}>
               <SymbolView name={{ ios: "arrow.counterclockwise", android: "refresh", web: "refresh" }} tintColor={theme.text} size={18} />
               <ThemedText style={styles.actionText}>Retake</ThemedText>
             </Pressable>
@@ -91,7 +127,17 @@ export default function ScanScreen() {
               <ThemedText style={[styles.actionText, { color: "#FFFFFF" }]}>Enter expense details</ThemedText>
             </Pressable>
           </View>
-          <ThemedText type="small" themeColor="muted">Check that the receipt is readable. You can now enter its amount and details manually.</ThemedText>
+          <View style={[styles.extractionPanel, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+            <ThemedText style={styles.extractionTitle}>Detected details</ThemedText>
+            {busy ? <ThemedText type="small" themeColor="muted">Reading receipt on this device…</ThemedText> : extraction ? (
+              <>
+                <View style={styles.extractionRow}><ThemedText type="small" themeColor="muted">Total</ThemedText><ThemedText style={styles.extractionValue}>{extraction.amount ? `₱${extraction.amount}` : "Not detected"}</ThemedText></View>
+                <View style={styles.extractionRow}><ThemedText type="small" themeColor="muted">Merchant</ThemedText><ThemedText style={styles.extractionValue}>{extraction.merchant ?? "Not detected"}</ThemedText></View>
+                <View style={styles.extractionRow}><ThemedText type="small" themeColor="muted">Date</ThemedText><ThemedText style={styles.extractionValue}>{extraction.date ?? "Not detected"}</ThemedText></View>
+                <ThemedText type="small" themeColor="muted">Check every field before saving. Receipt layouts and print quality can affect recognition.</ThemedText>
+              </>
+            ) : <ThemedText type="small" themeColor="muted">Waiting to read the receipt…</ThemedText>}
+          </View>
         </View>
       ) : permission?.granted && focused ? (
         <View style={styles.cameraShell}>
@@ -165,6 +211,10 @@ const styles = StyleSheet.create({
   previewShell: { borderRadius: 16, overflow: "hidden", backgroundColor: "#111827", padding: 12, gap: 12 },
   receiptPreview: { width: "100%", height: 390, backgroundColor: "#111827" },
   previewActions: { flexDirection: "row", gap: 10 },
+  extractionPanel: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 10 },
+  extractionTitle: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14 },
+  extractionRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  extractionValue: { fontFamily: "IBMPlexSans_600SemiBold", fontSize: 14, flexShrink: 1, textAlign: "right" },
   primaryButton: { minHeight: 48, paddingHorizontal: 16, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   primaryText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   permissionPanel: { borderWidth: 1, borderRadius: 8, padding: 24, alignItems: "center", gap: 12 },
