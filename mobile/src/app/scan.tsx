@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useIsFocused, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenLayout } from "@/components/screen-layout";
 import { SHEET_GAP } from "@/constants/layout";
-import { Camera, CameraView, useCameraPermissions, type BarcodeScanningResult } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import { Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 
 import { ThemedText } from "@/components/themed-text";
 import { useTheme } from "@/hooks/use-theme";
-import { parseQrExpense } from "@/domain/qr-expense";
+
 
 export default function ScanScreen() {
   const router = useRouter();
@@ -18,11 +18,10 @@ export default function ScanScreen() {
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   const [permission, requestPermission] = useCameraPermissions();
-  const [qrValue, setQrValue] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [torch, setTorch] = useState(false);
-  const [lastCode, setLastCode] = useState("");
+  const [receiptUri, setReceiptUri] = useState<string | null>(null);
+  const cameraRef = useRef<CameraView>(null);
 
   useEffect(() => {
     if (focused && permission && !permission.granted && permission.canAskAgain) {
@@ -30,72 +29,77 @@ export default function ScanScreen() {
     }
   }, [focused, permission, requestPermission]);
 
-  const onBarcodeScanned = useCallback((result: BarcodeScanningResult) => {
-    if (!result.data || result.data === lastCode) return;
-    setLastCode(result.data);
-    const parsed = parseQrExpense(result.data);
-    if (!parsed) {
-      setQrValue(result.data);
-      setError("This QR code has no readable amount. You can open Expenses.");
-      return;
-    }
-    router.push({ pathname: "/new-expense", params: parsed });
-  }, [lastCode, router]);
-
-  async function uploadQR() {
+  async function captureReceipt() {
+    if (!cameraRef.current || busy) return;
+    setBusy(true);
     setError("");
-    setQrValue("");
-    setLastCode("");
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
-        allowsEditing: false,
-        quality: 1,
-      });
-      if (result.canceled || !result.assets[0]?.uri) return;
-      setBusy(true);
-      const codes = await Camera.scanFromURLAsync(result.assets[0].uri, ["qr"]);
-      if (codes.length > 0) {
-        const parsed = parseQrExpense(codes[0].data);
-        if (parsed) router.push({ pathname: "/new-expense", params: parsed });
-        else {
-          setQrValue(codes[0].data);
-          setError("This QR code has no readable amount. You can open Expenses.");
-        }
-      } else {
-        setError("No QR code was found in that image. Choose a clearer image with the full code visible.");
-      }
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.9 });
+      if (photo?.uri) setReceiptUri(photo.uri);
+      else setError("The receipt photo could not be captured. Please try again.");
     } catch {
-      setError("The QR image couldn't be read. Try another image or scan it with the camera.");
+      setError("The camera couldn't capture your receipt. Please try again.");
     } finally {
       setBusy(false);
     }
   }
 
+  async function chooseReceiptPhoto() {
+    setError("");
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        quality: 0.9,
+      });
+      if (!result.canceled && result.assets[0]?.uri) {
+        setReceiptUri(result.assets[0].uri);
+      }
+    } catch {
+      setError("The receipt photo couldn't be opened. Please try another image.");
+    }
+  }
+
+  function continueManualEntry() {
+    router.push("/new-expense");
+  }
+
   return (
-    <ScreenLayout title="Scan QR" subtitle="Scan a payment QR or upload one from your gallery." onBack={() => router.back()} stackScreen>
+    <ScreenLayout title="Scan Receipt" subtitle="Take a clear photo of your receipt, then enter the expense details." onBack={() => router.back()} stackScreen>
     <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + SHEET_GAP + 24 }]} keyboardShouldPersistTaps="handled">
 
       <View style={styles.actions}>
-        <Pressable onPress={() => router.push("/new-expense")} style={[styles.action, { backgroundColor: theme.primarySoft, borderColor: theme.primary }]}>
+        <Pressable onPress={continueManualEntry} style={[styles.action, { backgroundColor: theme.primarySoft, borderColor: theme.primary }]}>
           <SymbolView name={{ ios: "square.and.pencil", android: "edit", web: "edit" }} tintColor={theme.primary} size={18} />
-          <ThemedText style={[styles.actionText, { color: theme.primary }]}>Expenses</ThemedText>
+          <ThemedText style={[styles.actionText, { color: theme.primary }]}>Manual entry</ThemedText>
         </Pressable>
-        <Pressable onPress={() => void uploadQR()} disabled={busy} style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.line, opacity: busy ? 0.55 : 1 }]}>
-          <SymbolView name={{ ios: "qrcode", android: "qr_code", web: "qr_code" }} tintColor={theme.text} size={18} />
-          <ThemedText style={styles.actionText}>Upload QR from gallery</ThemedText>
+        <Pressable onPress={() => void chooseReceiptPhoto()} style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+          <SymbolView name={{ ios: "photo", android: "photo_library", web: "photo_library" }} tintColor={theme.text} size={18} />
+          <ThemedText style={styles.actionText}>Choose photo</ThemedText>
         </Pressable>
       </View>
 
-      {permission?.granted && focused ? (
+      {receiptUri ? (
+        <View style={styles.previewShell}>
+          <Image source={{ uri: receiptUri }} style={styles.receiptPreview} resizeMode="contain" />
+          <View style={styles.previewActions}>
+            <Pressable onPress={() => setReceiptUri(null)} accessibilityRole="button" style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+              <SymbolView name={{ ios: "arrow.counterclockwise", android: "refresh", web: "refresh" }} tintColor={theme.text} size={18} />
+              <ThemedText style={styles.actionText}>Retake</ThemedText>
+            </Pressable>
+            <Pressable onPress={continueManualEntry} accessibilityRole="button" style={[styles.action, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
+              <ThemedText style={[styles.actionText, { color: "#FFFFFF" }]}>Enter expense details</ThemedText>
+            </Pressable>
+          </View>
+          <ThemedText type="small" themeColor="muted">Check that the receipt is readable. You can now enter its amount and details manually.</ThemedText>
+        </View>
+      ) : permission?.granted && focused ? (
         <View style={styles.cameraShell}>
           <CameraView
+            ref={cameraRef}
             style={styles.camera}
             facing="back"
             active={focused}
-            enableTorch={torch}
-            barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
-            onBarcodeScanned={onBarcodeScanned}
             onMountError={() => setError("The camera couldn't start. Check camera access in your phone settings and try again.")}
           />
           <View pointerEvents="none" style={styles.frame}>
@@ -105,8 +109,14 @@ export default function ScanScreen() {
             <View style={[styles.corner, styles.bottomRight]} />
           </View>
           <View style={styles.cameraControls}>
-            <Pressable accessibilityRole="button" accessibilityLabel={torch ? "Turn torch off" : "Turn torch on"} onPress={() => setTorch((value) => !value)} style={styles.roundControl}>
-              <SymbolView name={{ ios: torch ? "bolt.fill" : "bolt.slash", android: "flashlight_on", web: "flashlight_on" }} tintColor="#FFFFFF" size={20} />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Take receipt photo"
+              onPress={() => void captureReceipt()}
+              disabled={busy}
+              style={[styles.captureButton, { opacity: busy ? 0.6 : 1 }]}
+            >
+              <View style={styles.captureButtonInner} />
             </Pressable>
           </View>
         </View>
@@ -114,7 +124,7 @@ export default function ScanScreen() {
         <View style={[styles.permissionPanel, { backgroundColor: theme.surface, borderColor: theme.line }]}>
           <SymbolView name={{ ios: "camera.fill", android: "photo_camera", web: "photo_camera" }} tintColor={theme.primary} size={30} />
           <ThemedText style={styles.permissionTitle}>{permission?.canAskAgain === false ? "Camera access is off" : "Allow camera access"}</ThemedText>
-          <ThemedText type="small" themeColor="muted">{permission?.canAskAgain === false ? "Enable camera permission in your phone settings to scan and capture receipts." : "Gastador uses the camera only when you open Scan. Photos stay on this device."}</ThemedText>
+          <ThemedText type="small" themeColor="muted">{permission?.canAskAgain === false ? "Enable camera permission in your phone settings to take receipt photos." : "Gastador uses the camera only when you open Scan. Photos stay on this device."}</ThemedText>
           {permission?.canAskAgain === false ? (
             <Pressable onPress={() => void Linking.openSettings()} style={[styles.primaryButton, { backgroundColor: theme.primary }]}><ThemedText style={styles.primaryText}>Open settings</ThemedText></Pressable>
           ) : (
@@ -123,23 +133,12 @@ export default function ScanScreen() {
         </View>
       )}
 
-      {!!qrValue && (
-        <View style={[styles.result, { backgroundColor: theme.tealSoft, borderColor: theme.teal }]}>
-          <View style={styles.resultHeading}>
-            <ThemedText style={[styles.resultTitle, { color: theme.text }]}>QR code detected</ThemedText>
-            <Pressable onPress={() => { setQrValue(""); setLastCode(""); }}><ThemedText style={{ color: theme.primary }}>Clear</ThemedText></Pressable>
-          </View>
-          <ThemedText selectable style={styles.qrText}>{qrValue}</ThemedText>
-          <ThemedText type="small" themeColor="muted">This shows the QR payload only. No payment is sent and nothing is saved.</ThemedText>
-        </View>
-      )}
-
       {!!error && (
         <View style={[styles.error, { backgroundColor: theme.dangerSoft }]}>
           <ThemedText style={{ color: theme.danger }}>{error}</ThemedText>
         </View>
       )}
-      <ThemedText type="small" themeColor="muted" style={styles.privacy}>QR codes are read on this device. No payment is sent.</ThemedText>
+      <ThemedText type="small" themeColor="muted" style={styles.privacy}>Receipt photos stay on this device. No payment is sent.</ThemedText>
     </ScrollView>
     </ScreenLayout>
   );
@@ -161,7 +160,11 @@ const styles = StyleSheet.create({
   bottomLeft: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0, borderBottomLeftRadius: 10 },
   bottomRight: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0, borderBottomRightRadius: 10 },
   cameraControls: { position: "absolute", left: 0, right: 0, bottom: 18, flexDirection: "row", alignItems: "center", justifyContent: "center" },
-  roundControl: { width: 46, height: 46, borderRadius: 23, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
+  captureButton: { width: 72, height: 72, borderRadius: 36, backgroundColor: "rgba(255,255,255,0.32)", borderWidth: 3, borderColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
+  captureButtonInner: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#FFFFFF" },
+  previewShell: { borderRadius: 16, overflow: "hidden", backgroundColor: "#111827", padding: 12, gap: 12 },
+  receiptPreview: { width: "100%", height: 390, backgroundColor: "#111827" },
+  previewActions: { flexDirection: "row", gap: 10 },
   primaryButton: { minHeight: 48, paddingHorizontal: 16, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   primaryText: { color: "#FFFFFF", fontFamily: "IBMPlexSans_600SemiBold", fontSize: 13 },
   permissionPanel: { borderWidth: 1, borderRadius: 8, padding: 24, alignItems: "center", gap: 12 },
