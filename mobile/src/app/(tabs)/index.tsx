@@ -351,7 +351,7 @@ export default function HomeScreen() {
     spendable > 0 ? Math.max(0, (summary!.spentCentavos / spendable) * 100) : 0;
   const isOverspent = remaining < 0;
   const spentPercent = isOverspent ? 100 : Math.min(100, rawSpentPercent);
-  const formattedBalance = displayMoney(summary ? animatedRemaining : 0, currency);
+  const formattedBalance = displayMoney(summary ? animatedRemaining : 0);
   const balanceFirstDigit = formattedBalance.search(/\d/);
   const balancePrefix =
     balanceFirstDigit >= 0 ? formattedBalance.slice(0, balanceFirstDigit) : "";
@@ -466,19 +466,20 @@ export default function HomeScreen() {
             >
               Available to spend
             </RNAnimated.Text>
-            <Pressable onPressIn={() => setBalanceRevealed(true)} onPressOut={() => setBalanceRevealed(false)} accessibilityRole="button" accessibilityLabel={settings?.preferences.hideBalance && !balanceRevealed ? "Hidden balance. Hold to reveal." : "Available balance"}>
-            <RNAnimated.Text style={styles.balanceAmount}>
-              {settings?.preferences.hideBalance && !balanceRevealed ? "₱•••••" : <>
-              {balanceSign ? (
-                <Text style={styles.balanceSign}>{balanceSign}</Text>
-              ) : null}
-              {balanceCurrencySymbol ? (
-                <Text style={styles.pesoSign}>{balanceCurrencySymbol}</Text>
-              ) : null}
-              {balanceDigits}
-              </>}
-            </RNAnimated.Text>
-            </Pressable>
+            <View style={styles.balanceAmountRow}>
+              <Pressable onPressIn={() => setBalanceRevealed(true)} onPressOut={() => setBalanceRevealed(false)} accessibilityRole="button" accessibilityLabel={settings?.preferences.hideBalance && !balanceRevealed ? "Hidden balance. Hold to reveal." : "Available balance"}>
+                <RNAnimated.Text style={styles.balanceAmount}>
+                  {settings?.preferences.hideBalance && !balanceRevealed ? "₱•••••" : <>
+                    {balanceSign ? <Text style={styles.balanceSign}>{balanceSign}</Text> : null}
+                    {balanceCurrencySymbol ? <Text style={styles.pesoSign}>{balanceCurrencySymbol}</Text> : null}
+                    {balanceDigits}
+                  </>}
+                </RNAnimated.Text>
+              </Pressable>
+              <Pressable onPress={() => router.push("/new-cycle")} accessibilityRole="button" accessibilityLabel="Add allowance" accessibilityHint="Opens the form to add an allowance." hitSlop={8} style={styles.addAllowanceButton}>
+                <SymbolView name={{ ios: "plus", android: "add", web: "add" }} tintColor="#2563EB" size={22} />
+              </Pressable>
+            </View>
           </View>
         </View>
 
@@ -660,7 +661,7 @@ export default function HomeScreen() {
                                 </ThemedText>
                               </View>
                               <ThemedText style={styles.transactionAmount}>
-                                −{displayMoney(item.amountCentavos, currency)}
+                                −{displayMoney(item.amountCentavos)}
                               </ThemedText>
                             </View>
                           </StaggeredRow>
@@ -760,7 +761,7 @@ export default function HomeScreen() {
                           >
                             <View style={styles.insightStatChip}>
                               <ThemedText maxFontSizeMultiplier={1.3} adjustsFontSizeToFit numberOfLines={1} style={styles.insightStatValue}>
-                                {displayMoney(insightSpent, currency)}
+                                {displayMoney(insightSpent)}
                               </ThemedText>
                               <ThemedText maxFontSizeMultiplier={1.3} style={styles.insightStatLabel}>
                                 Spent
@@ -773,7 +774,7 @@ export default function HomeScreen() {
                           >
                             <View style={styles.insightStatChip}>
                               <ThemedText style={styles.insightStatValue}>
-                                {displayMoney(insightLeft, currency)}
+                                {displayMoney(insightLeft)}
                               </ThemedText>
                               <ThemedText style={styles.insightStatLabel}>
                                 Left
@@ -786,7 +787,7 @@ export default function HomeScreen() {
                           >
                             <View style={styles.insightStatChip}>
                               <ThemedText style={styles.insightStatValue}>
-                                {displayMoney(insightBudgetValue, currency)}
+                                {displayMoney(insightBudgetValue)}
                               </ThemedText>
                               <ThemedText style={styles.insightStatLabel}>
                                 {insightBudgetLabel}
@@ -856,6 +857,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 0,
   },
+  balanceAmountRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12 },
+  addAllowanceButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: "#EAF3FF", alignItems: "center", justifyContent: "center", marginTop: 4 },
   balanceAmount: {
     color: "#FFFFFF",
     textAlign: "center",

@@ -11,7 +11,7 @@ const guides = [
     number: "01",
     title: "Set your allowance",
     description: "Start by entering the money you receive and choosing how long it needs to last. Gastador uses your allowance cycle to calculate your available balance and daily safe amount.",
-    icon: "wallet",
+    icon: "creditcard",
   },
   {
     number: "02",
@@ -43,7 +43,7 @@ const guides = [
     description: "In Settings, choose your currency and number or date formats, manage expense categories and payment methods, and set your defaults.",
     icon: "gearshape",
   },
-];
+] as const;
 
 export default function HowGastadorWorksScreen() {
   const router = useRouter();

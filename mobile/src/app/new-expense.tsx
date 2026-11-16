@@ -32,7 +32,7 @@ export default function NewExpenseScreen() {
   const [amount, setAmount] = useState(params.amount ?? "");
   const [merchant, setMerchant] = useState(params.merchant ?? "");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState(manilaToday());
+  const [date, setDate] = useState(params.date ?? manilaToday());
   const [categoryId, setCategoryId] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
   const [cycles, setCycles] = useState<Cycle[]>([]);
