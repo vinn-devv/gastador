@@ -101,7 +101,7 @@ export default function ScanScreen() {
   }
 
   return (
-    <ScreenLayout title="Scan Receipt" subtitle="Take a clear photo of your receipt, then enter the expense details." onBack={() => router.back()} stackScreen>
+    <ScreenLayout title="Scan Receipt" subtitle="Capture a receipt and Gastador will read its details on this device." onBack={() => router.back()} stackScreen>
     <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + SHEET_GAP + 24 }]} keyboardShouldPersistTaps="handled">
 
       <View style={styles.actions}>
@@ -123,7 +123,7 @@ export default function ScanScreen() {
               <SymbolView name={{ ios: "arrow.counterclockwise", android: "refresh", web: "refresh" }} tintColor={theme.text} size={18} />
               <ThemedText style={styles.actionText}>Retake</ThemedText>
             </Pressable>
-            <Pressable onPress={continueWithExtractedDetails} accessibilityRole="button" disabled={busy} style={[styles.action, { backgroundColor: theme.primary, borderColor: theme.primary, opacity: busy ? 0.55 : 1 }]}>
+            <Pressable onPress={continueWithExtractedDetails} accessibilityRole="button" disabled={busy || !extraction} style={[styles.action, { backgroundColor: theme.primary, borderColor: theme.primary, opacity: busy || !extraction ? 0.55 : 1 }]}>
               <ThemedText style={[styles.actionText, { color: "#FFFFFF" }]}>{busy ? "Reading receipt…" : "Review expense details"}</ThemedText>
             </Pressable>
           </View>
