@@ -99,7 +99,7 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
     });
   }, [menuOpen, overlayProgress, buttonRotation, menuItemProgress]);
 
-  const chooseAction = useCallback((route: "/scan" | "/new-expense" | "/allowance") => {
+  const chooseAction = useCallback((route: "/scan" | "/new-expense" | "/new-cycle") => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     closeMenu(() => router.push(route));
   }, [closeMenu, router]);
@@ -131,7 +131,7 @@ function WalletTabBar({ state, descriptors, emitter, navigateToTab }: { state: T
               </Pressable>
             </Animated.View>
             <Animated.View style={{ opacity: menuItemProgress[2], transform: [{ translateY: menuItemProgress[2].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }, { scale: menuItemProgress[2].interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Add allowance" onPress={() => chooseAction("/allowance")} style={styles.menuPill}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Add allowance" onPress={() => chooseAction("/new-cycle")} style={styles.menuPill}>
                 <SymbolView name={{ ios: "wallet.bifold", android: "account_balance_wallet", web: "account_balance_wallet" }} tintColor="#2563EB" size={20} />
                 <ThemedText style={styles.menuText}>Add allowance</ThemedText>
               </Pressable>
