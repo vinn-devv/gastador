@@ -351,7 +351,7 @@ export default function HomeScreen() {
     spendable > 0 ? Math.max(0, (summary!.spentCentavos / spendable) * 100) : 0;
   const isOverspent = remaining < 0;
   const spentPercent = isOverspent ? 100 : Math.min(100, rawSpentPercent);
-  const formattedBalance = displayMoney(summary ? animatedRemaining : 0, currency);
+  const formattedBalance = displayMoney(summary ? animatedRemaining : 0);
   const balanceFirstDigit = formattedBalance.search(/\d/);
   const balancePrefix =
     balanceFirstDigit >= 0 ? formattedBalance.slice(0, balanceFirstDigit) : "";
@@ -660,7 +660,7 @@ export default function HomeScreen() {
                                 </ThemedText>
                               </View>
                               <ThemedText style={styles.transactionAmount}>
-                                −{displayMoney(item.amountCentavos, currency)}
+                                −{displayMoney(item.amountCentavos)}
                               </ThemedText>
                             </View>
                           </StaggeredRow>
@@ -760,7 +760,7 @@ export default function HomeScreen() {
                           >
                             <View style={styles.insightStatChip}>
                               <ThemedText maxFontSizeMultiplier={1.3} adjustsFontSizeToFit numberOfLines={1} style={styles.insightStatValue}>
-                                {displayMoney(insightSpent, currency)}
+                                {displayMoney(insightSpent)}
                               </ThemedText>
                               <ThemedText maxFontSizeMultiplier={1.3} style={styles.insightStatLabel}>
                                 Spent
@@ -773,7 +773,7 @@ export default function HomeScreen() {
                           >
                             <View style={styles.insightStatChip}>
                               <ThemedText style={styles.insightStatValue}>
-                                {displayMoney(insightLeft, currency)}
+                                {displayMoney(insightLeft)}
                               </ThemedText>
                               <ThemedText style={styles.insightStatLabel}>
                                 Left
@@ -786,7 +786,7 @@ export default function HomeScreen() {
                           >
                             <View style={styles.insightStatChip}>
                               <ThemedText style={styles.insightStatValue}>
-                                {displayMoney(insightBudgetValue, currency)}
+                                {displayMoney(insightBudgetValue)}
                               </ThemedText>
                               <ThemedText style={styles.insightStatLabel}>
                                 {insightBudgetLabel}
