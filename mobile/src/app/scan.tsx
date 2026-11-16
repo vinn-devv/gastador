@@ -123,8 +123,8 @@ export default function ScanScreen() {
               <SymbolView name={{ ios: "arrow.counterclockwise", android: "refresh", web: "refresh" }} tintColor={theme.text} size={18} />
               <ThemedText style={styles.actionText}>Retake</ThemedText>
             </Pressable>
-            <Pressable onPress={continueManualEntry} accessibilityRole="button" style={[styles.action, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
-              <ThemedText style={[styles.actionText, { color: "#FFFFFF" }]}>Enter expense details</ThemedText>
+            <Pressable onPress={continueWithExtractedDetails} accessibilityRole="button" disabled={busy} style={[styles.action, { backgroundColor: theme.primary, borderColor: theme.primary, opacity: busy ? 0.55 : 1 }]}>
+              <ThemedText style={[styles.actionText, { color: "#FFFFFF" }]}>{busy ? "Reading receipt…" : "Review expense details"}</ThemedText>
             </Pressable>
           </View>
           <View style={[styles.extractionPanel, { backgroundColor: theme.surface, borderColor: theme.line }]}>
