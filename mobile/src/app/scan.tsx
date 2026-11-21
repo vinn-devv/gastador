@@ -54,7 +54,12 @@ export default function ScanScreen() {
       });
     } catch (ocrError) {
       console.error("Receipt OCR failed:", ocrError);
-      setError("Gastador couldn't read this photo. Try retaking it or use manual entry.");
+      const message = ocrError instanceof Error ? ocrError.message : String(ocrError);
+      if (message.includes("Native module 'ExpoOcrKit' is not available")) {
+        setError("Receipt scanning needs the installed Gastador Android build. Expo Go does not include the OCR module. Rebuild and launch Gastador with `npx expo run:android`, then try again.");
+      } else {
+        setError("Gastador couldn't read this photo. Try retaking it or use manual entry.");
+      }
     } finally {
       setBusy(false);
     }
