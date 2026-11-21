@@ -157,6 +157,8 @@ export type NewTransactionInput = {
   categoryId: string;
   paymentMethod: Transaction["paymentMethod"];
   description?: string | null;
+  source?: Transaction["source"];
+  ocrStatus?: Transaction["ocrStatus"];
 };
 
 let expenseWriteQueue: Promise<void> = Promise.resolve();
@@ -250,7 +252,7 @@ export async function createTransaction(
         id, amountCentavos, occurredAt, date, merchant, categoryId,
         paymentMethod, description, source, ocrStatus, externalReference,
         isSplurge, receiptHashesJson, createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'not_applicable', NULL, 0, '[]', ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, '[]', ?, ?)`,
       id,
       input.amountCentavos,
       occurredAt,
@@ -259,6 +261,8 @@ export async function createTransaction(
       input.categoryId,
       input.paymentMethod,
       input.description?.trim() || null,
+      input.source ?? "manual",
+      input.ocrStatus ?? (input.source === "receipt" ? "succeeded" : "not_applicable"),
       now,
       now,
     );
