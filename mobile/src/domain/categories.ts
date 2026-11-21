@@ -27,11 +27,11 @@ export function missingStandardCategories(categories: Category[]): CategoryDef[]
 export const normalizeName = (s: string): string => s.trim().replace(/\s+/g, ' ').toLowerCase();
 
 export const CATEGORY_HINTS: { key: CategoryDef['key']; match: RegExp }[] = [
-  { key: 'food', match: /milk ?tea|jollibee|mcdo|mcdonald|kfc|chowking|coffee|cafe|bakery|restaurant|carinderia|7-?eleven|grill|pizza|burger|starbucks|mang inasal|bubble|food|ministop|famous ?rec|dunkin|greenwich|shakey/i },
+  { key: 'food', match: /milk ?tea|jollibee|mcdo|mcdonald|kfc|chowking|coffee|cafe|bakery|restaurant|carinderia|7-?eleven|grill|pizza|burger|starbucks|mang inasal|bubble|food|ministop|famous ?rec|dunkin|greenwich|shakey|supermarket|grocery|groceries|puregold|savemore|alfamart|sm market/i },
   { key: 'transport', match: /grab|angkas|jeep|mrt|lrt|beep|toll|taxi|petron|shell|caltex|joyride|move it|fuel|bus|tricycle/i },
   { key: 'school', match: /school|bookstore|print|xerox|national book|tuition|supplies|photocopy|university|college/i },
   { key: 'bills', match: /meralco|globe|smart|pldt|converge|water district|electric|wifi|load|dito|tnt|sun cellular/i },
-  { key: 'personal', match: /mercury|watsons|pharmacy|clinic|hospital|drug|salon|barber|uniqlo|puregold|robinsons|shopee|lazada/i }
+  { key: 'personal', match: /mercury|watsons|pharmacy|clinic|hospital|drug|salon|barber|uniqlo|shopee|lazada/i }
 ];
 
 export function suggestCategoryKey(text: string): CategoryDef['key'] | undefined {
