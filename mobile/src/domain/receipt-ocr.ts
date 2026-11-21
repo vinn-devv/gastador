@@ -41,14 +41,8 @@ function parseAmount(lines: string[]): string | null {
     }
   }
 
-  // Never treat phone numbers, store IDs, dates, or arbitrary integers as prices.
-  const candidates = lines
-    .filter((line) => !IGNORE_LINE.test(line) && !/\b(?:tel|phone|index|id|no\.?|#)\b/i.test(line))
-    .flatMap(moneyTokens)
-    .map((value) => ({ value, cents: parseMoney(value) ?? 0 }))
-    .sort((a, b) => b.cents - a.cents);
-
-  return candidates[0]?.value ?? null;
+  // If no explicit receipt total is visible, do not guess from item prices or IDs.
+  return null;
 }
 
 function parseReceiptDate(text: string): string | null {
@@ -94,7 +88,10 @@ function parseMerchant(lines: string[]): string | null {
 
 function parseDescription(lines: string[]): string | null {
   const items = lines
-    .filter((line) => MONEY_TOKEN.test(line) && !IGNORE_LINE.test(line))
+    .filter((line) => {
+      MONEY_TOKEN.lastIndex = 0;
+      return MONEY_TOKEN.test(line) && !IGNORE_LINE.test(line);
+    })
     .map((line) => {
       MONEY_TOKEN.lastIndex = 0;
       return line.replace(MONEY_TOKEN, "").replace(/\s+/g, " ").trim();
