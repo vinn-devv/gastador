@@ -3,8 +3,52 @@ import { parseMoney, toDecimalString } from "./money";
 export interface ReceiptExtraction {
   amount: string | null;
   merchant: string | null;
+  description: string | null;
   date: string | null;
   rawText: string;
+}
+
+const IGNORE_LINE = /\b(sub\s?total|tax|vat|change|cash|tender|discount|savings|qty|quantity|price|receipt|invoice|cashier|manager|terminal|thank you|tel\.?|phone|city index|zip|barcode|mediamodifier|modif\.ai)\b/i;
+const MONEY_TOKEN = /(?:[$₱€£]\s*)?\d{1,3}(?:,\d{3})*\.\d{2}\b/g;
+
+function moneyTokens(line: string): string[] {
+  return (line.match(MONEY_TOKEN) ?? [])
+    .map((token) => token.replace(/[^0-9.,]/g, "").replace(/,/g, ""))
+    .filter((token) => {
+      const cents = parseMoney(token);
+      return cents !== null && cents > 0;
+    });
+}
+
+function parseAmount(lines: string[]): string | null {
+  const priorityLabels = [
+    /\b(grand\s*total|total\s*due|amount\s*due|balance\s*due|net\s*amount)\b/i,
+    /\b(sub\s?total|subtotal)\b/i,
+    /\btotal\b/i,
+  ];
+
+  for (const label of priorityLabels) {
+    const matching = lines.filter((line) =>
+      label.test(line) && !/\b(change|cash|tender|tax|vat|discount)\b/i.test(line),
+    );
+    for (const line of matching.reverse()) {
+      const tokens = moneyTokens(line);
+      const token = tokens[tokens.length - 1];
+      if (token) {
+        const cents = parseMoney(token);
+        if (cents !== null && cents > 0) return toDecimalString(cents);
+      }
+    }
+  }
+
+  // Never treat phone numbers, store IDs, dates, or arbitrary integers as prices.
+  const candidates = lines
+    .filter((line) => !IGNORE_LINE.test(line) && !/\b(?:tel|phone|index|id|no\.?|#)\b/i.test(line))
+    .flatMap(moneyTokens)
+    .map((value) => ({ value, cents: parseMoney(value) ?? 0 }))
+    .sort((a, b) => b.cents - a.cents);
+
+  return candidates[0]?.value ?? null;
 }
 
 function parseReceiptDate(text: string): string | null {
@@ -35,44 +79,41 @@ function isValidIsoDate(value: string): boolean {
   return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
-function normalizeAmount(value: string): string | null {
-  const cleaned = value.replace(/[^0-9.,]/g, "").replace(/,(?=\d{2}$)/, ".");
-  const candidates = cleaned.match(/\d[\d,]*(?:\.\d{1,2})?/g) ?? [];
-  for (const candidate of candidates.reverse()) {
-    const normalized = candidate.includes(".") ? candidate.replace(/,/g, "") : candidate.replace(/,/g, "");
-    const cents = parseMoney(normalized);
-    if (cents !== null && cents > 0) return toDecimalString(cents);
-  }
-  return null;
+function parseMerchant(lines: string[]): string | null {
+  const ignored = /\b(supermarket|receipt|invoice|official receipt|vat reg|tin|cashier|manager|terminal|date|time|store no|tel\.?|phone|city index|thank you|mediamodifier|modif\.ai)\b/i;
+  const candidate = lines.slice(0, 8).find((line) =>
+    line.length >= 3 &&
+    line.length <= 48 &&
+    !/\d/.test(line) &&
+    !ignored.test(line) &&
+    /[a-z]{3}/i.test(line),
+  );
+  // Generic receipt headings and watermark text are not merchant names.
+  return candidate && !/^supermarket$/i.test(candidate) ? candidate : null;
+}
+
+function parseDescription(lines: string[]): string | null {
+  const items = lines
+    .filter((line) => MONEY_TOKEN.test(line) && !IGNORE_LINE.test(line))
+    .map((line) => {
+      MONEY_TOKEN.lastIndex = 0;
+      return line.replace(MONEY_TOKEN, "").replace(/\s+/g, " ").trim();
+    })
+    .filter((line) => line.length >= 3 && !/^\d+$/.test(line) && !/mediamodifier|modif\.ai/i.test(line));
+  return items.length ? [...new Set(items)].slice(0, 5).join(", ") : null;
 }
 
 export function parseReceiptText(rawText: string): ReceiptExtraction {
-  const lines = rawText.split(/\r?\n/).map((line) => line.replace(/\s+/g, " ").trim()).filter(Boolean);
-  const totalLabels = /\b(grand\s+total|total\s+due|amount\s+due|balance\s+due|net\s+amount|total)\b/i;
-  const excludedLabels = /\b(subtotal|tax|vat|change|cash|tender|discount|savings|item|qty|quantity|price|receipt|invoice|cashier|terminal|thank you)\b/i;
-  let amount: string | null = null;
-  const totalLines = lines.filter((line) => totalLabels.test(line) && !/\b(subtotal|tax|vat|change|cash|tender|discount)\b/i.test(line));
-  for (const line of [...totalLines].reverse()) {
-    const parsed = normalizeAmount(line);
-    if (parsed) { amount = parsed; break; }
-  }
-  if (!amount) {
-    const candidates = lines
-      .filter((line) => !excludedLabels.test(line))
-      .map((line) => normalizeAmount(line))
-      .filter((value): value is string => value !== null)
-      .map((value) => ({ value, cents: parseMoney(value) ?? 0 }))
-      .sort((a, b) => b.cents - a.cents);
-    amount = candidates[0]?.value ?? null;
-  }
+  const lines = rawText
+    .split(/\r?\n/)
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
 
-  const merchant = lines.find((line, index) =>
-    index < 5 &&
-    line.length >= 2 &&
-    line.length <= 48 &&
-    !/\d{3,}/.test(line) &&
-    !/\b(receipt|invoice|official receipt|vat reg|tin|cashier|terminal|date|time|store no)\b/i.test(line)
-  ) ?? null;
-
-  return { amount, merchant, date: parseReceiptDate(rawText), rawText };
+  return {
+    amount: parseAmount(lines),
+    merchant: parseMerchant(lines),
+    description: parseDescription(lines),
+    date: parseReceiptDate(rawText),
+    rawText,
+  };
 }
