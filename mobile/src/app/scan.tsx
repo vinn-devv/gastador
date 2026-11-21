@@ -20,6 +20,7 @@ import { useTheme } from "@/hooks/use-theme";
 
 
 export default function ScanScreen() {
+  const db = useSQLiteContext();
   const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
