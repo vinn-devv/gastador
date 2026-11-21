@@ -6,7 +6,6 @@ import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SHEET_GAP } from "@/constants/layout";
 import { ScreenLayout } from "@/components/screen-layout";
-import { DateField } from "@/components/date-field";
 import { SymbolView } from "expo-symbols";
 
 import { ThemedText } from "@/components/themed-text";
@@ -42,7 +41,6 @@ export default function NewExpenseScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [dateError, setDateError] = useState("");
   useFocusEffect(
     useCallback(() => {
       let active = true;
@@ -112,8 +110,7 @@ export default function NewExpenseScreen() {
       return;
     }
     if (!categoryId) { setError("Choose a category."); return; }
-    if (!isValidDate(date) || date > manilaToday()) { setDateError("Expense date cannot be in the future."); setError("Review the expense date."); return; }
-    setDateError("");
+    if (!isValidDate(date) || date > manilaToday()) { setError("Invalid expense date."); return; }
 
     setSaving(true);
     setError("");
@@ -192,9 +189,6 @@ export default function NewExpenseScreen() {
             </View>
           </View>
 
-          <View style={styles.field}>
-            <DateField label="Date" dateFormat={displayPreferences.dateFormat} value={date} onChange={(value) => { setDate(value); setDateError(""); setFundsError(""); }} maximumDate={manilaToday()} error={dateError} />
-          </View>
           <View style={styles.field}>
             <ThemedText style={[styles.label, { color: theme.text }]}>Note (optional)</ThemedText>
             <TextInput value={description} onChangeText={setDescription} placeholder="Add a short note" placeholderTextColor={theme.muted} accessibilityLabel="Optional expense note" style={[...fieldStyle, styles.noteInput]} multiline />
