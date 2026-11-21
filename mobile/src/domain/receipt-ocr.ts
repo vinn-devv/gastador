@@ -8,7 +8,8 @@ export interface ReceiptExtraction {
   rawText: string;
 }
 
-const IGNORE_LINE = /\b(sub\s?total|tax|vat|change|cash|tender|discount|savings|qty|quantity|price|receipt|invoice|cashier|manager|terminal|thank you|tel\.?|phone|city index|zip|barcode|mediamodifier|modif\.ai)\b/i;
+const IGNORE_LINE = /\b(tax|vat|change|cash|tender|discount|savings|qty|quantity|price|receipt|invoice|cashier|manager|terminal|thank you|tel\.?|phone|city index|zip|barcode|mediamodifier|modif\.ai)\b/i;
+const DESCRIPTION_IGNORE_LINE = /\b(sub\s?total|subtotal|grand\s*total|total\s*due|amount\s*due|balance\s*due|net\s*amount|tax|vat|change|cash|tender|discount|savings|qty|quantity|price|receipt|invoice|cashier|manager|terminal|thank you|tel\.?|phone|city index|zip|barcode|mediamodifier|modif\.ai)\b/i;
 const MONEY_TOKEN = /(?:[$₱€£]\s*)?\d{1,3}(?:,\d{3})*\.\d{2}\b/g;
 
 function moneyTokens(line: string): string[] {
@@ -94,7 +95,7 @@ function parseDescription(lines: string[]): string | null {
   const items = lines
     .filter((line) => {
       MONEY_TOKEN.lastIndex = 0;
-      return MONEY_TOKEN.test(line) && !IGNORE_LINE.test(line);
+      return MONEY_TOKEN.test(line) && !DESCRIPTION_IGNORE_LINE.test(line);
     })
     .map((line) => {
       MONEY_TOKEN.lastIndex = 0;
