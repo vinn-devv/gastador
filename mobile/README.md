@@ -9,6 +9,7 @@ Gastador is an Android-first, local-first allowance and expense tracker designed
 - Balance tracking with protection against expenses that exceed the remaining allowance
 - Activity history and spending insights
 - QR scanning and QR image selection
+- Receipt scanning with on-device OCR
 - Custom expense categories and payment methods
 - Display preferences for currency, number format, dates, and text size
 - Local SQLite storage
@@ -17,7 +18,9 @@ Gastador is an Android-first, local-first allowance and expense tracker designed
 
 - Node.js and npm
 - Android device or emulator
-- Expo Go for compatible development previews, or an installed development build
+- Expo development build for native features such as receipt OCR
+
+**Important:** Expo Go does not include the native `ExpoOcrKit` module. Receipt scanning will fail in Expo Go. Use the custom Android build steps below instead.
 
 ## Run locally
 
@@ -26,7 +29,15 @@ From the repository root:
 ```bash
 cd mobile
 npm install
-npx expo start
+npx expo run:android
+```
+
+`npx expo run:android` generates/updates the native Android project from `app.json`, compiles the app with native modules (including `expo-ocr-kit`), installs it on the connected emulator/device, and starts Metro. Keep using the installed Gastador app rather than opening the project in Expo Go.
+
+For subsequent JavaScript-only development sessions, start Metro for the installed native app with:
+
+```bash
+npx expo start --dev-client
 ```
 
 To clear Metro's cache when troubleshooting a stale development bundle:
@@ -45,11 +56,19 @@ npm run lint
 
 ## Build an installable Android APK
 
-The EAS preview and production profiles are configured to produce APK files.
+The EAS `development`, `preview`, and `production` profiles produce installable APKs. The development and preview profiles are for internal testing; they include the native modules configured in `app.json`.
+
+Build an internal development APK:
 
 ```bash
 cd mobile
 npx eas-cli login
+npx eas-cli build --platform android --profile development
+```
+
+Use the preview profile for a shareable internal test APK:
+
+```bash
 npx eas-cli build --platform android --profile preview
 ```
 
@@ -59,7 +78,7 @@ Use the production profile when preparing a production release:
 npx eas-cli build --platform android --profile production
 ```
 
-Download the finished APK from the [Expo EAS dashboard](https://expo.dev/). The installed APK runs independently of Expo Go and the Metro development server.
+Install the resulting APK from the [Expo EAS dashboard](https://expo.dev/). It runs independently of Expo Go and the Metro development server.
 
 ## Project structure
 
@@ -85,4 +104,5 @@ Gastador stores app data locally on each device using SQLite. Separate installat
 
 - The app's Android application ID is `com.gastador.mobile`.
 - The Expo app configuration is in `app.json`.
+- The `expo-ocr-kit` config plugin is registered in `app.json`; native changes require a rebuilt Android app.
 - Android build profiles are in `eas.json`.
