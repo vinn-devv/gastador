@@ -42,10 +42,16 @@ export default function ScanScreen() {
     setError("");
     try {
       const result = await recognizeText(uri);
+      console.log("[Gastador OCR] Raw recognized text:", result.text);
       const parsed = parseReceiptText(result.text);
       const amountCentavos = parsed.amount ? parseMoney(parsed.amount) : null;
       if (!result.text.trim() || amountCentavos === null || amountCentavos <= 0) {
-        setError("Gastador couldn't identify a reliable receipt total. Retake the photo with the total clearly visible, or enter the expense manually. No expense was saved.");
+        const diagnosticText = result.text.trim().slice(0, 1400);
+        setError(
+          "Gastador couldn't identify a reliable receipt total. No expense was saved.\n\nOCR text detected:\n" +
+          (diagnosticText || "(No text detected)") +
+          (result.text.length > 1400 ? "\n…(text shortened)" : ""),
+        );
         return;
       }
 
