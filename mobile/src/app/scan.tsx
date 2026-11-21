@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useIsFocused, useRouter } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenLayout } from "@/components/screen-layout";
 import { SHEET_GAP } from "@/constants/layout";
@@ -7,7 +8,11 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { recognizeText } from "expo-ocr-kit";
 import { parseReceiptText } from "@/domain/receipt-ocr";
-import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { createTransaction, getCategories, getSettings } from "@/data/repository";
+import { findStandardMatch, suggestCategoryKey } from "@/domain/categories";
+import { parseMoney } from "@/domain/money";
+import { manilaToday } from "@/domain/dates";
+import { Alert, Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SymbolView } from "expo-symbols";
 
 import { ThemedText } from "@/components/themed-text";
@@ -37,21 +42,42 @@ export default function ScanScreen() {
     try {
       const result = await recognizeText(uri);
       const parsed = parseReceiptText(result.text);
-      if (!result.text.trim() || !parsed.amount) {
-        setError("We could not read the receipt clearly. Make sure the whole receipt is in focus, well-lit, and not blurry, then take a clearer photo. You can also enter the expense manually.");
+      const amountCentavos = parsed.amount ? parseMoney(parsed.amount) : null;
+      if (!result.text.trim() || amountCentavos === null || amountCentavos <= 0) {
+        setError("Gastador couldn't identify a reliable receipt total. Retake the photo with the total clearly visible, or enter the expense manually. No expense was saved.");
         return;
       }
 
-      // The total is essential. Open the form immediately and prefill all
-      // receipt details that OCR could confidently identify.
-      router.push({
-        pathname: "/new-expense",
-        params: {
-          amount: parsed.amount,
-          merchant: parsed.merchant ?? "",
-          date: parsed.date ?? "",
-        },
+      const [categories, settings] = await Promise.all([getCategories(db), getSettings(db)]);
+      const categoryKey = suggestCategoryKey(
+        [parsed.merchant ?? "", parsed.description ?? "", parsed.rawText].join(" "),
+      ) ?? "others";
+      const category =
+        findStandardMatch(categories, categoryKey) ??
+        findStandardMatch(categories, "others") ??
+        categories.find((item) => !item.archivedAt);
+
+      if (!category) {
+        setError("Gastador couldn't find an active expense category. Please add or restore a category in Settings.");
+        return;
+      }
+
+      await createTransaction(db, {
+        amountCentavos,
+        date: parsed.date ?? manilaToday(),
+        merchant: parsed.merchant ?? "Supermarket",
+        categoryId: category.id,
+        paymentMethod: settings.preferences.defaultPaymentMethod,
+        description: parsed.description,
+        source: "receipt",
+        ocrStatus: "succeeded",
       });
+
+      Alert.alert(
+        "Expense saved",
+        `${parsed.merchant ?? "Receipt purchase"} was saved under ${category.name}.`,
+        [{ text: "Done", onPress: () => router.back() }],
+      );
     } catch (ocrError) {
       console.error("Receipt OCR failed:", ocrError);
       const message = ocrError instanceof Error ? ocrError.message : String(ocrError);
