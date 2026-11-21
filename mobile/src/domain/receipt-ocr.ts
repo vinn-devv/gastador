@@ -32,7 +32,11 @@ function parseAmount(lines: string[]): string | null {
       label.test(line) && !/\b(change|cash|tender|tax|vat|discount)\b/i.test(line),
     );
     for (const line of matching.reverse()) {
-      const tokens = moneyTokens(line);
+      const lineIndex = lines.indexOf(line);
+      const tokens = [
+        ...moneyTokens(line),
+        ...(lineIndex >= 0 && lines[lineIndex + 1] ? moneyTokens(lines[lineIndex + 1]) : []),
+      ];
       const token = tokens[tokens.length - 1];
       if (token) {
         const cents = parseMoney(token);
